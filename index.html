@@ -20,127 +20,55 @@
         -webkit-user-select: none;
       }
 
-      body {
+      html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
         background-color: #070403;
-        background-image: 
-          radial-gradient(circle at 50% 30%, #2b140a 0%, #070403 70%),
-          repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.4) 3px);
         color: #f7e7c4;
         font-family: 'Press Start 2P', monospace;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        min-height: 100vh;
         overflow: hidden;
-      }
-
-      #arcade-cabinet {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 12px;
-        background: linear-gradient(180deg, #452b14 0%, #23140a 100%);
-        border: 4px solid #8b5a2b;
-        border-radius: 12px;
-        box-shadow: 
-          0 0 35px rgba(0, 0, 0, 0.9),
-          inset 0 0 15px rgba(0, 0, 0, 0.8),
-          0 0 20px rgba(245, 197, 24, 0.2);
-        max-width: 98vw;
-        max-height: 98vh;
       }
 
       #game-container {
-        position: relative;
-        width: 960px;
-        height: 600px;
-        max-width: 94vw;
-        max-height: 84vh;
-        border: 3px solid #140a05;
-        border-radius: 6px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
         overflow: hidden;
-        background-color: #000;
-        box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.9);
+        background-color: #070403;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
 
       canvas {
         display: block;
-        width: 100% !important;
-        height: 100% !important;
         image-rendering: -moz-crisp-edges;
         image-rendering: -webkit-crisp-edges;
         image-rendering: pixelated;
         image-rendering: crisp-edges;
       }
-
-      #cabinet-footer {
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-top: 8px;
-        font-size: 10px;
-        color: #c49a55;
-        text-shadow: 1px 1px 0 #000;
-      }
-
-      .footer-tag {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-      }
-
-      .footer-btn {
-        background: #2b1d0c;
-        color: #f5c518;
-        border: 2px solid #8b5a2b;
-        padding: 5px 12px;
-        font-family: 'Press Start 2P', monospace;
-        font-size: 9px;
-        cursor: pointer;
-        border-radius: 4px;
-        transition: all 0.15s ease;
-      }
-
-      .footer-btn:hover {
-        background: #452b14;
-        color: #ffe066;
-        box-shadow: 0 0 8px rgba(245, 197, 24, 0.6);
-      }
     </style>
   </head>
   <body>
-    <div id="arcade-cabinet">
-      <div id="game-container"></div>
-      <div id="cabinet-footer">
-        <div class="footer-tag">
-          <span>★ SUNSET SURVIVORS ★</span>
-        </div>
-        <div style="font-size: 8px; color: #a38a74;">
-          WASD / SETAS / TOUCH JOYSTICK
-        </div>
-        <div>
-          <button id="fullscreen-btn" class="footer-btn">⛶ TELA CHEIA</button>
-        </div>
-      </div>
-    </div>
-
+    <div id="game-container"></div>
     <script type="module" src="/src/main.ts"></script>
     <script>
-      const fsBtn = document.getElementById('fullscreen-btn');
-      if (fsBtn) {
-        fsBtn.addEventListener('click', () => {
+      // Allow pressing 'F' to toggle fullscreen
+      window.addEventListener('keydown', (e) => {
+        if ((e.key === 'f' || e.key === 'F') && !e.ctrlKey && !e.metaKey && !e.altKey) {
           if (!document.fullscreenElement) {
             document.documentElement.requestFullscreen().catch(() => {});
-            fsBtn.textContent = '🗗 SAIR';
           } else {
             document.exitFullscreen().catch(() => {});
-            fsBtn.textContent = '⛶ TELA CHEIA';
           }
-        });
-      }
+        }
+      });
     </script>
   </body>
 </html>
