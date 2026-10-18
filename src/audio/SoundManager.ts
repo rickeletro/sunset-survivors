@@ -1,0 +1,443 @@
+/**
+ * Web Audio API Synthesizer for Sunset Survivors
+ * Zero external audio file dependencies - 100% synthesized authentic 16-bit arcade Western sound effects!
+ */
+
+class SoundManager {
+  private ctx: AudioContext | null = null;
+  private isMuted: boolean = false;
+  private bgmOscillators: OscillatorNode[] = [];
+  private bgmGain: GainNode | null = null;
+  private isBgmPlaying: boolean = false;
+
+  private initContext() {
+    if (!this.ctx) {
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      this.ctx = new AudioCtx();
+    }
+    if (this.ctx.state === 'suspended') {
+      this.ctx.resume();
+    }
+  }
+
+  public toggleMute(): boolean {
+    this.isMuted = !this.isMuted;
+    if (this.currentBgm) {
+      this.currentBgm.muted = this.isMuted;
+      this.currentBgm.volume = this.isMuted ? 0 : this.bgmVolume;
+    }
+    return this.isMuted;
+  }
+
+  // 1. Revolver Quickdraw Shot
+  public playRevolver() {
+    if (this.isMuted) return;
+    this.initContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    // Noise buffer for the gun powder explosion
+    const bufferSize = this.ctx.sampleRate * 0.12;
+    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (this.ctx.sampleRate * 0.02));
+    }
+    const noise = this.ctx.createBufferSource();
+    noise.buffer = buffer;
+
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(1400, t);
+    filter.frequency.exponentialRampToValueAtTime(300, t + 0.12);
+
+    const noiseGain = this.ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.7, t);
+    noiseGain.gain.exponentialRampToValueAtTime(0.01, t + 0.12);
+
+    noise.connect(filter);
+    filter.connect(noiseGain);
+    noiseGain.connect(this.ctx.destination);
+
+    // Initial sharp transient
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(600, t);
+    osc.frequency.exponentialRampToValueAtTime(60, t + 0.08);
+
+    gain.gain.setValueAtTime(0.5, t);
+    gain.gain.exponentialRampToValueAtTime(0.01, t + 0.08);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start(t);
+    noise.start(t);
+    osc.stop(t + 0.08);
+    noise.stop(t + 0.12);
+  }
+
+  // 2. Shotgun Blast (Heavy rumble & pellet spread)
+  public playShotgun() {
+    if (this.isMuted) return;
+    this.initContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    // Heavy low punch
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(220, t);
+    osc.frequency.exponentialRampToValueAtTime(30, t + 0.25);
+
+    gain.gain.setValueAtTime(0.9, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    // White noise explosion blast
+    const bufferSize = this.ctx.sampleRate * 0.35;
+    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (this.ctx.sampleRate * 0.07));
+    }
+    const noise = this.ctx.createBufferSource();
+    noise.buffer = buffer;
+
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(2200, t);
+    filter.frequency.exponentialRampToValueAtTime(150, t + 0.35);
+
+    const noiseGain = this.ctx.createGain();
+    noiseGain.gain.setValueAtTime(1.0, t);
+    noiseGain.gain.exponentialRampToValueAtTime(0.01, t + 0.35);
+
+    noise.connect(filter);
+    filter.connect(noiseGain);
+    noiseGain.connect(this.ctx.destination);
+
+    osc.start(t);
+    noise.start(t);
+    osc.stop(t + 0.28);
+    noise.stop(t + 0.35);
+  }
+
+  // 3. Winchester Rifle (Piercing high crack)
+  public playRifle() {
+    if (this.isMuted) return;
+    this.initContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(880, t);
+    osc.frequency.exponentialRampToValueAtTime(110, t + 0.15);
+
+    gain.gain.setValueAtTime(0.6, t);
+    gain.gain.exponentialRampToValueAtTime(0.01, t + 0.15);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.15);
+
+    // Ricochet ping
+    this.playRicochet(0.06);
+  }
+
+  // 4. Bullet Ricochet Ping ("PEEE-OOOWW")
+  public playRicochet(delay: number = 0) {
+    if (this.isMuted) return;
+    this.initContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime + delay;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(2800, t);
+    osc.frequency.exponentialRampToValueAtTime(450, t + 0.2);
+
+    gain.gain.setValueAtTime(0.35, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.22);
+  }
+
+  // 5. Dynamite / TNT Explosion
+  public playExplosion() {
+    if (this.isMuted) return;
+    this.initContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    const bufferSize = this.ctx.sampleRate * 0.6;
+    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (this.ctx.sampleRate * 0.12));
+    }
+    const noise = this.ctx.createBufferSource();
+    noise.buffer = buffer;
+
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(900, t);
+    filter.frequency.exponentialRampToValueAtTime(80, t + 0.6);
+
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(1.0, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
+
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.ctx.destination);
+    noise.start(t);
+    noise.stop(t + 0.6);
+  }
+
+  // 6. Gold / Coin Pickup Chime
+  public playCoin() {
+    if (this.isMuted) return;
+    this.initContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(987.77, t); // B5
+    osc.frequency.setValueAtTime(1318.51, t + 0.07); // E6
+
+    gain.gain.setValueAtTime(0.3, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.22);
+  }
+
+  // 7. Level Up Fanfare (Western Brass Trumpet Arpeggio)
+  public playLevelUp() {
+    if (this.isMuted) return;
+    this.initContext();
+    if (!this.ctx) return;
+
+    const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50]; // C Major arpeggio
+    notes.forEach((freq, idx) => {
+      if (!this.ctx) return;
+      const t = this.ctx.currentTime + idx * 0.08;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, t);
+
+      gain.gain.setValueAtTime(0.4, t);
+      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.25);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.25);
+    });
+  }
+
+  // 8. Enemy Hit / Bandit Grunt
+  public playHit() {
+    if (this.isMuted) return;
+    this.initContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(180, t);
+    osc.frequency.exponentialRampToValueAtTime(50, t + 0.09);
+
+    gain.gain.setValueAtTime(0.4, t);
+    gain.gain.exponentialRampToValueAtTime(0.01, t + 0.09);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.09);
+  }
+
+  // 9. Boss Warning Horn / Stamp
+  public playBossWarning() {
+    if (this.isMuted) return;
+    this.initContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(110, t);
+    osc.frequency.setValueAtTime(82, t + 0.3);
+    osc.frequency.setValueAtTime(110, t + 0.6);
+
+    gain.gain.setValueAtTime(0.8, t);
+    gain.gain.exponentialRampToValueAtTime(0.01, t + 1.2);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(t);
+    osc.stop(t + 1.2);
+  }
+
+  // 11. Western Revolver / Gun Reload (Cylinder latch, spinning ratchet, and solid snap lock)
+  public playReload() {
+    if (this.isMuted) return;
+    this.initContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+
+    // Phase 1: Latch pop (open cylinder)
+    const popOsc = this.ctx.createOscillator();
+    const popGain = this.ctx.createGain();
+    popOsc.type = 'triangle';
+    popOsc.frequency.setValueAtTime(1400, t);
+    popOsc.frequency.exponentialRampToValueAtTime(320, t + 0.04);
+    popGain.gain.setValueAtTime(0.5, t);
+    popGain.gain.exponentialRampToValueAtTime(0.01, t + 0.04);
+    popOsc.connect(popGain);
+    popGain.connect(this.ctx.destination);
+    popOsc.start(t);
+    popOsc.stop(t + 0.04);
+
+    // Phase 2: Rapid spinning cylinder clicks (ratchet clicks)
+    const clickTimes = [0.06, 0.11, 0.16, 0.20, 0.24];
+    clickTimes.forEach((dt, i) => {
+      if (!this.ctx) return;
+      const ct = t + dt;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(1800 + i * 120, ct);
+      osc.frequency.exponentialRampToValueAtTime(500, ct + 0.02);
+      gain.gain.setValueAtTime(0.35, ct);
+      gain.gain.exponentialRampToValueAtTime(0.001, ct + 0.025);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(ct);
+      osc.stop(ct + 0.025);
+    });
+
+    // Phase 3: Heavy cylinder snap shut & hammer lock (CLACK!)
+    const snapTime = t + 0.30;
+    const snapOsc = this.ctx.createOscillator();
+    const snapGain = this.ctx.createGain();
+    snapOsc.type = 'sawtooth';
+    snapOsc.frequency.setValueAtTime(480, snapTime);
+    snapOsc.frequency.exponentialRampToValueAtTime(80, snapTime + 0.09);
+    snapGain.gain.setValueAtTime(0.8, snapTime);
+    snapGain.gain.exponentialRampToValueAtTime(0.001, snapTime + 0.10);
+    snapOsc.connect(snapGain);
+    snapGain.connect(this.ctx.destination);
+    snapOsc.start(snapTime);
+    snapOsc.stop(snapTime + 0.10);
+
+    // Mechanical metallic ring after snap
+    const ringOsc = this.ctx.createOscillator();
+    const ringGain = this.ctx.createGain();
+    ringOsc.type = 'sine';
+    ringOsc.frequency.setValueAtTime(2600, snapTime);
+    ringOsc.frequency.exponentialRampToValueAtTime(1100, snapTime + 0.14);
+    ringGain.gain.setValueAtTime(0.28, snapTime);
+    ringGain.gain.exponentialRampToValueAtTime(0.001, snapTime + 0.16);
+    ringOsc.connect(ringGain);
+    ringGain.connect(this.ctx.destination);
+    ringOsc.start(snapTime);
+    ringOsc.stop(snapTime + 0.16);
+  }
+
+  // 12. Western Soundtracks (HTML5 Audio Streaming)
+  private currentBgm: HTMLAudioElement | null = null;
+  private currentTrack: 'intro' | 'gameplay' | null = null;
+  private introAudio: HTMLAudioElement | null = null;
+  private gameplayAudio: HTMLAudioElement | null = null;
+  private bgmVolume: number = 0.55;
+
+  public playIntroMusic() {
+    this.playTrack('intro');
+  }
+
+  public playGameplayMusic() {
+    this.playTrack('gameplay');
+  }
+
+  public startBGM() {
+    this.playGameplayMusic();
+  }
+
+  public stopBGM() {
+    if (this.currentBgm) {
+      this.currentBgm.pause();
+      this.currentBgm.currentTime = 0;
+      this.currentBgm = null;
+      this.currentTrack = null;
+    }
+  }
+
+  private playTrack(track: 'intro' | 'gameplay') {
+    if (this.currentTrack === track && this.currentBgm && !this.currentBgm.paused) {
+      return;
+    }
+
+    if (this.currentBgm) {
+      this.currentBgm.pause();
+      this.currentBgm.currentTime = 0;
+    }
+
+    const src = track === 'intro'
+      ? 'assets/audio/departing_into_the_horizon.mp3'
+      : 'assets/audio/galloing_west.mp3';
+
+    let audio = track === 'intro' ? this.introAudio : this.gameplayAudio;
+    if (!audio) {
+      audio = new Audio(src);
+      audio.loop = true;
+      if (track === 'intro') {
+        this.introAudio = audio;
+      } else {
+        this.gameplayAudio = audio;
+      }
+    }
+
+    audio.volume = this.isMuted ? 0 : this.bgmVolume;
+    audio.muted = this.isMuted;
+    this.currentBgm = audio;
+    this.currentTrack = track;
+
+    const promise = audio.play();
+    if (promise !== undefined) {
+      promise.catch(() => {
+        // Will auto-resume on first user gesture
+      });
+    }
+  }
+}
+
+export const sounds = new SoundManager();
