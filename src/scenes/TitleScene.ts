@@ -144,13 +144,21 @@ export class TitleScene extends Phaser.Scene {
     this.createArcadeHUD();
     this.createAmbientEffects();
 
-    // 4. Input & Sound Controls
+    // 4. Start Intro Music immediately as game opens
+    sounds.playIntroMusic();
+    const unlockAudio = () => {
+      sounds.playIntroMusic();
+    };
+    this.input.once('pointerdown', unlockAudio);
+    this.input.keyboard?.once('keydown', unlockAudio);
+
+    // 5. Input & Sound Controls
     this.setupInputs();
 
-    // 5. Run the 3-Second Opening Sequence
+    // 6. Run the 3-Second Opening Sequence
     this.playCinematicOpening();
 
-    // 6. Handle Window Resizing
+    // 7. Handle Window Resizing
     this.scale.on('resize', this.handleResize, this);
   }
 
@@ -568,7 +576,7 @@ export class TitleScene extends Phaser.Scene {
     this.cameras.main.fade(550, 0, 0, 0);
     this.time.delayedCall(600, () => {
       this.scale.off('resize', this.handleResize, this);
-      this.scene.start('StoryScene');
+      this.scene.start('CharacterSelectScene');
     });
   }
 

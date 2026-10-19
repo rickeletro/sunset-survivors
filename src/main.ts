@@ -7,6 +7,26 @@ import { StoryScene } from './scenes/StoryScene';
 import { TitleScene } from './scenes/TitleScene';
 import { WantedScene } from './scenes/WantedScene';
 
+const allScenes = [
+  TitleScene,
+  StoryScene,
+  CharacterSelectScene,
+  WantedScene,
+  GameScene,
+  LevelUpScene,
+  GameOverScene,
+];
+
+const urlParams = new URLSearchParams(window.location.search);
+const sceneParam = urlParams.get('scene');
+if (sceneParam === 'wanted') {
+  allScenes.splice(allScenes.indexOf(WantedScene), 1);
+  allScenes.unshift(WantedScene);
+} else if (sceneParam === 'select') {
+  allScenes.splice(allScenes.indexOf(CharacterSelectScene), 1);
+  allScenes.unshift(CharacterSelectScene);
+}
+
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   parent: 'game-container',
@@ -26,15 +46,7 @@ const config: Phaser.Types.Core.GameConfig = {
       debug: false,
     },
   },
-  scene: [
-    TitleScene,
-    StoryScene,
-    CharacterSelectScene,
-    WantedScene,
-    GameScene,
-    LevelUpScene,
-    GameOverScene,
-  ],
+  scene: allScenes,
 };
 
 window.addEventListener('DOMContentLoaded', () => {
