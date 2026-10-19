@@ -5,6 +5,7 @@ import { PASSIVES } from '../data/passives';
 import { WEAPONS, WeaponDef } from '../data/weapons';
 import { THEME } from '../ui/theme/tokens';
 import { UpgradeChoice } from './LevelUpScene';
+import { getBossForStage } from '../data/bosses';
 
 interface Projectile {
   sprite: Phaser.GameObjects.Sprite | Phaser.GameObjects.Arc;
@@ -50,6 +51,7 @@ interface FireZone {
 
 export class GameScene extends Phaser.Scene {
   private character!: CharacterData;
+  private stage: number = 1;
 
   // Player Stats
   private player!: Phaser.GameObjects.Sprite;
@@ -110,8 +112,9 @@ export class GameScene extends Phaser.Scene {
     super('GameScene');
   }
 
-  init(data: { character: CharacterData }) {
+  init(data: { character: CharacterData; stage?: number }) {
     this.character = data.character;
+    this.stage = data.stage || 1;
   }
 
   create() {
@@ -168,6 +171,16 @@ export class GameScene extends Phaser.Scene {
       // Press 'L' to trigger Level Up Bounty cards test
       this.input.keyboard.on('keydown-L', () => {
         this.triggerLevelUp();
+      });
+
+      // ESC key to Pause
+      this.input.keyboard.on('keydown-ESC', () => {
+        if (this.isGameOver || this.scene.isPaused('GameScene')) return;
+        this.scene.pause('GameScene');
+        this.scene.launch('PauseScene', {
+          character: this.character,
+          stage: this.stage,
+        });
       });
     }
 
@@ -388,8 +401,9 @@ export class GameScene extends Phaser.Scene {
     sounds.playBossWarning();
 
     // Camera shake & announcement banner
+    const bossData = getBossForStage(this.stage);
     this.cameras.main.shake(600, 0.015);
-    const warning = this.add.text(this.scale.width / 2, this.scale.height / 2 - 80, '⚠ SIMON GREEDWELL APPROACHES! ⚠', {
+    const warning = this.add.text(this.scale.width / 2, this.scale.height / 2 - 80, `⚠ ${bossData.name.toUpperCase()} APPROACHES! ⚠`, {
       fontFamily: THEME.typography.pixelFont,
       fontSize: '20px',
       color: '#ef4444',
@@ -1183,17 +1197,39 @@ export class GameScene extends Phaser.Scene {
   }
 
   private victory() {
-    this.gameOver(true);
+    this.stageClear();
+  }
+
+  private stageClear() {
+    this.isGameOver = true;
+    sounds.stopBGM();
+    sounds.playLevelUp();
+    this.cameras.main.flash(250, 255, 235, 170);
+    this.cameras.main.fade(750, 0, 0, 0);
+    this.time.delayedCall(800, () => {
+      this.scene.start('StageClearScene', {
+        character: this.character,
+        stage: this.stage,
+        timeSurvivedSeconds: this.gameTimeSeconds,
+        kills: this.kills,
+        bounty: this.bounty,
+        level: this.level,
+      });
+    });
   }
 
   private gameOver(victory: boolean) {
+    if (victory) {
+      this.stageClear();
+      return;
+    }
     this.isGameOver = true;
     sounds.stopBGM();
     this.cameras.main.fade(800, 0, 0, 0);
     this.time.delayedCall(850, () => {
       this.scene.start('GameOverScene', {
-        victory,
         character: this.character,
+        stage: this.stage,
         timeSurvivedSeconds: this.gameTimeSeconds,
         kills: this.kills,
         bounty: this.bounty,

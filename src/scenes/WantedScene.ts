@@ -240,8 +240,8 @@ export class WantedScene extends Phaser.Scene {
       duration: 500,
       ease: 'Power3.easeOut',
       onComplete: () => {
-        // 1. Heavy Impact Sound & Camera Shake
-        sounds.playShotgun();
+        // 1. Pistol Shot Sound on Slam & Camera Shake
+        sounds.playPistolShot();
         this.cameras.main.shake(140, 0.012);
 
         // 2. Flying wood dust & spark particles
@@ -377,11 +377,8 @@ export class WantedScene extends Phaser.Scene {
     if (this.isAdvancing) return;
     this.isAdvancing = true;
 
-    // Gunshot & Reload SFX
-    sounds.playRevolver();
-    this.time.delayedCall(160, () => {
-      sounds.playReload();
-    });
+    // Gun Reload SFX
+    sounds.playGunReload();
 
     // Start fast western galloping gameplay music
     sounds.playGameplayMusic();

@@ -378,7 +378,41 @@ class SoundManager {
   private currentTrack: 'intro' | 'gameplay' | null = null;
   private introAudio: HTMLAudioElement | null = null;
   private gameplayAudio: HTMLAudioElement | null = null;
+  private pistolAudio: HTMLAudioElement | null = null;
+  private reloadAudio: HTMLAudioElement | null = null;
   private bgmVolume: number = 0.55;
+
+  public playPistolShot() {
+    if (this.isMuted) return;
+    try {
+      if (!this.pistolAudio) {
+        this.pistolAudio = new Audio('assets/audio/pistol-shot.mp3');
+      }
+      this.pistolAudio.currentTime = 0;
+      this.pistolAudio.volume = 0.85;
+      this.pistolAudio.play().catch(() => {
+        this.playRevolver();
+      });
+    } catch {
+      this.playRevolver();
+    }
+  }
+
+  public playGunReload() {
+    if (this.isMuted) return;
+    try {
+      if (!this.reloadAudio) {
+        this.reloadAudio = new Audio('assets/audio/gun-reload.mp3');
+      }
+      this.reloadAudio.currentTime = 0;
+      this.reloadAudio.volume = 0.85;
+      this.reloadAudio.play().catch(() => {
+        this.playReload();
+      });
+    } catch {
+      this.playReload();
+    }
+  }
 
   public playIntroMusic() {
     this.playTrack('intro');

@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { sounds } from '../audio/SoundManager';
 import { THEME } from '../ui/theme/tokens';
 import { SpriteGenerator } from '../utils/SpriteGenerator';
+import { WesternButton } from '../ui/components/WesternButton';
 
 export class TitleScene extends Phaser.Scene {
   private rootContainer!: Phaser.GameObjects.Container;
@@ -57,18 +58,18 @@ export class TitleScene extends Phaser.Scene {
     this.load.image('ui_card_selected_frame', 'assets/ui/selected_card_frame.png');
 
     // 5. Western Powerup & Bounty Cards
-    this.load.image('card_revolver', 'assets/cards/dual_revolvers.png');
-    this.load.image('card_peacemaker', 'assets/cards/twin_peacemakers.png');
-    this.load.image('card_shotgun', 'assets/cards/sawed_off_shotgun.png');
-    this.load.image('card_rifle', 'assets/cards/winchester_repeater.png');
-    this.load.image('card_dynamite', 'assets/cards/tnt_dynamite.png');
-    this.load.image('card_molotov', 'assets/cards/whiskey_molotov.png');
-    this.load.image('card_lasso', 'assets/cards/spinning_lasso.png');
-    this.load.image('card_badge', 'assets/cards/sheriffs_star.png');
-    this.load.image('card_spurs', 'assets/cards/silver_spurs.png');
-    this.load.image('card_whiskey', 'assets/cards/frontier_whiskey.png');
-    this.load.image('card_bandolier', 'assets/cards/ammo_bandolier.png');
-    this.load.image('card_magnet', 'assets/cards/horseshoe_magnet.png');
+    this.load.image('card_revolver', 'assets/powerup/dual_revolvers.png');
+    this.load.image('card_peacemaker', 'assets/powerup/twin_peacemakers.png');
+    this.load.image('card_shotgun', 'assets/powerup/sawed_off_shotgun.png');
+    this.load.image('card_rifle', 'assets/powerup/winchester_repeater.png');
+    this.load.image('card_dynamite', 'assets/powerup/tnt_dynamite.png');
+    this.load.image('card_molotov', 'assets/powerup/whiskey_molotov.png');
+    this.load.image('card_lasso', 'assets/powerup/spinning_lasso.png');
+    this.load.image('card_badge', 'assets/powerup/sheriffs_star.png');
+    this.load.image('card_spurs', 'assets/powerup/silver_spurs.png');
+    this.load.image('card_whiskey', 'assets/powerup/frontier_whiskey.png');
+    this.load.image('card_bandolier', 'assets/powerup/ammo_bandolier.png');
+    this.load.image('card_magnet', 'assets/powerup/horseshoe_magnet.png');
 
     // 6. Saloon & Level Up Decor Assets
     this.load.image('decor_backdrop', 'assets/decor/desert_saloon_backdrop.png');
@@ -141,6 +142,7 @@ export class TitleScene extends Phaser.Scene {
     this.createHeroes();
     this.createLogotype();
     this.createStartButton();
+    this.createAuxiliaryMenu();
     this.createArcadeHUD();
     this.createAmbientEffects();
 
@@ -522,16 +524,66 @@ export class TitleScene extends Phaser.Scene {
     });
   }
 
+  private createAuxiliaryMenu() {
+    const auxContainer = this.add.container(0, 420);
+
+    const items = [
+      { text: '📖 CONTROLS [H]', onClick: () => this.openControls() },
+      { text: '📊 STATS [S]', onClick: () => this.openStats() },
+      { text: '🏆 UNLOCKS [U]', onClick: () => this.openUnlockables() },
+    ];
+
+    items.forEach((item, idx) => {
+      const posX = -280 + idx * 280;
+      const btn = new WesternButton(this, {
+        x: posX,
+        y: 0,
+        width: 240,
+        height: 44,
+        text: item.text,
+        variant: 'wood',
+        fontSize: '10px',
+        onClick: item.onClick,
+      });
+      auxContainer.add(btn);
+    });
+
+    this.rootContainer.add(auxContainer);
+  }
+
+  private openControls() {
+    if (this.isAdvancing) return;
+    sounds.playRevolver();
+    this.scale.off('resize', this.handleResize, this);
+    this.scene.start('ControlsScene', { fromScene: 'TitleScene' });
+  }
+
+  private openStats() {
+    if (this.isAdvancing) return;
+    sounds.playRevolver();
+    this.scale.off('resize', this.handleResize, this);
+    this.scene.start('StatsScene', { fromScene: 'TitleScene' });
+  }
+
+  private openUnlockables() {
+    if (this.isAdvancing) return;
+    sounds.playRevolver();
+    this.scale.off('resize', this.handleResize, this);
+    this.scene.start('UnlockablesScene');
+  }
+
   // -------------------------------------------------------------
   // INPUT HANDLING & INSTANT SKIP
   // -------------------------------------------------------------
   private setupInputs() {
-    // Click or tap to start
-    this.input.on('pointerdown', () => this.advanceToGame());
-
     // Enter or Space key
     this.input.keyboard?.on('keydown-SPACE', () => this.advanceToGame());
     this.input.keyboard?.on('keydown-ENTER', () => this.advanceToGame());
+
+    // Auxiliary screen shortcuts
+    this.input.keyboard?.on('keydown-H', () => this.openControls());
+    this.input.keyboard?.on('keydown-S', () => this.openStats());
+    this.input.keyboard?.on('keydown-U', () => this.openUnlockables());
   }
 
   private advanceToGame() {

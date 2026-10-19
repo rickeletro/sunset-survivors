@@ -579,11 +579,11 @@ export class CharacterSelectScene extends Phaser.Scene {
     }
     this.rideOutGlow.alpha = 1;
 
-    // Fade to black and start WantedScene with chosen hero
+    // Fade to black and start StageIntroScene with chosen hero
     this.cameras.main.fade(520, 0, 0, 0);
     this.time.delayedCall(560, () => {
       this.scale.off('resize', this.handleResize, this);
-      this.scene.start('WantedScene', { character: selectedChar });
+      this.scene.start('StageIntroScene', { character: selectedChar, stage: 1 });
     });
   }
 

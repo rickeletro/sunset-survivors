@@ -1,30 +1,58 @@
 import Phaser from 'phaser';
 import { CharacterSelectScene } from './scenes/CharacterSelectScene';
+import { ControlsScene } from './scenes/ControlsScene';
+import { GameCompleteScene } from './scenes/GameCompleteScene';
 import { GameOverScene } from './scenes/GameOverScene';
 import { GameScene } from './scenes/GameScene';
 import { LevelUpScene } from './scenes/LevelUpScene';
+import { PauseScene } from './scenes/PauseScene';
+import { StageClearScene } from './scenes/StageClearScene';
+import { StageIntroScene } from './scenes/StageIntroScene';
+import { StatsScene } from './scenes/StatsScene';
 import { StoryScene } from './scenes/StoryScene';
 import { TitleScene } from './scenes/TitleScene';
+import { UnlockablesScene } from './scenes/UnlockablesScene';
 import { WantedScene } from './scenes/WantedScene';
 
-const allScenes = [
+const allScenes: (typeof Phaser.Scene)[] = [
   TitleScene,
   StoryScene,
   CharacterSelectScene,
+  StageIntroScene,
   WantedScene,
   GameScene,
   LevelUpScene,
+  PauseScene,
+  StageClearScene,
   GameOverScene,
+  GameCompleteScene,
+  StatsScene,
+  UnlockablesScene,
+  ControlsScene,
 ];
 
+// URL parameter quick switcher for standalone scene validation & playtesting
 const urlParams = new URLSearchParams(window.location.search);
 const sceneParam = urlParams.get('scene');
-if (sceneParam === 'wanted') {
-  allScenes.splice(allScenes.indexOf(WantedScene), 1);
-  allScenes.unshift(WantedScene);
-} else if (sceneParam === 'select') {
-  allScenes.splice(allScenes.indexOf(CharacterSelectScene), 1);
-  allScenes.unshift(CharacterSelectScene);
+
+const sceneMap: Record<string, typeof Phaser.Scene> = {
+  stageintro: StageIntroScene,
+  wanted: WantedScene,
+  select: CharacterSelectScene,
+  game: GameScene,
+  pause: PauseScene,
+  clear: StageClearScene,
+  gameover: GameOverScene,
+  complete: GameCompleteScene,
+  stats: StatsScene,
+  unlocks: UnlockablesScene,
+  controls: ControlsScene,
+};
+
+if (sceneParam && sceneMap[sceneParam]) {
+  const target = sceneMap[sceneParam];
+  allScenes.splice(allScenes.indexOf(target), 1);
+  allScenes.unshift(target);
 }
 
 const config: Phaser.Types.Core.GameConfig = {
