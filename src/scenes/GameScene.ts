@@ -24,6 +24,12 @@ import {
   hasGreedwellSprites,
 } from '../systems/GreedwellSprites';
 import { WorldMap, WORLD_W, WORLD_H } from '../systems/WorldMap';
+import { GameDirector, SpawnOrder } from '../systems/GameDirector';
+import { GameEvents, GameEventNames, SpecialWaveEvent } from '../systems/GameEvents';
+import { SpatialHash } from '../systems/SpatialHash';
+import { SpritePool } from '../systems/SpritePool';
+import { ENEMY_DEFS, EnemyKind } from '../data/enemies';
+import { getEligibleEvolution, WEAPON_EVOLUTIONS, WeaponEvolution } from '../data/evolutions';
 
 interface Projectile {
   sprite: Phaser.GameObjects.Sprite | Phaser.GameObjects.Arc;
@@ -36,11 +42,14 @@ interface Projectile {
   isLasso?: boolean;
   angleOffset?: number;
   radius?: number;
+  isBouncingSniper?: boolean;
+  bouncesLeft?: number;
+  isExplosiveBullet?: boolean;
 }
 
 interface Enemy {
   sprite: Phaser.GameObjects.Sprite;
-  type: 'bandit' | 'snake' | 'dynamiter' | 'heavy' | 'boss';
+  type: EnemyKind | 'boss';
   hp: number;
   maxHp: number;
   speed: number;
@@ -50,6 +59,12 @@ interface Enemy {
   throwCooldown?: number;
   usesPixellab?: boolean;
   animLock?: number;
+  pooled?: boolean;
+  dead?: boolean;
+  tint?: number;
+  aiTimer?: number;
+  dirX?: number;
+  dirY?: number;
 }
 
 interface Drop {
@@ -86,6 +101,11 @@ export class GameScene extends Phaser.Scene {
   private armor: number = 0;
   private hpRegen: number = 0;
   private xpBonus: number = 1.0;
+  private critChance: number = 0.1;
+  private critMultiplier: number = 2.0;
+  private areaMultiplier: number = 1.0;
+  private extraProjectiles: number = 0;
+  private luck: number = 1.0;
 
   // Progression
   private level: number = 1;
@@ -113,6 +133,10 @@ export class GameScene extends Phaser.Scene {
   private groundTile!: Phaser.GameObjects.TileSprite;
   private worldMap!: WorldMap;
   private invulnUntil: number = 0;
+  private director!: GameDirector;
+  private gameEvents!: GameEvents;
+  private enemyPool!: SpritePool;
+  private enemyHash!: SpatialHash<Enemy>;
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private keysWASD!: { [key: string]: Phaser.Input.Keyboard.Key };
 
@@ -167,6 +191,11 @@ export class GameScene extends Phaser.Scene {
     this.armor = this.character.stats.armor;
     this.hpRegen = 0;
     this.xpBonus = 1.0;
+    this.critChance = this.character.stats.critChance || 0.1;
+    this.critMultiplier = 2.0;
+    this.areaMultiplier = 1.0;
+    this.extraProjectiles = 0;
+    this.luck = 1.0;
 
     // Initialize Inventory with Starter Weapon
     this.activeWeapons.clear();
@@ -202,6 +231,14 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.setBounds(0, 0, WORLD_W, WORLD_H);
     this.cameras.main.startFollow(this.player, true, 0.12, 0.12);
     this.worldMap.update(startX, startY);
+
+    // Horde systems: director, pool, spatial hash, event bus
+    this.gameEvents = new GameEvents();
+    this.director = new GameDirector(this.gameEvents);
+    this.enemyPool = new SpritePool(this, 5);
+    this.enemyHash = new SpatialHash<Enemy>(64);
+    this.gameEvents.on(GameEventNames.SpecialWave, (e: SpecialWaveEvent) => this.showBanner(e.label, '#ffc52a'));
+    this.gameEvents.on(GameEventNames.EliteSpawned, () => this.showBanner('★ ELITE BOUNTY HUNTER ★', '#ff791c'));
 
     // Keyboard Inputs
     if (this.input.keyboard) {
@@ -434,6 +471,26 @@ export class GameScene extends Phaser.Scene {
     if (!this.bossSpawned && (this.gameTimeSeconds >= 90 || this.kills >= 75)) {
       this.spawnSimonGreedwell();
     }
+
+    // Game Director: special waves and elites
+    this.runSpawnOrders(this.director.tick(this.gameTimeSeconds, this.enemies.length));
+  }
+
+  private showBanner(text: string, color: string) {
+    const banner = this.add.text(this.scale.width / 2, this.scale.height / 2 - 130, text, {
+      fontFamily: THEME.typography.pixelFont,
+      fontSize: '18px',
+      color,
+      stroke: '#000',
+      strokeThickness: 5,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(80);
+    this.tweens.add({
+      targets: banner,
+      alpha: 0,
+      y: banner.y - 24,
+      duration: 2000,
+      onComplete: () => banner.destroy(),
+    });
   }
 
   private spawnSimonGreedwell() {
@@ -492,65 +549,55 @@ export class GameScene extends Phaser.Scene {
   // Wave Spawner
   private spawnWave() {
     if (this.isGameOver) return;
-    const enemyCount = Math.min(25 + Math.floor(this.gameTimeSeconds * 0.45), 180);
-    if (this.enemies.length >= enemyCount) return;
+    this.runSpawnOrders(this.director.waveOrders(this.gameTimeSeconds, this.enemies.length));
+  }
 
-    // Spawn 3-6 enemies around player perimeter
-    const spawnBatch = 4 + Math.floor(this.gameTimeSeconds / 30);
-    for (let i = 0; i < spawnBatch; i++) {
-      const spawnPt = this.worldMap.spawnPointAround(this.player.x, this.player.y);
-      const x = spawnPt.x;
-      const y = spawnPt.y;
+  private runSpawnOrders(orders: SpawnOrder[]) {
+    const px = this.player.x;
+    const py = this.player.y;
+    const clampX = (v: number) => Phaser.Math.Clamp(v, 48, WORLD_W - 48);
+    const clampY = (v: number) => Phaser.Math.Clamp(v, 48, WORLD_H - 48);
 
-      // Pick enemy type based on game time
-      const rand = Math.random();
-      let type: 'bandit' | 'snake' | 'dynamiter' | 'heavy' = 'bandit';
-      let texture = 'enemy_bandit';
-      let hp = 30 + this.gameTimeSeconds * 0.5;
-      let speed = 90;
-      let damage = 10;
-      let xpVal = 10;
-      let bountyVal = 15;
-
-      if (this.gameTimeSeconds > 25 && rand < 0.3) {
-        type = 'snake';
-        texture = 'enemy_snake';
-        hp = 20;
-        speed = 135; // fast & slippery
-        damage = 8;
-        xpVal = 8;
-        bountyVal = 10;
-      } else if (this.gameTimeSeconds > 45 && rand > 0.75) {
-        type = 'dynamiter';
-        texture = 'enemy_dynamiter';
-        hp = 45;
-        speed = 80;
-        damage = 18;
-        xpVal = 18;
-        bountyVal = 35;
-      } else if (this.gameTimeSeconds > 60 && rand > 0.88) {
-        type = 'heavy';
-        texture = 'enemy_heavy';
-        hp = 180;
-        speed = 65;
-        damage = 22;
-        xpVal = 40;
-        bountyVal = 80;
+    for (const order of orders) {
+      const base = this.worldMap.spawnPointAround(px, py);
+      for (let i = 0; i < order.count; i++) {
+        let x: number;
+        let y: number;
+        if (order.pattern === 'encircle') {
+          const a = (i / order.count) * Math.PI * 2;
+          x = clampX(px + Math.cos(a) * 650);
+          y = clampY(py + Math.sin(a) * 650);
+        } else if (order.pattern === 'cluster') {
+          x = clampX(base.x + (Math.random() - 0.5) * 160);
+          y = clampY(base.y + (Math.random() - 0.5) * 160);
+        } else {
+          const p = this.worldMap.spawnPointAround(px, py);
+          x = p.x;
+          y = p.y;
+        }
+        this.spawnEnemy(order.kind, x, y);
       }
-
-      const sprite = this.add.sprite(x, y, texture).setScale(0.9).setDepth(5);
-      this.enemies.push({
-        sprite,
-        type,
-        hp,
-        maxHp: hp,
-        speed,
-        damage,
-        xpVal,
-        bountyVal,
-        throwCooldown: type === 'dynamiter' ? 2000 : undefined,
-      });
     }
+  }
+
+  private spawnEnemy(kind: EnemyKind, x: number, y: number) {
+    const def = ENEMY_DEFS[kind];
+    const hp = def.baseHp + this.gameTimeSeconds * def.hpPerSecond;
+    const sprite = this.enemyPool.acquire(x, y, def.texture, def.scale);
+    if (def.tint) sprite.setTint(def.tint);
+    this.enemies.push({
+      sprite,
+      type: kind,
+      hp,
+      maxHp: hp,
+      speed: def.speed,
+      damage: def.damage,
+      xpVal: def.xp,
+      bountyVal: def.bounty,
+      throwCooldown: kind === 'dynamiter' ? 2000 : undefined,
+      pooled: true,
+      tint: def.tint,
+    });
   }
 
   update(time: number, delta: number) {
@@ -653,18 +700,22 @@ export class GameScene extends Phaser.Scene {
 
     switch (def.id) {
       case 'revolver':
-      case 'peacemaker': {
+      case 'peacemaker':
+      case 'desperado_fury': {
         sounds.playRevolver();
-        const targets = nearest.slice(0, lvl.projectileCount);
-        for (let i = 0; i < lvl.projectileCount; i++) {
+        const totalProj = lvl.projectileCount + this.extraProjectiles;
+        const targets = nearest.slice(0, totalProj);
+        const isDesperado = def.id === 'desperado_fury';
+        for (let i = 0; i < totalProj; i++) {
           let angle = facingAngle;
           if (targets[i]) {
             angle = Math.atan2(targets[i].sprite.y - this.player.y, targets[i].sprite.x - this.player.x);
           } else {
-            angle += (i - (lvl.projectileCount - 1) / 2) * 0.2;
+            angle += (i - (totalProj - 1) / 2) * 0.2;
           }
 
           const sprite = this.add.sprite(this.player.x, this.player.y, 'proj_bullet').setDepth(8);
+          if (isDesperado) sprite.setTint(0xff791c).setScale(1.4);
           sprite.setRotation(angle);
           this.projectiles.push({
             sprite,
@@ -674,27 +725,32 @@ export class GameScene extends Phaser.Scene {
             pierce: lvl.pierce,
             hits: new Set(),
             life: (lvl.range / lvl.speed) * 1000,
+            isExplosiveBullet: isDesperado,
           });
         }
         break;
       }
 
-      case 'shotgun': {
+      case 'shotgun':
+      case 'blunderbuss_doom': {
         sounds.playShotgun();
         let centerAngle = facingAngle;
         if (nearest[0]) {
           centerAngle = Math.atan2(nearest[0].sprite.y - this.player.y, nearest[0].sprite.x - this.player.x);
         }
 
-        const spread = 0.5; // cone spread
-        for (let i = 0; i < lvl.projectileCount; i++) {
-          const offset = ((i / (lvl.projectileCount - 1)) - 0.5) * spread;
+        const isBlunder = def.id === 'blunderbuss_doom';
+        const totalProj = lvl.projectileCount + (isBlunder ? this.extraProjectiles * 2 : this.extraProjectiles);
+        const spread = isBlunder ? 0.9 : 0.5; // cone spread
+        for (let i = 0; i < totalProj; i++) {
+          const offset = ((i / (totalProj - 1)) - 0.5) * spread;
           const angle = centerAngle + offset;
           const sprite = this.add.sprite(this.player.x, this.player.y, 'proj_pellet').setDepth(8);
+          if (isBlunder) sprite.setTint(0xff3300).setScale(1.5);
           this.projectiles.push({
             sprite,
-            vx: Math.cos(angle) * (lvl.speed + (Math.random() * 40 - 20)),
-            vy: Math.sin(angle) * (lvl.speed + (Math.random() * 40 - 20)),
+            vx: Math.cos(angle) * (lvl.speed + (Math.random() * 60 - 30)),
+            vy: Math.sin(angle) * (lvl.speed + (Math.random() * 60 - 30)),
             damage: Math.round(lvl.damage * this.damageMultiplier),
             pierce: lvl.pierce,
             hits: new Set(),
@@ -704,16 +760,20 @@ export class GameScene extends Phaser.Scene {
         break;
       }
 
-      case 'rifle': {
+      case 'rifle':
+      case 'golden_repeater': {
         sounds.playRifle();
         let angle = facingAngle;
         if (nearest[0]) {
           angle = Math.atan2(nearest[0].sprite.y - this.player.y, nearest[0].sprite.x - this.player.x);
         }
 
-        for (let i = 0; i < lvl.projectileCount; i++) {
-          const a = angle + (i - (lvl.projectileCount - 1) / 2) * 0.12;
+        const isGolden = def.id === 'golden_repeater';
+        const totalProj = lvl.projectileCount + this.extraProjectiles;
+        for (let i = 0; i < totalProj; i++) {
+          const a = angle + (i - (totalProj - 1) / 2) * 0.12;
           const sprite = this.add.sprite(this.player.x, this.player.y, 'proj_rifle').setDepth(8);
+          if (isGolden) sprite.setTint(0xffc52a).setScale(1.6);
           sprite.setRotation(a);
           this.projectiles.push({
             sprite,
@@ -723,28 +783,33 @@ export class GameScene extends Phaser.Scene {
             pierce: lvl.pierce,
             hits: new Set(),
             life: (lvl.range / lvl.speed) * 1000,
+            isBouncingSniper: isGolden,
+            bouncesLeft: isGolden ? 3 : 0,
           });
         }
         break;
       }
 
-      case 'dynamite': {
+      case 'dynamite':
+      case 'hellfire_keg': {
         sounds.playRicochet();
         const target = nearest[0];
+        const isKeg = def.id === 'hellfire_keg';
         const tx = target ? target.sprite.x : this.player.x + (this.player.flipX ? -200 : 200);
         const ty = target ? target.sprite.y : this.player.y;
 
         const sprite = this.add.sprite(this.player.x, this.player.y, 'proj_dynamite').setDepth(8);
+        if (isKeg) sprite.setTint(0xff2200).setScale(1.8);
         this.tweens.add({
           targets: sprite,
           x: tx,
           y: ty,
-          rotation: Math.PI * 4,
-          duration: 650,
+          rotation: Math.PI * 6,
+          duration: isKeg ? 800 : 650,
           ease: 'Cubic.easeOut',
           onComplete: () => {
             sprite.destroy();
-            this.explodeDynamite(tx, ty, lvl.damage);
+            this.explodeDynamite(tx, ty, lvl.damage, isKeg);
           },
         });
         break;
@@ -759,7 +824,7 @@ export class GameScene extends Phaser.Scene {
         this.fireZones.push({
           x: tx,
           y: ty,
-          radius: 65,
+          radius: 65 * this.areaMultiplier,
           damage: Math.round(lvl.damage * this.damageMultiplier),
           life: 3500,
           tickTimer: 0,
@@ -768,16 +833,19 @@ export class GameScene extends Phaser.Scene {
         break;
       }
 
-      case 'lasso': {
+      case 'lasso':
+      case 'cyclone_whip': {
         // Orbiting lasso circles
+        const isCyclone = def.id === 'cyclone_whip';
         const existingLassos = this.projectiles.filter((p) => p.isLasso);
-        if (existingLassos.length < lvl.projectileCount) {
-          const count = lvl.projectileCount;
+        const count = lvl.projectileCount + (isCyclone ? 2 : 0) + this.extraProjectiles;
+        if (existingLassos.length !== count) {
           existingLassos.forEach((p) => p.sprite.destroy());
           this.projectiles = this.projectiles.filter((p) => !p.isLasso);
 
           for (let i = 0; i < count; i++) {
             const sprite = this.add.sprite(this.player.x, this.player.y, 'proj_lasso').setDepth(9);
+            if (isCyclone) sprite.setTint(0x00f0ff).setScale(1.8);
             this.projectiles.push({
               sprite,
               vx: 0,
@@ -788,7 +856,7 @@ export class GameScene extends Phaser.Scene {
               life: Infinity,
               isLasso: true,
               angleOffset: (i * (Math.PI * 2)) / count,
-              radius: lvl.range,
+              radius: lvl.range * this.areaMultiplier * (isCyclone ? 1.5 : 1.0),
             });
           }
         }
@@ -797,30 +865,46 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  private explodeDynamite(x: number, y: number, damage: number) {
+  private explodeDynamite(x: number, y: number, damage: number, isKeg = false) {
     sounds.playExplosion();
-    this.cameras.main.shake(250, 0.008);
+    this.cameras.main.shake(isKeg ? 450 : 250, isKeg ? 0.016 : 0.008);
+
+    const radius = (isKeg ? 150 : 90) * this.areaMultiplier;
 
     // Shockwave animation
     const circle = this.add.graphics().setDepth(20);
     circle.fillStyle(0xf59e0b, 0.85);
-    circle.fillCircle(x, y, 90);
+    circle.fillCircle(x, y, radius);
     circle.fillStyle(0xdc2626, 0.9);
-    circle.fillCircle(x, y, 60);
+    circle.fillCircle(x, y, radius * 0.65);
 
     this.tweens.add({
       targets: circle,
       alpha: 0,
       scaleX: 1.4,
       scaleY: 1.4,
-      duration: 350,
+      duration: isKeg ? 500 : 350,
       onComplete: () => circle.destroy(),
     });
 
-    // Damage all enemies in explosion radius
-    this.enemies.forEach((enemy) => {
+    if (isKeg) {
+      // Cria lago de fogo persistente
+      const gfx = this.add.graphics().setDepth(4);
+      this.fireZones.push({
+        x,
+        y,
+        radius: radius * 0.9,
+        damage: Math.round(damage * 0.4 * this.damageMultiplier),
+        life: 5000,
+        tickTimer: 0,
+        graphics: gfx,
+      });
+    }
+
+    // Damage all enemies in explosion radius (copy: kills mutate the array)
+    this.enemies.slice().forEach((enemy) => {
       const dist = Math.hypot(enemy.sprite.x - x, enemy.sprite.y - y);
-      if (dist <= 100) {
+      if (dist <= radius) {
         this.damageEnemy(enemy, Math.round(damage * this.damageMultiplier));
       }
     });
@@ -840,8 +924,9 @@ export class GameScene extends Phaser.Scene {
         p.sprite.y = this.player.y + Math.sin(currentAngle) * r;
         p.sprite.setRotation(currentAngle);
 
-        // Check collision against nearby enemies
-        this.enemies.forEach((enemy) => {
+        // Check collision against nearby enemies (spatial hash)
+        for (const enemy of this.enemyHash.query(p.sprite.x, p.sprite.y, 32)) {
+          if (enemy.dead) continue;
           if (Math.hypot(enemy.sprite.x - p.sprite.x, enemy.sprite.y - p.sprite.y) < 32) {
             if (!p.hits.has(enemy)) {
               p.hits.add(enemy);
@@ -849,7 +934,7 @@ export class GameScene extends Phaser.Scene {
               this.time.delayedCall(300, () => p.hits.delete(enemy));
             }
           }
-        });
+        }
         continue;
       }
 
@@ -858,13 +943,34 @@ export class GameScene extends Phaser.Scene {
       p.sprite.y += (p.vy * delta) / 1000;
       p.life -= delta;
 
-      // Check Enemy Collisions
-      for (const enemy of this.enemies) {
-        if (p.hits.has(enemy)) continue;
+      // Ricochete de borda para sniper dourado (Golden Marshal)
+      if (p.isBouncingSniper && (p.bouncesLeft ?? 0) > 0) {
+        const px = p.sprite.x;
+        const py = p.sprite.y;
+        if (px < 48 || px > WORLD_W - 48) {
+          p.vx = -p.vx;
+          p.bouncesLeft = (p.bouncesLeft ?? 1) - 1;
+          p.sprite.setRotation(Math.atan2(p.vy, p.vx));
+        }
+        if (py < 48 || py > WORLD_H - 48) {
+          p.vy = -p.vy;
+          p.bouncesLeft = (p.bouncesLeft ?? 1) - 1;
+          p.sprite.setRotation(Math.atan2(p.vy, p.vx));
+        }
+      }
+
+      // Check Enemy Collisions (spatial hash candidates only)
+      for (const enemy of this.enemyHash.query(p.sprite.x, p.sprite.y, 26)) {
+        if (enemy.dead || p.hits.has(enemy)) continue;
         const dist = Math.hypot(enemy.sprite.x - p.sprite.x, enemy.sprite.y - p.sprite.y);
         if (dist < 26) {
           p.hits.add(enemy);
           this.damageEnemy(enemy, p.damage);
+
+          // Explosão residual do Desperado Fury
+          if (p.isExplosiveBullet) {
+            this.explodeDynamite(enemy.sprite.x, enemy.sprite.y, Math.round(p.damage * 0.5));
+          }
 
           p.pierce--;
           if (p.pierce <= 0) {
@@ -883,11 +989,21 @@ export class GameScene extends Phaser.Scene {
 
   // 4. Update Enemies
   private updateEnemies(delta: number) {
+    this.enemyHash.rebuild(this.enemies);
     for (let i = this.enemies.length - 1; i >= 0; i--) {
       const e = this.enemies[i];
       const dx = this.player.x - e.sprite.x;
       const dy = this.player.y - e.sprite.y;
       const dist = Math.hypot(dx, dy);
+
+      // AI refresh in staggered ~100-160ms intervals (boss: every frame)
+      e.aiTimer = (e.aiTimer ?? Math.random() * 120) - delta;
+      const refresh = e.type === 'boss' || e.aiTimer <= 0;
+      if (refresh && e.type !== 'boss') e.aiTimer = 100 + Math.random() * 60;
+      if (refresh && dist > 0.1) {
+        e.dirX = dx / dist;
+        e.dirY = dy / dist;
+      }
 
       // Facing direction (Pixellab boss has dedicated east/west run cycles)
       if (e.usesPixellab) {
@@ -899,14 +1015,33 @@ export class GameScene extends Phaser.Scene {
             e.sprite.play(runKey);
           }
         }
-      } else {
+      } else if (refresh) {
         e.sprite.setFlipX(dx < 0);
       }
 
-      if (dist > 0.1) {
+      if (e.dirX !== undefined && e.dirY !== undefined) {
         const step = (e.speed * delta) / 1000;
-        e.sprite.x += (dx / dist) * step;
-        e.sprite.y += (dy / dist) * step;
+        e.sprite.x += e.dirX * step;
+        e.sprite.y += e.dirY * step;
+
+        // Cheap crowd separation via spatial hash (no per-pair colliders)
+        if (e.type !== 'boss') {
+          const rad = ENEMY_DEFS[e.type].radius;
+          for (const o of this.enemyHash.query(e.sprite.x, e.sprite.y, rad * 2)) {
+            if (o === e || o.dead) continue;
+            const ox = e.sprite.x - o.sprite.x;
+            const oy = e.sprite.y - o.sprite.y;
+            const d2 = ox * ox + oy * oy;
+            const min = rad + (o.type === 'boss' ? 14 : ENEMY_DEFS[o.type].radius);
+            if (d2 > 0 && d2 < min * min) {
+              const d = Math.sqrt(d2);
+              const push = (min - d) * 0.35;
+              e.sprite.x += (ox / d) * push;
+              e.sprite.y += (oy / d) * push;
+            }
+          }
+        }
+
         const fixed = this.worldMap.resolve(e.sprite.x, e.sprite.y, e.type === 'boss' ? 14 : 8);
         e.sprite.x = fixed.x;
         e.sprite.y = fixed.y;
@@ -1024,7 +1159,7 @@ export class GameScene extends Phaser.Scene {
 
       if (zone.tickTimer >= 400) {
         zone.tickTimer = 0;
-        this.enemies.forEach((enemy) => {
+        this.enemies.slice().forEach((enemy) => {
           if (Math.hypot(enemy.sprite.x - zone.x, enemy.sprite.y - zone.y) <= zone.radius) {
             this.damageEnemy(enemy, zone.damage);
           }
@@ -1088,18 +1223,26 @@ export class GameScene extends Phaser.Scene {
     this.updateXpBar();
   }
 
-  // Damage Handlers
+  // Damage Handlers with Critical Hit Calculation
   private damageEnemy(enemy: Enemy, dmg: number) {
-    enemy.hp -= dmg;
+    if (enemy.dead) return;
+
+    // Critical Hit Roll
+    const isCrit = Math.random() < this.critChance;
+    const finalDamage = isCrit ? Math.round(dmg * this.critMultiplier) : dmg;
+
+    enemy.hp -= finalDamage;
 
     // Flash hit white
     enemy.sprite.setTintFill(0xffffff);
     this.time.delayedCall(70, () => {
-      if (enemy.sprite.active) enemy.sprite.clearTint();
+      if (enemy.dead || !enemy.sprite.active) return;
+      enemy.sprite.clearTint();
+      if (enemy.tint) enemy.sprite.setTint(enemy.tint);
     });
 
-    // Floating Damage Number
-    this.showDamageText(enemy.sprite.x, enemy.sprite.y - 15, dmg);
+    // Floating Damage Number (amarelo ouro grande para crítico)
+    this.showDamageText(enemy.sprite.x, enemy.sprite.y - 15, finalDamage, isCrit);
 
     if (enemy.type === 'boss') {
       this.updateBossBar();
@@ -1111,6 +1254,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   private killEnemy(enemy: Enemy) {
+    if (enemy.dead) return;
+    enemy.dead = true;
     const idx = this.enemies.indexOf(enemy);
     if (idx !== -1) {
       this.enemies.splice(idx, 1);
@@ -1119,13 +1264,14 @@ export class GameScene extends Phaser.Scene {
     this.kills++;
     this.killsText.setText(`☠ ${this.kills.toString().padStart(3, '0')}`);
     this.addBounty(enemy.bountyVal);
+    this.gameEvents.emitEnemyKilled({ kind: enemy.type, x: enemy.sprite.x, y: enemy.sprite.y });
 
     // Drop Loot
     const dropRand = Math.random();
     let dropType: 'gold' | 'badge' | 'whiskey' = 'gold';
     let texture = 'drop_gold';
 
-    if (enemy.type === 'boss') {
+    if (enemy.type === 'boss' || enemy.type === 'elite') {
       dropType = 'badge';
       texture = 'drop_badge';
     } else if (dropRand < 0.08) {
@@ -1156,7 +1302,8 @@ export class GameScene extends Phaser.Scene {
       });
     }
 
-    enemy.sprite.destroy();
+    if (enemy.pooled) this.enemyPool.release(enemy.sprite);
+    else enemy.sprite.destroy();
 
     // Check Boss Victory
     if (enemy.type === 'boss') {
@@ -1186,6 +1333,7 @@ export class GameScene extends Phaser.Scene {
 
     const reduced = Math.max(1, amount - this.armor);
     this.hp -= reduced;
+    this.gameEvents.emitPlayerDamaged(reduced);
     this.hpText.setText(`HP ${Math.max(0, Math.round(this.hp))}/${this.maxHp}`);
     this.updateHpBar();
 
@@ -1198,20 +1346,22 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  private showDamageText(x: number, y: number, dmg: number) {
-    const txt = this.add.text(x, y, `${dmg}`, {
+  private showDamageText(x: number, y: number, dmg: number, isCrit = false) {
+    const txt = this.add.text(x, y, isCrit ? `${dmg}!` : `${dmg}`, {
       fontFamily: THEME.typography.pixelFont,
-      fontSize: dmg > 50 ? '14px' : '10px',
-      color: dmg > 50 ? '#ffe066' : '#ffffff',
-      stroke: '#000000',
-      strokeThickness: 2,
+      fontSize: isCrit ? '16px' : (dmg > 50 ? '13px' : '10px'),
+      color: isCrit ? '#ff0033' : (dmg > 50 ? '#ffe066' : '#ffffff'),
+      stroke: isCrit ? '#ffff00' : '#000000',
+      strokeThickness: isCrit ? 3 : 2,
     }).setOrigin(0.5).setDepth(25);
 
     this.tweens.add({
       targets: txt,
-      y: y - 28,
+      y: y - (isCrit ? 40 : 28),
+      scaleX: isCrit ? 1.3 : 1.0,
+      scaleY: isCrit ? 1.3 : 1.0,
       alpha: 0,
-      duration: 550,
+      duration: isCrit ? 750 : 550,
       onComplete: () => txt.destroy(),
     });
   }
@@ -1251,8 +1401,24 @@ export class GameScene extends Phaser.Scene {
   private generateUpgradeChoices(): UpgradeChoice[] {
     const list: UpgradeChoice[] = [];
 
-    // Eligible Weapons
+    // Checa se há evolução pronta para ser oferecida com prioridade máxima
+    const eligibleEvo = getEligibleEvolution(this.activeWeapons, this.activePassives);
+    if (eligibleEvo) {
+      list.push({
+        type: 'evolution',
+        id: eligibleEvo.evolvedWeaponId,
+        name: eligibleEvo.name,
+        icon: eligibleEvo.icon,
+        currentLevel: 0,
+        nextLevel: 1,
+        description: eligibleEvo.description,
+      });
+    }
+
+    // Eligible Weapons (não evoluídas)
     Object.entries(WEAPONS).forEach(([wepId, def]) => {
+      // Não exibe armas base se já evoluíram
+      if (['desperado_fury', 'blunderbuss_doom', 'golden_repeater', 'hellfire_keg', 'cyclone_whip'].includes(wepId)) return;
       const curLvl = this.activeWeapons.get(wepId) || 0;
       if (curLvl < def.levels.length) {
         const nextInfo = def.levels[curLvl];
@@ -1285,13 +1451,38 @@ export class GameScene extends Phaser.Scene {
       }
     });
 
-    // Shuffle and pick 3
+    // Shuffle and pick 3 (garante que a evolução fica em destaque se existir)
+    if (eligibleEvo) {
+      const otherChoices = list.slice(1);
+      Phaser.Utils.Array.Shuffle(otherChoices);
+      return [list[0], ...otherChoices.slice(0, 2)];
+    }
+
     Phaser.Utils.Array.Shuffle(list);
     return list.slice(0, 3);
   }
 
   private applyUpgrade(choice: UpgradeChoice) {
-    if (choice.type === 'weapon') {
+    if (choice.type === 'evolution') {
+      // Localiza a arma base e substitui
+      const evoDef = WEAPON_EVOLUTIONS.find((e) => e.evolvedWeaponId === choice.id);
+      if (evoDef) {
+        this.activeWeapons.delete(evoDef.baseWeaponId);
+        this.weaponTimers.delete(evoDef.baseWeaponId);
+        // Remove projéteis de laço antigos se houver
+        if (evoDef.baseWeaponId === 'lasso') {
+          this.projectiles.filter((p) => p.isLasso).forEach((p) => p.sprite.destroy());
+          this.projectiles = this.projectiles.filter((p) => !p.isLasso);
+        }
+      }
+      this.activeWeapons.set(choice.id, 1);
+      this.weaponTimers.set(choice.id, 0);
+
+      // Flash épico de evolução
+      this.cameras.main.flash(500, 255, 215, 0);
+      sounds.playLevelUp();
+      this.showBanner(`★ ARMA EVOLUÍDA: ${choice.name.toUpperCase()}! ★`, '#ffc52a');
+    } else if (choice.type === 'weapon') {
       const newLvl = (this.activeWeapons.get(choice.id) || 0) + 1;
       this.activeWeapons.set(choice.id, newLvl);
       if (newLvl === 1) {

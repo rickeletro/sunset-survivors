@@ -5,7 +5,7 @@ import { PASSIVES } from '../data/passives';
 import { WEAPONS } from '../data/weapons';
 
 export interface UpgradeChoice {
-  type: 'weapon' | 'passive';
+  type: 'weapon' | 'passive' | 'evolution';
   id: string;
   name: string;
   icon: string;
@@ -39,6 +39,12 @@ const ITEM_LORE: Record<string, { tagline: string; typeLabel: string }> = {
   whiskey: { tagline: 'Liquid grit.\nIron health.', typeLabel: 'Regeneration' },
   bandolier: { tagline: 'Lead rain\nwithout end.', typeLabel: 'Rate of Fire' },
   magnet: { tagline: 'Every nugget\nflies to you.', typeLabel: 'Gold Magnet' },
+  // Evolutions
+  desperado_fury: { tagline: 'MAX POWER.\nNo survivors.', typeLabel: '★ EVOLUTION ★' },
+  blunderbuss_doom: { tagline: 'Hell unleashed.\nPure wreckage.', typeLabel: '★ EVOLUTION ★' },
+  golden_repeater: { tagline: 'Infinite ricochet.\nGolden justice.', typeLabel: '★ EVOLUTION ★' },
+  hellfire_keg: { tagline: 'Scorched earth.\nAshes only.', typeLabel: '★ EVOLUTION ★' },
+  cyclone_whip: { tagline: 'Divine storm.\nVacuum vortex.', typeLabel: '★ EVOLUTION ★' },
 };
 
 export class LevelUpScene extends Phaser.Scene {
