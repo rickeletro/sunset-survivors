@@ -6,6 +6,24 @@ import { WEAPONS, WeaponDef } from '../data/weapons';
 import { THEME } from '../ui/theme/tokens';
 import { UpgradeChoice } from './LevelUpScene';
 import { getBossForStage } from '../data/bosses';
+import {
+  createPixellabAnims,
+  hasPixellabHero,
+  pickDirection,
+  pixellabAnimKey,
+  pixellabIdleFrame,
+  PIXELLAB_HERO_SCALE,
+  PixelDir,
+} from '../systems/PixellabHeroes';
+import {
+  createGreedwellAnims,
+  greedwellAnimKey,
+  greedwellFirstFrame,
+  GREEDWELL_SCALE,
+  GREEDWELL_SHOOT_FIRE_FRAME,
+  hasGreedwellSprites,
+} from '../systems/GreedwellSprites';
+import { WorldMap, WORLD_W, WORLD_H } from '../systems/WorldMap';
 
 interface Projectile {
   sprite: Phaser.GameObjects.Sprite | Phaser.GameObjects.Arc;
@@ -30,6 +48,8 @@ interface Enemy {
   xpVal: number;
   bountyVal: number;
   throwCooldown?: number;
+  usesPixellab?: boolean;
+  animLock?: number;
 }
 
 interface Drop {
@@ -55,6 +75,8 @@ export class GameScene extends Phaser.Scene {
 
   // Player Stats
   private player!: Phaser.GameObjects.Sprite;
+  private usePixellab = false;
+  private facingDir: PixelDir = 'south';
   private hp: number = 100;
   private maxHp: number = 100;
   private moveSpeed: number = 180;
@@ -89,6 +111,8 @@ export class GameScene extends Phaser.Scene {
 
   // Background & Camera
   private groundTile!: Phaser.GameObjects.TileSprite;
+  private worldMap!: WorldMap;
+  private invulnUntil: number = 0;
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private keysWASD!: { [key: string]: Phaser.Input.Keyboard.Key };
 
@@ -151,17 +175,33 @@ export class GameScene extends Phaser.Scene {
     this.activeWeapons.set(this.character.starterWeapon, 1);
     this.weaponTimers.set(this.character.starterWeapon, 0);
 
-    // Infinite Desert Floor
-    this.groundTile = this.add.tileSprite(0, 0, width * 2, height * 2, 'desert_ground').setOrigin(0.5);
+    // Giant explorable desert floor (world space, culled by the camera)
+    this.invulnUntil = 0;
+    this.groundTile = this.add.tileSprite(0, 0, WORLD_W, WORLD_H, 'desert_ground').setOrigin(0, 0).setDepth(-10);
+    const startX = WORLD_W / 2;
+    const startY = WORLD_H / 2;
+    this.worldMap = new WorldMap(this, startX, startY);
 
     // Player Sprite (32-bit Neo Geo Arcade Hero)
     const heroKey = `hero_${this.character.id}`;
-    if (this.textures.exists(heroKey)) {
-      this.player = this.add.sprite(width / 2, height / 2, heroKey, 0).setScale(0.85);
+    this.usePixellab = hasPixellabHero(this.character.id) && this.textures.exists(pixellabIdleFrame(this.character.id, 'south'));
+    this.facingDir = 'south';
+    if (this.usePixellab) {
+      createPixellabAnims(this, this.character.id);
+      this.player = this.add
+        .sprite(startX, startY, pixellabIdleFrame(this.character.id, 'south'))
+        .setScale(PIXELLAB_HERO_SCALE);
+    } else if (this.textures.exists(heroKey)) {
+      this.player = this.add.sprite(startX, startY, heroKey, 0).setScale(0.5);
     } else {
-      this.player = this.add.sprite(width / 2, height / 2, `player_${this.character.id}`).setScale(1.6);
+      this.player = this.add.sprite(startX, startY, `player_${this.character.id}`).setScale(1.0);
     }
     this.player.setDepth(10);
+
+    // Smooth camera follow inside world bounds
+    this.cameras.main.setBounds(0, 0, WORLD_W, WORLD_H);
+    this.cameras.main.startFollow(this.player, true, 0.12, 0.12);
+    this.worldMap.update(startX, startY);
 
     // Keyboard Inputs
     if (this.input.keyboard) {
@@ -423,12 +463,15 @@ export class GameScene extends Phaser.Scene {
     this.bossBarContainer.setVisible(true);
 
     // Spawn Boss Simon Greedwell
-    const angle = Math.random() * Math.PI * 2;
-    const dist = 500;
-    const spawnX = this.player.x + Math.cos(angle) * dist;
-    const spawnY = this.player.y + Math.sin(angle) * dist;
+    const bossSpawn = this.worldMap.spawnPointAround(this.player.x, this.player.y);
+    const spawnX = bossSpawn.x;
+    const spawnY = bossSpawn.y;
 
-    const sprite = this.add.sprite(spawnX, spawnY, 'boss_greedwell').setScale(2.0).setDepth(15);
+    const usesPixellab = hasGreedwellSprites(this);
+    if (usesPixellab) createGreedwellAnims(this);
+    const sprite = usesPixellab
+      ? this.add.sprite(spawnX, spawnY, greedwellFirstFrame('run_east')).setScale(GREEDWELL_SCALE).setDepth(15)
+      : this.add.sprite(spawnX, spawnY, 'boss_greedwell').setScale(1.2).setDepth(15);
     this.bossEnemy = {
       sprite,
       type: 'boss',
@@ -439,6 +482,8 @@ export class GameScene extends Phaser.Scene {
       xpVal: 150,
       bountyVal: 10000,
       throwCooldown: 1200,
+      usesPixellab,
+      animLock: 0,
     };
     this.enemies.push(this.bossEnemy);
     this.updateBossBar();
@@ -453,10 +498,9 @@ export class GameScene extends Phaser.Scene {
     // Spawn 3-6 enemies around player perimeter
     const spawnBatch = 4 + Math.floor(this.gameTimeSeconds / 30);
     for (let i = 0; i < spawnBatch; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const dist = 520 + Math.random() * 120;
-      const x = this.player.x + Math.cos(angle) * dist;
-      const y = this.player.y + Math.sin(angle) * dist;
+      const spawnPt = this.worldMap.spawnPointAround(this.player.x, this.player.y);
+      const x = spawnPt.x;
+      const y = spawnPt.y;
 
       // Pick enemy type based on game time
       const rand = Math.random();
@@ -494,7 +538,7 @@ export class GameScene extends Phaser.Scene {
         bountyVal = 80;
       }
 
-      const sprite = this.add.sprite(x, y, texture).setScale(1.4).setDepth(5);
+      const sprite = this.add.sprite(x, y, texture).setScale(0.9).setDepth(5);
       this.enemies.push({
         sprite,
         type,
@@ -516,6 +560,7 @@ export class GameScene extends Phaser.Scene {
     this.handleWeaponsAutoFire(delta);
     this.updateProjectiles(delta);
     this.updateEnemies(delta);
+    this.worldMap.update(this.player.x, this.player.y);
     this.updateDrops(delta);
     this.updateFireZones(delta);
   }
@@ -546,24 +591,40 @@ export class GameScene extends Phaser.Scene {
       this.player.x += nx * step;
       this.player.y += ny * step;
 
-      // Flip sprite to face movement direction
-      if (dx < -0.1) this.player.setFlipX(true);
-      if (dx > 0.1) this.player.setFlipX(false);
+      if (this.usePixellab) {
+        // 6-direction Pixellab walk cycle (SW mirrors SE, NE/NW use north)
+        const choice = pickDirection(this.character.id, nx, ny);
+        this.facingDir = choice.dir;
+        this.player.setFlipX(choice.flipX);
+        const key = pixellabAnimKey(this.character.id, choice.dir);
+        if (this.player.anims.currentAnim?.key !== key || !this.player.anims.isPlaying) {
+          this.player.play(key);
+        }
+      } else {
+        // Flip sprite to face movement direction
+        if (dx < -0.1) this.player.setFlipX(true);
+        if (dx > 0.1) this.player.setFlipX(false);
+      }
 
-      // Play 32-bit running animation
+      // Play 32-bit running animation (legacy sheets only)
       const animKey = `${this.character.id}_run`;
-      if (this.anims.exists(animKey) && (!this.player.anims.isPlaying || this.player.anims.currentAnim?.key !== animKey)) {
+      if (!this.usePixellab && this.anims.exists(animKey) && (!this.player.anims.isPlaying || this.player.anims.currentAnim?.key !== animKey)) {
         this.player.play(animKey);
       }
 
-      // Scroll background tile relative to player
-      this.groundTile.tilePositionX = this.player.x;
-      this.groundTile.tilePositionY = this.player.y;
+      // Collide with obstacles and stay inside the world
+      const fixed = this.worldMap.resolve(this.player.x, this.player.y, 10);
+      this.player.x = fixed.x;
+      this.player.y = fixed.y;
     } else {
       // Idle: stop running animation and return to ready stance frame 0
       if (this.player.anims && this.player.anims.isPlaying) {
         this.player.stop();
-        this.player.setFrame(0);
+        if (this.usePixellab) {
+          this.player.setTexture(pixellabIdleFrame(this.character.id, this.facingDir));
+        } else {
+          this.player.setFrame(0);
+        }
       }
     }
   }
@@ -828,13 +889,34 @@ export class GameScene extends Phaser.Scene {
       const dy = this.player.y - e.sprite.y;
       const dist = Math.hypot(dx, dy);
 
-      // Facing direction
-      e.sprite.setFlipX(dx < 0);
+      // Facing direction (Pixellab boss has dedicated east/west run cycles)
+      if (e.usesPixellab) {
+        if (e.animLock && e.animLock > 0) {
+          e.animLock -= delta;
+        } else {
+          const runKey = greedwellAnimKey(dx < 0 ? 'run_west' : 'run_east');
+          if (e.sprite.anims.currentAnim?.key !== runKey || !e.sprite.anims.isPlaying) {
+            e.sprite.play(runKey);
+          }
+        }
+      } else {
+        e.sprite.setFlipX(dx < 0);
+      }
 
       if (dist > 0.1) {
         const step = (e.speed * delta) / 1000;
         e.sprite.x += (dx / dist) * step;
         e.sprite.y += (dy / dist) * step;
+        const fixed = this.worldMap.resolve(e.sprite.x, e.sprite.y, e.type === 'boss' ? 14 : 8);
+        e.sprite.x = fixed.x;
+        e.sprite.y = fixed.y;
+      }
+
+      // Enemies left far behind are recycled to the spawn ring (keeps hordes on you)
+      if (dist > 1400 && e.type !== 'boss') {
+        const p = this.worldMap.spawnPointAround(this.player.x, this.player.y);
+        e.sprite.setPosition(p.x, p.y);
+        continue;
       }
 
       // Dynamiter attacks from distance
@@ -851,13 +933,22 @@ export class GameScene extends Phaser.Scene {
         e.throwCooldown -= delta;
         if (e.throwCooldown <= 0) {
           e.throwCooldown = 1800;
-          this.bossRevolverBarrage(e.sprite.x, e.sprite.y);
+          if (e.usesPixellab) {
+            // Brace-and-fire animation; bullets leave on the firing frame
+            e.animLock = 650;
+            e.sprite.play(greedwellAnimKey('shoot'));
+            this.time.delayedCall((GREEDWELL_SHOOT_FIRE_FRAME / 14) * 1000, () => {
+              if (e.sprite.active && !this.isGameOver) this.bossRevolverBarrage(e.sprite.x, e.sprite.y);
+            });
+          } else {
+            this.bossRevolverBarrage(e.sprite.x, e.sprite.y);
+          }
         }
       }
 
-      // Damage Player on contact
-      if (dist < 32) {
-        this.damagePlayer((e.damage * delta) / 1000);
+      // Damage Player on contact (discrete hit; i-frames in damagePlayer)
+      if (dist < (e.type === 'boss' ? 30 : 20)) {
+        this.damagePlayer(e.damage);
       }
     }
   }
@@ -1053,15 +1144,46 @@ export class GameScene extends Phaser.Scene {
       bounty: enemy.bountyVal,
     });
 
+    // Boss death animation plays on a detached corpse sprite
+    if (enemy.type === 'boss' && enemy.usesPixellab) {
+      const corpse = this.add
+        .sprite(enemy.sprite.x, enemy.sprite.y, greedwellFirstFrame('death'))
+        .setScale(GREEDWELL_SCALE)
+        .setDepth(15);
+      corpse.play(greedwellAnimKey('death'));
+      this.time.delayedCall(1300, () => {
+        this.tweens.add({ targets: corpse, alpha: 0, duration: 400, onComplete: () => corpse.destroy() });
+      });
+    }
+
     enemy.sprite.destroy();
 
     // Check Boss Victory
     if (enemy.type === 'boss') {
-      this.victory();
+      if (enemy.usesPixellab) {
+        // Let the death animation play before the victory screen
+        this.time.delayedCall(1200, () => {
+          if (!this.isGameOver) this.victory();
+        });
+      } else {
+        this.victory();
+      }
     }
   }
 
   private damagePlayer(amount: number) {
+    // Temporary invulnerability after taking a hit
+    if (this.time.now < this.invulnUntil) return;
+    this.invulnUntil = this.time.now + 600;
+    this.tweens.add({
+      targets: this.player,
+      alpha: 0.35,
+      duration: 70,
+      yoyo: true,
+      repeat: 3,
+      onComplete: () => this.player.setAlpha(1),
+    });
+
     const reduced = Math.max(1, amount - this.armor);
     this.hp -= reduced;
     this.hpText.setText(`HP ${Math.max(0, Math.round(this.hp))}/${this.maxHp}`);

@@ -3,6 +3,8 @@ import { sounds } from '../audio/SoundManager';
 import { THEME } from '../ui/theme/tokens';
 import { SpriteGenerator } from '../utils/SpriteGenerator';
 import { WesternButton } from '../ui/components/WesternButton';
+import { preloadPixellabHeroes } from '../systems/PixellabHeroes';
+import { preloadGreedwell } from '../systems/GreedwellSprites';
 
 export class TitleScene extends Phaser.Scene {
   private rootContainer!: Phaser.GameObjects.Container;
@@ -47,6 +49,10 @@ export class TitleScene extends Phaser.Scene {
     this.load.spritesheet('hero_billy', 'assets/sprites/heroes/billy_sheet.png', { frameWidth: 128, frameHeight: 144 });
     this.load.spritesheet('hero_bob', 'assets/sprites/heroes/bob_sheet.png', { frameWidth: 128, frameHeight: 144 });
     this.load.spritesheet('hero_cormano', 'assets/sprites/heroes/cormano_sheet.png', { frameWidth: 128, frameHeight: 144 });
+
+    // 3b. Pixellab heroes: walk cycles in 6 directions (gameplay)
+    preloadPixellabHeroes(this);
+    preloadGreedwell(this);
 
     // 4. Character Select Assets (WESTERN PULP '98)
     this.load.image('select_saloon_backdrop', 'assets/select_characters/select_saloon_backdrop.png');
