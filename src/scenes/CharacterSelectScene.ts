@@ -132,7 +132,10 @@ export class CharacterSelectScene extends Phaser.Scene {
     // 9. Ensure intro soundtrack is playing
     sounds.playIntroMusic();
 
-    // 10. Soft entrance camera fade-in
+    // 10. Efeito de carregando arma ao entrar na tela de escolher o jogador
+    sounds.playGunReload();
+
+    // 11. Soft entrance camera fade-in
     this.cameras.main.fadeIn(350, 0, 0, 0);
   }
 
@@ -414,8 +417,13 @@ export class CharacterSelectScene extends Phaser.Scene {
   // -------------------------------------------------------------
   private selectIndex(idx: number, playSound: boolean = true) {
     this.selectedIndex = idx;
+    const charKey = this.characterKeys[idx];
+
     if (playSound) {
-      sounds.playRevolver();
+      // Efeito de carregando a arma ao selecionar o jogador
+      sounds.playGunReload();
+      // Toca a voz do jogador (cessando imediatamente a anterior)
+      sounds.playHeroVoice(charKey);
     }
 
     const cardWidth = 300;
@@ -500,7 +508,6 @@ export class CharacterSelectScene extends Phaser.Scene {
     });
 
     // Update Bottom Panel info with character data
-    const charKey = this.characterKeys[idx];
     const selectedChar = CHARACTERS[charKey];
 
     // Character title with primary color accent
@@ -545,8 +552,9 @@ export class CharacterSelectScene extends Phaser.Scene {
     const charKey = this.characterKeys[this.selectedIndex];
     const selectedChar = CHARACTERS[charKey];
 
-    // Arcade gunfire confirm sound
-    sounds.playShotgun();
+    // Som de tiro ao selecionar o jogador (pistol-shot.mp3) e voz do herói
+    sounds.playPistolShot();
+    sounds.playHeroVoice(charKey);
 
     // Camera flash (arcade yellow/white burst)
     this.cameras.main.flash(200, 255, 245, 210);
@@ -579,11 +587,11 @@ export class CharacterSelectScene extends Phaser.Scene {
     }
     this.rideOutGlow.alpha = 1;
 
-    // Fade to black and start StageIntroScene with chosen hero
+    // Fade to black and start WantedScene (cartaz do boss) direto, sem tela de stage
     this.cameras.main.fade(520, 0, 0, 0);
     this.time.delayedCall(560, () => {
       this.scale.off('resize', this.handleResize, this);
-      this.scene.start('StageIntroScene', { character: selectedChar, stage: 1 });
+      this.scene.start('WantedScene', { character: selectedChar, stage: 1 });
     });
   }
 

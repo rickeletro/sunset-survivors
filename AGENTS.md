@@ -63,6 +63,10 @@ Esta identidade combina:
 ## 5. Regras de Código e Arquitetura
 
 1. **Resolução Lógica Padrão:** Use `1536 × 1024` como espaço de referência para menus cinematográficos, contido em um `rootContainer` centralizado e escalado proporcionalmente (`Math.min(width / 1536, height / 1024)`).
-2. **Preservação de Sistemas:** Nunca quebre nem altere as regras de combate, armas, upgrades, XP ou geração de inimigos ao modificar telas de UI.
-3. **Áudio Centralizado:** Sempre utilize a instância `sounds` de `src/audio/SoundManager.ts` para disparar efeitos sonoros e músicas.
-4. **Skills do Projeto:** Para procedimentos completos e templates de telas, consulte a skill `.agents/skills/western-pulp-arcade/SKILL.md`.
+2. **Preservação Estrita de Regras:** Nunca altere ou remova regras de negócio, combate, armas, upgrades, XP ou mecânicas criadas anteriormente, a não ser que a própria regra contenha um bug comprovado.
+3. **Testes Automatizados (Zero Screenshots / Zero Jogadas Manuais):**
+   - Não realize testes manuais/integração via browser jogando ou tirando screenshots para validar regras de jogo.
+   - Para toda nova regra criada ou regra existente, crie ou complemente pequenos testes automatizados rápidos com `vitest` (`npm test`).
+   - Toda alteração ou correção de bug deve ser acompanhada da execução da suíte de testes (`npm test`) para garantir não-regressão e que nenhum bug novo surja.
+4. **Áudio Centralizado:** Sempre utilize a instância `sounds` de `src/audio/SoundManager.ts` para disparar efeitos sonoros e músicas.
+5. **Skills do Projeto:** Para procedimentos completos e templates de telas, consulte a skill `.agents/skills/western-pulp-arcade/SKILL.md`.

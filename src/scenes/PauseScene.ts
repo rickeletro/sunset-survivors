@@ -130,7 +130,7 @@ export class PauseScene extends Phaser.Scene {
     this.scale.off('resize', this.handleResize, this);
     this.scene.stop('PauseScene');
     this.scene.stop('GameScene');
-    this.scene.start('StageIntroScene', {
+    this.scene.start('WantedScene', {
       character: this.character,
       stage: this.stage,
     });

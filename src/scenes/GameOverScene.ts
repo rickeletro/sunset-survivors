@@ -243,7 +243,7 @@ export class GameOverScene extends Phaser.Scene {
     sounds.playGunReload();
     sounds.playGameplayMusic();
     this.scale.off('resize', this.handleResize, this);
-    this.scene.start('StageIntroScene', {
+    this.scene.start('WantedScene', {
       character: this.stats.character,
       stage: this.stats.stage || 1,
     });

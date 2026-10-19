@@ -702,7 +702,7 @@ export class GameScene extends Phaser.Scene {
       case 'revolver':
       case 'peacemaker':
       case 'desperado_fury': {
-        sounds.playRevolver();
+        sounds.playPlayerGunshot();
         const totalProj = lvl.projectileCount + this.extraProjectiles;
         const targets = nearest.slice(0, totalProj);
         const isDesperado = def.id === 'desperado_fury';
@@ -1307,6 +1307,9 @@ export class GameScene extends Phaser.Scene {
 
     // Check Boss Victory
     if (enemy.type === 'boss') {
+      // Som de derrota do boss (man-screaming.mp3)
+      sounds.playBossDefeatedScream();
+
       if (enemy.usesPixellab) {
         // Let the death animation play before the victory screen
         this.time.delayedCall(1200, () => {

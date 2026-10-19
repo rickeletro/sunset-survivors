@@ -267,7 +267,7 @@ export class StageClearScene extends Phaser.Scene {
       });
     } else {
       // Advance to next stage!
-      this.scene.start('StageIntroScene', {
+      this.scene.start('WantedScene', {
         character: this.dataReceived.character,
         stage: this.dataReceived.stage + 1,
       });

@@ -16,10 +16,11 @@ export class TitleScene extends Phaser.Scene {
   private heroSprites: Phaser.GameObjects.Image[] = [];
   private heroShadows: Phaser.GameObjects.Graphics[] = [];
   private startBtnContainer!: Phaser.GameObjects.Container;
-  private startBtnGlow!: Phaser.GameObjects.Image;
+  private startBtnBorderGlow!: Phaser.GameObjects.Graphics;
   private lanternGlows: Phaser.GameObjects.Graphics[] = [];
   private sunGlowGraphics!: Phaser.GameObjects.Graphics;
   private dustEmitter?: Phaser.GameObjects.Particles.ParticleEmitter;
+  private optionsModalContainer?: Phaser.GameObjects.Container;
 
   constructor() {
     super('TitleScene');
@@ -332,7 +333,7 @@ export class TitleScene extends Phaser.Scene {
   private createStartButton() {
     const btnW = 660;
     const btnH = 150;
-    const btnY = 325;
+    const btnY = 285;
 
     this.startBtnContainer = this.add.container(0, btnY);
     this.startBtnContainer.setAlpha(0);
@@ -341,16 +342,23 @@ export class TitleScene extends Phaser.Scene {
     const darkBtn = this.add.image(0, 0, 'intro_btn_dark').setDisplaySize(btnW, btnH);
     this.startBtnContainer.add(darkBtn);
 
-    // Glowing fiery plaque overlay for smooth arcade attract blink
-    this.startBtnGlow = this.add.image(0, 0, 'intro_btn_glow').setDisplaySize(btnW, btnH);
-    this.startBtnGlow.setAlpha(0.2);
-    this.startBtnContainer.add(this.startBtnGlow);
+    // Borda brilhante arcade pulsante (sem trocar de imagem ou piscar brusco)
+    this.startBtnBorderGlow = this.add.graphics();
+    const borderRadius = 16;
+    // Borda dourada brilhante
+    this.startBtnBorderGlow.lineStyle(4, 0xffc52a, 0.95);
+    this.startBtnBorderGlow.strokeRoundedRect(-btnW / 2 + 4, -btnH / 2 + 4, btnW - 8, btnH - 8, borderRadius);
+    // Borda interna âmbar de acabamento
+    this.startBtnBorderGlow.lineStyle(2, 0xff791c, 0.7);
+    this.startBtnBorderGlow.strokeRoundedRect(-btnW / 2 + 8, -btnH / 2 + 8, btnW - 16, btnH - 16, borderRadius - 4);
+    this.startBtnBorderGlow.setAlpha(0.3);
+    this.startBtnContainer.add(this.startBtnBorderGlow);
 
-    // Subtle breathing pulse for arcade button
+    // Pulso suave e elegante da borda brilhante
     this.tweens.add({
-      targets: this.startBtnGlow,
+      targets: this.startBtnBorderGlow,
       alpha: 1.0,
-      duration: 520,
+      duration: 650,
       yoyo: true,
       repeat: -1,
       ease: 'Sine.easeInOut',
@@ -360,11 +368,11 @@ export class TitleScene extends Phaser.Scene {
     const hitZone = this.add.zone(0, 0, btnW, btnH).setInteractive({ useHandCursor: true });
     hitZone.on('pointerover', () => {
       this.startBtnContainer.setScale(1.03);
-      this.startBtnGlow.setAlpha(1.0);
+      this.startBtnBorderGlow.setAlpha(1.0);
     });
     hitZone.on('pointerout', () => {
       this.startBtnContainer.setScale(1.0);
-      this.startBtnGlow.setAlpha(0.5);
+      this.startBtnBorderGlow.setAlpha(0.4);
     });
     hitZone.on('pointerdown', () => {
       this.advanceToGame();
@@ -402,31 +410,243 @@ export class TitleScene extends Phaser.Scene {
     this.rootContainer.add(cr);
 
     // Bottom Copyright / Project info
-    const copyright = this.add.text(0, 482, 'TM © 2026 SUNSET SURVIVORS. A FAN GAME INSPIRED BY SUNSET RIDERS.', {
+    const copyright = this.add.text(0, 484, 'TM © 2026 SUNSET SURVIVORS. A FAN GAME INSPIRED BY SUNSET RIDERS.', {
       fontFamily: THEME.typography.pixelFont,
-      fontSize: '11px',
+      fontSize: '10px',
       color: '#f2d49a',
       stroke: '#000000',
       strokeThickness: 3,
     }).setOrigin(0.5);
     this.rootContainer.add(copyright);
+  }
 
-    // SFX & Mute Button in bottom right corner
-    const muteBtn = this.add.text(690, 482, '🔊 SFX', {
+  // -------------------------------------------------------------
+  // MODAL DE OPÇÕES DE ÁUDIO (SLIDERS DESLIZANTES PARA BGM & SFX)
+  // -------------------------------------------------------------
+  private openOptionsMenuModal() {
+    if (this.optionsModalContainer) return;
+    sounds.playRevolver();
+
+    const modalContainer = this.add.container(0, 0);
+    this.optionsModalContainer = modalContainer;
+
+    // Dark backdrop overlay bloqueando cliques atrás
+    const overlay = this.add.graphics();
+    overlay.fillStyle(0x000000, 0.75);
+    overlay.fillRect(-768, -512, 1536, 1024);
+    overlay.setInteractive(new Phaser.Geom.Rectangle(-768, -512, 1536, 1024), Phaser.Geom.Rectangle.Contains);
+    modalContainer.add(overlay);
+
+    // Saloon Wood Modal Box
+    const boxW = 620;
+    const boxH = 430;
+    const box = this.add.graphics();
+    // Drop shadow
+    box.fillStyle(0x000000, 0.6);
+    box.fillRoundedRect(-boxW / 2 + 8, -boxH / 2 + 10, boxW, boxH, 12);
+    // Outer wood border
+    box.fillStyle(0x321b10, 1);
+    box.fillRoundedRect(-boxW / 2, -boxH / 2, boxW, boxH, 12);
+    // Parchment inner fill
+    box.fillStyle(0xecd8b5, 1);
+    box.fillRoundedRect(-boxW / 2 + 6, -boxH / 2 + 6, boxW - 12, boxH - 12, 8);
+    // Inner xilogravura frame
+    box.lineStyle(2, 0x78350f, 0.85);
+    box.strokeRect(-boxW / 2 + 16, -boxH / 2 + 16, boxW - 32, boxH - 32);
+    modalContainer.add(box);
+
+    // Title Header Plaque
+    const titlePlaque = this.add.graphics();
+    titlePlaque.fillStyle(0xa51e16, 1);
+    titlePlaque.fillRoundedRect(-180, -boxH / 2 + 26, 360, 44, 6);
+    titlePlaque.lineStyle(2, 0xffc52a, 1);
+    titlePlaque.strokeRoundedRect(-180, -boxH / 2 + 26, 360, 44, 6);
+    modalContainer.add(titlePlaque);
+
+    const titleText = this.add.text(0, -boxH / 2 + 48, '★ AUDIO OPTIONS ★', {
+      fontFamily: '"Rye", serif',
+      fontSize: '20px',
+      color: '#fff7ed',
+      stroke: '#000000',
+      strokeThickness: 2,
+    }).setOrigin(0.5);
+    modalContainer.add(titleText);
+
+    // -------------------------------------------------------------
+    // SLIDER CREATION HELPER
+    // -------------------------------------------------------------
+    const createSlider = (
+      yPos: number,
+      labelStr: string,
+      initialVal: number,
+      onChange: (val: number) => void
+    ) => {
+      const sliderTrackW = 340;
+      const sliderTrackH = 16;
+      const trackX = -30;
+
+      // Label (left)
+      const label = this.add.text(-220, yPos, labelStr, {
+        fontFamily: THEME.typography.pixelFont,
+        fontSize: '11px',
+        color: '#2b1408',
+      }).setOrigin(0, 0.5);
+      modalContainer.add(label);
+
+      // Percentage text (right)
+      const pctText = this.add.text(210, yPos, `${Math.round(initialVal * 100)}%`, {
+        fontFamily: THEME.typography.pixelFont,
+        fontSize: '11px',
+        color: '#78350f',
+      }).setOrigin(0, 0.5);
+      modalContainer.add(pctText);
+
+      // Track graphics
+      const trackGfx = this.add.graphics();
+      const fillGfx = this.add.graphics();
+      modalContainer.add([trackGfx, fillGfx]);
+
+      const drawTrack = (val: number) => {
+        // Track background
+        trackGfx.clear();
+        trackGfx.fillStyle(0x321b10, 1);
+        trackGfx.fillRoundedRect(trackX - sliderTrackW / 2, yPos - sliderTrackH / 2, sliderTrackW, sliderTrackH, 8);
+        trackGfx.lineStyle(1, 0x78350f, 1);
+        trackGfx.strokeRoundedRect(trackX - sliderTrackW / 2, yPos - sliderTrackH / 2, sliderTrackW, sliderTrackH, 8);
+
+        // Active fill
+        fillGfx.clear();
+        fillGfx.fillStyle(0xd97706, 1);
+        const fillW = Math.max(8, sliderTrackW * val);
+        fillGfx.fillRoundedRect(trackX - sliderTrackW / 2 + 2, yPos - sliderTrackH / 2 + 2, fillW - 4, sliderTrackH - 4, 6);
+      };
+
+      drawTrack(initialVal);
+
+      // Knob (Thumb)
+      const knob = this.add.graphics();
+      const knobRadius = 14;
+      const drawKnob = (kx: number) => {
+        knob.clear();
+        knob.fillStyle(0x1a0d00, 0.3);
+        knob.fillCircle(kx, yPos + 3, knobRadius);
+        knob.fillStyle(0xffc52a, 1);
+        knob.fillCircle(kx, yPos, knobRadius);
+        knob.lineStyle(2, 0x603719, 1);
+        knob.strokeCircle(kx, yPos, knobRadius);
+        knob.fillStyle(0xa51e16, 1);
+        knob.fillCircle(kx, yPos, 4);
+      };
+
+      const startKx = trackX - sliderTrackW / 2 + sliderTrackW * initialVal;
+      drawKnob(startKx);
+      modalContainer.add(knob);
+
+      // Interactive hit zone for dragging
+      const hitZone = this.add.zone(trackX, yPos, sliderTrackW + 36, 40)
+        .setInteractive({ useHandCursor: true });
+      modalContainer.add(hitZone);
+
+      let isDragging = false;
+      const updateFromPointer = (pointerX: number) => {
+        // Posição local no rootContainer escalado
+        const localX = (pointerX - this.cameras.main.width / 2) / this.rootContainer.scaleX;
+        const clampedX = Phaser.Math.Clamp(localX, trackX - sliderTrackW / 2, trackX + sliderTrackW / 2);
+        const ratio = (clampedX - (trackX - sliderTrackW / 2)) / sliderTrackW;
+        drawTrack(ratio);
+        drawKnob(clampedX);
+        pctText.setText(`${Math.round(ratio * 100)}%`);
+        onChange(ratio);
+      };
+
+      hitZone.on('pointerdown', (p: Phaser.Input.Pointer) => {
+        isDragging = true;
+        updateFromPointer(p.x);
+      });
+
+      this.input.on('pointermove', (p: Phaser.Input.Pointer) => {
+        if (isDragging) {
+          updateFromPointer(p.x);
+        }
+      });
+
+      this.input.on('pointerup', () => {
+        isDragging = false;
+      });
+    };
+
+    // 1. Music Slider (inicia a 75%)
+    createSlider(-55, '🎵 MUSIC', sounds.getMusicVolume(), (val) => {
+      sounds.setMusicVolume(val);
+    });
+
+    // 2. SFX Slider (inicia a 45%)
+    createSlider(35, '💥 SFX', sounds.getSfxVolume(), (val) => {
+      sounds.setSfxVolume(val);
+      sounds.playPistolShot();
+    });
+
+    // 3. Mute Toggle Button
+    const isMuted = sounds.getIsMuted();
+    const muteBtn = this.add.text(0, 115, isMuted ? '🔇 AUDIO: MUTED' : '🔊 AUDIO: ACTIVE', {
       fontFamily: THEME.typography.pixelFont,
       fontSize: '11px',
-      color: '#fbbf24',
-      backgroundColor: '#1b120c',
-      padding: { x: 8, y: 4 },
-    }).setOrigin(1, 0.5).setInteractive({ useHandCursor: true });
+      color: isMuted ? '#ef4444' : '#166534',
+      backgroundColor: '#d6c09a',
+      padding: { left: 16, right: 16, top: 8, bottom: 8 },
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
-    muteBtn.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-      pointer.event.stopPropagation();
-      const muted = sounds.toggleMute();
-      muteBtn.setText(muted ? '🔇 MUTED' : '🔊 SFX');
-      muteBtn.setColor(muted ? '#ef4444' : '#fbbf24');
+    muteBtn.on('pointerdown', () => {
+      const nowMuted = sounds.toggleMute();
+      muteBtn.setText(nowMuted ? '🔇 AUDIO: MUTED' : '🔊 AUDIO: ACTIVE');
+      muteBtn.setColor(nowMuted ? '#ef4444' : '#166534');
     });
-    this.rootContainer.add(muteBtn);
+    modalContainer.add(muteBtn);
+
+    // 4. Close [ CONFIRMAR / VOLTAR ] Button
+    const closeBtn = this.add.text(0, 175, '✔ SALVAR E VOLTAR', {
+      fontFamily: THEME.typography.pixelFont,
+      fontSize: '12px',
+      color: '#ffffff',
+      backgroundColor: '#8b0e0e',
+      padding: { left: 24, right: 24, top: 10, bottom: 10 },
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
+    closeBtn.on('pointerdown', () => {
+      sounds.playRevolver();
+      this.closeOptionsMenuModal();
+    });
+    modalContainer.add(closeBtn);
+
+    // Entrance Animation (Escala elástica)
+    modalContainer.setScale(0.85);
+    modalContainer.setAlpha(0);
+    this.tweens.add({
+      targets: modalContainer,
+      scaleX: 1.0,
+      scaleY: 1.0,
+      alpha: 1.0,
+      duration: 180,
+      ease: 'Back.easeOut',
+    });
+
+    this.rootContainer.add(modalContainer);
+  }
+
+  private closeOptionsMenuModal() {
+    if (!this.optionsModalContainer) return;
+    this.tweens.add({
+      targets: this.optionsModalContainer,
+      scaleX: 0.85,
+      scaleY: 0.85,
+      alpha: 0,
+      duration: 140,
+      ease: 'Power2',
+      onComplete: () => {
+        this.optionsModalContainer?.destroy();
+        this.optionsModalContainer = undefined;
+      },
+    });
   }
 
   // -------------------------------------------------------------
@@ -521,7 +741,7 @@ export class TitleScene extends Phaser.Scene {
       this.startBtnContainer.setAlpha(1);
       this.tweens.add({
         targets: this.startBtnContainer,
-        y: { from: 480, to: 325 },
+        y: { from: 480, to: 285 },
         scaleX: { from: 0.8, to: 1.0 },
         scaleY: { from: 0.8, to: 1.0 },
         duration: 600,
@@ -531,20 +751,24 @@ export class TitleScene extends Phaser.Scene {
   }
 
   private createAuxiliaryMenu() {
+    // Posicionado com folga confortável abaixo do botão PRESS START (base do start btn em y=360, aux em y=420)
     const auxContainer = this.add.container(0, 420);
 
     const items = [
+      { text: '⚙ MENU [M]', onClick: () => this.openOptionsMenuModal() },
       { text: '📖 CONTROLS [H]', onClick: () => this.openControls() },
       { text: '📊 STATS [S]', onClick: () => this.openStats() },
       { text: '🏆 UNLOCKS [U]', onClick: () => this.openUnlockables() },
     ];
 
+    // 4 botões distribuídos simetricamente: -360, -120, 120, 360
+    const positionsX = [-360, -120, 120, 360];
+
     items.forEach((item, idx) => {
-      const posX = -280 + idx * 280;
       const btn = new WesternButton(this, {
-        x: posX,
+        x: positionsX[idx],
         y: 0,
-        width: 240,
+        width: 220,
         height: 44,
         text: item.text,
         variant: 'wood',
@@ -587,6 +811,7 @@ export class TitleScene extends Phaser.Scene {
     this.input.keyboard?.on('keydown-ENTER', () => this.advanceToGame());
 
     // Auxiliary screen shortcuts
+    this.input.keyboard?.on('keydown-M', () => this.openOptionsMenuModal());
     this.input.keyboard?.on('keydown-H', () => this.openControls());
     this.input.keyboard?.on('keydown-S', () => this.openStats());
     this.input.keyboard?.on('keydown-U', () => this.openUnlockables());
@@ -603,7 +828,7 @@ export class TitleScene extends Phaser.Scene {
     this.heroSprites.forEach((s) => s.setAlpha(1));
     this.heroShadows.forEach((s) => s.setAlpha(0.45));
     if (this.startBtnContainer) {
-      this.startBtnContainer.setAlpha(1).setY(325);
+      this.startBtnContainer.setAlpha(1).setY(285);
     }
 
     // 1. Disparo de revólver

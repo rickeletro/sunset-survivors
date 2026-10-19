@@ -58,8 +58,8 @@ if (sceneParam && sceneMap[sceneParam]) {
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   parent: 'game-container',
-  width: 960,
-  height: 600,
+  width: 1920,
+  height: 1080,
   pixelArt: true,
   roundPixels: true,
   backgroundColor: '#0a0503',
