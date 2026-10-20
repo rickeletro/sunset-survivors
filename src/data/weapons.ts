@@ -14,7 +14,7 @@ export interface WeaponDef {
   name: string;
   icon: string;
   sound: 'revolver' | 'shotgun' | 'rifle' | 'explosion';
-  type: 'directional' | 'nearest' | 'spread' | 'lob' | 'orbit' | 'radial';
+  type: 'directional' | 'nearest' | 'spread' | 'lob' | 'orbit' | 'radial' | 'sweep';
   levels: WeaponLevelInfo[];
 }
 
@@ -110,17 +110,13 @@ export const WEAPONS: Record<string, WeaponDef> = {
   },
 
   lasso: {
-    id: 'lasso',
-    name: 'Spinning Lasso',
-    icon: 'lasso',
-    sound: 'revolver',
-    type: 'orbit',
+    id: 'lasso', name: 'Frontier Whip', icon: 'lasso', sound: 'revolver', type: 'sweep',
     levels: [
-      { level: 1, damage: 20, cooldownMs: 200, projectileCount: 1, pierce: 99, speed: 3, range: 90, description: 'A coiled western lasso orbits and whips nearby foes' },
-      { level: 2, damage: 30, cooldownMs: 200, projectileCount: 1, pierce: 99, speed: 3.5, range: 105, description: '+50% Lasso damage & larger orbit radius' },
-      { level: 3, damage: 42, cooldownMs: 200, projectileCount: 2, pierce: 99, speed: 4, range: 120, description: '2 Lassos spin in tandem creating a protective zone' },
-      { level: 4, damage: 58, cooldownMs: 200, projectileCount: 2, pierce: 99, speed: 4.5, range: 135, description: 'Furious spinning repels all incoming monsters' },
-      { level: 5, damage: 80, cooldownMs: 200, projectileCount: 3, pierce: 99, speed: 5, range: 150, description: '3 Razor Lassos shred anything that steps near!' },
+      { level: 1, damage: 28, cooldownMs: 1350, projectileCount: 1, pierce: 99, speed: 3, range: 130, description: 'A leather whip lashes through all enemies ahead' },
+      { level: 2, damage: 40, cooldownMs: 1200, projectileCount: 1, pierce: 99, speed: 3.5, range: 150, description: 'Longer reach, stronger lash and faster recovery' },
+      { level: 3, damage: 55, cooldownMs: 1100, projectileCount: 2, pierce: 99, speed: 4, range: 175, description: 'Strikes in front and behind with two whips' },
+      { level: 4, damage: 75, cooldownMs: 1000, projectileCount: 2, pierce: 99, speed: 4.5, range: 200, description: 'Heavy leather sweeps a wider corridor' },
+      { level: 5, damage: 100, cooldownMs: 900, projectileCount: 3, pierce: 99, speed: 5, range: 225, description: 'Three golden-edged lashes clear both flanks' },
     ],
   },
 
@@ -132,7 +128,7 @@ export const WEAPONS: Record<string, WeaponDef> = {
     sound: 'revolver',
     type: 'nearest',
     levels: [
-      { level: 1, damage: 110, cooldownMs: 260, projectileCount: 8, pierce: 4, speed: 750, range: 600, description: 'Saraivada de balas explosivas perfurantes contínuas' },
+      { level: 1, damage: 85, cooldownMs: 420, projectileCount: 6, pierce: 3, speed: 750, range: 600, description: 'Saraivada de balas explosivas perfurantes contínuas' },
     ],
   },
 
@@ -143,7 +139,7 @@ export const WEAPONS: Record<string, WeaponDef> = {
     sound: 'shotgun',
     type: 'spread',
     levels: [
-      { level: 1, damage: 105, cooldownMs: 500, projectileCount: 16, pierce: 4, speed: 650, range: 500, description: '16 estilhaços devastadores com raio extremo e repulsão' },
+      { level: 1, damage: 90, cooldownMs: 650, projectileCount: 12, pierce: 4, speed: 650, range: 500, description: '12 estilhaços devastadores com raio extremo e repulsão' },
     ],
   },
 
@@ -154,7 +150,7 @@ export const WEAPONS: Record<string, WeaponDef> = {
     sound: 'rifle',
     type: 'directional',
     levels: [
-      { level: 1, damage: 380, cooldownMs: 480, projectileCount: 4, pierce: 99, speed: 1100, range: 900, description: 'Linha quádrupla de snipers dourados de perfuração ilimitada' },
+      { level: 1, damage: 280, cooldownMs: 600, projectileCount: 3, pierce: 99, speed: 1100, range: 900, description: 'Linha tripla de snipers dourados de perfuração ilimitada' },
     ],
   },
 
@@ -165,7 +161,7 @@ export const WEAPONS: Record<string, WeaponDef> = {
     sound: 'explosion',
     type: 'lob',
     levels: [
-      { level: 1, damage: 450, cooldownMs: 950, projectileCount: 4, pierce: 99, speed: 420, range: 500, description: 'Barris de pólvora que geram explosão maciça e chamas persistentes' },
+      { level: 1, damage: 330, cooldownMs: 1250, projectileCount: 3, pierce: 99, speed: 420, range: 500, description: 'Barris de pólvora que geram explosão maciça e chamas persistentes' },
     ],
   },
 
@@ -174,9 +170,9 @@ export const WEAPONS: Record<string, WeaponDef> = {
     name: 'Cyclone Whip',
     icon: 'lasso',
     sound: 'revolver',
-    type: 'orbit',
+    type: 'sweep',
     levels: [
-      { level: 1, damage: 130, cooldownMs: 160, projectileCount: 4, pierce: 99, speed: 6.5, range: 200, description: '4 laços celestiais gigantescos que aniquilam e magnetizam o cenário' },
+      { level: 1, damage: 130, cooldownMs: 800, projectileCount: 4, pierce: 99, speed: 6.5, range: 280, description: 'Quatro chicotes dourados atingem os dois flancos com alcance extremo' },
     ],
   },
 };

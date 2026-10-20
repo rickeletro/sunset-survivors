@@ -4,8 +4,8 @@ import { BOSS_COMBAT, bossRageMultiplier, getBossCombat, remainingBossHp } from 
 import { ENEMY_DEFS } from './enemies';
 
 describe('eight-stage survival campaign', () => {
-  it('gives each stage a unique theme, hazard and boss, lasting 10–15 minutes', () => {
-    expect(STAGES.map(s => s.duration)).toEqual([600, 660, 720, 750, 780, 810, 840, 900]);
+  it('gives each stage a unique theme, hazard and boss, with bosses arriving at seven minutes', () => {
+    expect(STAGES.map(s => s.duration)).toEqual(Array(8).fill(420));
     expect(new Set(STAGES.map(s => s.theme)).size).toBe(8);
     expect(new Set(STAGES.map(s => s.hazard)).size).toBe(8);
     expect(new Set(BOSS_COMBAT.flatMap(b => b.slugs)).size).toBe(9);
@@ -25,8 +25,8 @@ describe('eight-stage survival campaign', () => {
     expect(stagePhase(stage, 120)).toBe('surge');
     expect(stagePhase(stage, 150)).toBe('respite');
     expect(pressureMultiplier('respite')).toBeLessThan(pressureMultiplier('pressure'));
-    expect(stagePhase(stage, 540)).toBe('last-stand');
-    expect(stagePhase(stage, 600)).toBe('boss');
+    expect(stagePhase(stage, 360)).toBe('last-stand');
+    expect(stagePhase(stage, 420)).toBe('boss');
   });
   it('holds supply progress inside, decays outside, and never overflows or goes negative', () => {
     expect(objectiveProgress(7, true, 2)).toBe(8);
@@ -41,8 +41,8 @@ describe('eight-stage survival campaign', () => {
       expect(point.y).toBeGreaterThanOrEqual(200); expect(point.y).toBeLessThanOrEqual(7800);
     }
   });
-  it('requires both Smith brothers and keeps the original Simon stats', () => {
-    expect(getBossCombat(1)).toMatchObject({ hp: 2000, speed: 105, damage: 28, cooldown: 1800 });
+  it('requires both Smith brothers and raises boss HP while preserving their attacks', () => {
+    expect(getBossCombat(1)).toMatchObject({ hp: 22000, speed: 105, damage: 28, cooldown: 1800 });
     expect(getBossCombat(4).slugs).toHaveLength(2);
     const brothers = [{ hp: -20, maxHp: 4000, dead: true }, { hp: 2000, maxHp: 4000 }];
     expect(remainingBossHp(brothers)).toEqual({ hp: 2000, maxHp: 8000 });

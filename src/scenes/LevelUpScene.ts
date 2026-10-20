@@ -6,7 +6,7 @@ import { CharacterData } from '../data/characters';
 import { WEAPONS } from '../data/weapons';
 
 export interface UpgradeChoice {
-  type: 'weapon' | 'passive' | 'evolution';
+  type: 'weapon' | 'passive' | 'evolution' | 'reward';
   id: string;
   name: string;
   icon: string;
@@ -34,7 +34,7 @@ const ITEM_LORE: Record<string, { tagline: string; typeLabel: string }> = {
   rifle: { tagline: 'One bullet.\nOne vulture.', typeLabel: 'Directional Piercing' },
   dynamite: { tagline: 'Short fuse.\nBig crater.', typeLabel: 'AOE Explosion' },
   molotov: { tagline: 'Hot spirits.\nBlazing ground.', typeLabel: 'Fire Barrier' },
-  lasso: { tagline: 'No outlaw\nescapes rope.', typeLabel: 'Whirling Orbit' },
+  lasso: { tagline: 'Crack the whip.\nClear both flanks.', typeLabel: 'Piercing Lash' },
   badge: { tagline: 'The law\nalways collects.', typeLabel: 'XP Bounty Buff' },
   spurs: { tagline: 'Faster than\ndesert wind.', typeLabel: 'Speed Agility' },
   whiskey: { tagline: 'Liquid grit.\nIron health.', typeLabel: 'Regeneration' },
@@ -395,7 +395,7 @@ export class LevelUpScene extends Phaser.Scene {
       cardContainer.add(shadow);
 
       // 2. Card Artwork Image from public/assets/cards/
-      const cardKey = `card_${choice.id}`;
+      const cardKey = choice.type === 'reward' ? choice.id === 'gold_purse' ? 'card_badge' : 'card_whiskey' : `card_${choice.id}`;
       if (this.textures.exists(cardKey)) {
         const cardImg = this.add.image(0, 0, cardKey).setDisplaySize(cardW, cardH);
         cardContainer.add(cardImg);

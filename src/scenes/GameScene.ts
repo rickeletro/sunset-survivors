@@ -1,3 +1,6 @@
+import { WeaponEffects } from '../systems/WeaponEffects';
+import { molotovFootprint } from '../data/weaponPresentation';
+import { BUILD_LIMITS, cooldownMultiplier, stageClearBonus, xpForLevel } from '../data/economy';
 import { FirstRunTutorial, tutorialProgress } from '../systems/FirstRunTutorial';
 import { FirstRunTutorialView } from '../ui/hud/FirstRunTutorialView';
 import { sceneryForStage, sceneryKey, worldDepth } from '../data/scenery';
@@ -78,6 +81,8 @@ export class GameScene extends Phaser.Scene {
   private xpToNextLevel: number = 20;
   private bounty: number = 0;
   private kills: number = 0;
+  private choosingUpgrade = false;
+  private runId = '';
   private gameTimeSeconds: number = 0;
   private isGameOver: boolean = false;
 
@@ -104,6 +109,7 @@ export class GameScene extends Phaser.Scene {
   private keysWASD!: { [key: string]: Phaser.Input.Keyboard.Key };
 
   private hud!: CombatHUD;
+  private weaponEffects?: WeaponEffects;
   private hostileProjectiles?: HostileProjectiles;
   private onboarding?: FirstRunTutorial;
   private onboardingView?: FirstRunTutorialView;
@@ -153,6 +159,7 @@ export class GameScene extends Phaser.Scene {
 
   create() {
     this.onboardingView = undefined;
+    this.weaponEffects = undefined;
     this.practiceActive = false;
     this.touchOrigin = null; this.touchVector = { x: 0, y: 0 }; this.touchPointerId = null;
     this.isGameOver = false;
@@ -164,11 +171,13 @@ export class GameScene extends Phaser.Scene {
     this.drops = [];
     this.fireZones = [];
     this.gameTimeSeconds = 0;
+    this.choosingUpgrade = false;
+    this.runId = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
     this.kills = 0;
     this.bounty = 0;
     this.level = 1;
     this.currentXp = 0;
-    this.xpToNextLevel = 25;
+    this.xpToNextLevel = xpForLevel(1);
 
     // Apply Character Starting Stats
     this.hp = this.character.stats.maxHp;
@@ -291,14 +300,14 @@ export class GameScene extends Phaser.Scene {
 
     // Enemy Spawner Loop
     this.time.addEvent({
-      delay: 1200,
+      delay: 850,
       callback: () => this.spawnWave(),
       loop: true,
     });
 
     this.updateStageStatus();
     if (!this.onboarding?.blocking) this.showBanner(`FASE ${this.stage} — ${this.stageConfig.title}`, '#ffc52a');
-    sounds.startBGM();
+    sounds.startBGM(this.stage);
   }
 
   private createOnboarding(): void {
@@ -323,6 +332,7 @@ export class GameScene extends Phaser.Scene {
     this.enemies = this.enemies.filter(enemy => !enemy.training);
     for (const projectile of this.projectiles) projectile.sprite.destroy();
     this.projectiles = [];
+    this.weaponEffects?.clearTransient();
     for (const zone of this.fireZones) zone.graphics.destroy();
     this.fireZones = [];
     this.weaponTimers.forEach((_timer, key) => this.weaponTimers.set(key, 0));
@@ -423,7 +433,7 @@ export class GameScene extends Phaser.Scene {
       this.updateHpBar();
     }
 
-    // The encounter lasts 10–15 minutes; kills never skip its timeline.
+    // The boss arrives at seven minutes; kills never skip its timeline.
     if (!this.bossSpawned && isBossDue(this.stageConfig, this.gameTimeSeconds)) this.spawnStageBoss();
     this.encounters.tick(this.gameTimeSeconds, this.bossSpawned);
     this.updateStageStatus();
@@ -487,7 +497,7 @@ export class GameScene extends Phaser.Scene {
       const sprite = this.add.sprite(position.x, position.y, texture).setScale(legacy ? GREEDWELL_SCALE : this.stage === 1 ? 1.2 : 1.25).setDepth(15);
       const enemy: Enemy = {
         sprite, type: 'boss', hp: combat.hp, maxHp: combat.hp,
-        speed: combat.speed, damage: combat.damage, xpVal: 150, bountyVal: 10000,
+        speed: combat.speed, damage: combat.damage, xpVal: 300, bountyVal: 200 + this.stage * 50,
         throwCooldown: 1200 + index * 600, usesPixellab: legacy, animLock: 0,
         bossSlug: this.stage === 1 ? undefined : slug,
       };
@@ -659,6 +669,7 @@ export class GameScene extends Phaser.Scene {
 
   update(_time: number, delta: number) {
     if (this.isGameOver || this.bossDefeated) return;
+    if (!this.onboarding?.blocking && !this.choosingUpgrade && this.currentXp >= this.xpToNextLevel) { this.addXp(0); return; }
     const oldX = this.player.x, oldY = this.player.y;
     this.handlePlayerMovement(delta);
     const previousPhase = this.onboarding?.phase;
@@ -673,6 +684,7 @@ export class GameScene extends Phaser.Scene {
         this.enemyHash.rebuild(this.enemies);
         this.handleWeaponsAutoFire(delta);
         this.updateProjectiles(delta);
+        this.weaponEffects?.update(delta, this.projectiles);
         this.updateFireZones(delta);
       }
       return;
@@ -680,10 +692,12 @@ export class GameScene extends Phaser.Scene {
     // Keep the existing combat order after the isolated practice session.
     this.handleWeaponsAutoFire(delta);
     this.updateProjectiles(delta);
+    this.weaponEffects?.update(delta, this.projectiles);
     this.updateEnemies(delta);
     this.player.setDepth(worldDepth(this.player.y));
     this.worldMap.update(this.player.x, this.player.y);
     this.updateDrops(delta);
+    if (this.choosingUpgrade) return;
     this.updateFireZones(delta);
     this.encounters.update(delta);
   }
@@ -796,8 +810,10 @@ export class GameScene extends Phaser.Scene {
 
           const sprite = this.add.sprite(this.player.x, this.player.y, 'proj_bullet').setDepth(8);
           if (isDesperado) sprite.setTint(0xff791c).setScale(1.4);
+          const appearance = this.getWeaponEffects().dressBullet(sprite, def.id, this.activeWeapons.get(def.id) ?? 1);
           sprite.setRotation(angle);
           this.projectiles.push({
+            appearance,
             sprite,
             vx: Math.cos(angle) * lvl.speed,
             vy: Math.sin(angle) * lvl.speed,
@@ -827,7 +843,10 @@ export class GameScene extends Phaser.Scene {
           const angle = centerAngle + offset;
           const sprite = this.add.sprite(this.player.x, this.player.y, 'proj_pellet').setDepth(8);
           if (isBlunder) sprite.setTint(0xff3300).setScale(1.5);
+          const appearance = this.getWeaponEffects().dressBullet(sprite, def.id, this.activeWeapons.get(def.id) ?? 1);
+          sprite.setRotation(angle);
           this.projectiles.push({
+            appearance,
             sprite,
             vx: Math.cos(angle) * (lvl.speed + (Math.random() * 60 - 30)),
             vy: Math.sin(angle) * (lvl.speed + (Math.random() * 60 - 30)),
@@ -855,7 +874,9 @@ export class GameScene extends Phaser.Scene {
           const sprite = this.add.sprite(this.player.x, this.player.y, 'proj_rifle').setDepth(8);
           if (isGolden) sprite.setTint(0xffc52a).setScale(1.6);
           sprite.setRotation(a);
+          const appearance = this.getWeaponEffects().dressBullet(sprite, def.id, this.activeWeapons.get(def.id) ?? 1);
           this.projectiles.push({
+            appearance,
             sprite,
             vx: Math.cos(a) * lvl.speed,
             vy: Math.sin(a) * lvl.speed,
@@ -873,76 +894,61 @@ export class GameScene extends Phaser.Scene {
       case 'dynamite':
       case 'hellfire_keg': {
         sounds.playRicochet();
-        const target = nearest[0];
         const isKeg = def.id === 'hellfire_keg';
-        const tx = target ? target.sprite.x : this.player.x + (this.player.flipX ? -200 : 200);
-        const ty = target ? target.sprite.y : this.player.y;
-
-        const sprite = this.add.sprite(this.player.x, this.player.y, 'proj_dynamite').setDepth(8);
-        if (isKeg) sprite.setTint(0xff2200).setScale(1.8);
-        this.tweens.add({
-          targets: sprite,
-          x: tx,
-          y: ty,
-          rotation: Math.PI * 6,
-          duration: isKeg ? 800 : 650,
-          ease: 'Cubic.easeOut',
-          onComplete: () => {
-            sprite.destroy();
-            this.explodeDynamite(tx, ty, lvl.damage, isKeg);
-          },
-        });
-        break;
-      }
-
-      case 'molotov': {
-        const tx = this.player.x + (Math.random() * 300 - 150);
-        const ty = this.player.y + (Math.random() * 300 - 150);
-        sounds.playRicochet();
-
-        const gfx = this.add.graphics().setDepth(4);
-        this.fireZones.push({
-          x: tx,
-          y: ty,
-          radius: 65 * this.areaMultiplier,
-          damage: Math.round(lvl.damage * this.damageMultiplier),
-          life: 3500,
-          tickTimer: 0,
-          graphics: gfx,
-        });
-        break;
-      }
-
-      case 'lasso':
-      case 'cyclone_whip': {
-        // Orbiting lasso circles
-        const isCyclone = def.id === 'cyclone_whip';
-        const existingLassos = this.projectiles.filter((p) => p.isLasso);
-        const count = lvl.projectileCount + (isCyclone ? 2 : 0) + this.extraProjectiles;
-        if (existingLassos.length !== count) {
-          existingLassos.forEach((p) => p.sprite.destroy());
-          this.projectiles = this.projectiles.filter((p) => !p.isLasso);
-
-          for (let i = 0; i < count; i++) {
-            const sprite = this.add.sprite(this.player.x, this.player.y, 'proj_lasso').setDepth(9);
-            if (isCyclone) sprite.setTint(0x00f0ff).setScale(1.8);
-            this.projectiles.push({
-              sprite,
-              vx: 0,
-              vy: 0,
-              damage: Math.round(lvl.damage * this.damageMultiplier),
-              pierce: 9999,
-              hits: new Set(),
-              life: Infinity,
-              isLasso: true,
-              angleOffset: (i * (Math.PI * 2)) / count,
-              radius: lvl.range * this.areaMultiplier * (isCyclone ? 1.5 : 1.0),
-            });
-          }
+        for (let i = 0; i < lvl.projectileCount + this.extraProjectiles; i++) {
+          const target = nearest[i] ?? nearest[0];
+          const tx = target ? target.sprite.x + (i ? Math.cos(i * 2.4) * 45 : 0) : this.player.x + Math.cos(i * 1.2 + facingAngle) * 180;
+          const ty = target ? target.sprite.y + (i ? Math.sin(i * 2.4) * 45 : 0) : this.player.y + Math.sin(i * 1.2) * 120;
+          const sprite = this.add.sprite(this.player.x, this.player.y, 'proj_dynamite').setDepth(16);
+          if (isKeg) sprite.setTint(0xff2200).setScale(1.8);
+          this.lobProjectile(sprite, tx, ty, isKeg ? 800 : 650, () => this.explodeDynamite(tx, ty, lvl.damage, isKeg));
         }
         break;
       }
+      case 'molotov': {
+        sounds.playRicochet();
+        const rank = this.activeWeapons.get(def.id) ?? 1;
+        for (let i = 0; i < lvl.projectileCount + this.extraProjectiles; i++) {
+          const target = nearest[i] ?? nearest[0];
+          const angle = i * 2.399;
+          const tx = target ? target.sprite.x + Math.cos(angle) * i * 28 : this.player.x + Math.cos(angle) * 130;
+          const ty = target ? target.sprite.y + Math.sin(angle) * i * 28 : this.player.y + Math.sin(angle) * 110;
+          const bottle = this.add.sprite(this.player.x, this.player.y, this.getWeaponEffects().bottleTexture()).setDepth(16);
+          this.lobProjectile(bottle, tx, ty, 500 + i * 65, () => this.createFirePatch(tx, ty, lvl.damage, rank));
+        }
+        break;
+      }
+      case 'lasso':
+      case 'cyclone_whip': {
+        sounds.playWhip();
+        const side = nearest[0] ? Math.sign(nearest[0].sprite.x - this.player.x) || 1 : Math.cos(facingAngle) < 0 ? -1 : 1;
+        this.getWeaponEffects().whip(side, lvl.projectileCount + this.extraProjectiles, lvl.range * this.areaMultiplier,
+          Math.round(lvl.damage * this.damageMultiplier), this.activeWeapons.get(def.id) ?? 1, def.id === 'cyclone_whip');
+        break;
+      }
     }
+  }
+
+  private getWeaponEffects(): WeaponEffects {
+    return this.weaponEffects ??= new WeaponEffects(this, {
+      position: () => this.player,
+      nearby: (x, y, radius) => this.enemyHash.query(x, y, radius),
+      damage: (enemy, damage) => this.damageEnemy(enemy, damage),
+    });
+  }
+
+  private lobProjectile(sprite: Phaser.GameObjects.Sprite, x: number, y: number, duration: number, land: () => void): void {
+    const startX = this.player.x, startY = this.player.y, flight = { progress: 0 };
+    this.tweens.add({ targets: flight, progress: 1, duration,
+      onUpdate: () => sprite.setPosition(startX + (x - startX) * flight.progress, startY + (y - startY) * flight.progress - Math.sin(flight.progress * Math.PI) * 70).setRotation(flight.progress * Math.PI * 4),
+      onComplete: () => { sprite.destroy(); if (!this.isGameOver) land(); },
+    });
+  }
+
+  private createFirePatch(x: number, y: number, damage: number, rank: number): void {
+    if (this.fireZones.length >= 64) this.fireZones.shift()?.graphics.destroy();
+    this.fireZones.push({ x, y, ...molotovFootprint(rank, this.areaMultiplier), damage: Math.round(damage * this.damageMultiplier),
+      tickTimer: 0, graphics: this.add.graphics().setDepth(4) });
   }
 
   private explodeDynamite(x: number, y: number, damage: number, isKeg = false) {
@@ -994,29 +1000,6 @@ export class GameScene extends Phaser.Scene {
   private updateProjectiles(delta: number) {
     for (let i = this.projectiles.length - 1; i >= 0; i--) {
       const p = this.projectiles[i];
-
-      if (p.isLasso) {
-        // Orbit around player
-        const speed = 0.004;
-        const currentAngle = (p.angleOffset || 0) + this.time.now * speed;
-        const r = p.radius || 100;
-        p.sprite.x = this.player.x + Math.cos(currentAngle) * r;
-        p.sprite.y = this.player.y + Math.sin(currentAngle) * r;
-        p.sprite.setRotation(currentAngle);
-
-        // Check collision against nearby enemies (spatial hash)
-        for (const enemy of this.enemyHash.query(p.sprite.x, p.sprite.y, 32)) {
-          if (enemy.dead) continue;
-          if (Math.hypot(enemy.sprite.x - p.sprite.x, enemy.sprite.y - p.sprite.y) < 32) {
-            if (!p.hits.has(enemy)) {
-              p.hits.add(enemy);
-              this.damageEnemy(enemy, p.damage);
-              this.time.delayedCall(300, () => p.hits.delete(enemy));
-            }
-          }
-        }
-        continue;
-      }
 
       // Linear Projectiles
       p.sprite.x += (p.vx * delta) / 1000;
@@ -1236,22 +1219,16 @@ export class GameScene extends Phaser.Scene {
   private updateFireZones(delta: number) {
     for (let i = this.fireZones.length - 1; i >= 0; i--) {
       const zone = this.fireZones[i];
+      const activeDelta = Math.max(0, Math.min(delta, zone.life));
       zone.life -= delta;
-      zone.tickTimer += delta;
+      zone.tickTimer += activeDelta;
 
-      // Draw pulsating fire circle
-      zone.graphics.clear();
-      zone.graphics.fillStyle(0xf97316, 0.45 + Math.sin(this.time.now * 0.02) * 0.15);
-      zone.graphics.fillCircle(zone.x, zone.y, zone.radius);
-      zone.graphics.fillStyle(0xfef08a, 0.7);
-      zone.graphics.fillCircle(zone.x, zone.y, zone.radius * 0.5);
-
-      if (zone.tickTimer >= 400) {
-        zone.tickTimer = 0;
-        this.enemies.slice().forEach((enemy) => {
-          if (Math.hypot(enemy.sprite.x - zone.x, enemy.sprite.y - zone.y) <= zone.radius) {
-            this.damageEnemy(enemy, zone.damage);
-          }
+      this.getWeaponEffects().drawFire(zone, this.time.now);
+      const ticks = Math.floor(zone.tickTimer / 400);
+      if (ticks > 0) {
+        zone.tickTimer %= 400;
+        this.enemies.slice().forEach(enemy => {
+          if (Math.hypot(enemy.sprite.x - zone.x, enemy.sprite.y - zone.y) <= zone.radius) this.damageEnemy(enemy, zone.damage * ticks);
         });
       }
 
@@ -1270,7 +1247,7 @@ export class GameScene extends Phaser.Scene {
       const dy = this.player.y - d.sprite.y;
       const dist = Math.hypot(dx, dy);
 
-      if (dist < this.magnetRadius) {
+      if (dist > 0 && dist < this.magnetRadius) {
         // Accelerate magnet pull towards player
         const speed = 400 + (1 - dist / this.magnetRadius) * 350;
         d.sprite.x += (dx / dist) * (speed * delta) / 1000;
@@ -1284,13 +1261,13 @@ export class GameScene extends Phaser.Scene {
         if (d.type === 'whiskey') {
           this.hp = Math.min(this.maxHp, this.hp + 30);
           this.updateHpBar();
-        } else {
-          if (packet.val > 0) this.onboarding?.collectedXp();
-          this.addXp(Math.round(packet.val * this.xpBonus));
-          this.addBounty(packet.bounty);
         }
+        if (packet.val > 0) this.onboarding?.collectedXp();
+        this.addXp(Math.round(packet.val * this.xpBonus));
+        this.addBounty(packet.bounty);
 
         if (exhausted) { d.sprite.destroy(); this.drops.splice(i, 1); }
+        if (this.choosingUpgrade) break;
       }
     }
   }
@@ -1302,10 +1279,10 @@ export class GameScene extends Phaser.Scene {
 
   private addXp(amount: number) {
     this.currentXp += amount;
-    if (this.currentXp >= this.xpToNextLevel) {
+    if (!this.choosingUpgrade && this.currentXp >= this.xpToNextLevel) {
       this.currentXp -= this.xpToNextLevel;
       this.level++;
-      this.xpToNextLevel = Math.round(this.xpToNextLevel * 1.45 + 15);
+      this.xpToNextLevel = xpForLevel(this.level);
       this.levelText.setText(`LV. ${this.level}`);
       this.triggerLevelUp();
     }
@@ -1358,7 +1335,6 @@ export class GameScene extends Phaser.Scene {
 
     this.kills++;
     this.killsText.setText(String(this.kills).padStart(4, '0'));
-    this.addBounty(enemy.bountyVal);
     this.gameEvents.emitEnemyKilled({ kind: enemy.type, x: enemy.sprite.x, y: enemy.sprite.y });
 
     // Drop Loot
@@ -1477,6 +1453,8 @@ export class GameScene extends Phaser.Scene {
 
   // Level Up Modal
   private triggerLevelUp() {
+    if (this.choosingUpgrade || this.isGameOver) return;
+    this.choosingUpgrade = true;
     this.scene.pause();
 
     // Pick 3 random eligible choices
@@ -1491,6 +1469,7 @@ export class GameScene extends Phaser.Scene {
       kills: this.kills,
       onSelect: (choice: UpgradeChoice) => {
         this.applyUpgrade(choice);
+        this.choosingUpgrade = false;
         this.scene.resume();
       },
     });
@@ -1500,7 +1479,7 @@ export class GameScene extends Phaser.Scene {
     const list: UpgradeChoice[] = [];
 
     // Checa se há evolução pronta para ser oferecida com prioridade máxima
-    const eligibleEvo = getEligibleEvolution(this.activeWeapons, this.activePassives);
+    const eligibleEvo = getEligibleEvolution(this.activeWeapons, this.activePassives, this.gameTimeSeconds);
     if (eligibleEvo) {
       list.push({
         type: 'evolution',
@@ -1517,7 +1496,9 @@ export class GameScene extends Phaser.Scene {
     Object.entries(WEAPONS).forEach(([wepId, def]) => {
       // Não exibe armas base se já evoluíram
       if (['desperado_fury', 'blunderbuss_doom', 'golden_repeater', 'hellfire_keg', 'cyclone_whip'].includes(wepId)) return;
+      if (WEAPON_EVOLUTIONS.some(e => e.baseWeaponId === wepId && this.activeWeapons.has(e.evolvedWeaponId))) return;
       const curLvl = this.activeWeapons.get(wepId) || 0;
+      if (!curLvl && this.activeWeapons.size >= BUILD_LIMITS.weapons) return;
       if (curLvl < def.levels.length) {
         const nextInfo = def.levels[curLvl];
         list.push({
@@ -1535,6 +1516,7 @@ export class GameScene extends Phaser.Scene {
     // Eligible Passives
     Object.entries(PASSIVES).forEach(([pasId, def]) => {
       const curLvl = this.activePassives.get(pasId) || 0;
+      if (!curLvl && this.activePassives.size >= BUILD_LIMITS.passives) return;
       if (curLvl < def.levels.length) {
         const nextInfo = def.levels[curLvl];
         list.push({
@@ -1556,22 +1538,28 @@ export class GameScene extends Phaser.Scene {
       return [list[0], ...otherChoices.slice(0, 2)];
     }
 
+    if (!list.length) return [
+      { type: 'reward', id: 'gold_purse', name: 'Bounty Purse', icon: 'badge', currentLevel: 0, nextLevel: 1, description: 'Collect $25 bonus gold.' },
+      { type: 'reward', id: 'field_medicine', name: 'Frontier Medicine', icon: 'whiskey', currentLevel: 0, nextLevel: 1, description: 'Restore 25 HP.' },
+    ];
     Phaser.Utils.Array.Shuffle(list);
-    return list.slice(0, 3);
+    const owned = list.find(choice => choice.currentLevel > 0);
+    return owned ? [owned, ...list.filter(choice => choice !== owned).slice(0, 2)] : list.slice(0, 3);
   }
 
   private applyUpgrade(choice: UpgradeChoice) {
+    if (choice.type === 'reward') {
+      if (choice.id === 'gold_purse') this.addBounty(25);
+      else { this.hp = Math.min(this.maxHp, this.hp + 25); this.updateHpBar(); }
+      return;
+    }
     if (choice.type === 'evolution') {
       // Localiza a arma base e substitui
       const evoDef = WEAPON_EVOLUTIONS.find((e) => e.evolvedWeaponId === choice.id);
       if (evoDef) {
         this.activeWeapons.delete(evoDef.baseWeaponId);
         this.weaponTimers.delete(evoDef.baseWeaponId);
-        // Remove projéteis de laço antigos se houver
-        if (evoDef.baseWeaponId === 'lasso') {
-          this.projectiles.filter((p) => p.isLasso).forEach((p) => p.sprite.destroy());
-          this.projectiles = this.projectiles.filter((p) => !p.isLasso);
-        }
+        if (evoDef.baseWeaponId === 'lasso') this.weaponEffects?.clearTransient();
       }
       this.activeWeapons.set(choice.id, 1);
       this.weaponTimers.set(choice.id, 0);
@@ -1588,6 +1576,7 @@ export class GameScene extends Phaser.Scene {
       }
     } else {
       const newLvl = (this.activePassives.get(choice.id) || 0) + 1;
+      const previousLevel = this.activePassives.get(choice.id) || 0;
       this.activePassives.set(choice.id, newLvl);
       const def = PASSIVES[choice.id];
       const eff = def.levels[newLvl - 1].effect;
@@ -1595,12 +1584,13 @@ export class GameScene extends Phaser.Scene {
       if (eff.speedBonus) this.moveSpeed = this.character.stats.moveSpeed * (1 + eff.speedBonus);
       if (eff.xpBonus) this.xpBonus = 1 + eff.xpBonus;
       if (eff.hpRegen) this.hpRegen = eff.hpRegen;
-      if (eff.cooldownReduction) this.fireRateMultiplier = this.character.stats.fireRateMultiplier * (1 + eff.cooldownReduction);
+      if (eff.cooldownReduction) this.fireRateMultiplier = cooldownMultiplier(this.character.stats.fireRateMultiplier, eff.cooldownReduction);
       if (eff.magnetRadius) this.magnetRadius = this.character.stats.magnetRadius + eff.magnetRadius;
       if (eff.armorBonus) this.armor += eff.armorBonus;
       if (eff.maxHpBonus) {
-        this.maxHp += eff.maxHpBonus;
-        this.hp += eff.maxHpBonus;
+        const previousBonus = previousLevel ? def.levels[previousLevel - 1].effect.maxHpBonus ?? 0 : 0;
+        this.maxHp = this.character.stats.maxHp + eff.maxHpBonus;
+        this.hp = Math.min(this.maxHp, this.hp + eff.maxHpBonus - previousBonus);
         this.updateHpBar();
       }
     }
@@ -1611,6 +1601,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   private stageClear() {
+    if (this.isGameOver) return;
+    const bonus = stageClearBonus(this.stage);
+    this.addBounty(bonus);
     this.isGameOver = true;
     sounds.stopBGM();
     sounds.playLevelUp();
@@ -1618,6 +1611,7 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.fade(750, 0, 0, 0);
     this.time.delayedCall(800, () => {
       this.scene.start('StageClearScene', {
+        runId: this.runId, bonus, hpPct: this.hp / this.maxHp,
         character: this.character,
         stage: this.stage,
         timeSurvivedSeconds: this.gameTimeSeconds,
@@ -1638,6 +1632,7 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.fade(800, 0, 0, 0);
     this.time.delayedCall(850, () => {
       this.scene.start('GameOverScene', {
+        runId: this.runId,
         character: this.character,
         stage: this.stage,
         timeSurvivedSeconds: this.gameTimeSeconds,

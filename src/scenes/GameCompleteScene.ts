@@ -39,17 +39,18 @@ export class GameCompleteScene extends Phaser.Scene {
     this.rootContainer = createMenuRoot(this);
     pulpBackdrop(this, this.rootContainer, false);
     pulpHeading(this, this.rootContainer, 'GAME COMPLETE!', -345, 1400, 124);
+    pulpText(this, this.rootContainer, 0, -240, `${this.dataReceived.character.name} • THE FRONTIER IS SAVED`, 24);
     const heroes = this.add.image(-340, 110, 'menu_ending');
     heroes.setScale(Math.min(790 / heroes.width, 620 / heroes.height));
     this.rootContainer.add(heroes);
     const card = pulpPaper(this, this.rootContainer, 410, 45, 620, 535);
     const allStats = statsManager.getStats();
-    const finalScore = this.dataReceived.bounty * 10 + this.dataReceived.kills * 50 + allStats.totalScore;
+    const finalScore = allStats.totalScore;
     const minutes = Math.floor(allStats.playTimeSeconds / 60);
     const seconds = Math.floor(allStats.playTimeSeconds % 60);
     pulpStats(this, card, [
       { label: 'FINAL SCORE', value: finalScore },
-      { label: 'TOTAL KILLS', value: allStats.totalKills + this.dataReceived.kills },
+      { label: 'TOTAL KILLS', value: allStats.totalKills },
       { label: 'STAGES CLEARED', value: '8 / 8' },
       { label: 'PLAY TIME', value: `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}` },
     ], 500, -185, true, 72);

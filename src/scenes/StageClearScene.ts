@@ -7,6 +7,9 @@ import { CharacterData, CHARACTERS } from '../data/characters';
 import { statsManager } from '../data/GameStatsManager';
 
 export interface StageClearData {
+  runId?: string;
+  bonus?: number;
+  hpPct?: number;
   character: CharacterData;
   stage: number;
   timeSurvivedSeconds: number;
@@ -26,6 +29,7 @@ export class StageClearScene extends Phaser.Scene {
 
   init(data?: Partial<StageClearData>) {
     this.dataReceived = {
+      runId: data?.runId, bonus: data?.bonus ?? 0, hpPct: data?.hpPct ?? 1,
       character: data?.character || CHARACTERS.billy,
       stage: data?.stage || 1,
       timeSurvivedSeconds: data?.timeSurvivedSeconds || 222,
@@ -37,12 +41,13 @@ export class StageClearScene extends Phaser.Scene {
     this.rank = statsManager.calculateRank(
       this.dataReceived.kills,
       this.dataReceived.timeSurvivedSeconds,
-      1.0
+      this.dataReceived.hpPct ?? 1
     );
 
     // Save run progress
     statsManager.recordRun(
       {
+        runId: this.dataReceived.runId,
         score: this.dataReceived.bounty * 10 + this.dataReceived.kills * 50,
         kills: this.dataReceived.kills,
         gold: this.dataReceived.bounty,
@@ -76,7 +81,7 @@ export class StageClearScene extends Phaser.Scene {
       { label: 'TIME', value: `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}` },
       { label: 'KILLS', value: this.dataReceived.kills },
       { label: 'GOLD', value: this.dataReceived.bounty },
-      { label: 'BONUS', value: '$2,500' },
+      { label: 'BONUS', value: `$${this.dataReceived.bonus ?? 0}` },
     ], 520, -140, false, 65);
     const rank = pulpText(this, report, 305, 10, this.rank, 220, '#ffc52a');
     rank.setStroke('#a51e16', 12);

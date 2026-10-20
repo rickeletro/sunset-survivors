@@ -1,4 +1,5 @@
 export interface GameRunStats {
+  runId?: string;
   score: number;
   kills: number;
   gold: number;
@@ -11,6 +12,7 @@ export interface GameRunStats {
 }
 
 export interface CumulativeGameStats {
+  recordedRunIds?: string[];
   totalScore: number;
   totalKills: number;
   goldCollected: number;
@@ -24,7 +26,7 @@ export interface CumulativeGameStats {
 
 const STORAGE_KEY = 'sunset_survivors_stats_v1';
 
-class GameStatsManager {
+export class GameStatsManager {
   private stats: CumulativeGameStats;
 
   constructor() {
@@ -42,13 +44,13 @@ class GameStatsManager {
     }
 
     return {
-      totalScore: 48250,
-      totalKills: 284,
-      goldCollected: 36250,
-      playTimeSeconds: 1420,
-      stagesCleared: 1,
-      deaths: 2,
-      bestStreak: 120,
+      totalScore: 0,
+      totalKills: 0,
+      goldCollected: 0,
+      playTimeSeconds: 0,
+      stagesCleared: 0,
+      deaths: 0,
+      bestStreak: 0,
       unlockedBosses: [1],
       unlockedCharacters: ['steve', 'billy', 'bob', 'cormano'],
     };
@@ -67,6 +69,8 @@ class GameStatsManager {
   }
 
   public recordRun(run: GameRunStats, isVictory: boolean): void {
+    if (run.runId && this.stats.recordedRunIds?.includes(run.runId)) return;
+    if (run.runId) this.stats.recordedRunIds = [...this.stats.recordedRunIds ?? [], run.runId].slice(-128);
     this.stats.totalScore += run.score;
     this.stats.totalKills += run.kills;
     this.stats.goldCollected += run.gold;
@@ -86,10 +90,10 @@ class GameStatsManager {
   }
 
   public calculateRank(kills: number, timeSec: number, hpPct: number): 'S' | 'A' | 'B' | 'C' {
-    const scoreRating = kills * 50 + (hpPct > 0.8 ? 500 : 200) - Math.floor(timeSec / 2);
-    if (scoreRating > 1200) return 'S';
-    if (scoreRating > 800) return 'A';
-    if (scoreRating > 500) return 'B';
+    const killsPerMinute = kills * 60 / Math.max(60, timeSec);
+    if (killsPerMinute >= 90 && hpPct >= 0.75) return 'S';
+    if (killsPerMinute >= 60 && hpPct >= 0.5) return 'A';
+    if (killsPerMinute >= 35) return 'B';
     return 'C';
   }
 }

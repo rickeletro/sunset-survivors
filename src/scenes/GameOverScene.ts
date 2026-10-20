@@ -7,6 +7,7 @@ import { CharacterData, CHARACTERS } from '../data/characters';
 import { statsManager } from '../data/GameStatsManager';
 
 export interface GameOverStats {
+  runId?: string;
   victory?: boolean;
   character: CharacterData;
   timeSurvivedSeconds: number;
@@ -26,6 +27,7 @@ export class GameOverScene extends Phaser.Scene {
 
   init(data?: Partial<GameOverStats>) {
     this.stats = {
+      runId: data?.runId,
       character: data?.character || CHARACTERS.billy,
       stage: data?.stage || 1,
       timeSurvivedSeconds: data?.timeSurvivedSeconds || 145,
@@ -36,6 +38,7 @@ export class GameOverScene extends Phaser.Scene {
 
     statsManager.recordRun(
       {
+        runId: this.stats.runId,
         score: this.stats.bounty * 10 + this.stats.kills * 50,
         kills: this.stats.kills,
         gold: this.stats.bounty,
@@ -81,7 +84,7 @@ export class GameOverScene extends Phaser.Scene {
 
   private retry() {
     sounds.playGunReload();
-    sounds.playGameplayMusic();
+    sounds.playGameplayMusic(this.stats.stage || 1);
 
     this.scene.start('WantedScene', {
       character: this.stats.character,

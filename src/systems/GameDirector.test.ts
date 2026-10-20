@@ -32,10 +32,10 @@ describe('stage-aware horde director', () => {
   });
   it('resets event scheduling and does not duplicate special waves in one second', () => {
     const b = bus(); const d = new GameDirector(b);
-    expect(d.tick(65, 0).length).toBe(1);
-    expect(d.tick(65, 0)).toEqual([]);
+    expect(d.tick(30, 0).length).toBe(1);
+    expect(d.tick(30, 0)).toEqual([]);
     d.reset();
-    expect(d.tick(64, 0)).toEqual([]);
-    expect(d.tick(65, 0).length).toBe(1);
+    expect(d.tick(29, 0)).toEqual([]);
+    expect(d.tick(30, 0).length).toBe(1);
   });
 });

@@ -1,3 +1,4 @@
+import { MUSIC_MANIFEST, stageMusicSource } from './stageMusic';
 /**
  * Web Audio API Synthesizer for Sunset Survivors
  * Zero external audio file dependencies - 100% synthesized authentic 16-bit arcade Western sound effects!
@@ -241,6 +242,22 @@ class SoundManager {
     osc.stop(t + 0.22);
   }
 
+  public playWhip() {
+    if (this.isMuted) return;
+    this.initContext();
+    if (!this.ctx || !this.sfxGainNode) return;
+    const t = this.ctx.currentTime;
+    const buffer = this.ctx.createBuffer(1, Math.floor(this.ctx.sampleRate * 0.16), this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+    const noise = this.ctx.createBufferSource(), filter = this.ctx.createBiquadFilter(), gain = this.ctx.createGain();
+    noise.buffer = buffer; filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(400, t); filter.frequency.exponentialRampToValueAtTime(4200, t + 0.11);
+    gain.gain.setValueAtTime(0.01, t); gain.gain.linearRampToValueAtTime(0.7, t + 0.10); gain.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
+    noise.connect(filter); filter.connect(gain); gain.connect(this.sfxGainNode);
+    noise.start(t); noise.stop(t + 0.16);
+  }
+
   // 5. Dynamite / TNT Explosion
   public playExplosion() {
     if (this.isMuted) return;
@@ -438,9 +455,8 @@ class SoundManager {
 
   // 12. Western Soundtracks (HTML5 Audio Streaming)
   private currentBgm: HTMLAudioElement | null = null;
-  private currentTrack: 'intro' | 'gameplay' | null = null;
-  private introAudio: HTMLAudioElement | null = null;
-  private gameplayAudio: HTMLAudioElement | null = null;
+  private currentTrack: string | null = null;
+  private musicCache = new Map<string, HTMLAudioElement>();
   private pistolAudio: HTMLAudioElement | null = null;
   private reloadAudio: HTMLAudioElement | null = null;
   private sfxPistolPool: HTMLAudioElement[] = [];
@@ -555,12 +571,12 @@ class SoundManager {
     this.playTrack('intro');
   }
 
-  public playGameplayMusic() {
-    this.playTrack('gameplay');
+  public playGameplayMusic(stage = 1) {
+    this.playTrack(stage);
   }
 
-  public startBGM() {
-    this.playGameplayMusic();
+  public startBGM(stage = 1) {
+    this.playGameplayMusic(stage);
   }
 
   public stopBGM() {
@@ -572,43 +588,26 @@ class SoundManager {
     }
   }
 
-  private playTrack(track: 'intro' | 'gameplay') {
-    if (this.currentTrack === track && this.currentBgm && !this.currentBgm.paused) {
-      return;
-    }
-
-    if (this.currentBgm) {
-      this.currentBgm.pause();
-      this.currentBgm.currentTime = 0;
-    }
-
-    const src = track === 'intro'
-      ? 'assets/audio/departing_into_the_horizon.mp3'
-      : 'assets/audio/galloing_west.mp3';
-
-    let audio = track === 'intro' ? this.introAudio : this.gameplayAudio;
+  private playTrack(track: 'intro' | number) {
+    const src = track === 'intro' ? 'assets/audio/departing_into_the_horizon.mp3' : stageMusicSource(track);
+    if (this.currentTrack === src && this.currentBgm && !this.currentBgm.paused) return;
+    if (this.currentBgm) { this.currentBgm.pause(); this.currentBgm.currentTime = 0; }
+    let audio = this.musicCache.get(src);
     if (!audio) {
-      audio = new Audio(src);
-      audio.loop = true;
-      if (track === 'intro') {
-        this.introAudio = audio;
-      } else {
-        this.gameplayAudio = audio;
+      audio = new Audio(src); audio.loop = true;
+      this.musicCache.set(src, audio);
+      if (track !== 'intro' && src !== MUSIC_MANIFEST.fallback) {
+        const candidate = audio;
+        audio.addEventListener('error', () => {
+          if (this.currentBgm === candidate) this.playTrack(0);
+        });
       }
     }
-
-    audio.volume = this.isMuted ? 0 : this.musicVolume;
-    audio.muted = this.isMuted;
-    this.currentBgm = audio;
-    this.currentTrack = track;
-
-    const promise = audio.play();
-    if (promise !== undefined) {
-      promise.catch(() => {
-        // Will auto-resume on first user gesture
-      });
-    }
+    audio.volume = this.isMuted ? 0 : this.musicVolume; audio.muted = this.isMuted;
+    this.currentBgm = audio; this.currentTrack = src;
+    audio.play()?.catch(() => { /* Playback can resume on the next user gesture. */ });
   }
+
 }
 
 export const sounds = new SoundManager();
