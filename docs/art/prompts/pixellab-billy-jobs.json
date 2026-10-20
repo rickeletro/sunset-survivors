@@ -1,0 +1,94 @@
+{
+  "name": "Billy",
+  "reference_character_id": "bd940d23-ebc9-44b3-a2bb-641a5f44c5f3",
+  "prompt": "Create Billy, a distinct playable western gunslinger for SUNSET SURVIVORS, using this Steve sprite as the exact visual style reference. Preserve its late 1990s arcade pixel art rendering, pixel density, body proportions, character height, dark outlines, shading detail, low top-down camera elevation, transparent 256x256 canvas and feet anchor. Change character identity and outfit: brown wide-brimmed cowboy hat, vivid cobalt-blue suit blazer and blue trousers, white shirt, brown leather cross-body ammunition bandolier, brown gun belt with two holsters, brown boots and spurs. Confident, balanced heroic gunslinger. Holds TWO classic steel revolvers, exactly one in each hand. Combat-ready neutral pose, both guns held visibly, no firing effect. Make the body and face look STRAIGHT TOWARD THE VIEWER (true SOUTH view), not diagonally sideways. Match Steve height and anatomy, do not make chibi. No text, no scenery, no floor, no poster. Do not change Steve original asset; output Billy as a new independent image.",
+  "base_image_response": {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"background_job_id\": \"01823cb2-c68b-4db3-ad8f-f8cbd2d4f695\",\n  \"image_id\": \"32afdac5-1613-50d1-a49d-b626618df7a1\",\n  \"status\": \"processing\",\n  \"source_image_id\": \"32afdac5-1613-50d1-a49d-b626618df7a1\",\n  \"job_id\": \"01823cb2-c68b-4db3-ad8f-f8cbd2d4f695\",\n  \"description\": \"Create Billy, a distinct playable western gunslinger for SUNSET SURVIVORS, using this Steve sprite as the exact visual style reference. Preserve its late 1990s arcade pixel art rendering, pixel density, body proportions, character height, dark outlines, shading detail, low top-down camera elevation, transparent 256x256 canvas and feet anchor. Change character identity and outfit: brown wide-brimmed cowboy hat, vivid cobalt-blue suit blazer and blue trousers, white shirt, brown leather cross-body ammunition bandolier, brown gun belt with two holsters, brown boots and spurs. Confident, balanced heroic gunslinger. Holds TWO classic steel revolvers, exactly one in each hand. Combat-ready neutral pose, both guns held visibly, no firing effect. Make the body and face look STRAIGHT TOWARD THE VIEWER (true SOUTH view), not diagonally sideways. Match Steve height and anatomy, do not make chibi. No text, no scenery, no floor, no poster. Do not change Steve original asset; output Billy as a new independent image.\",\n  \"seed\": 0,\n  \"image_size\": {\n    \"width\": 256,\n    \"height\": 256\n  },\n  \"output_count\": 1,\n  \"estimated_generations\": 9,\n  \"pricing_provisional\": true,\n  \"poll_tool\": \"get_image\",\n  \"download_path\": \"/mcp/images/01823cb2-c68b-4db3-ad8f-f8cbd2d4f695/download\"\n}\nPoll get_image(job_id=\"01823cb2-c68b-4db3-ad8f-f8cbd2d4f695\"). The source_image_id is usable after completion; it is an image ID, not a character/object ID. Actual usage is reported on completion. cancel_job(job_id=...) cancels unfinished work."
+        }
+      ],
+      "structuredContent": {
+        "background_job_id": "01823cb2-c68b-4db3-ad8f-f8cbd2d4f695",
+        "image_id": "32afdac5-1613-50d1-a49d-b626618df7a1",
+        "status": "processing",
+        "source_image_id": "32afdac5-1613-50d1-a49d-b626618df7a1",
+        "job_id": "01823cb2-c68b-4db3-ad8f-f8cbd2d4f695",
+        "description": "Create Billy, a distinct playable western gunslinger for SUNSET SURVIVORS, using this Steve sprite as the exact visual style reference. Preserve its late 1990s arcade pixel art rendering, pixel density, body proportions, character height, dark outlines, shading detail, low top-down camera elevation, transparent 256x256 canvas and feet anchor. Change character identity and outfit: brown wide-brimmed cowboy hat, vivid cobalt-blue suit blazer and blue trousers, white shirt, brown leather cross-body ammunition bandolier, brown gun belt with two holsters, brown boots and spurs. Confident, balanced heroic gunslinger. Holds TWO classic steel revolvers, exactly one in each hand. Combat-ready neutral pose, both guns held visibly, no firing effect. Make the body and face look STRAIGHT TOWARD THE VIEWER (true SOUTH view), not diagonally sideways. Match Steve height and anatomy, do not make chibi. No text, no scenery, no floor, no poster. Do not change Steve original asset; output Billy as a new independent image.",
+        "seed": 0,
+        "image_size": {
+          "width": 256,
+          "height": 256
+        },
+        "output_count": 1,
+        "estimated_generations": 9,
+        "pricing_provisional": true,
+        "poll_tool": "get_image",
+        "download_path": "/mcp/images/01823cb2-c68b-4db3-ad8f-f8cbd2d4f695/download"
+      },
+      "isError": false
+    }
+  },
+  "base_image_status": {
+    "structuredContent": {
+      "job_id": "01823cb2-c68b-4db3-ad8f-f8cbd2d4f695",
+      "status": "completed",
+      "frames": 1,
+      "download_url": "https://api.pixellab.ai/mcp/images/01823cb2-c68b-4db3-ad8f-f8cbd2d4f695/download",
+      "download_urls": [
+        "https://api.pixellab.ai/mcp/images/01823cb2-c68b-4db3-ad8f-f8cbd2d4f695/download"
+      ],
+      "asset": {
+        "id": "32afdac5-1613-50d1-a49d-b626618df7a1",
+        "type": "image",
+        "status": "saved"
+      },
+      "charged_generations": 9.0
+    },
+    "isError": false
+  },
+  "character_creation_response": {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"background_job_id\": \"168ea23d-f632-436f-9435-ce218467c4a2\",\n  \"character_id\": \"1c70e35a-b0b6-4d47-9dab-baabf19244b1\",\n  \"status\": \"processing\",\n  \"first_direction_generated\": false,\n  \"estimated_generations\": 8,\n  \"job_id\": \"168ea23d-f632-436f-9435-ce218467c4a2\",\n  \"n_directions\": 8,\n  \"poll_tool\": \"get_character\",\n  \"status_path\": \"/v2/background-jobs/168ea23d-f632-436f-9435-ce218467c4a2\",\n  \"download_path\": \"/mcp/characters/1c70e35a-b0b6-4d47-9dab-baabf19244b1/download\"\n}\nid: 1c70e35a-b0b6-4d47-9dab-baabf19244b1\nPoll get_character(character_id=\"1c70e35a-b0b6-4d47-9dab-baabf19244b1\") or /v2/background-jobs/168ea23d-f632-436f-9435-ce218467c4a2; wait for the outer job to complete before downloading or animating. The selected first direction is reused without another image charge. Only V3 rotations are billed."
+        }
+      ],
+      "structuredContent": {
+        "background_job_id": "168ea23d-f632-436f-9435-ce218467c4a2",
+        "character_id": "1c70e35a-b0b6-4d47-9dab-baabf19244b1",
+        "status": "processing",
+        "first_direction_generated": false,
+        "estimated_generations": 8,
+        "job_id": "168ea23d-f632-436f-9435-ce218467c4a2",
+        "n_directions": 8,
+        "poll_tool": "get_character",
+        "status_path": "/v2/background-jobs/168ea23d-f632-436f-9435-ce218467c4a2",
+        "download_path": "/mcp/characters/1c70e35a-b0b6-4d47-9dab-baabf19244b1/download"
+      },
+      "isError": false
+    }
+  },
+  "character_id": "1c70e35a-b0b6-4d47-9dab-baabf19244b1",
+  "last_status": "status: completed\nid: 1c70e35a-b0b6-4d47-9dab-baabf19244b1\nname: Billy\nstate_name: Idle\ndirections: 8 (south, east, north, west, south-east, north-east, north-west, south-west)\nsize: 256x256px\nview: low top-down\nstyle: -, -, -\ngroup: c444a096-8a75-4141-8b40-8b4f06ee009f (1 state)\n\nrotations:\n  south: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/1c70e35a-b0b6-4d47-9dab-baabf19244b1/rotations/south.png?t=1792463589\n  east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/1c70e35a-b0b6-4d47-9dab-baabf19244b1/rotations/east.png?t=1792463589\n  north: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/1c70e35a-b0b6-4d47-9dab-baabf19244b1/rotations/north.png?t=1792463589\n  west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/1c70e35a-b0b6-4d47-9dab-baabf19244b1/rotations/west.png?t=1792463589\n  south-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/1c70e35a-b0b6-4d47-9dab-baabf19244b1/rotations/south-east.png?t=1792463589\n  north-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/1c70e35a-b0b6-4d47-9dab-baabf19244b1/rotations/north-east.png?t=1792463589\n  north-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/1c70e35a-b0b6-4d47-9dab-baabf19244b1/rotations/north-west.png?t=1792463589\n  south-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/1c70e35a-b0b6-4d47-9dab-baabf19244b1/rotations/south-west.png?t=1792463589\n\nanimations: none\n\ndownload: https://api.pixellab.ai/mcp/characters/1c70e35a-b0b6-4d47-9dab-baabf19244b1/download\nspritesheet: https://api.pixellab.ai/mcp/characters/1c70e35a-b0b6-4d47-9dab-baabf19244b1/spritesheet (this state only \u2014 one uniform-grid sheet PNG + layout JSON, zipped; cells pivot-centred)\n\navailable_animations: backflip, breathing-idle, cross-punch, crouched-walking, crouching, drinking, falling-back-death, fight-stance-idle-8-frames, fireball, flying-kick, front-flip, getting-up, high-kick, hurricane-kick, jumping-1, jumping-2, lead-jab, leg-sweep, picking-up, pull-heavy-object, pushing, roundhouse-kick, running-4-frames, running-6-frames, running-8-frames, running-jump, running-slide, sad-walk, scary-walk, surprise-uppercut, taking-punch, throw-object, two-footed-jump, walk, walk-1, walk-2, walking, walking-10, walking-2, walking-3, walking-4, walking-4-frames, walking-5, walking-6, walking-6-frames, walking-7, walking-8, walking-8-frames, walking-9\n\nactions: animate_character(character_id=\"1c70e35a-b0b6-4d47-9dab-baabf19244b1\", ...) | create_character_state(character_id=\"1c70e35a-b0b6-4d47-9dab-baabf19244b1\", ...) | delete_character(character_id=\"1c70e35a-b0b6-4d47-9dab-baabf19244b1\")\nhint: animate_character(character_id=\"1c70e35a-b0b6-4d47-9dab-baabf19244b1\", template_animation_id=\"backflip\")",
+  "animation_response": {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "character: 1c70e35a-b0b6-4d47-9dab-baabf19244b1\nanimation: walking-4-frames\nmode: template\ndirections: east, north-east, north, north-west, west, south-west, south, south-east (8 jobs)\njob_ids: east=98634ec3-44e8-40fb-8f3e-acdc0c5a369c, north-east=ddb25bec-25d5-47dc-811a-204f807c2abe, north=03514be9-5488-4e20-b1aa-e44fd5184053, north-west=f37512c7-326e-4c53-93f0-78c88f55ae0b, west=e1621a8d-a2ea-49b1-9bd1-6d11731bda00, south-west=5cf46db9-5988-482f-8fc4-a8b3ca34f07d, south=3e250e3f-98d3-4154-b765-228dc541700f, south-east=18ec83ac-e1bf-43aa-817b-6203a9d6d0eb\ngroup: d18cf790-cc2d-48e0-9d0d-072a9fab0102\ncost: up to 32 generations (4/dir x 8 at most). On a 256x256 canvas this 4-frame clip runs in up to 4 batches per direction, 1 generation per batch, charged as each batch finishes\neta: ~2-10 min per batch, one batch at a time (up to 4 per direction)\nadd more directions to this group: animate_character(character_id=\"1c70e35a-b0b6-4d47-9dab-baabf19244b1\", template_animation_id=\"walking-4-frames\", animation_group_id=\"d18cf790-cc2d-48e0-9d0d-072a9fab0102\", directions=[...])\n\nhint: get_character(character_id=\"1c70e35a-b0b6-4d47-9dab-baabf19244b1\")\nif poor: delete_animation(character_id=\"1c70e35a-b0b6-4d47-9dab-baabf19244b1\", animation_type=\"...\") then retry with mode=\"v3\""
+        }
+      ],
+      "isError": false
+    }
+  }
+}

@@ -1,0 +1,119 @@
+{
+  "group_id": "b4747412-ef7d-46ef-8565-3f814981a87d",
+  "states": [
+    {
+      "character": {
+        "id": "ba98f3bf-5aaa-4995-b09b-b33783aae4aa",
+        "name": "Idle",
+        "prompt": "Production game sprite for SUNSET SURVIVORS, WESTERN PULP 98 visual identity. Rich late-1990s Neo Geo arcade pixel art, deliberate crisp pixel clusters, strong charcoal outlines, warm saturated colors, readable silhouettes and detailed clothing. Full-body character, fixed elevated three-quarter top-down camera for an eight-direction survivors-like game, consistent proportions and pixel density. Transparent background. No poster, typography, reward text, scenery, frame, ground plane or watermark. Palette anchors: #A51E16 #E52B20 #FF791C #FFC52A #F2D49A #603719 #321B10 #120B08 #572449; preserve reference-specific clothing and steel colors. Use the attached character reference for identity, not its poster layout. Reconstruct unseen legs and rear details consistently. A broad stocky mustached outlaw with a huge straw-colored sombrero with red and green decorative trim, yellow-brown clothing, crossed brass ammunition bandoliers, dark trousers and boots. Holds the large heavy black multi-barrel rotary machine gun visible in the reference with both hands. Create one neutral combat-ready base pose facing south, weapon fully visible.",
+        "size": {
+          "width": 128,
+          "height": 128
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "low top-down",
+        "created_at": "2026-10-20T01:06:16.603968+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "south-east": "Idle/rotations/south-east.png",
+          "east": "Idle/rotations/east.png",
+          "north-east": "Idle/rotations/north-east.png",
+          "north": "Idle/rotations/north.png",
+          "north-west": "Idle/rotations/north-west.png",
+          "west": "Idle/rotations/west.png",
+          "south-west": "Idle/rotations/south-west.png"
+        },
+        "animations": {
+          "run-attack-eight-directions": {
+            "south-west": [
+              "Idle/animations/run-attack-eight-directions/south-west/frame_000.png",
+              "Idle/animations/run-attack-eight-directions/south-west/frame_001.png",
+              "Idle/animations/run-attack-eight-directions/south-west/frame_002.png",
+              "Idle/animations/run-attack-eight-directions/south-west/frame_003.png",
+              "Idle/animations/run-attack-eight-directions/south-west/frame_004.png",
+              "Idle/animations/run-attack-eight-directions/south-west/frame_005.png",
+              "Idle/animations/run-attack-eight-directions/south-west/frame_006.png",
+              "Idle/animations/run-attack-eight-directions/south-west/frame_007.png"
+            ],
+            "south": [
+              "Idle/animations/run-attack-eight-directions/south/frame_000.png",
+              "Idle/animations/run-attack-eight-directions/south/frame_001.png",
+              "Idle/animations/run-attack-eight-directions/south/frame_002.png",
+              "Idle/animations/run-attack-eight-directions/south/frame_003.png",
+              "Idle/animations/run-attack-eight-directions/south/frame_004.png",
+              "Idle/animations/run-attack-eight-directions/south/frame_005.png",
+              "Idle/animations/run-attack-eight-directions/south/frame_006.png",
+              "Idle/animations/run-attack-eight-directions/south/frame_007.png"
+            ],
+            "west": [
+              "Idle/animations/run-attack-eight-directions/west/frame_000.png",
+              "Idle/animations/run-attack-eight-directions/west/frame_001.png",
+              "Idle/animations/run-attack-eight-directions/west/frame_002.png",
+              "Idle/animations/run-attack-eight-directions/west/frame_003.png",
+              "Idle/animations/run-attack-eight-directions/west/frame_004.png",
+              "Idle/animations/run-attack-eight-directions/west/frame_005.png",
+              "Idle/animations/run-attack-eight-directions/west/frame_006.png",
+              "Idle/animations/run-attack-eight-directions/west/frame_007.png"
+            ],
+            "east": [
+              "Idle/animations/run-attack-eight-directions/east/frame_000.png",
+              "Idle/animations/run-attack-eight-directions/east/frame_001.png",
+              "Idle/animations/run-attack-eight-directions/east/frame_002.png",
+              "Idle/animations/run-attack-eight-directions/east/frame_003.png",
+              "Idle/animations/run-attack-eight-directions/east/frame_004.png",
+              "Idle/animations/run-attack-eight-directions/east/frame_005.png",
+              "Idle/animations/run-attack-eight-directions/east/frame_006.png",
+              "Idle/animations/run-attack-eight-directions/east/frame_007.png"
+            ],
+            "south-east": [
+              "Idle/animations/run-attack-eight-directions/south-east/frame_000.png",
+              "Idle/animations/run-attack-eight-directions/south-east/frame_001.png",
+              "Idle/animations/run-attack-eight-directions/south-east/frame_002.png",
+              "Idle/animations/run-attack-eight-directions/south-east/frame_003.png",
+              "Idle/animations/run-attack-eight-directions/south-east/frame_004.png",
+              "Idle/animations/run-attack-eight-directions/south-east/frame_005.png",
+              "Idle/animations/run-attack-eight-directions/south-east/frame_006.png",
+              "Idle/animations/run-attack-eight-directions/south-east/frame_007.png"
+            ],
+            "north-west": [
+              "Idle/animations/run-attack-eight-directions/north-west/frame_000.png",
+              "Idle/animations/run-attack-eight-directions/north-west/frame_001.png",
+              "Idle/animations/run-attack-eight-directions/north-west/frame_002.png",
+              "Idle/animations/run-attack-eight-directions/north-west/frame_003.png",
+              "Idle/animations/run-attack-eight-directions/north-west/frame_004.png",
+              "Idle/animations/run-attack-eight-directions/north-west/frame_005.png",
+              "Idle/animations/run-attack-eight-directions/north-west/frame_006.png",
+              "Idle/animations/run-attack-eight-directions/north-west/frame_007.png"
+            ],
+            "north-east": [
+              "Idle/animations/run-attack-eight-directions/north-east/frame_000.png",
+              "Idle/animations/run-attack-eight-directions/north-east/frame_001.png",
+              "Idle/animations/run-attack-eight-directions/north-east/frame_002.png",
+              "Idle/animations/run-attack-eight-directions/north-east/frame_003.png",
+              "Idle/animations/run-attack-eight-directions/north-east/frame_004.png",
+              "Idle/animations/run-attack-eight-directions/north-east/frame_005.png",
+              "Idle/animations/run-attack-eight-directions/north-east/frame_006.png",
+              "Idle/animations/run-attack-eight-directions/north-east/frame_007.png"
+            ],
+            "north": [
+              "Idle/animations/run-attack-eight-directions/north/frame_000.png",
+              "Idle/animations/run-attack-eight-directions/north/frame_001.png",
+              "Idle/animations/run-attack-eight-directions/north/frame_002.png",
+              "Idle/animations/run-attack-eight-directions/north/frame_003.png",
+              "Idle/animations/run-attack-eight-directions/north/frame_004.png",
+              "Idle/animations/run-attack-eight-directions/north/frame_005.png",
+              "Idle/animations/run-attack-eight-directions/north/frame_006.png",
+              "Idle/animations/run-attack-eight-directions/north/frame_007.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-10-20T01:38:08.612021"
+}

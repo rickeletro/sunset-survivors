@@ -80,6 +80,13 @@ export class TitleScene extends Phaser.Scene {
 
     // 6. Saloon & Level Up Decor Assets
     this.load.image('saloon_bkg', 'assets/background/Saloon_bkg.png');
+    this.load.image('hud_avatar_steve', 'assets/ui/hud_avatar_steve.png');
+    this.load.image('hud_avatar_billy', 'assets/ui/hud_avatar_billy.png');
+    this.load.image('hud_avatar_bob', 'assets/ui/hud_avatar_bob.png');
+    this.load.image('hud_avatar_cormano', 'assets/ui/hud_avatar_cormano.png');
+    this.load.image('hud_coin_icon', 'assets/ui/hud_coin_icon.png');
+    this.load.image('hud_skull_icon', 'assets/ui/hud_skull_icon.png');
+    this.load.image('ref_lore_note', 'assets/ui/ref_lore_note_clean.png');
     this.load.image('decor_backdrop', 'assets/decor/desert_saloon_backdrop.png');
     this.load.image('decor_vignette', 'assets/decor/cinematic_vignette.png');
     this.load.image('decor_side_beam', 'assets/decor/wooden_side_beam.png');

@@ -1,0 +1,480 @@
+[
+  {
+    "slug": "simon-greedwell",
+    "name": "Simon Greedwell",
+    "creation_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 34d88ec1-cd72-475d-aa6c-bc20b403e3fe\nname: Simon Greedwell \u2014 Western Pulp 98\nmode: pro (25 generations, 8 directions)\nbody: humanoid\nsize: 128x128px\nview: low top-down\nstatus: processing (~3-5 min)\n\nhint: get_character(character_id=\"34d88ec1-cd72-475d-aa6c-bc20b403e3fe\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "character_id": "34d88ec1-cd72-475d-aa6c-bc20b403e3fe",
+    "last_status": "status: completed\nid: 34d88ec1-cd72-475d-aa6c-bc20b403e3fe\nname: Simon Greedwell \u2014 Western Pulp 98\nstate_name: Idle\ndirections: 8 (south, east, north, west, south-east, north-east, north-west, south-west)\nsize: 128x128px\nview: low top-down\nstyle: , , \ngroup: 01a49e1a-8164-4c8a-8833-e7a7f7a476da (1 state)\n\nrotations:\n  south: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/34d88ec1-cd72-475d-aa6c-bc20b403e3fe/rotations/south.png?t=1792458809\n  east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/34d88ec1-cd72-475d-aa6c-bc20b403e3fe/rotations/east.png?t=1792458809\n  north: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/34d88ec1-cd72-475d-aa6c-bc20b403e3fe/rotations/north.png?t=1792458809\n  west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/34d88ec1-cd72-475d-aa6c-bc20b403e3fe/rotations/west.png?t=1792458809\n  south-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/34d88ec1-cd72-475d-aa6c-bc20b403e3fe/rotations/south-east.png?t=1792458809\n  north-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/34d88ec1-cd72-475d-aa6c-bc20b403e3fe/rotations/north-east.png?t=1792458809\n  north-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/34d88ec1-cd72-475d-aa6c-bc20b403e3fe/rotations/north-west.png?t=1792458809\n  south-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/34d88ec1-cd72-475d-aa6c-bc20b403e3fe/rotations/south-west.png?t=1792458809\n\nanimations (1 group, 8 total):\n  run-attack-eight-directions \u2014 8 dir (south, south-west, south-east, north, north-east, north-west, east, west), 8f 2026-10-20 [type=custom-Animate the supplied Simon Gre] [group: 6db43125-39ea-47d8-a7b7-bd13552513b5]\n    south: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/34d88ec1-cd72-475d-aa6c-bc20b403e3fe/animations/721bd52d-9ad8-4383-afdd-0d0fa232e47a/south/{i}.png?t=1792459458100 (i=0..7)\n    south-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/34d88ec1-cd72-475d-aa6c-bc20b403e3fe/animations/d47067ac-9724-48a2-9ad5-4de69d935b24/south-west/{i}.png?t=1792459414729 (i=0..7)\n    south-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/34d88ec1-cd72-475d-aa6c-bc20b403e3fe/animations/d575cda3-42f5-44a5-8662-7796fcb09f48/south-east/{i}.png?t=1792459406436 (i=0..7)\n    north: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/34d88ec1-cd72-475d-aa6c-bc20b403e3fe/animations/6c84fd74-abcd-414e-980a-ac0f1e26fc2c/north/{i}.png?t=1792459398679 (i=0..7)\n    north-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/34d88ec1-cd72-475d-aa6c-bc20b403e3fe/animations/2b707eb2-fd76-4cc2-a068-48857e770026/north-east/{i}.png?t=1792459398014 (i=0..7)\n    north-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/34d88ec1-cd72-475d-aa6c-bc20b403e3fe/animations/9ce70398-9dd8-4267-b6a7-c7d910e8f78e/north-west/{i}.png?t=1792459395497 (i=0..7)\n    east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/34d88ec1-cd72-475d-aa6c-bc20b403e3fe/animations/803bd56d-1e02-42bf-8988-8dd4b07d4cfb/east/{i}.png?t=1792459338441 (i=0..7)\n    west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/34d88ec1-cd72-475d-aa6c-bc20b403e3fe/animations/28ab4933-1768-4754-9e2d-fd9b3112602e/west/{i}.png?t=1792459331205 (i=0..7)\n\ndownload: https://api.pixellab.ai/mcp/characters/34d88ec1-cd72-475d-aa6c-bc20b403e3fe/download\nspritesheet: https://api.pixellab.ai/mcp/characters/34d88ec1-cd72-475d-aa6c-bc20b403e3fe/spritesheet (this state only \u2014 one uniform-grid sheet PNG + layout JSON, zipped; cells pivot-centred)\n\navailable_animations: backflip, breathing-idle, cross-punch, crouched-walking, crouching, drinking, falling-back-death, fight-stance-idle-8-frames, fireball, flying-kick, front-flip, getting-up, high-kick, hurricane-kick, jumping-1, jumping-2, lead-jab, leg-sweep, picking-up, pull-heavy-object, pushing, roundhouse-kick, running-4-frames, running-6-frames, running-8-frames, running-jump, running-slide, sad-walk, scary-walk, surprise-uppercut, taking-punch, throw-object, two-footed-jump, walk, walk-1, walk-2, walking, walking-10, walking-2, walking-3, walking-4, walking-4-frames, walking-5, walking-6, walking-6-frames, walking-7, walking-8, walking-8-frames, walking-9\n\nactions: animate_character(character_id=\"34d88ec1-cd72-475d-aa6c-bc20b403e3fe\", ...) | create_character_state(character_id=\"34d88ec1-cd72-475d-aa6c-bc20b403e3fe\", ...) | delete_animation(character_id=\"34d88ec1-cd72-475d-aa6c-bc20b403e3fe\", animation_group_id=\"<group>\") | delete_character(character_id=\"34d88ec1-cd72-475d-aa6c-bc20b403e3fe\")",
+    "animation_last_error": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "error: need 8 job slots but only 7 available (1/8 used)\n\nhint: wait for jobs to finish (~2-4 min each), then retry, or start 7 now with directions=[...] and add the rest to the same group afterwards (animation_group_id)"
+          }
+        ],
+        "isError": true
+      }
+    },
+    "animation_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "status: already queued or complete (nothing re-queued)\ncharacter: 34d88ec1-cd72-475d-aa6c-bc20b403e3fe\naction: Animate the supplied Simon Greedwell directional sprite. Preserve the established identity, colors, proportions, weapon design and anatomical handedness. Move and attack along each supplied facing direction. Run with a heavy powerful stride while aiming and firing his double-barreled shotgun forward. Animate a short muzzle flash at the barrels, strong shoulder recoil and recovery, keeping both hands correctly attached to the gun. Never replace it with a revolver. Seamless looping locomotion combined with attack, in place with no net travel. Fixed elevated camera, no camera rotation or zoom. Consistent body scale and foot/hoof anchor; allow natural stride and recoil. Keep the entire body, all equipment and the full attack arc within every frame. Transparent background, crisp pixel art, no text, no scenery, no extra limbs, no sliding feet, no equipment swapping and no automatic mirroring that changes handedness. Rear views must genuinely show the back rather than a flipped front view.\ndirections: east, north-east, north, north-west, west, south-west, south, south-east (8 total)\n\nhint: get_character(character_id=\"34d88ec1-cd72-475d-aa6c-bc20b403e3fe\") to see progress\nto generate a fresh take and keep this one, reword action_description \u2014 an identical request is matched to the existing clip, not charged again"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "downloaded": "public/assets/bosses/pixellab/simon-greedwell/character.zip",
+    "verified": {
+      "rotations": 8,
+      "animation_directions": 8,
+      "frames_per_direction": 8,
+      "archive_integrity": "passed"
+    },
+    "included_in_delivery": false,
+    "delivery_note": "Excluded: user already created Simon in PixelLab. Preserve existing assets; use user original e1f87c3e-d0c9-4a54-8e18-869db43f4a3b."
+  },
+  {
+    "slug": "hawkeye-hank-hatfield",
+    "name": "Hawkeye Hank Hatfield",
+    "creation_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 4ccdcc2f-32f0-45ed-8dab-da95aab8d72b\nname: Hawkeye Hank Hatfield \u2014 Western Pulp 98\nmode: pro (25 generations, 8 directions)\nbody: humanoid\nsize: 128x128px\nview: low top-down\nstatus: processing (~3-5 min)\n\nhint: get_character(character_id=\"4ccdcc2f-32f0-45ed-8dab-da95aab8d72b\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "character_id": "4ccdcc2f-32f0-45ed-8dab-da95aab8d72b",
+    "last_status": "status: completed\nid: 4ccdcc2f-32f0-45ed-8dab-da95aab8d72b\nname: Hawkeye Hank Hatfield \u2014 Western Pulp 98\nstate_name: Idle\ndirections: 8 (south, east, north, west, south-east, north-east, north-west, south-west)\nsize: 128x128px\nview: low top-down\nstyle: , , \ngroup: 85a8af0d-aba5-449e-9660-e83834e85811 (1 state)\n\nrotations:\n  south: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/4ccdcc2f-32f0-45ed-8dab-da95aab8d72b/rotations/south.png?t=1792459777\n  east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/4ccdcc2f-32f0-45ed-8dab-da95aab8d72b/rotations/east.png?t=1792459777\n  north: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/4ccdcc2f-32f0-45ed-8dab-da95aab8d72b/rotations/north.png?t=1792459777\n  west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/4ccdcc2f-32f0-45ed-8dab-da95aab8d72b/rotations/west.png?t=1792459777\n  south-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/4ccdcc2f-32f0-45ed-8dab-da95aab8d72b/rotations/south-east.png?t=1792459777\n  north-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/4ccdcc2f-32f0-45ed-8dab-da95aab8d72b/rotations/north-east.png?t=1792459777\n  north-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/4ccdcc2f-32f0-45ed-8dab-da95aab8d72b/rotations/north-west.png?t=1792459777\n  south-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/4ccdcc2f-32f0-45ed-8dab-da95aab8d72b/rotations/south-west.png?t=1792459777\n\nanimations (1 group, 8 total):\n  run-attack-eight-directions \u2014 8 dir (east, north-east, north-west, north, south-east, south, west, south-west), 8f 2026-10-20 [type=custom-Animate the supplied Hawkeye H] [group: 8a0fe4f6-962c-4a74-b946-937a06009326]\n    east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/4ccdcc2f-32f0-45ed-8dab-da95aab8d72b/animations/6165d826-db1b-4194-a29a-acdb8fe07a66/east/{i}.png?t=1792460694201 (i=0..7)\n    north-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/4ccdcc2f-32f0-45ed-8dab-da95aab8d72b/animations/cb9e0c9c-484b-4bd0-a315-831413f42a90/north-east/{i}.png?t=1792460627097 (i=0..7)\n    north-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/4ccdcc2f-32f0-45ed-8dab-da95aab8d72b/animations/a6d236e1-424a-4a75-a106-5d359f86ad8b/north-west/{i}.png?t=1792460600006 (i=0..7)\n    north: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/4ccdcc2f-32f0-45ed-8dab-da95aab8d72b/animations/88c6ea30-9404-42d1-8593-9378bd73fd81/north/{i}.png?t=1792460591782 (i=0..7)\n    south-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/4ccdcc2f-32f0-45ed-8dab-da95aab8d72b/animations/0dff7778-3831-41cb-9eeb-62da4b7b2cc9/south-east/{i}.png?t=1792460588178 (i=0..7)\n    south: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/4ccdcc2f-32f0-45ed-8dab-da95aab8d72b/animations/6a6d521c-866a-4eac-94e7-60f081429848/south/{i}.png?t=1792460569591 (i=0..7)\n    west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/4ccdcc2f-32f0-45ed-8dab-da95aab8d72b/animations/ce182772-f31d-4fbb-aabf-1e87051d938d/west/{i}.png?t=1792460552820 (i=0..7)\n    south-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/4ccdcc2f-32f0-45ed-8dab-da95aab8d72b/animations/c3b19c9a-8707-4868-b1cf-9762426a8ae1/south-west/{i}.png?t=1792460548127 (i=0..7)\n\ndownload: https://api.pixellab.ai/mcp/characters/4ccdcc2f-32f0-45ed-8dab-da95aab8d72b/download\nspritesheet: https://api.pixellab.ai/mcp/characters/4ccdcc2f-32f0-45ed-8dab-da95aab8d72b/spritesheet (this state only \u2014 one uniform-grid sheet PNG + layout JSON, zipped; cells pivot-centred)\n\navailable_animations: backflip, breathing-idle, cross-punch, crouched-walking, crouching, drinking, falling-back-death, fight-stance-idle-8-frames, fireball, flying-kick, front-flip, getting-up, high-kick, hurricane-kick, jumping-1, jumping-2, lead-jab, leg-sweep, picking-up, pull-heavy-object, pushing, roundhouse-kick, running-4-frames, running-6-frames, running-8-frames, running-jump, running-slide, sad-walk, scary-walk, surprise-uppercut, taking-punch, throw-object, two-footed-jump, walk, walk-1, walk-2, walking, walking-10, walking-2, walking-3, walking-4, walking-4-frames, walking-5, walking-6, walking-6-frames, walking-7, walking-8, walking-8-frames, walking-9\n\nactions: animate_character(character_id=\"4ccdcc2f-32f0-45ed-8dab-da95aab8d72b\", ...) | create_character_state(character_id=\"4ccdcc2f-32f0-45ed-8dab-da95aab8d72b\", ...) | delete_animation(character_id=\"4ccdcc2f-32f0-45ed-8dab-da95aab8d72b\", animation_group_id=\"<group>\") | delete_character(character_id=\"4ccdcc2f-32f0-45ed-8dab-da95aab8d72b\")",
+    "animation_last_error": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "error: need 8 job slots but only 3 available (5/8 used)\n\nhint: wait for jobs to finish (~2-4 min each), then retry, or start 3 now with directions=[...] and add the rest to the same group afterwards (animation_group_id)"
+          }
+        ],
+        "isError": true
+      }
+    },
+    "animation_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "character: 4ccdcc2f-32f0-45ed-8dab-da95aab8d72b\nanimation: v3 custom (Animate the supplied Hawkeye Hank Hatfield directional sprite. Preserve the established identity, colors, proportions, weapon design and anatomical handedness. Move and attack along each supplied facing direction. Run with a quick gunslinger stride, right arm extended toward the movement direction, repeatedly firing his single revolver. Show trigger squeeze, brief muzzle flash, wrist recoil and recovery. The left arm balances the run. Do not add a second handgun. Seamless looping locomotion combined with attack, in place with no net travel. Fixed elevated camera, no camera rotation or zoom. Consistent body scale and foot/hoof anchor; allow natural stride and recoil. Keep the entire body, all equipment and the full attack arc within every frame. Transparent background, crisp pixel art, no text, no scenery, no extra limbs, no sliding feet, no equipment swapping and no automatic mirroring that changes handedness. Rear views must genuinely show the back rather than a flipped front view.)\ndirections: east, north-east, north, north-west, west, south-west, south, south-east (8 jobs)\njob_ids: east=f9e87733-af59-4b7b-a3ed-07476aadcaa1, north-east=71a2e857-858f-47ed-91da-4d2ab38ad0c3, north=0ba432aa-ce07-4c7a-aa18-be89266b85ff, north-west=fa94d64c-017c-4fc3-b415-b5b1ee0d184e, west=0e5835f4-d9ba-4b64-b7f7-830e055379d6, south-west=1aaddf8c-820b-4647-8d53-9cbd77c4a3a4, south=f6ebc6f4-a7ea-4538-bb71-94376fb81280, south-east=200086af-2a5b-487f-ae06-abf4e3e2bb39\ngroup: 8a0fe4f6-962c-4a74-b946-937a06009326\nframes: 8 (reference stripped, keep_first_frame=false)\ncanvas: east 128x128, north-east 132x132, north 132x132, north-west 132x132, west 128x128, south-west 136x136, south 128x128, south-east 136x136 (frames are stored at this size: the character plus room to move)\ncost: 21 generations (east=2, north-east=3, north=3, north-west=3, west=2, south-west=3, south=2, south-east=3)\neta: ~2-4 min/direction\n\nhint: get_character(character_id=\"4ccdcc2f-32f0-45ed-8dab-da95aab8d72b\")\nadd more directions to this group: animate_character(character_id=\"4ccdcc2f-32f0-45ed-8dab-da95aab8d72b\", action_description=\"Animate the supplied Hawkeye Hank Hatfield directional sprite. Preserve the established identity, colors, proportions, weapon design and anatomical handedness. Move and attack along each supplied facing direction. Run with a quick gunslinger stride, right arm extended toward the movement direction, repeatedly firing his single revolver. Show trigger squeeze, brief muzzle flash, wrist recoil and recovery. The left arm balances the run. Do not add a second handgun. Seamless looping locomotion combined with attack, in place with no net travel. Fixed elevated camera, no camera rotation or zoom. Consistent body scale and foot/hoof anchor; allow natural stride and recoil. Keep the entire body, all equipment and the full attack arc within every frame. Transparent background, crisp pixel art, no text, no scenery, no extra limbs, no sliding feet, no equipment swapping and no automatic mirroring that changes handedness. Rear views must genuinely show the back rather than a flipped front view.\", animation_group_id=\"8a0fe4f6-962c-4a74-b946-937a06009326\", directions=[...])"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "downloaded": "public/assets/bosses/pixellab/hawkeye-hank-hatfield/character.zip",
+    "verified": {
+      "rotations": 8,
+      "animation_directions": 8,
+      "frames_per_direction": 8,
+      "archive_integrity": "passed"
+    },
+    "included_in_delivery": true
+  },
+  {
+    "slug": "dark-horse",
+    "name": "Dark Horse \u2014 The Iron Rider",
+    "creation_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 897f9d62-397b-4792-85d7-2657e7be2b6b\nname: Dark Horse \u2014 The Iron Rider \u2014 Western Pulp 98\nmode: pro (25 generations, 8 directions)\nbody: quadruped (horse)\nsize: 128x128px\nview: low top-down\nstatus: processing (~3-5 min)\n\nhint: get_character(character_id=\"897f9d62-397b-4792-85d7-2657e7be2b6b\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "character_id": "897f9d62-397b-4792-85d7-2657e7be2b6b",
+    "last_status": "status: completed\nid: 897f9d62-397b-4792-85d7-2657e7be2b6b\nname: Dark Horse \u2014 The Iron Rider \u2014 Western Pulp 98\nstate_name: Idle\ndirections: 8 (south, east, north, west, south-east, north-east, north-west, south-west)\nsize: 128x128px\nview: low top-down\nstyle: , , \ngroup: d8371369-5486-47d3-8f11-832e2c58dbb0 (1 state)\n\nrotations:\n  south: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/897f9d62-397b-4792-85d7-2657e7be2b6b/rotations/south.png?t=1792458757\n  east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/897f9d62-397b-4792-85d7-2657e7be2b6b/rotations/east.png?t=1792458757\n  north: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/897f9d62-397b-4792-85d7-2657e7be2b6b/rotations/north.png?t=1792458757\n  west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/897f9d62-397b-4792-85d7-2657e7be2b6b/rotations/west.png?t=1792458757\n  south-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/897f9d62-397b-4792-85d7-2657e7be2b6b/rotations/south-east.png?t=1792458757\n  north-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/897f9d62-397b-4792-85d7-2657e7be2b6b/rotations/north-east.png?t=1792458757\n  north-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/897f9d62-397b-4792-85d7-2657e7be2b6b/rotations/north-west.png?t=1792458757\n  south-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/897f9d62-397b-4792-85d7-2657e7be2b6b/rotations/south-west.png?t=1792458757\n\nanimations (1 group, 8 total):\n  run-attack-eight-directions \u2014 8 dir (north-west, south, west, east, south-east, north, north-east, south-west), 8f 2026-10-20 [type=custom-Animate the supplied Dark Hors] [group: 7d02fd47-fac4-45a6-8ee6-5a5b02227f7e]\n    north-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/897f9d62-397b-4792-85d7-2657e7be2b6b/animations/23ce77ef-d81d-4724-b622-e62f7033a352/north-west/{i}.png?t=1792460437474 (i=0..7)\n    south: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/897f9d62-397b-4792-85d7-2657e7be2b6b/animations/fdcd3af7-1f83-42ca-bb34-b16db3ea7256/south/{i}.png?t=1792460435179 (i=0..7)\n    west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/897f9d62-397b-4792-85d7-2657e7be2b6b/animations/25a29645-4c44-472b-a5fb-fea110dd26f9/west/{i}.png?t=1792460413470 (i=0..7)\n    east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/897f9d62-397b-4792-85d7-2657e7be2b6b/animations/06de0adf-df5a-4206-9ed1-d6e28fc86ba4/east/{i}.png?t=1792460409986 (i=0..7)\n    south-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/897f9d62-397b-4792-85d7-2657e7be2b6b/animations/61b4ef36-970c-4ec9-910f-09cb05d1f1fe/south-east/{i}.png?t=1792460398825 (i=0..7)\n    north: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/897f9d62-397b-4792-85d7-2657e7be2b6b/animations/a81677bd-c030-4e62-9efb-59808acc766c/north/{i}.png?t=1792460382567 (i=0..7)\n    north-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/897f9d62-397b-4792-85d7-2657e7be2b6b/animations/7249ae11-7b70-4b75-887f-57c4dee92521/north-east/{i}.png?t=1792460382306 (i=0..7)\n    south-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/897f9d62-397b-4792-85d7-2657e7be2b6b/animations/63e09e79-c61c-4fba-99b4-9d41d371dafc/south-west/{i}.png?t=1792460373893 (i=0..7)\n\ndownload: https://api.pixellab.ai/mcp/characters/897f9d62-397b-4792-85d7-2657e7be2b6b/download\nspritesheet: https://api.pixellab.ai/mcp/characters/897f9d62-397b-4792-85d7-2657e7be2b6b/spritesheet (this state only \u2014 one uniform-grid sheet PNG + layout JSON, zipped; cells pivot-centred)\n\navailable_animations: attack, attack-back, dying, eat-end, eat-start, eating, hit-left, hit-right, idle-shaking-head, lie-down, rest-cycle, rest-idle, running-4-frames, running-6-frames, running-8-frames, running-headbutt, running-turn-left, running-turn-right, sleep-cycle, stand-up, start-sleep, swimming, wake-up, walk-4-frames, walk-6-frames, walk-8-frames, walk-turn-left, walk-turn-right\n\nactions: animate_character(character_id=\"897f9d62-397b-4792-85d7-2657e7be2b6b\", ...) | create_character_state(character_id=\"897f9d62-397b-4792-85d7-2657e7be2b6b\", ...) | delete_animation(character_id=\"897f9d62-397b-4792-85d7-2657e7be2b6b\", animation_group_id=\"<group>\") | delete_character(character_id=\"897f9d62-397b-4792-85d7-2657e7be2b6b\")",
+    "animation_last_error": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "error: need 8 job slots but only 0 available (8/8 used)\n\nhint: wait for jobs to finish (~2-4 min each), then retry"
+          }
+        ],
+        "isError": true
+      }
+    },
+    "animation_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "character: 897f9d62-397b-4792-85d7-2657e7be2b6b\nanimation: v3 custom (Animate the supplied Dark Horse \u2014 The Iron Rider directional sprite. Preserve the established identity, colors, proportions, weapon design and anatomical handedness. Move and attack along each supplied facing direction. The horse gallops in place toward the specified direction with a coherent four-leg gait. The rider stays seated, aims and repeatedly fires his long-barreled handgun along the travel direction. Animate muzzle flash, recoil, horse mane and tail, and trailing red cape. Keep horse and rider together; never turn the rider into a walking character. Seamless looping locomotion combined with attack, in place with no net travel. Fixed elevated camera, no camera rotation or zoom. Consistent body scale and foot/hoof anchor; allow natural stride and recoil. Keep the entire body, all equipment and the full attack arc within every frame. Transparent background, crisp pixel art, no text, no scenery, no extra limbs, no sliding feet, no equipment swapping and no automatic mirroring that changes handedness. Rear views must genuinely show the back rather than a flipped front view.)\ndirections: east, north-east, north, north-west, west, south-west, south, south-east (8 jobs)\njob_ids: east=bd909f2b-6eda-42f5-9698-c79a6bbd49b3, north-east=0e948f93-d301-4281-b9f7-7156ae39564b, north=bc25122f-59aa-41d6-a505-0270ca3f4221, north-west=43c09f17-f7f5-46a7-902a-9c7c9f54ec41, west=fb32a971-46d7-4d22-8ce1-b3b718a91353, south-west=bb2a89cc-6002-44bf-a909-8c8d341b2b3f, south=cdfdba79-b738-4690-b1e8-6fb7f4f44f09, south-east=6378ea3b-9852-418b-8462-f046b3028e49\ngroup: 7d02fd47-fac4-45a6-8ee6-5a5b02227f7e\nframes: 8 (reference stripped, keep_first_frame=false)\ncanvas: east 160x160, north-east 160x160, north 164x164, north-west 172x172, west 160x160, south-west 164x164, south 172x172, south-east 164x164 (frames are stored at this size: the character plus room to move)\ncost: 32 generations (4/dir x 8)\neta: ~2-4 min/direction\n\nhint: get_character(character_id=\"897f9d62-397b-4792-85d7-2657e7be2b6b\")\nadd more directions to this group: animate_character(character_id=\"897f9d62-397b-4792-85d7-2657e7be2b6b\", action_description=\"Animate the supplied Dark Horse \u2014 The Iron Rider directional sprite. Preserve the established identity, colors, proportions, weapon design and anatomical handedness. Move and attack along each supplied facing direction. The horse gallops in place toward the specified direction with a coherent four-leg gait. The rider stays seated, aims and repeatedly fires his long-barreled handgun along the travel direction. Animate muzzle flash, recoil, horse mane and tail, and trailing red cape. Keep horse and rider together; never turn the rider into a walking character. Seamless looping locomotion combined with attack, in place with no net travel. Fixed elevated camera, no camera rotation or zoom. Consistent body scale and foot/hoof anchor; allow natural stride and recoil. Keep the entire body, all equipment and the full attack arc within every frame. Transparent background, crisp pixel art, no text, no scenery, no extra limbs, no sliding feet, no equipment swapping and no automatic mirroring that changes handedness. Rear views must genuinely show the back rather than a flipped front view.\", animation_group_id=\"7d02fd47-fac4-45a6-8ee6-5a5b02227f7e\", directions=[...])"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "downloaded": "public/assets/bosses/pixellab/dark-horse/character.zip",
+    "verified": {
+      "rotations": 8,
+      "animation_directions": 8,
+      "frames_per_direction": 8,
+      "archive_integrity": "passed"
+    },
+    "included_in_delivery": true
+  },
+  {
+    "slug": "smith-brother-red",
+    "name": "The Smith Brothers \u2014 Red-shirt brother",
+    "creation_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 38b7ba3f-65e2-4a19-a470-d3e300e48810\nname: The Smith Brothers \u2014 Red-shirt brother \u2014 Western Pulp 98\nmode: pro (25 generations, 8 directions)\nbody: humanoid\nsize: 128x128px\nview: low top-down\nstatus: processing (~3-5 min)\n\nhint: get_character(character_id=\"38b7ba3f-65e2-4a19-a470-d3e300e48810\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "character_id": "38b7ba3f-65e2-4a19-a470-d3e300e48810",
+    "last_status": "status: completed\nid: 38b7ba3f-65e2-4a19-a470-d3e300e48810\nname: The Smith Brothers \u2014 Red-shirt brother \u2014 Western Pulp 98\nstate_name: Idle\ndirections: 8 (south, east, north, west, south-east, north-east, north-west, south-west)\nsize: 128x128px\nview: low top-down\nstyle: , , \ngroup: ad056a48-e275-4a79-9e37-8722fe7051d1 (1 state)\n\nrotations:\n  south: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/38b7ba3f-65e2-4a19-a470-d3e300e48810/rotations/south.png?t=1792459901\n  east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/38b7ba3f-65e2-4a19-a470-d3e300e48810/rotations/east.png?t=1792459901\n  north: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/38b7ba3f-65e2-4a19-a470-d3e300e48810/rotations/north.png?t=1792459901\n  west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/38b7ba3f-65e2-4a19-a470-d3e300e48810/rotations/west.png?t=1792459901\n  south-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/38b7ba3f-65e2-4a19-a470-d3e300e48810/rotations/south-east.png?t=1792459901\n  north-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/38b7ba3f-65e2-4a19-a470-d3e300e48810/rotations/north-east.png?t=1792459901\n  north-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/38b7ba3f-65e2-4a19-a470-d3e300e48810/rotations/north-west.png?t=1792459901\n  south-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/38b7ba3f-65e2-4a19-a470-d3e300e48810/rotations/south-west.png?t=1792459901\n\nanimations (1 group, 8 total):\n  run-attack-eight-directions \u2014 8 dir (south-west, south-east, west, east, south, north-west, north-east, north), 8f 2026-10-20 [type=custom-Animate the supplied The Smith] [group: eca6af5e-7052-4d59-aed0-a6df9782929c]\n    south-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/38b7ba3f-65e2-4a19-a470-d3e300e48810/animations/f111079d-d8a3-441d-ab66-29571b25a820/south-west/{i}.png?t=1792460024147 (i=0..7)\n    south-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/38b7ba3f-65e2-4a19-a470-d3e300e48810/animations/4f61639c-f76d-425d-953d-a8a7f269f4c4/south-east/{i}.png?t=1792460012000 (i=0..7)\n    west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/38b7ba3f-65e2-4a19-a470-d3e300e48810/animations/d1c6d2d9-b2e4-41fb-a36b-7e59eb791eac/west/{i}.png?t=1792460007016 (i=0..7)\n    east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/38b7ba3f-65e2-4a19-a470-d3e300e48810/animations/6c07c3e0-0cc6-4b79-915e-7efd9b0072f9/east/{i}.png?t=1792459999813 (i=0..7)\n    south: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/38b7ba3f-65e2-4a19-a470-d3e300e48810/animations/b469199a-b031-48ca-b57c-d641915e5682/south/{i}.png?t=1792459998017 (i=0..7)\n    north-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/38b7ba3f-65e2-4a19-a470-d3e300e48810/animations/14a0958c-8899-4ff2-8d5c-3b5891823f54/north-west/{i}.png?t=1792459993318 (i=0..7)\n    north-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/38b7ba3f-65e2-4a19-a470-d3e300e48810/animations/060aa400-c918-453e-9a49-a65976710929/north-east/{i}.png?t=1792459993310 (i=0..7)\n    north: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/38b7ba3f-65e2-4a19-a470-d3e300e48810/animations/7871a8c6-741a-4094-8d2d-50db20da90cf/north/{i}.png?t=1792459977749 (i=0..7)\n\ndownload: https://api.pixellab.ai/mcp/characters/38b7ba3f-65e2-4a19-a470-d3e300e48810/download\nspritesheet: https://api.pixellab.ai/mcp/characters/38b7ba3f-65e2-4a19-a470-d3e300e48810/spritesheet (this state only \u2014 one uniform-grid sheet PNG + layout JSON, zipped; cells pivot-centred)\n\navailable_animations: backflip, breathing-idle, cross-punch, crouched-walking, crouching, drinking, falling-back-death, fight-stance-idle-8-frames, fireball, flying-kick, front-flip, getting-up, high-kick, hurricane-kick, jumping-1, jumping-2, lead-jab, leg-sweep, picking-up, pull-heavy-object, pushing, roundhouse-kick, running-4-frames, running-6-frames, running-8-frames, running-jump, running-slide, sad-walk, scary-walk, surprise-uppercut, taking-punch, throw-object, two-footed-jump, walk, walk-1, walk-2, walking, walking-10, walking-2, walking-3, walking-4, walking-4-frames, walking-5, walking-6, walking-6-frames, walking-7, walking-8, walking-8-frames, walking-9\n\nactions: animate_character(character_id=\"38b7ba3f-65e2-4a19-a470-d3e300e48810\", ...) | create_character_state(character_id=\"38b7ba3f-65e2-4a19-a470-d3e300e48810\", ...) | delete_animation(character_id=\"38b7ba3f-65e2-4a19-a470-d3e300e48810\", animation_group_id=\"<group>\") | delete_character(character_id=\"38b7ba3f-65e2-4a19-a470-d3e300e48810\")",
+    "animation_last_error": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "error: need 8 job slots but only 0 available (8/8 used)\n\nhint: wait for jobs to finish (~2-4 min each), then retry"
+          }
+        ],
+        "isError": true
+      }
+    },
+    "animation_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "status: already queued or complete (nothing re-queued)\ncharacter: 38b7ba3f-65e2-4a19-a470-d3e300e48810\naction: Animate the supplied The Smith Brothers \u2014 Red-shirt brother directional sprite. Preserve the established identity, colors, proportions, weapon design and anatomical handedness. Move and attack along each supplied facing direction. Run while throwing bundled red dynamite forward along the travel direction. Animate wind-up, forward arm swing, release and follow-through, then draw a fresh bundle from the belt for the loop. Use tiny fuse sparks, no explosion inside the character animation. Do not add a firearm. Seamless looping locomotion combined with attack, in place with no net travel. Fixed elevated camera, no camera rotation or zoom. Consistent body scale and foot/hoof anchor; allow natural stride and recoil. Keep the entire body, all equipment and the full attack arc within every frame. Transparent background, crisp pixel art, no text, no scenery, no extra limbs, no sliding feet, no equipment swapping and no automatic mirroring that changes handedness. Rear views must genuinely show the back rather than a flipped front view.\ndirections: east, north-east, north, north-west, west, south-west, south, south-east (8 total)\n\nhint: get_character(character_id=\"38b7ba3f-65e2-4a19-a470-d3e300e48810\") to see progress\nto generate a fresh take and keep this one, reword action_description \u2014 an identical request is matched to the existing clip, not charged again"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "downloaded": "public/assets/bosses/pixellab/smith-brother-red/character.zip",
+    "verified": {
+      "rotations": 8,
+      "animation_directions": 8,
+      "frames_per_direction": 8,
+      "archive_integrity": "passed"
+    },
+    "included_in_delivery": true
+  },
+  {
+    "slug": "smith-brother-gray",
+    "name": "The Smith Brothers \u2014 Gray-shirt brother",
+    "creation_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: f3c52810-f452-4eaf-b733-44725af19e28\nname: The Smith Brothers \u2014 Gray-shirt brother \u2014 Western Pulp 98\nmode: pro (25 generations, 8 directions)\nbody: humanoid\nsize: 128x128px\nview: low top-down\nstatus: processing (~3-5 min)\n\nhint: get_character(character_id=\"f3c52810-f452-4eaf-b733-44725af19e28\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "character_id": "f3c52810-f452-4eaf-b733-44725af19e28",
+    "last_status": "status: completed\nid: f3c52810-f452-4eaf-b733-44725af19e28\nname: The Smith Brothers \u2014 Gray-shirt brother \u2014 Western Pulp 98\nstate_name: Idle\ndirections: 8 (south, east, north, west, south-east, north-east, north-west, south-west)\nsize: 128x128px\nview: low top-down\nstyle: , , \ngroup: 053419ef-b72b-4a63-a423-c207c7fb12ed (1 state)\n\nrotations:\n  south: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/f3c52810-f452-4eaf-b733-44725af19e28/rotations/south.png?t=1792460148\n  east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/f3c52810-f452-4eaf-b733-44725af19e28/rotations/east.png?t=1792460148\n  north: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/f3c52810-f452-4eaf-b733-44725af19e28/rotations/north.png?t=1792460148\n  west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/f3c52810-f452-4eaf-b733-44725af19e28/rotations/west.png?t=1792460148\n  south-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/f3c52810-f452-4eaf-b733-44725af19e28/rotations/south-east.png?t=1792460148\n  north-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/f3c52810-f452-4eaf-b733-44725af19e28/rotations/north-east.png?t=1792460148\n  north-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/f3c52810-f452-4eaf-b733-44725af19e28/rotations/north-west.png?t=1792460148\n  south-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/f3c52810-f452-4eaf-b733-44725af19e28/rotations/south-west.png?t=1792460148\n\nanimations (1 group, 8 total):\n  run-attack-eight-directions \u2014 8 dir (north-east, west, south-west, north-west, south, east, north, south-east), 8f 2026-10-20 [type=custom-Animate the supplied The Smith] [group: 735fc1a5-acd9-44ff-9343-e5f187d47960]\n    north-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/f3c52810-f452-4eaf-b733-44725af19e28/animations/2786a89b-6664-4f63-bd88-0e72fdca2b9d/north-east/{i}.png?t=1792460867234 (i=0..7)\n    west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/f3c52810-f452-4eaf-b733-44725af19e28/animations/cd4bcfe1-68a6-499a-a949-b85df1b5ada7/west/{i}.png?t=1792460866788 (i=0..7)\n    south-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/f3c52810-f452-4eaf-b733-44725af19e28/animations/e22bf0ac-0b32-409d-94fa-7fa06433b766/south-west/{i}.png?t=1792460856957 (i=0..7)\n    north-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/f3c52810-f452-4eaf-b733-44725af19e28/animations/359d0bea-8d9b-4085-915c-6bf7f0f5fe31/north-west/{i}.png?t=1792460852660 (i=0..7)\n    south: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/f3c52810-f452-4eaf-b733-44725af19e28/animations/4db7ab1e-78f4-476f-8738-eb35990182a1/south/{i}.png?t=1792460849033 (i=0..7)\n    east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/f3c52810-f452-4eaf-b733-44725af19e28/animations/044e371a-ec9d-4baa-94fa-72fa98719256/east/{i}.png?t=1792460816499 (i=0..7)\n    north: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/f3c52810-f452-4eaf-b733-44725af19e28/animations/7a8087b0-c220-4685-8455-c96578d8b4af/north/{i}.png?t=1792460814038 (i=0..7)\n    south-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/f3c52810-f452-4eaf-b733-44725af19e28/animations/ff105229-119d-424c-b583-f55f9cc14e49/south-east/{i}.png?t=1792460813000 (i=0..7)\n\ndownload: https://api.pixellab.ai/mcp/characters/f3c52810-f452-4eaf-b733-44725af19e28/download\nspritesheet: https://api.pixellab.ai/mcp/characters/f3c52810-f452-4eaf-b733-44725af19e28/spritesheet (this state only \u2014 one uniform-grid sheet PNG + layout JSON, zipped; cells pivot-centred)\n\navailable_animations: backflip, breathing-idle, cross-punch, crouched-walking, crouching, drinking, falling-back-death, fight-stance-idle-8-frames, fireball, flying-kick, front-flip, getting-up, high-kick, hurricane-kick, jumping-1, jumping-2, lead-jab, leg-sweep, picking-up, pull-heavy-object, pushing, roundhouse-kick, running-4-frames, running-6-frames, running-8-frames, running-jump, running-slide, sad-walk, scary-walk, surprise-uppercut, taking-punch, throw-object, two-footed-jump, walk, walk-1, walk-2, walking, walking-10, walking-2, walking-3, walking-4, walking-4-frames, walking-5, walking-6, walking-6-frames, walking-7, walking-8, walking-8-frames, walking-9\n\nactions: animate_character(character_id=\"f3c52810-f452-4eaf-b733-44725af19e28\", ...) | create_character_state(character_id=\"f3c52810-f452-4eaf-b733-44725af19e28\", ...) | delete_animation(character_id=\"f3c52810-f452-4eaf-b733-44725af19e28\", animation_group_id=\"<group>\") | delete_character(character_id=\"f3c52810-f452-4eaf-b733-44725af19e28\")",
+    "animation_last_error": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "error: need 8 job slots but only 2 available (6/8 used)\n\nhint: wait for jobs to finish (~2-4 min each), then retry, or start 2 now with directions=[...] and add the rest to the same group afterwards (animation_group_id)"
+          }
+        ],
+        "isError": true
+      }
+    },
+    "animation_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "character: f3c52810-f452-4eaf-b733-44725af19e28\nanimation: v3 custom (Animate the supplied The Smith Brothers \u2014 Gray-shirt brother directional sprite. Preserve the established identity, colors, proportions, weapon design and anatomical handedness. Move and attack along each supplied facing direction. Run while throwing bundled red dynamite forward along the travel direction. Animate wind-up, forward arm swing, release and follow-through, then draw a fresh bundle from the belt for the loop. Use tiny fuse sparks, no explosion inside the character animation. Do not add a firearm. Seamless looping locomotion combined with attack, in place with no net travel. Fixed elevated camera, no camera rotation or zoom. Consistent body scale and foot/hoof anchor; allow natural stride and recoil. Keep the entire body, all equipment and the full attack arc within every frame. Transparent background, crisp pixel art, no text, no scenery, no extra limbs, no sliding feet, no equipment swapping and no automatic mirroring that changes handedness. Rear views must genuinely show the back rather than a flipped front view.)\ndirections: east, north-east, north, north-west, west, south-west, south, south-east (8 jobs)\njob_ids: east=25e93a39-4774-4840-9de9-f245a52b0a51, north-east=011707fd-9a77-4511-a940-717a1ea121c6, north=0509404a-9b43-4b2c-bc66-a4349b005783, north-west=1bf56668-2f58-4516-8d5c-170341b9af39, west=4b96b2b6-113c-4053-ad5f-baa8d3b42153, south-west=b99a7fe6-1790-4c35-99f4-00fdea0888d5, south=2b76af81-8d88-4a95-986f-8f2755941d9c, south-east=4cfa82a6-ef97-425d-958a-550c2a2ed06f\ngroup: 735fc1a5-acd9-44ff-9343-e5f187d47960\nframes: 8 (reference stripped, keep_first_frame=false)\ncanvas: east 152x152, north-east 156x156, north 152x152, north-west 156x156, west 152x152, south-west 156x156, south 152x152, south-east 156x156 (frames are stored at this size: the character plus room to move)\ncost: 24 generations (3/dir x 8)\neta: ~2-4 min/direction\n\nhint: get_character(character_id=\"f3c52810-f452-4eaf-b733-44725af19e28\")\nadd more directions to this group: animate_character(character_id=\"f3c52810-f452-4eaf-b733-44725af19e28\", action_description=\"Animate the supplied The Smith Brothers \u2014 Gray-shirt brother directional sprite. Preserve the established identity, colors, proportions, weapon design and anatomical handedness. Move and attack along each supplied facing direction. Run while throwing bundled red dynamite forward along the travel direction. Animate wind-up, forward arm swing, release and follow-through, then draw a fresh bundle from the belt for the loop. Use tiny fuse sparks, no explosion inside the character animation. Do not add a firearm. Seamless looping locomotion combined with attack, in place with no net travel. Fixed elevated camera, no camera rotation or zoom. Consistent body scale and foot/hoof anchor; allow natural stride and recoil. Keep the entire body, all equipment and the full attack arc within every frame. Transparent background, crisp pixel art, no text, no scenery, no extra limbs, no sliding feet, no equipment swapping and no automatic mirroring that changes handedness. Rear views must genuinely show the back rather than a flipped front view.\", animation_group_id=\"735fc1a5-acd9-44ff-9343-e5f187d47960\", directions=[...])"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "downloaded": "public/assets/bosses/pixellab/smith-brother-gray/character.zip",
+    "verified": {
+      "rotations": 8,
+      "animation_directions": 8,
+      "frames_per_direction": 8,
+      "archive_integrity": "passed"
+    },
+    "included_in_delivery": true
+  },
+  {
+    "slug": "el-greco",
+    "name": "El Greco",
+    "creation_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 247126b9-a377-4a78-af1f-660c11e35aab\nname: El Greco \u2014 Western Pulp 98\nmode: pro (25 generations, 8 directions)\nbody: humanoid\nsize: 128x128px\nview: low top-down\nstatus: processing (~3-5 min)\n\nhint: get_character(character_id=\"247126b9-a377-4a78-af1f-660c11e35aab\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "character_id": "247126b9-a377-4a78-af1f-660c11e35aab",
+    "last_status": "status: completed\nid: 247126b9-a377-4a78-af1f-660c11e35aab\nname: El Greco \u2014 Western Pulp 98\nstate_name: Idle\ndirections: 8 (south, east, north, west, south-east, north-east, north-west, south-west)\nsize: 128x128px\nview: low top-down\nstyle: , , \ngroup: e97d1024-ad00-4356-be84-87224dc9689f (1 state)\n\nrotations:\n  south: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/247126b9-a377-4a78-af1f-660c11e35aab/rotations/south.png?t=1792458798\n  east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/247126b9-a377-4a78-af1f-660c11e35aab/rotations/east.png?t=1792458798\n  north: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/247126b9-a377-4a78-af1f-660c11e35aab/rotations/north.png?t=1792458798\n  west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/247126b9-a377-4a78-af1f-660c11e35aab/rotations/west.png?t=1792458798\n  south-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/247126b9-a377-4a78-af1f-660c11e35aab/rotations/south-east.png?t=1792458798\n  north-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/247126b9-a377-4a78-af1f-660c11e35aab/rotations/north-east.png?t=1792458798\n  north-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/247126b9-a377-4a78-af1f-660c11e35aab/rotations/north-west.png?t=1792458798\n  south-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/247126b9-a377-4a78-af1f-660c11e35aab/rotations/south-west.png?t=1792458798\n\nanimations (1 group, 8 total):\n  run-attack-eight-directions \u2014 8 dir (south-east, south, east, west, north, north-east, north-west, south-west), 8f 2026-10-20 [type=custom-Animate the supplied El Greco ] [group: 6ba575bd-15c2-4b82-80d9-c91eecb1742c]\n    south-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/247126b9-a377-4a78-af1f-660c11e35aab/animations/574e1471-e8a5-4760-a564-9d9d13946dbe/south-east/{i}.png?t=1792459756917 (i=0..7)\n    south: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/247126b9-a377-4a78-af1f-660c11e35aab/animations/4907d865-95a9-4658-a0ef-a15aaca73189/south/{i}.png?t=1792459707045 (i=0..7)\n    east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/247126b9-a377-4a78-af1f-660c11e35aab/animations/827e9300-af59-41f6-a507-6d3dcf8bdeec/east/{i}.png?t=1792459697983 (i=0..7)\n    west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/247126b9-a377-4a78-af1f-660c11e35aab/animations/86ae27ab-27d2-4901-8f7b-437d6f30578a/west/{i}.png?t=1792459678958 (i=0..7)\n    north: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/247126b9-a377-4a78-af1f-660c11e35aab/animations/f46e9126-f69a-4cc2-bd41-1e705cb42361/north/{i}.png?t=1792459675623 (i=0..7)\n    north-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/247126b9-a377-4a78-af1f-660c11e35aab/animations/ddde28eb-49ac-46d9-9292-fe511bf17503/north-east/{i}.png?t=1792459670057 (i=0..7)\n    north-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/247126b9-a377-4a78-af1f-660c11e35aab/animations/7cdc19a7-5245-4032-a2e0-e28f2468723c/north-west/{i}.png?t=1792459667110 (i=0..7)\n    south-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/247126b9-a377-4a78-af1f-660c11e35aab/animations/0b8c3205-45e1-43c7-8328-cd77a80a445d/south-west/{i}.png?t=1792459662861 (i=0..7)\n\ndownload: https://api.pixellab.ai/mcp/characters/247126b9-a377-4a78-af1f-660c11e35aab/download\nspritesheet: https://api.pixellab.ai/mcp/characters/247126b9-a377-4a78-af1f-660c11e35aab/spritesheet (this state only \u2014 one uniform-grid sheet PNG + layout JSON, zipped; cells pivot-centred)\n\navailable_animations: backflip, breathing-idle, cross-punch, crouched-walking, crouching, drinking, falling-back-death, fight-stance-idle-8-frames, fireball, flying-kick, front-flip, getting-up, high-kick, hurricane-kick, jumping-1, jumping-2, lead-jab, leg-sweep, picking-up, pull-heavy-object, pushing, roundhouse-kick, running-4-frames, running-6-frames, running-8-frames, running-jump, running-slide, sad-walk, scary-walk, surprise-uppercut, taking-punch, throw-object, two-footed-jump, walk, walk-1, walk-2, walking, walking-10, walking-2, walking-3, walking-4, walking-4-frames, walking-5, walking-6, walking-6-frames, walking-7, walking-8, walking-8-frames, walking-9\n\nactions: animate_character(character_id=\"247126b9-a377-4a78-af1f-660c11e35aab\", ...) | create_character_state(character_id=\"247126b9-a377-4a78-af1f-660c11e35aab\", ...) | delete_animation(character_id=\"247126b9-a377-4a78-af1f-660c11e35aab\", animation_group_id=\"<group>\") | delete_character(character_id=\"247126b9-a377-4a78-af1f-660c11e35aab\")",
+    "animation_last_error": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "error: need 8 job slots but only 3 available (5/8 used)\n\nhint: wait for jobs to finish (~2-4 min each), then retry, or start 3 now with directions=[...] and add the rest to the same group afterwards (animation_group_id)"
+          }
+        ],
+        "isError": true
+      }
+    },
+    "animation_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "status: already queued or complete (nothing re-queued)\ncharacter: 247126b9-a377-4a78-af1f-660c11e35aab\naction: Animate the supplied El Greco directional sprite. Preserve the established identity, colors, proportions, weapon design and anatomical handedness. Move and attack along each supplied facing direction. Run while rotating the whip overhead, then uncoil and crack the whip forward along the travel direction, recovering into the next overhead rotation. Keep the whip connected to the right hand at all times. The left arm holds the round steel shield defensively. The shield must remain on the same arm in every direction; do not mirror equipment or add guns. Seamless looping locomotion combined with attack, in place with no net travel. Fixed elevated camera, no camera rotation or zoom. Consistent body scale and foot/hoof anchor; allow natural stride and recoil. Keep the entire body, all equipment and the full attack arc within every frame. Transparent background, crisp pixel art, no text, no scenery, no extra limbs, no sliding feet, no equipment swapping and no automatic mirroring that changes handedness. Rear views must genuinely show the back rather than a flipped front view.\ndirections: east, north-east, north, north-west, west, south-west, south, south-east (8 total)\n\nhint: get_character(character_id=\"247126b9-a377-4a78-af1f-660c11e35aab\") to see progress\nto generate a fresh take and keep this one, reword action_description \u2014 an identical request is matched to the existing clip, not charged again"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "downloaded": "public/assets/bosses/pixellab/el-greco/character.zip",
+    "verified": {
+      "rotations": 8,
+      "animation_directions": 8,
+      "frames_per_direction": 8,
+      "archive_integrity": "passed"
+    },
+    "included_in_delivery": true
+  },
+  {
+    "slug": "chief-wigwam",
+    "name": "Chief Wigwam",
+    "creation_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: dcd88b97-3e05-4548-a28e-c74f82585db2\nname: Chief Wigwam \u2014 Western Pulp 98\nmode: pro (25 generations, 8 directions)\nbody: humanoid\nsize: 128x128px\nview: low top-down\nstatus: processing (~3-5 min)\n\nhint: get_character(character_id=\"dcd88b97-3e05-4548-a28e-c74f82585db2\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "character_id": "dcd88b97-3e05-4548-a28e-c74f82585db2",
+    "last_status": "status: completed\nid: dcd88b97-3e05-4548-a28e-c74f82585db2\nname: Chief Wigwam \u2014 Western Pulp 98\nstate_name: Idle\ndirections: 8 (south, east, north, west, south-east, north-east, north-west, south-west)\nsize: 128x128px\nview: low top-down\nstyle: , , \ngroup: d642779e-05bb-47e2-ba8b-6aa7c2c27e07 (1 state)\n\nrotations:\n  south: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/dcd88b97-3e05-4548-a28e-c74f82585db2/rotations/south.png?t=1792459157\n  east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/dcd88b97-3e05-4548-a28e-c74f82585db2/rotations/east.png?t=1792459157\n  north: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/dcd88b97-3e05-4548-a28e-c74f82585db2/rotations/north.png?t=1792459157\n  west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/dcd88b97-3e05-4548-a28e-c74f82585db2/rotations/west.png?t=1792459157\n  south-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/dcd88b97-3e05-4548-a28e-c74f82585db2/rotations/south-east.png?t=1792459157\n  north-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/dcd88b97-3e05-4548-a28e-c74f82585db2/rotations/north-east.png?t=1792459157\n  north-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/dcd88b97-3e05-4548-a28e-c74f82585db2/rotations/north-west.png?t=1792459157\n  south-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/dcd88b97-3e05-4548-a28e-c74f82585db2/rotations/south-west.png?t=1792459157\n\nanimations (1 group, 8 total):\n  run-attack-eight-directions \u2014 8 dir (north-east, north-west, south-west, north, south-east, south, east, west), 8f 2026-10-20 [type=custom-Animate the supplied Chief Wig] [group: 446f66ad-55f1-4d41-a13a-979d6250734d]\n    north-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/dcd88b97-3e05-4548-a28e-c74f82585db2/animations/532562ec-caa1-4bca-8fa7-d09cce348439/north-east/{i}.png?t=1792461077955 (i=0..7)\n    north-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/dcd88b97-3e05-4548-a28e-c74f82585db2/animations/9116eb98-ca3e-4350-a5fe-e74db061213b/north-west/{i}.png?t=1792461060046 (i=0..7)\n    south-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/dcd88b97-3e05-4548-a28e-c74f82585db2/animations/c0e7c1ef-9c6e-4b54-95a2-2c25108beb35/south-west/{i}.png?t=1792461055794 (i=0..7)\n    north: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/dcd88b97-3e05-4548-a28e-c74f82585db2/animations/7b0594be-058e-44b8-b3ae-14d49c6397ac/north/{i}.png?t=1792461054072 (i=0..7)\n    south-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/dcd88b97-3e05-4548-a28e-c74f82585db2/animations/7421152f-dd8b-41d4-9a88-74879d41b483/south-east/{i}.png?t=1792461014990 (i=0..7)\n    south: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/dcd88b97-3e05-4548-a28e-c74f82585db2/animations/34d45637-1b46-4002-a4cb-eb5d2afeb9d3/south/{i}.png?t=1792461007881 (i=0..7)\n    east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/dcd88b97-3e05-4548-a28e-c74f82585db2/animations/e80d7f25-f4d0-4f49-9283-b2e8048ad72d/east/{i}.png?t=1792460997922 (i=0..7)\n    west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/dcd88b97-3e05-4548-a28e-c74f82585db2/animations/f3e21eaf-744c-4b8e-986c-3a37bfccc8c0/west/{i}.png?t=1792460996776 (i=0..7)\n\ndownload: https://api.pixellab.ai/mcp/characters/dcd88b97-3e05-4548-a28e-c74f82585db2/download\nspritesheet: https://api.pixellab.ai/mcp/characters/dcd88b97-3e05-4548-a28e-c74f82585db2/spritesheet (this state only \u2014 one uniform-grid sheet PNG + layout JSON, zipped; cells pivot-centred)\n\navailable_animations: backflip, breathing-idle, cross-punch, crouched-walking, crouching, drinking, falling-back-death, fight-stance-idle-8-frames, fireball, flying-kick, front-flip, getting-up, high-kick, hurricane-kick, jumping-1, jumping-2, lead-jab, leg-sweep, picking-up, pull-heavy-object, pushing, roundhouse-kick, running-4-frames, running-6-frames, running-8-frames, running-jump, running-slide, sad-walk, scary-walk, surprise-uppercut, taking-punch, throw-object, two-footed-jump, walk, walk-1, walk-2, walking, walking-10, walking-2, walking-3, walking-4, walking-4-frames, walking-5, walking-6, walking-6-frames, walking-7, walking-8, walking-8-frames, walking-9\n\nactions: animate_character(character_id=\"dcd88b97-3e05-4548-a28e-c74f82585db2\", ...) | create_character_state(character_id=\"dcd88b97-3e05-4548-a28e-c74f82585db2\", ...) | delete_animation(character_id=\"dcd88b97-3e05-4548-a28e-c74f82585db2\", animation_group_id=\"<group>\") | delete_character(character_id=\"dcd88b97-3e05-4548-a28e-c74f82585db2\")",
+    "animation_last_error": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "error: need 8 job slots but only 3 available (5/8 used)\n\nhint: wait for jobs to finish (~2-4 min each), then retry, or start 3 now with directions=[...] and add the rest to the same group afterwards (animation_group_id)"
+          }
+        ],
+        "isError": true
+      }
+    },
+    "animation_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "character: dcd88b97-3e05-4548-a28e-c74f82585db2\nanimation: v3 custom (Animate the supplied Chief Wigwam directional sprite. Preserve the established identity, colors, proportions, weapon design and anatomical handedness. Move and attack along each supplied facing direction. Run while delivering alternating forward slashing and chopping attacks with his two tomahawks. Show shoulder wind-up, clear blade arcs, follow-through and recovery. Keep both weapons held, one in each hand, throughout this requested melee loop. Do not substitute knives or guns; do not throw the axes in this animation. Seamless looping locomotion combined with attack, in place with no net travel. Fixed elevated camera, no camera rotation or zoom. Consistent body scale and foot/hoof anchor; allow natural stride and recoil. Keep the entire body, all equipment and the full attack arc within every frame. Transparent background, crisp pixel art, no text, no scenery, no extra limbs, no sliding feet, no equipment swapping and no automatic mirroring that changes handedness. Rear views must genuinely show the back rather than a flipped front view.)\ndirections: east, north-east, north, north-west, west, south-west, south, south-east (8 jobs)\njob_ids: east=2c72775d-5254-45be-8126-f23416a6d1e5, north-east=aed92be2-d522-4044-a0f4-0212a7b9eae8, north=99d78a4e-82f6-45fb-87c6-3b2fb49086af, north-west=40770b40-9c12-492a-8e89-52d62d6fbe63, west=dbfc7775-a6ee-47b9-9cc5-6212359247ce, south-west=67bb05ea-2bca-48e2-946a-7da35320d728, south=073e82e4-e12f-48a4-a741-a09210533dfb, south-east=1003561a-8adc-45bf-a319-53bae8c05d9f\ngroup: 446f66ad-55f1-4d41-a13a-979d6250734d\nframes: 8 (reference stripped, keep_first_frame=false)\ncanvas: east 164x164, north-east 160x160, north 160x160, north-west 160x160, west 164x164, south-west 168x168, south 172x172, south-east 168x168 (frames are stored at this size: the character plus room to move)\ncost: 32 generations (4/dir x 8)\neta: ~2-4 min/direction\n\nhint: get_character(character_id=\"dcd88b97-3e05-4548-a28e-c74f82585db2\")\nadd more directions to this group: animate_character(character_id=\"dcd88b97-3e05-4548-a28e-c74f82585db2\", action_description=\"Animate the supplied Chief Wigwam directional sprite. Preserve the established identity, colors, proportions, weapon design and anatomical handedness. Move and attack along each supplied facing direction. Run while delivering alternating forward slashing and chopping attacks with his two tomahawks. Show shoulder wind-up, clear blade arcs, follow-through and recovery. Keep both weapons held, one in each hand, throughout this requested melee loop. Do not substitute knives or guns; do not throw the axes in this animation. Seamless looping locomotion combined with attack, in place with no net travel. Fixed elevated camera, no camera rotation or zoom. Consistent body scale and foot/hoof anchor; allow natural stride and recoil. Keep the entire body, all equipment and the full attack arc within every frame. Transparent background, crisp pixel art, no text, no scenery, no extra limbs, no sliding feet, no equipment swapping and no automatic mirroring that changes handedness. Rear views must genuinely show the back rather than a flipped front view.\", animation_group_id=\"446f66ad-55f1-4d41-a13a-979d6250734d\", directions=[...])"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "downloaded": "public/assets/bosses/pixellab/chief-wigwam/character.zip",
+    "verified": {
+      "rotations": 8,
+      "animation_directions": 8,
+      "frames_per_direction": 8,
+      "archive_integrity": "passed"
+    },
+    "included_in_delivery": true
+  },
+  {
+    "slug": "paco-loco",
+    "name": "Paco Loco",
+    "creation_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: ba98f3bf-5aaa-4995-b09b-b33783aae4aa\nname: Paco Loco \u2014 Western Pulp 98\nmode: pro (25 generations, 8 directions)\nbody: humanoid\nsize: 128x128px\nview: low top-down\nstatus: processing (~3-5 min)\n\nhint: get_character(character_id=\"ba98f3bf-5aaa-4995-b09b-b33783aae4aa\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "character_id": "ba98f3bf-5aaa-4995-b09b-b33783aae4aa",
+    "last_status": "status: completed\nid: ba98f3bf-5aaa-4995-b09b-b33783aae4aa\nname: Paco Loco \u2014 Western Pulp 98\nstate_name: Idle\ndirections: 8 (south, east, north, west, south-east, north-east, north-west, south-west)\nsize: 128x128px\nview: low top-down\nstyle: , , \ngroup: b4747412-ef7d-46ef-8565-3f814981a87d (1 state)\n\nrotations:\n  south: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/ba98f3bf-5aaa-4995-b09b-b33783aae4aa/rotations/south.png?t=1792459217\n  east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/ba98f3bf-5aaa-4995-b09b-b33783aae4aa/rotations/east.png?t=1792459217\n  north: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/ba98f3bf-5aaa-4995-b09b-b33783aae4aa/rotations/north.png?t=1792459217\n  west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/ba98f3bf-5aaa-4995-b09b-b33783aae4aa/rotations/west.png?t=1792459217\n  south-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/ba98f3bf-5aaa-4995-b09b-b33783aae4aa/rotations/south-east.png?t=1792459217\n  north-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/ba98f3bf-5aaa-4995-b09b-b33783aae4aa/rotations/north-east.png?t=1792459217\n  north-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/ba98f3bf-5aaa-4995-b09b-b33783aae4aa/rotations/north-west.png?t=1792459217\n  south-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/ba98f3bf-5aaa-4995-b09b-b33783aae4aa/rotations/south-west.png?t=1792459217\n\nanimations (1 group, 8 total):\n  run-attack-eight-directions \u2014 8 dir (north-west, south-west, north-east, south, east, south-east, north, west), 8f 2026-10-20 [type=custom-Animate the supplied Paco Loco] [group: a1b3fd91-37ad-4e0f-8011-9b222339bed8]\n    north-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/ba98f3bf-5aaa-4995-b09b-b33783aae4aa/animations/cf9a3bbc-688a-47cc-88de-dafe590d007f/north-west/{i}.png?t=1792460267720 (i=0..7)\n    south-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/ba98f3bf-5aaa-4995-b09b-b33783aae4aa/animations/0479068f-20ff-4dd9-bdcb-23573d9971cc/south-west/{i}.png?t=1792460267719 (i=0..7)\n    north-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/ba98f3bf-5aaa-4995-b09b-b33783aae4aa/animations/de4f896a-669d-4bc4-873f-89946472220b/north-east/{i}.png?t=1792460241067 (i=0..7)\n    south: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/ba98f3bf-5aaa-4995-b09b-b33783aae4aa/animations/5845f7c0-8244-47b2-b2b1-95fd9fba1843/south/{i}.png?t=1792460239372 (i=0..7)\n    east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/ba98f3bf-5aaa-4995-b09b-b33783aae4aa/animations/883b9587-dca4-4603-8038-e94ede02fb18/east/{i}.png?t=1792460233830 (i=0..7)\n    south-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/ba98f3bf-5aaa-4995-b09b-b33783aae4aa/animations/c3bff81c-7758-454e-b425-cc9288e66324/south-east/{i}.png?t=1792460220793 (i=0..7)\n    north: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/ba98f3bf-5aaa-4995-b09b-b33783aae4aa/animations/e9abdc64-bd8a-4751-8708-8b8f7de2388f/north/{i}.png?t=1792460201303 (i=0..7)\n    west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/ba98f3bf-5aaa-4995-b09b-b33783aae4aa/animations/63880627-bbf9-43e8-bb3a-d82d3ab33a92/west/{i}.png?t=1792460199021 (i=0..7)\n\ndownload: https://api.pixellab.ai/mcp/characters/ba98f3bf-5aaa-4995-b09b-b33783aae4aa/download\nspritesheet: https://api.pixellab.ai/mcp/characters/ba98f3bf-5aaa-4995-b09b-b33783aae4aa/spritesheet (this state only \u2014 one uniform-grid sheet PNG + layout JSON, zipped; cells pivot-centred)\n\navailable_animations: backflip, breathing-idle, cross-punch, crouched-walking, crouching, drinking, falling-back-death, fight-stance-idle-8-frames, fireball, flying-kick, front-flip, getting-up, high-kick, hurricane-kick, jumping-1, jumping-2, lead-jab, leg-sweep, picking-up, pull-heavy-object, pushing, roundhouse-kick, running-4-frames, running-6-frames, running-8-frames, running-jump, running-slide, sad-walk, scary-walk, surprise-uppercut, taking-punch, throw-object, two-footed-jump, walk, walk-1, walk-2, walking, walking-10, walking-2, walking-3, walking-4, walking-4-frames, walking-5, walking-6, walking-6-frames, walking-7, walking-8, walking-8-frames, walking-9\n\nactions: animate_character(character_id=\"ba98f3bf-5aaa-4995-b09b-b33783aae4aa\", ...) | create_character_state(character_id=\"ba98f3bf-5aaa-4995-b09b-b33783aae4aa\", ...) | delete_animation(character_id=\"ba98f3bf-5aaa-4995-b09b-b33783aae4aa\", animation_group_id=\"<group>\") | delete_character(character_id=\"ba98f3bf-5aaa-4995-b09b-b33783aae4aa\")",
+    "animation_last_error": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "error: need 8 job slots but only 0 available (8/8 used)\n\nhint: wait for jobs to finish (~2-4 min each), then retry"
+          }
+        ],
+        "isError": true
+      }
+    },
+    "animation_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "character: ba98f3bf-5aaa-4995-b09b-b33783aae4aa\nanimation: v3 custom (Animate the supplied Paco Loco directional sprite. Preserve the established identity, colors, proportions, weapon design and anatomical handedness. Move and attack along each supplied facing direction. Run with a heavy deliberate stride while holding and continuously firing the multi-barrel rotary gun along the movement direction. Animate rotating barrels, intermittent bright muzzle flashes, small sustained recoil and subtle ammunition movement. Preserve the multi-barrel weapon; never replace it with a rifle or revolver. Seamless looping locomotion combined with attack, in place with no net travel. Fixed elevated camera, no camera rotation or zoom. Consistent body scale and foot/hoof anchor; allow natural stride and recoil. Keep the entire body, all equipment and the full attack arc within every frame. Transparent background, crisp pixel art, no text, no scenery, no extra limbs, no sliding feet, no equipment swapping and no automatic mirroring that changes handedness. Rear views must genuinely show the back rather than a flipped front view.)\ndirections: east, north-east, north, north-west, west, south-west, south, south-east (8 jobs)\njob_ids: east=3f459b6f-fb4f-4a95-a333-f4358a0ef0e5, north-east=5d76bdd4-6590-4c40-ab53-9296bf909ee6, north=327e9894-f8c3-4db9-aa6f-bf413675022b, north-west=19d563ac-261e-4f9f-bd99-9f28582c0ba6, west=b5d0c291-b681-44f8-bae0-adb35a1b03ce, south-west=2b7a89d2-d3fd-48be-99ba-d63717955bf5, south=d5e38031-cf35-4d3e-99b3-ae0779f0fd1b, south-east=40668beb-c7da-4d7c-934b-2201fde018f0\ngroup: a1b3fd91-37ad-4e0f-8011-9b222339bed8\nframes: 8 (reference stripped, keep_first_frame=false)\ncanvas: east 152x152, north-east 152x152, north 144x144, north-west 152x152, west 160x160, south-west 152x152, south 152x152, south-east 152x152 (frames are stored at this size: the character plus room to move)\ncost: 25 generations (east=3, north-east=3, north=3, north-west=3, west=4, south-west=3, south=3, south-east=3)\neta: ~2-4 min/direction\n\nhint: get_character(character_id=\"ba98f3bf-5aaa-4995-b09b-b33783aae4aa\")\nadd more directions to this group: animate_character(character_id=\"ba98f3bf-5aaa-4995-b09b-b33783aae4aa\", action_description=\"Animate the supplied Paco Loco directional sprite. Preserve the established identity, colors, proportions, weapon design and anatomical handedness. Move and attack along each supplied facing direction. Run with a heavy deliberate stride while holding and continuously firing the multi-barrel rotary gun along the movement direction. Animate rotating barrels, intermittent bright muzzle flashes, small sustained recoil and subtle ammunition movement. Preserve the multi-barrel weapon; never replace it with a rifle or revolver. Seamless looping locomotion combined with attack, in place with no net travel. Fixed elevated camera, no camera rotation or zoom. Consistent body scale and foot/hoof anchor; allow natural stride and recoil. Keep the entire body, all equipment and the full attack arc within every frame. Transparent background, crisp pixel art, no text, no scenery, no extra limbs, no sliding feet, no equipment swapping and no automatic mirroring that changes handedness. Rear views must genuinely show the back rather than a flipped front view.\", animation_group_id=\"a1b3fd91-37ad-4e0f-8011-9b222339bed8\", directions=[...])"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "downloaded": "public/assets/bosses/pixellab/paco-loco/character.zip",
+    "verified": {
+      "rotations": 8,
+      "animation_directions": 8,
+      "frames_per_direction": 8,
+      "archive_integrity": "passed"
+    },
+    "included_in_delivery": true
+  },
+  {
+    "slug": "sir-richard-rose",
+    "name": "Sir Richard Rose",
+    "creation_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 83bcca99-7673-43f9-83d4-905ecf220b36\nname: Sir Richard Rose \u2014 Western Pulp 98\nmode: pro (25 generations, 8 directions)\nbody: humanoid\nsize: 128x128px\nview: low top-down\nstatus: processing (~3-5 min)\n\nhint: get_character(character_id=\"83bcca99-7673-43f9-83d4-905ecf220b36\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "character_id": "83bcca99-7673-43f9-83d4-905ecf220b36",
+    "last_status": "status: completed\nid: 83bcca99-7673-43f9-83d4-905ecf220b36\nname: Sir Richard Rose \u2014 Western Pulp 98\nstate_name: Idle\ndirections: 8 (south, east, north, west, south-east, north-east, north-west, south-west)\nsize: 128x128px\nview: low top-down\nstyle: , , \ngroup: 1d8cd94f-838c-492c-a98d-37eaf80eb284 (1 state)\n\nrotations:\n  south: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/83bcca99-7673-43f9-83d4-905ecf220b36/rotations/south.png?t=1792459603\n  east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/83bcca99-7673-43f9-83d4-905ecf220b36/rotations/east.png?t=1792459603\n  north: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/83bcca99-7673-43f9-83d4-905ecf220b36/rotations/north.png?t=1792459603\n  west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/83bcca99-7673-43f9-83d4-905ecf220b36/rotations/west.png?t=1792459603\n  south-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/83bcca99-7673-43f9-83d4-905ecf220b36/rotations/south-east.png?t=1792459603\n  north-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/83bcca99-7673-43f9-83d4-905ecf220b36/rotations/north-east.png?t=1792459603\n  north-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/83bcca99-7673-43f9-83d4-905ecf220b36/rotations/north-west.png?t=1792459603\n  south-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/83bcca99-7673-43f9-83d4-905ecf220b36/rotations/south-west.png?t=1792459603\n\nanimations (1 group, 8 total):\n  run-attack-eight-directions \u2014 8 dir (north, north-west, south-west, west, east, north-east, south, south-east), 8f 2026-10-20 [type=custom-Animate the supplied Sir Richa] [group: 6a83eef4-f225-4919-abf1-2339bccf4091]\n    north: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/83bcca99-7673-43f9-83d4-905ecf220b36/animations/64bafa7e-88d3-4494-86a1-94c717e33194/north/{i}.png?t=1792461375738 (i=0..7)\n    north-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/83bcca99-7673-43f9-83d4-905ecf220b36/animations/65370084-3001-4bc1-836c-5c551fbb2f09/north-west/{i}.png?t=1792461359273 (i=0..7)\n    south-west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/83bcca99-7673-43f9-83d4-905ecf220b36/animations/e208ae80-5dbc-414e-a8a4-b35efa24d6d1/south-west/{i}.png?t=1792461303943 (i=0..7)\n    west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/83bcca99-7673-43f9-83d4-905ecf220b36/animations/9fb8fd3a-3af2-49b5-8f1a-a9870f417075/west/{i}.png?t=1792461303255 (i=0..7)\n    east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/83bcca99-7673-43f9-83d4-905ecf220b36/animations/4ad26f4e-2a4a-44ef-95d3-f62b2976265b/east/{i}.png?t=1792461279954 (i=0..7)\n    north-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/83bcca99-7673-43f9-83d4-905ecf220b36/animations/b9ea317a-c94a-43d0-bf2a-4d11ca7c6ed8/north-east/{i}.png?t=1792461275339 (i=0..7)\n    south: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/83bcca99-7673-43f9-83d4-905ecf220b36/animations/62e11a86-48f7-4965-9fa8-b7df1603a067/south/{i}.png?t=1792461274554 (i=0..7)\n    south-east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/83bcca99-7673-43f9-83d4-905ecf220b36/animations/6ab3a795-e027-4e83-b0bf-115f1dcb1940/south-east/{i}.png?t=1792461271475 (i=0..7)\n\ndownload: https://api.pixellab.ai/mcp/characters/83bcca99-7673-43f9-83d4-905ecf220b36/download\nspritesheet: https://api.pixellab.ai/mcp/characters/83bcca99-7673-43f9-83d4-905ecf220b36/spritesheet (this state only \u2014 one uniform-grid sheet PNG + layout JSON, zipped; cells pivot-centred)\n\navailable_animations: backflip, breathing-idle, cross-punch, crouched-walking, crouching, drinking, falling-back-death, fight-stance-idle-8-frames, fireball, flying-kick, front-flip, getting-up, high-kick, hurricane-kick, jumping-1, jumping-2, lead-jab, leg-sweep, picking-up, pull-heavy-object, pushing, roundhouse-kick, running-4-frames, running-6-frames, running-8-frames, running-jump, running-slide, sad-walk, scary-walk, surprise-uppercut, taking-punch, throw-object, two-footed-jump, walk, walk-1, walk-2, walking, walking-10, walking-2, walking-3, walking-4, walking-4-frames, walking-5, walking-6, walking-6-frames, walking-7, walking-8, walking-8-frames, walking-9\n\nactions: animate_character(character_id=\"83bcca99-7673-43f9-83d4-905ecf220b36\", ...) | create_character_state(character_id=\"83bcca99-7673-43f9-83d4-905ecf220b36\", ...) | delete_animation(character_id=\"83bcca99-7673-43f9-83d4-905ecf220b36\", animation_group_id=\"<group>\") | delete_character(character_id=\"83bcca99-7673-43f9-83d4-905ecf220b36\")",
+    "animation_last_error": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "error: need 8 job slots but only 7 available (1/8 used)\n\nhint: wait for jobs to finish (~2-4 min each), then retry, or start 7 now with directions=[...] and add the rest to the same group afterwards (animation_group_id)"
+          }
+        ],
+        "isError": true
+      }
+    },
+    "animation_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "character: 83bcca99-7673-43f9-83d4-905ecf220b36\nanimation: v3 custom (Animate the supplied Sir Richard Rose directional sprite. Preserve the established identity, colors, proportions, weapon design and anatomical handedness. Move and attack along each supplied facing direction. Run with an upright commanding posture while aiming and firing his long repeating rifle forward along the movement direction. Animate brief muzzle flash, controlled shoulder recoil and recovery. Keep the rifle stock against the shoulder and both hands on the weapon. Do not add a sword or replace the rifle with a handgun. Seamless looping locomotion combined with attack, in place with no net travel. Fixed elevated camera, no camera rotation or zoom. Consistent body scale and foot/hoof anchor; allow natural stride and recoil. Keep the entire body, all equipment and the full attack arc within every frame. Transparent background, crisp pixel art, no text, no scenery, no extra limbs, no sliding feet, no equipment swapping and no automatic mirroring that changes handedness. Rear views must genuinely show the back rather than a flipped front view.)\ndirections: east, north-east, north, north-west, west, south-west, south, south-east (8 jobs)\njob_ids: east=8c77a092-6de5-4ace-b688-d5028fd59464, north-east=b2415794-85c8-4755-a1e4-0ac47262d489, north=39e869d2-d495-49b2-9d29-48800f7f78f9, north-west=7adf8159-b9ae-4918-9f6b-5e3b34252dc5, west=005835b6-5abc-41c9-97c2-ce5501ce88c9, south-west=dff6064f-f4fa-41a5-bc6b-be4bba02052e, south=2edc5a34-b2e5-4e9a-9977-893c54042dad, south-east=5e2cb51c-23bb-459d-8743-dd93973f1fdb\ngroup: 6a83eef4-f225-4919-abf1-2339bccf4091\nframes: 8 (reference stripped, keep_first_frame=false)\ncanvas: east 180x180, north-east 144x144, north 140x140, north-west 140x140, west 140x140, south-west 140x140, south 132x132, south-east 180x180 (frames are stored at this size: the character plus room to move)\ncost: 26 generations (east=4, north-east=3, north=3, north-west=3, west=3, south-west=3, south=3, south-east=4)\neta: ~2-4 min/direction\n\nhint: get_character(character_id=\"83bcca99-7673-43f9-83d4-905ecf220b36\")\nadd more directions to this group: animate_character(character_id=\"83bcca99-7673-43f9-83d4-905ecf220b36\", action_description=\"Animate the supplied Sir Richard Rose directional sprite. Preserve the established identity, colors, proportions, weapon design and anatomical handedness. Move and attack along each supplied facing direction. Run with an upright commanding posture while aiming and firing his long repeating rifle forward along the movement direction. Animate brief muzzle flash, controlled shoulder recoil and recovery. Keep the rifle stock against the shoulder and both hands on the weapon. Do not add a sword or replace the rifle with a handgun. Seamless looping locomotion combined with attack, in place with no net travel. Fixed elevated camera, no camera rotation or zoom. Consistent body scale and foot/hoof anchor; allow natural stride and recoil. Keep the entire body, all equipment and the full attack arc within every frame. Transparent background, crisp pixel art, no text, no scenery, no extra limbs, no sliding feet, no equipment swapping and no automatic mirroring that changes handedness. Rear views must genuinely show the back rather than a flipped front view.\", animation_group_id=\"6a83eef4-f225-4919-abf1-2339bccf4091\", directions=[...])"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "downloaded": "public/assets/bosses/pixellab/sir-richard-rose/character.zip",
+    "verified": {
+      "rotations": 8,
+      "animation_directions": 8,
+      "frames_per_direction": 8,
+      "archive_integrity": "passed"
+    },
+    "included_in_delivery": true
+  }
+]
