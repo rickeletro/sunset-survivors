@@ -1,3 +1,5 @@
+import { FirstRunTutorial, tutorialProgress } from '../systems/FirstRunTutorial';
+import { FirstRunTutorialView } from '../ui/hud/FirstRunTutorialView';
 import { sceneryForStage, sceneryKey, worldDepth } from '../data/scenery';
 import { HostileProjectiles } from '../systems/HostileProjectiles';
 import type { Projectile, Enemy, Drop, FireZone } from '../game/entities';
@@ -103,6 +105,10 @@ export class GameScene extends Phaser.Scene {
 
   private hud!: CombatHUD;
   private hostileProjectiles?: HostileProjectiles;
+  private onboarding?: FirstRunTutorial;
+  private onboardingView?: FirstRunTutorialView;
+  private practiceActive = false;
+  private touchPointerId: number | null = null;
 
   // HUD Elements
   private levelText!: Phaser.GameObjects.Text;
@@ -127,6 +133,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   preload() {
+    preloadImages(this, ['decor_title_parchment']);
     preloadImages(this, sceneryForStage(this.stageConfig.theme).map(sceneryKey));
     preloadCombatSprites(this, this.stage);
     if (this.stage === 1 && !hasGreedwellSprites(this)) preloadGreedwell(this);
@@ -145,6 +152,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   create() {
+    this.onboardingView = undefined;
+    this.practiceActive = false;
+    this.touchOrigin = null; this.touchVector = { x: 0, y: 0 }; this.touchPointerId = null;
     this.isGameOver = false;
     this.bossSpawned = false;
     this.bossMembers = [];
@@ -270,6 +280,7 @@ export class GameScene extends Phaser.Scene {
 
     // Create Arcade HUD
     this.createHUD();
+    this.createOnboarding();
 
     // Game Timer Loop (Seconds)
     this.time.addEvent({
@@ -286,43 +297,78 @@ export class GameScene extends Phaser.Scene {
     });
 
     this.updateStageStatus();
-    this.showBanner(`FASE ${this.stage} — ${this.stageConfig.title}`, '#ffc52a');
+    if (!this.onboarding?.blocking) this.showBanner(`FASE ${this.stage} — ${this.stageConfig.title}`, '#ffc52a');
     sounds.startBGM();
   }
 
+  private createOnboarding(): void {
+    const device = this.sys.game.device;
+    const touch = device.input.touch && !device.os.desktop;
+    this.onboarding = new FirstRunTutorial(this.stage !== 1 || tutorialProgress.hasCompleted(), touch ? 'touch' : 'keyboard', () => tutorialProgress.complete());
+    this.practiceActive = this.onboarding.blocking;
+    this.onboardingView = new FirstRunTutorialView(this, this.onboarding, () => {
+      if (!this.onboarding?.blocking) return;
+      this.onboarding.skip(); this.finishPractice();
+    });
+    this.onboardingView.update(this.player.x, this.player.y, this.time.now);
+  }
+
+  private finishPractice(): void {
+    if (!this.practiceActive) return;
+    this.practiceActive = false;
+    for (const enemy of this.enemies.filter(enemy => enemy.training)) {
+      enemy.dead = true;
+      if (enemy.pooled) this.enemyPool.release(enemy.sprite); else enemy.sprite.destroy();
+    }
+    this.enemies = this.enemies.filter(enemy => !enemy.training);
+    for (const projectile of this.projectiles) projectile.sprite.destroy();
+    this.projectiles = [];
+    for (const zone of this.fireZones) zone.graphics.destroy();
+    this.fireZones = [];
+    this.weaponTimers.forEach((_timer, key) => this.weaponTimers.set(key, 0));
+    sounds.playLevelUp();
+    this.showBanner(`FASE ${this.stage} — AGORA É COM VOCÊ!`, '#ffc52a');
+  }
+
+  private spawnPracticeBandit(): void {
+    const point = this.worldMap.resolve(this.player.x + 130, this.player.y, 16);
+    const enemy = this.spawnEnemy('bandit', point.x, point.y);
+    if (!enemy) return;
+    enemy.training = true; enemy.damage = 0; enemy.speed = 0;
+  }
+
   private setupTouchControls() {
-    this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-      // Left half of screen controls joystick
+    this.input.on('pointerdown', (pointer: Phaser.Input.Pointer, over: Phaser.GameObjects.GameObject[] = []) => {
+      if (!pointer.wasTouch || over.length || this.touchPointerId !== null) return;
+      // Mouse clicks never steer or fire. The virtual joystick belongs to one touch at a time.
       if (pointer.x < this.scale.width * 0.6) {
+        this.touchPointerId = pointer.id;
         this.touchOrigin = { x: pointer.x, y: pointer.y };
         this.touchVector = { x: 0, y: 0 };
+        this.onboarding?.setInput('touch');
         this.renderJoystick();
       }
     });
-
     this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
-      if (this.touchOrigin) {
-        const dx = pointer.x - this.touchOrigin.x;
-        const dy = pointer.y - this.touchOrigin.y;
-        const dist = Math.hypot(dx, dy);
-        const maxDist = 50;
-        const clampedDist = Math.min(dist, maxDist);
-        const angle = Math.atan2(dy, dx);
-        this.touchVector = {
-          x: (Math.cos(angle) * clampedDist) / maxDist,
-          y: (Math.sin(angle) * clampedDist) / maxDist,
-        };
-        this.renderJoystick(pointer.x, pointer.y);
+      if (this.touchOrigin && pointer.id === this.touchPointerId) {
+        const dx = pointer.x - this.touchOrigin.x, dy = pointer.y - this.touchOrigin.y;
+        const distance = Math.hypot(dx, dy), maxDistance = 50;
+        const scale = Math.min(distance, maxDistance) / (distance || 1);
+        this.touchVector = { x: dx * scale / maxDistance, y: dy * scale / maxDistance };
+        this.renderJoystick(this.touchOrigin.x + dx * scale, this.touchOrigin.y + dy * scale);
       }
     });
-
-    const resetTouch = () => {
-      this.touchOrigin = null;
-      this.touchVector = { x: 0, y: 0 };
-      this.touchJoystickGfx.clear();
+    const reset = (pointer?: Phaser.Input.Pointer) => {
+      if (pointer && pointer.id !== this.touchPointerId) return;
+      this.touchPointerId = null; this.touchOrigin = null;
+      this.touchVector = { x: 0, y: 0 }; this.touchJoystickGfx.clear();
     };
-
-    this.input.on('pointerup', resetTouch);
+    this.input.on('pointerup', reset);
+    this.input.on('pointerupoutside', reset);
+    const blur = () => reset();
+    this.game.events.on('blur', blur);
+    this.events.on('pause', blur);
+    this.events.once('shutdown', () => { this.game.events.off('blur', blur); this.events.off('pause', blur); });
   }
 
   private renderJoystick(curX?: number, curY?: number) {
@@ -363,7 +409,7 @@ export class GameScene extends Phaser.Scene {
 
   // 1 Second Game Tick
   private onSecondTick() {
-    if (this.isGameOver || this.bossDefeated) return;
+    if (this.isGameOver || this.bossDefeated || this.onboarding?.blocking) return;
     this.gameTimeSeconds++;
 
     // Format timer MM:SS
@@ -453,7 +499,7 @@ export class GameScene extends Phaser.Scene {
 
   // Wave Spawner
   private spawnWave() {
-    if (this.isGameOver || this.bossDefeated) return;
+    if (this.isGameOver || this.bossDefeated || this.onboarding?.blocking) return;
     this.runSpawnOrders(this.director.waveOrders(this.gameTimeSeconds, this.enemies.length));
   }
 
@@ -495,7 +541,7 @@ export class GameScene extends Phaser.Scene {
     const safe = this.worldMap.resolve(x, y, def.radius);
     sprite.setPosition(safe.x, safe.y);
     if (def.tint) sprite.setTint(def.tint);
-    this.enemies.push({
+    const enemy: Enemy = {
       sprite,
       type: kind,
       hp,
@@ -509,7 +555,9 @@ export class GameScene extends Phaser.Scene {
       chargeCooldown: kind === 'longhorn' ? 650 : undefined,
       pooled: true,
       tint: def.tint,
-    });
+    };
+    this.enemies.push(enemy);
+    return enemy;
   }
 
   private updateStageStatus(): void {
@@ -611,8 +659,25 @@ export class GameScene extends Phaser.Scene {
 
   update(_time: number, delta: number) {
     if (this.isGameOver || this.bossDefeated) return;
-
+    const oldX = this.player.x, oldY = this.player.y;
     this.handlePlayerMovement(delta);
+    const previousPhase = this.onboarding?.phase;
+    this.onboarding?.tick(delta, Math.hypot(this.player.x - oldX, this.player.y - oldY));
+    if (previousPhase === 'move' && this.onboarding?.phase === 'shoot') this.spawnPracticeBandit();
+    if (this.practiceActive && !this.onboarding?.blocking) this.finishPractice();
+    this.onboardingView?.update(this.player.x, this.player.y, this.time.now);
+    if (this.onboarding?.blocking) {
+      this.player.setDepth(worldDepth(this.player.y));
+      this.worldMap.update(this.player.x, this.player.y);
+      if (this.onboarding.phase === 'shoot') {
+        this.enemyHash.rebuild(this.enemies);
+        this.handleWeaponsAutoFire(delta);
+        this.updateProjectiles(delta);
+        this.updateFireZones(delta);
+      }
+      return;
+    }
+    // Keep the existing combat order after the isolated practice session.
     this.handleWeaponsAutoFire(delta);
     this.updateProjectiles(delta);
     this.updateEnemies(delta);
@@ -628,11 +693,14 @@ export class GameScene extends Phaser.Scene {
     let dx = 0;
     let dy = 0;
 
+    const keyboardMoving = this.cursors && this.keysWASD && [this.cursors.left, this.cursors.right, this.cursors.up, this.cursors.down, this.keysWASD.W, this.keysWASD.A, this.keysWASD.S, this.keysWASD.D].some(key => key.isDown);
+    if (keyboardMoving) this.onboarding?.setInput('keyboard');
+
     // Keyboard WASD / Arrows
-    if (this.cursors.left.isDown || this.keysWASD.A.isDown) dx -= 1;
-    if (this.cursors.right.isDown || this.keysWASD.D.isDown) dx += 1;
-    if (this.cursors.up.isDown || this.keysWASD.W.isDown) dy -= 1;
-    if (this.cursors.down.isDown || this.keysWASD.S.isDown) dy += 1;
+    if (this.cursors?.left.isDown || this.keysWASD?.A.isDown) dx -= 1;
+    if (this.cursors?.right.isDown || this.keysWASD?.D.isDown) dx += 1;
+    if (this.cursors?.up.isDown || this.keysWASD?.W.isDown) dy -= 1;
+    if (this.cursors?.down.isDown || this.keysWASD?.S.isDown) dy += 1;
 
     // Mobile Touch Joystick
     if (this.touchOrigin) {
@@ -707,6 +775,7 @@ export class GameScene extends Phaser.Scene {
 
   private fireWeapon(def: WeaponDef, lvl: { damage: number; projectileCount: number; pierce: number; speed: number; range: number }) {
     const nearest = this.getNearestEnemies(lvl.range);
+    this.onboarding?.fired();
     const facingAngle = this.player.flipX ? Math.PI : 0;
 
     switch (def.id) {
@@ -1003,6 +1072,7 @@ export class GameScene extends Phaser.Scene {
     this.enemyHash.rebuild(this.enemies);
     for (let i = this.enemies.length - 1; i >= 0; i--) {
       const e = this.enemies[i];
+      if (e.training) continue;
       const dx = this.player.x - e.sprite.x;
       const dy = this.player.y - e.sprite.y;
       const dist = Math.hypot(dx, dy);
@@ -1215,6 +1285,7 @@ export class GameScene extends Phaser.Scene {
           this.hp = Math.min(this.maxHp, this.hp + 30);
           this.updateHpBar();
         } else {
+          if (packet.val > 0) this.onboarding?.collectedXp();
           this.addXp(Math.round(packet.val * this.xpBonus));
           this.addBounty(packet.bounty);
         }
@@ -1280,6 +1351,11 @@ export class GameScene extends Phaser.Scene {
       this.enemies.splice(idx, 1);
     }
 
+    if (enemy.training) {
+      if (enemy.pooled) this.enemyPool.release(enemy.sprite); else enemy.sprite.destroy();
+      return;
+    }
+
     this.kills++;
     this.killsText.setText(String(this.kills).padStart(4, '0'));
     this.addBounty(enemy.bountyVal);
@@ -1341,7 +1417,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private damagePlayer(amount: number) {
-    if (this.isGameOver || this.bossDefeated || amount <= 0) return;
+    if (this.isGameOver || this.bossDefeated || amount <= 0 || this.onboarding?.blocking) return;
     // Temporary invulnerability after taking a hit
     if (this.time.now < this.invulnUntil) return;
     this.invulnUntil = this.time.now + 600;

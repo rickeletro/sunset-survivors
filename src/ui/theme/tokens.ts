@@ -86,6 +86,7 @@ export const THEME = {
   },
 
   typography: {
+    narrativeFont: '"Roboto Slab", serif',
     pixelFont: '"Press Start 2P", monospace',
     westernFont: '"Rye", serif',
     sizes: {
