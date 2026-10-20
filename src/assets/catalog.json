@@ -70,7 +70,10 @@
     "scenery_rail-station": "assets/scenery/pixellab/rail-station.png",
     "scenery_mine-entrance": "assets/scenery/pixellab/mine-entrance.png",
     "scenery_well": "assets/scenery/pixellab/well.png",
-    "scenery_hitching-post": "assets/scenery/pixellab/hitching-post.png"
+    "scenery_hitching-post": "assets/scenery/pixellab/hitching-post.png",
+    "menu_ending": "assets/ui/pulp/ending-gunslingers.png",
+    "menu_grave": "assets/ui/pulp/grave-vulture.png",
+    "menu_desk": "assets/ui/pulp/pause-desk.png"
   },
   "sheets": {
     "hero_steve": {

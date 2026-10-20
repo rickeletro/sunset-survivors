@@ -1,11 +1,9 @@
+import { preloadImages } from '../assets/registry';
+import { preloadPulp, pulpBackdrop, pulpHeading, pulpText, pulpButton, bindPulpMenu, bindPulpKeys } from '../ui/layout/pulpSceneKit';
 import { createMenuRoot } from '../ui/layout/menuLayout';
 import Phaser from 'phaser';
 import { sounds } from '../audio/SoundManager';
 import { CharacterData, CHARACTERS } from '../data/characters';
-import { THEME } from '../ui/theme/tokens';
-import { WesternButton } from '../ui/components/WesternButton';
-import { WesternTitle } from '../ui/components/WesternTitle';
-import { WesternPanel } from '../ui/components/WesternPanel';
 
 export interface PauseSceneData {
   character: CharacterData;
@@ -26,89 +24,25 @@ export class PauseScene extends Phaser.Scene {
     this.stage = data?.stage || 1;
   }
 
+  preload() { preloadPulp(this); preloadImages(this, ['menu_desk']); }
+
   create() {
-    const { width, height } = this.scale;
-
-    // Dimmed Dark Overlay
-    const dim = this.add.graphics();
-    dim.fillStyle(0x000000, 0.78);
-    dim.fillRect(0, 0, width, height);
-
-    // Root Container
     this.rootContainer = createMenuRoot(this);
-
-    // Saloon desk background board
-    const board = new WesternPanel(this, {
-      x: 0,
-      y: 0,
-      width: 720,
-      height: 600,
-      variant: 'dark-saloon',
-    });
-    this.rootContainer.add(board);
-
-    // PAUSED Title Plate
-    const title = new WesternTitle(this, {
-      x: 0,
-      y: -230,
-      title: '★ PAUSED ★',
-      subtitle: `STAGE ${this.stage} • ${this.character.name}`,
-      width: 540,
-      fontSize: '32px',
-    });
-    this.rootContainer.add(title);
-
-    // Menu Buttons
-    const buttonsConfig = [
-      {
-        text: 'CONTINUE',
-        variant: 'gold' as const,
-        onClick: () => this.resumeGame(),
-      },
-      {
-        text: 'HOW TO PLAY',
-        variant: 'wood' as const,
-        onClick: () => this.openControls(),
-      },
-      {
-        text: 'RESTART STAGE',
-        variant: 'wood' as const,
-        onClick: () => this.restartStage(),
-      },
-      {
-        text: 'RETURN TO TITLE',
-        variant: 'danger' as const,
-        onClick: () => this.returnToTitle(),
-      },
+    pulpBackdrop(this, this.rootContainer, true);
+    const art = this.add.image(-400, 110, 'menu_desk');
+    art.setScale(Math.min(740 / art.width, 680 / art.height));
+    this.rootContainer.add(art);
+    pulpHeading(this, this.rootContainer, 'PAUSED', -365, 1180, 86, true);
+    pulpText(this, this.rootContainer, 0, -265, `STAGE ${this.stage}  /  ${this.character.name}`, 23);
+    const buttons = [
+      pulpButton(this, this.rootContainer, 330, -135, 'CONTINUE', () => this.resumeGame(), 580, true),
+      pulpButton(this, this.rootContainer, 330, -25, 'HOW TO PLAY', () => this.openControls(), 580),
+      pulpButton(this, this.rootContainer, 330, 85, 'RESTART STAGE', () => this.restartStage(), 580),
+      pulpButton(this, this.rootContainer, 330, 195, 'RETURN TO TITLE', () => this.returnToTitle(), 580),
     ];
-
-    buttonsConfig.forEach((cfg, idx) => {
-      const btn = new WesternButton(this, {
-        x: 0,
-        y: -90 + idx * 75,
-        width: 380,
-        height: 56,
-        text: cfg.text,
-        variant: cfg.variant,
-        fontSize: '13px',
-        onClick: cfg.onClick,
-      });
-      this.rootContainer.add(btn);
-    });
-
-    // Footer arcade hint
-    const hint = this.add.text(0, 245, '★ [ENTER] SELECT   •   [ESC] RESUME ★', {
-      fontFamily: THEME.typography.pixelFont,
-      fontSize: '11px',
-      color: '#f2d49a',
-      stroke: '#000000',
-      strokeThickness: 3,
-    }).setOrigin(0.5);
-    this.rootContainer.add(hint);
-
-    // Keyboard ESC to resume
-    this.input.keyboard?.once('keydown-ESC', () => this.resumeGame());
-
+    bindPulpMenu(this, buttons);
+    pulpText(this, this.rootContainer, 180, 405, '[↑ ↓] SELECT     [ENTER] CONFIRM     [ESC] RESUME', 22);
+    bindPulpKeys(this, { ESC: () => this.resumeGame() });
   }
 
   private resumeGame() {

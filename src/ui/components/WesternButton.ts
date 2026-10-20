@@ -11,6 +11,7 @@ export interface WesternButtonConfig {
   text: string;
   variant?: ButtonVariant;
   fontSize?: string;
+  presentation?: 'arcade' | 'pulp';
   onClick: () => void;
 }
 
@@ -20,6 +21,10 @@ export class WesternButton extends Phaser.GameObjects.Container {
   private btnWidth: number;
   private btnHeight: number;
   private variant: ButtonVariant;
+  private presentation: 'arcade' | 'pulp';
+  private focused = false;
+  private focusManaged = false;
+  private activating = false;
   private isHovered: boolean = false;
   private isPressed: boolean = false;
   private clickHandler: () => void;
@@ -27,6 +32,7 @@ export class WesternButton extends Phaser.GameObjects.Container {
   constructor(scene: Phaser.Scene, config: WesternButtonConfig) {
     super(scene, config.x, config.y);
 
+    this.presentation = config.presentation ?? 'arcade';
     this.btnWidth = config.width || 240;
     this.btnHeight = config.height || 54;
     this.variant = config.variant || 'wood';
@@ -38,7 +44,7 @@ export class WesternButton extends Phaser.GameObjects.Container {
 
     // Label text
     this.btnText = scene.add.text(0, 0, config.text, {
-      fontFamily: THEME.typography.pixelFont,
+      fontFamily: this.presentation === 'pulp' ? THEME.typography.westernFont : THEME.typography.pixelFont,
       fontSize: config.fontSize || '12px',
       color: '#ffffff',
       align: 'center',
@@ -93,7 +99,6 @@ export class WesternButton extends Phaser.GameObjects.Container {
   private onPointerDown() {
     this.isPressed = true;
     this.drawButton();
-    sounds.playRevolver();
     this.scene.tweens.add({
       targets: this,
       scaleX: 0.95,
@@ -103,21 +108,29 @@ export class WesternButton extends Phaser.GameObjects.Container {
     });
   }
 
+  public setFocused(focused: boolean): void {
+    this.focusManaged = true;
+    this.focused = focused;
+    this.drawButton();
+  }
+
+  public activate(): void {
+    if (this.activating || !this.active) return;
+    this.activating = true;
+    sounds.playRevolver();
+    this.scene.cameras.main.flash(70, 255, 197, 42, false);
+    this.scene.tweens.add({
+      targets: this, scaleX: 0.96, scaleY: 0.96, duration: THEME.motion.press,
+      yoyo: true, ease: 'Back.easeOut',
+      onComplete: () => { this.activating = false; this.clickHandler(); },
+    });
+  }
+
   private onPointerUp() {
-    if (this.isPressed) {
-      this.isPressed = false;
-      this.drawButton();
-      this.scene.tweens.add({
-        targets: this,
-        scaleX: 1.04,
-        scaleY: 1.04,
-        duration: THEME.motion.release,
-        ease: 'Back.easeOut',
-        onComplete: () => {
-          this.clickHandler();
-        },
-      });
-    }
+    if (!this.isPressed) return;
+    this.isPressed = false;
+    this.drawButton();
+    this.activate();
   }
 
   private drawButton() {
@@ -131,12 +144,24 @@ export class WesternButton extends Phaser.GameObjects.Container {
     this.btnBg.fillStyle(0x000000, 0.45);
     this.btnBg.fillRoundedRect(-halfW + 4, -halfH + 4, w, h, 6);
 
-    const style = BUTTON_STYLES[this.variant][this.isHovered ? 'hover' : 'idle'];
+    const focused = this.isHovered || this.focused;
+    const variant = this.presentation === 'pulp'
+      ? focused ? 'danger' : this.focusManaged ? 'wood' : this.variant
+      : this.variant;
+    const style = BUTTON_STYLES[variant][focused ? 'hover' : 'idle'];
     const { background: bgColor, border: strokeColor, text: textColor } = style;
 
     // Main button face
     this.btnBg.fillStyle(bgColor, 1);
     this.btnBg.fillRoundedRect(-halfW, -halfH, w, h, 6);
+
+    if (this.presentation === 'pulp') {
+      for (let i = 0; i < 14; i++) {
+        this.btnBg.fillStyle(variant === 'wood' ? 0xb27939 : 0xff791c, 0.24);
+        this.btnBg.fillRect(-halfW + 18 + (i * 83) % (w - 100), -halfH + 9 + i * 11 % (h - 20), 35 + i % 4 * 14, 2);
+      }
+      this.btnBg.lineStyle(3, 0x120b08).strokeRect(-halfW + 6, -halfH + 6, w - 12, h - 12);
+    }
 
     // Border
     const borderWidth = this.isHovered ? 3 : 2;
@@ -152,5 +177,6 @@ export class WesternButton extends Phaser.GameObjects.Container {
     this.btnBg.fillCircle(halfW - pad, halfH - pad, 2.5);
 
     this.btnText.setColor(textColor);
+    if (this.btnText.width > w - 52) this.btnText.setScale((w - 52) / this.btnText.width);
   }
 }

@@ -47,3 +47,17 @@ describe('PixelLab scenery delivery', () => {
     for (const pixel of [0, width - 1, width * (height - 1), width * height - 1]) expect(rgba[pixel * 4 + 3]).toBe(0);
   });
 });
+
+describe('composed menu illustrations', () => {
+  it.each([
+    ['menu_ending', 1536, 1024], ['menu_desk', 1536, 1024], ['menu_grave', 1024, 1536],
+  ])('%s keeps transparent negative space and native proportions', (key, expectedWidth, expectedHeight) => {
+    const { width, height, rgba } = rgbaPng(readFileSync(new URL(`../../public/${CATALOG.images[key]}`, import.meta.url)));
+    expect([width, height]).toEqual([expectedWidth, expectedHeight]);
+    let transparent = 0, solid = 0;
+    for (let i = 3; i < rgba.length; i += 4) { if (rgba[i] < 16) transparent++; if (rgba[i] > 200) solid++; }
+    expect(transparent / (width * height)).toBeGreaterThan(0.05);
+    expect(solid / (width * height)).toBeGreaterThan(0.05);
+    expect(rgba[3]).toBeLessThan(16);
+  });
+});

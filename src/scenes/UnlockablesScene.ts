@@ -1,201 +1,88 @@
+import { preloadImages } from '../assets/registry';
+import { preloadPulp, pulpBackdrop, pulpHeading, pulpText, pulpButton, pulpPaper, pulpWood, bindPulpKeys } from '../ui/layout/pulpSceneKit';
 import { createMenuRoot } from '../ui/layout/menuLayout';
 import Phaser from 'phaser';
 import { sounds } from '../audio/SoundManager';
 import { BOSSES } from '../data/bosses';
 import { statsManager } from '../data/GameStatsManager';
-import { THEME } from '../ui/theme/tokens';
 import { WesternButton } from '../ui/components/WesternButton';
-import { WesternTitle } from '../ui/components/WesternTitle';
-import { WesternPanel } from '../ui/components/WesternPanel';
 
 export class UnlockablesScene extends Phaser.Scene {
   private rootContainer!: Phaser.GameObjects.Container;
   private currentTab: 'characters' | 'artwork' | 'extras' = 'characters';
+  private tabButtons: WesternButton[] = [];
   private gridContainer!: Phaser.GameObjects.Container;
 
   constructor() {
     super('UnlockablesScene');
   }
 
+  preload() {
+    preloadPulp(this);
+    preloadImages(this, [...BOSSES.map(boss => boss.posterKey), 'poster_steve', 'poster_billy', 'poster_bob', 'poster_cormano']);
+  }
+
   create() {
-    const { width, height } = this.scale;
-
-    // Dark Background
-    const bg = this.add.graphics();
-    bg.fillStyle(0x0a0503, 1);
-    bg.fillRect(0, 0, width, height);
-
-    // Root Container
     this.rootContainer = createMenuRoot(this);
-
-    // Saloon Wood Wall
-    const wall = new WesternPanel(this, {
-      x: 0,
-      y: 0,
-      width: 1200,
-      height: 720,
-      variant: 'dark-saloon',
+    pulpBackdrop(this, this.rootContainer, true);
+    pulpWood(this, this.rootContainer, 0, 40, 1410, 660);
+    pulpHeading(this, this.rootContainer, 'UNLOCKABLES', -400, 1120, 70, true);
+    this.gridContainer = this.add.container(0, 20); this.rootContainer.add(this.gridContainer);
+    this.tabButtons = [];
+    this.createTabs(); this.renderGrid();
+    const back = pulpButton(this, this.rootContainer, 0, 440, 'BACK', () => this.goBack(), 430);
+    bindPulpKeys(this, {
+      ESC: () => this.goBack(), ENTER: () => back.activate(),
+      LEFT: () => this.selectTab(-1), RIGHT: () => this.selectTab(1),
     });
-    this.rootContainer.add(wall);
+  }
 
-    // Title Header
-    const title = new WesternTitle(this, {
-      x: 0,
-      y: -310,
-      title: '★ UNLOCKABLES ★',
-      subtitle: 'DISCOVER SECRET BOUNTIES, GUNSLINGERS & GALLERY ARTWORK',
-      width: 820,
-      fontSize: '32px',
-    });
-    this.rootContainer.add(title);
-
-    // Tabs
-    this.createTabs();
-
-    // Grid Container
-    this.gridContainer = this.add.container(0, 40);
-    this.rootContainer.add(this.gridContainer);
-    this.renderGrid();
-
-    // Footer Back Button
-    const backBtn = new WesternButton(this, {
-      x: 0,
-      y: 310,
-      width: 240,
-      height: 52,
-      text: '◀ BACK (ESC)',
-      variant: 'gold',
-      onClick: () => this.goBack(),
-    });
-    this.rootContainer.add(backBtn);
-
-    this.input.keyboard?.once('keydown-ESC', () => this.goBack());
-
+  private selectTab(offset: number) {
+    const tabs = ['characters', 'artwork', 'extras'] as const;
+    this.currentTab = tabs[(tabs.indexOf(this.currentTab) + offset + tabs.length) % tabs.length];
+    this.createTabs(); this.renderGrid();
   }
 
   private createTabs() {
-    const tabsContainer = this.add.container(0, -220);
-    const tabs: Array<{ id: 'characters' | 'artwork' | 'extras'; label: string }> = [
-      { id: 'characters', label: 'CHARACTERS' },
-      { id: 'artwork', label: 'ARTWORK' },
-      { id: 'extras', label: 'EXTRAS' },
-    ];
-
-    tabs.forEach((tab, i) => {
-      const posX = -260 + i * 260;
-      const isActive = this.currentTab === tab.id;
-
-      const tabBtn = new WesternButton(this, {
-        x: posX,
-        y: 0,
-        width: 230,
-        height: 44,
-        text: tab.label,
-        variant: isActive ? 'danger' : 'wood',
-        fontSize: '11px',
-        onClick: () => {
-          this.currentTab = tab.id;
-          this.createTabs();
-          this.renderGrid();
-        },
-      });
-      tabsContainer.add(tabBtn);
+    for (const tab of this.tabButtons) tab.destroy();
+    this.tabButtons = [];
+    const tabs = ['characters', 'artwork', 'extras'] as const;
+    tabs.forEach((id, i) => {
+      const button = pulpButton(this, this.rootContainer, (i - 1) * 440, -266, id.toUpperCase(), () => {
+        this.currentTab = id; this.createTabs(); this.renderGrid();
+      }, 420, this.currentTab === id);
+      this.tabButtons.push(button);
     });
-
-    this.rootContainer.add(tabsContainer);
   }
 
   private renderGrid() {
     this.gridContainer.removeAll(true);
     const stats = statsManager.getStats();
-
-    if (this.currentTab === 'characters') {
-      const heroes = [
-        { id: 'steve', name: 'STEVE', unlocked: true },
-        { id: 'billy', name: 'BILLY', unlocked: true },
-        { id: 'bob', name: 'BOB', unlocked: true },
-        { id: 'cormano', name: 'CORMANO', unlocked: true },
-        { id: 'secret1', name: 'SECRET', unlocked: stats.stagesCleared >= 4 },
-        { id: 'secret2', name: 'SECRET', unlocked: stats.stagesCleared >= 8 },
-      ];
-
-      heroes.forEach((h, idx) => {
-        const col = idx % 3;
-        const row = Math.floor(idx / 3);
-        const cardX = -320 + col * 320;
-        const cardY = -90 + row * 190;
-
-        const card = new WesternPanel(this, {
-          x: cardX,
-          y: cardY,
-          width: 280,
-          height: 160,
-          variant: h.unlocked ? 'parchment' : 'dark-saloon',
-        });
-        this.gridContainer.add(card);
-
-        if (h.unlocked) {
-          const spriteKey = `hero_${h.id}`;
-          if (this.textures.exists(spriteKey)) {
-            const spr = this.add.sprite(cardX - 60, cardY, spriteKey, 0).setScale(1.8);
-            this.gridContainer.add(spr);
-          }
-          const label = this.add.text(cardX + 40, cardY, h.name, {
-            fontFamily: THEME.typography.pixelFont,
-            fontSize: '14px',
-            color: '#2b1d0c',
-          }).setOrigin(0.5);
-          this.gridContainer.add(label);
-        } else {
-          const lockText = this.add.text(cardX, cardY - 10, '?', {
-            fontFamily: THEME.typography.westernFont,
-            fontSize: '44px',
-            color: '#8b5a2b',
-          }).setOrigin(0.5);
-          this.gridContainer.add(lockText);
-
-          const hint = this.add.text(cardX, cardY + 35, 'LOCKED', {
-            fontFamily: THEME.typography.pixelFont,
-            fontSize: '10px',
-            color: '#ff791c',
-          }).setOrigin(0.5);
-          this.gridContainer.add(hint);
-        }
-      });
-    } else {
-      // Artwork / Bosses Gallery
-      BOSSES.forEach((boss, idx) => {
-        const col = idx % 4;
-        const row = Math.floor(idx / 4);
-        const cardX = -390 + col * 260;
-        const cardY = -80 + row * 180;
-
-        const isUnlocked = stats.unlockedBosses.includes(boss.stage) || boss.stage === 1;
-
-        const card = new WesternPanel(this, {
-          x: cardX,
-          y: cardY,
-          width: 230,
-          height: 150,
-          variant: isUnlocked ? 'parchment' : 'dark-saloon',
-        });
-        this.gridContainer.add(card);
-
-        if (isUnlocked && this.textures.exists(boss.posterKey)) {
-          const poster = this.add.image(cardX, cardY, boss.posterKey);
-          poster.setDisplaySize(120, 140);
-          this.gridContainer.add(poster);
-        } else {
-          const lock = this.add.text(cardX, cardY, `STAGE ${boss.stage}\n?`, {
-            fontFamily: THEME.typography.pixelFont,
-            fontSize: '11px',
-            color: '#603719',
-            align: 'center',
-          }).setOrigin(0.5);
-          this.gridContainer.add(lock);
-        }
-      });
+    const entries: { name: string; texture?: string; unlocked: boolean }[] = this.currentTab === 'characters' ? [
+      ...['steve', 'billy', 'bob', 'cormano'].map(id => ({ name: id.toUpperCase(), texture: `poster_${id}`, unlocked: true })),
+      { name: 'SECRET', unlocked: stats.stagesCleared >= 4 },
+      { name: 'SECRET', unlocked: stats.stagesCleared >= 8 },
+    ] : BOSSES.map(boss => ({ name: `STAGE ${boss.stage}`, texture: boss.posterKey, unlocked: stats.unlockedBosses.includes(boss.stage) || boss.stage === 1 }));
+    const columns = this.currentTab === 'characters' ? 3 : 5;
+    const count = this.currentTab === 'characters' ? entries.length : 10;
+    for (let i = 0; i < count; i++) {
+      const entry = entries[i];
+      const x = (i % columns - (columns - 1) / 2) * (columns === 3 ? 360 : 260);
+      const y = -100 + Math.floor(i / columns) * 260;
+      const card = pulpPaper(this, this.gridContainer, x, y, columns === 3 ? 290 : 220, 235);
+      if (entry?.unlocked && entry.texture && this.textures.exists(entry.texture)) {
+        const art = this.add.image(0, -12, entry.texture);
+        art.setScale(Math.min(180 / art.width, 178 / art.height)); card.add(art);
+        pulpText(this, card, 0, 95, entry.name, 21, '#120b08');
+      } else if (entry?.unlocked) {
+        pulpText(this, card, 0, -15, '★', 66, '#a51e16');
+        pulpText(this, card, 0, 90, entry.name, 21, '#120b08');
+      } else {
+        pulpText(this, card, 0, -12, '?', 100, '#603719');
+        pulpText(this, card, 0, 90, entry?.name ?? 'LOCKED', 21, '#603719');
+      }
     }
+    pulpText(this, this.gridContainer, 0, 328, '[← →] CHANGE CATEGORY    [ESC] BACK', 20);
   }
 
   private goBack() {
