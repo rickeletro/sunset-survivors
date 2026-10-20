@@ -1,95 +1,58 @@
 import { ENEMY_DEFS, EnemyDef, EnemyKind } from '../data/enemies';
-import { GameEvents } from './GameEvents';
+import { getStage, pressureMultiplier, stagePhase, StageConfig } from '../data/stages';
+import type { GameEvents } from './GameEvents';
 
 export type SpawnPattern = 'ring' | 'cluster' | 'encircle';
+export interface SpawnOrder { kind: EnemyKind; count: number; pattern: SpawnPattern; }
+export const MAX_ALIVE = 240;
 
-export interface SpawnOrder {
-  kind: EnemyKind;
-  count: number;
-  pattern: SpawnPattern;
-}
-
-const SPECIAL_FIRST_AT = 30;
-const SPECIAL_EVERY = 45;
-const ELITE_FIRST_AT = 50;
-const ELITE_EVERY = 40;
-const MAX_ALIVE = 320;
-
-/**
- * Game Director: decide quanto, o quê e como spawnar ao longo da partida.
- *  - waveOrders(): hordas contínuas (chamado pelo timer de spawn)
- *  - tick():       eventos por segundo (ondas especiais, elites)
- * Não mexe em sprites; só devolve ordens que a cena executa.
- */
+/** Pure spawn decisions; stage pacing alternates pressure, surges and recovery. */
 export class GameDirector {
-  private nextSpecialAt = SPECIAL_FIRST_AT;
-  private nextEliteAt = ELITE_FIRST_AT;
+  private nextSpecialAt = 65;
+  private nextEliteAt = 90;
   private specialIndex = 0;
   private eliteCount = 0;
-
-  constructor(private events: GameEvents) {}
-
-  reset() {
-    this.nextSpecialAt = SPECIAL_FIRST_AT;
-    this.nextEliteAt = ELITE_FIRST_AT;
-    this.specialIndex = 0;
-    this.eliteCount = 0;
-  }
-
-  /** Quantidade alvo de inimigos vivos para o tempo atual. */
+  constructor(private events: GameEvents, private stage: StageConfig = getStage(1), private random = Math.random) {}
+  reset() { this.nextSpecialAt = 65; this.nextEliteAt = 90; this.specialIndex = 0; this.eliteCount = 0; }
   targetCount(t: number): number {
-    return Math.min(30 + Math.floor(t * 0.55), 280);
+    const base = 28 + this.stage.id * 3 + Math.floor(Math.min(t, this.stage.duration) * 0.16);
+    return Math.min(MAX_ALIVE, Math.round(base * pressureMultiplier(stagePhase(this.stage, t))));
   }
-
-  /** 0..1 aproximado de pressão, útil para HUD/música futuramente. */
-  intensity(t: number): number {
-    return Math.min(t / 600, 1);
-  }
-
+  intensity(t: number): number { return Math.min(t / this.stage.duration, 1); }
   waveOrders(t: number, alive: number): SpawnOrder[] {
-    const deficit = this.targetCount(t) - alive;
+    const deficit = Math.min(MAX_ALIVE - alive, this.targetCount(t) - alive);
     if (deficit <= 0) return [];
-    const batch = Math.min(deficit, 4 + Math.floor(t / 30));
-
-    const pool = (Object.values(ENEMY_DEFS) as EnemyDef[]).filter((d) => d.weight > 0 && t >= d.unlockAt);
-    const total = pool.reduce((s, d) => s + d.weight, 0);
+    const batch = Math.min(deficit, 5 + Math.floor(t / 60));
+    const pool = (Object.values(ENEMY_DEFS) as EnemyDef[]).filter(d => (this.stage.enemies[d.kind] ?? 0) > 0 && t >= d.unlockAt);
+    if (!pool.length) return [];
+    const total = pool.reduce((sum, d) => sum + (this.stage.enemies[d.kind] ?? 0), 0);
     const counts = new Map<EnemyKind, number>();
     for (let i = 0; i < batch; i++) {
-      let r = Math.random() * total;
-      let pick = pool[0];
-      for (const d of pool) {
-        r -= d.weight;
-        if (r <= 0) {
-          pick = d;
-          break;
-        }
-      }
+      let r = this.random() * total;
+      let pick = pool[pool.length - 1];
+      for (const def of pool) { r -= this.stage.enemies[def.kind] ?? 0; if (r <= 0) { pick = def; break; } }
       counts.set(pick.kind, (counts.get(pick.kind) ?? 0) + 1);
     }
-    return Array.from(counts, ([kind, count]) => ({ kind, count, pattern: 'ring' as const }));
+    return Array.from(counts, ([kind, count]) => ({ kind, count, pattern: 'ring' }));
   }
-
   tick(t: number, alive: number): SpawnOrder[] {
     const orders: SpawnOrder[] = [];
-    if (alive >= MAX_ALIVE) return orders;
-
+    let room = MAX_ALIVE - alive;
+    const add = (kind: EnemyKind, count: number, pattern: SpawnPattern) => {
+      const accepted = Math.min(Math.max(room, 0), count);
+      if (accepted) { orders.push({ kind, count: accepted, pattern }); room -= accepted; }
+    };
     if (t >= this.nextSpecialAt) {
-      this.nextSpecialAt += SPECIAL_EVERY;
-      const swarm = this.specialIndex++ % 2 === 0;
-      if (swarm) {
-        this.events.emitSpecialWave({ label: '🐍 SNAKE SWARM!' });
-        orders.push({ kind: 'snake', count: 20 + Math.floor(t / 20), pattern: 'cluster' });
-      } else {
-        this.events.emitSpecialWave({ label: '☠ AMBUSH! SURROUNDED!' });
-        orders.push({ kind: 'bandit', count: 26 + Math.floor(t / 20), pattern: 'encircle' });
-      }
+      this.nextSpecialAt = t + (stagePhase(this.stage, t) === 'respite' ? 80 : 65);
+      const ambush = this.specialIndex++ % 2 === 1;
+      this.events.emitSpecialWave({ label: ambush ? 'EMBOSCADA! ENCONTRE UMA BRECHA!' : `ONDA DA FRONTEIRA — ${this.stage.title}` });
+      add(ambush ? 'knife_bandit' : this.stage.signature, 14 + Math.floor(t / 45), ambush ? 'encircle' : 'cluster');
     }
-
-    if (t >= this.nextEliteAt) {
-      this.nextEliteAt += ELITE_EVERY;
+    if (t >= this.nextEliteAt && t < this.stage.duration) {
+      this.nextEliteAt = t + 100;
       this.eliteCount++;
-      this.events.emitEliteSpawned();
-      orders.push({ kind: 'elite', count: 1 + Math.floor(this.eliteCount / 3), pattern: 'ring' });
+      if (room > 0) this.events.emitEliteSpawned();
+      add('elite', Math.min(3, 1 + Math.floor(this.eliteCount / 4)), 'ring');
     }
     return orders;
   }

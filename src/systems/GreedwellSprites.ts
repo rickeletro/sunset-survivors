@@ -3,7 +3,7 @@ import Phaser from 'phaser';
 /**
  * Simon Greedwell (boss) com sprites do Pixellab:
  * corrida (6 quadros, leste/oeste), tiro para baixo (9 quadros) e morte (7 quadros).
- * Arquivos: public/assets/sprites/pixellab/greedwell/<anim>_<i>.png
+ * Arquivos: public/assets/bosses/pixellab/greedwell/Idle/animations/<anim>/frame_<000..008>.png
  */
 const ANIMS = {
   run_east: { frames: 6, frameRate: 10, repeat: -1 },
@@ -23,7 +23,7 @@ export const greedwellAnimKey = (anim: GreedwellAnim) => `pl_greedwell_${anim}`;
 export function preloadGreedwell(scene: Phaser.Scene): void {
   (Object.keys(ANIMS) as GreedwellAnim[]).forEach((anim) => {
     for (let i = 0; i < ANIMS[anim].frames; i++) {
-      scene.load.image(texKey(anim, i), `assets/sprites/pixellab/greedwell/${anim}_${i}.png`);
+      scene.load.image(texKey(anim, i), `assets/bosses/pixellab/greedwell/Idle/animations/${anim}/frame_${String(i).padStart(3, '0')}.png`);
     }
   });
 }

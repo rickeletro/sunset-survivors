@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { sounds } from '../audio/SoundManager';
 import { CharacterData, CHARACTERS } from '../data/characters';
 import { BossData, getBossForStage } from '../data/bosses';
+import { getStage } from '../data/stages';
 import { THEME } from '../ui/theme/tokens';
 import { WesternPanel } from '../ui/components/WesternPanel';
 import { WesternTitle } from '../ui/components/WesternTitle';
@@ -153,13 +154,13 @@ export class StageIntroScene extends Phaser.Scene {
       x: 0,
       y: 0,
       width: 860,
-      height: 140,
+      height: 200,
       variant: 'parchment',
     });
     parchmentContainer.add(parchment);
 
     // Lore Text
-    const loreText = this.add.text(0, -6, this.bossData.lore, {
+    const loreText = this.add.text(0, -32, this.bossData.lore, {
       fontFamily: THEME.typography.pixelFont,
       fontSize: '13px',
       color: '#2b1d0c',
@@ -168,6 +169,14 @@ export class StageIntroScene extends Phaser.Scene {
       lineSpacing: 8,
     }).setOrigin(0.5);
     parchmentContainer.add(loreText);
+    const stage = getStage(this.stage);
+    parchmentContainer.add(this.add.text(0, 48,
+      `SOBREVIVA ${Math.floor(stage.duration / 60)}:${String(stage.duration % 60).padStart(2, '0')} + BOSS
+${stage.hazardLabel}
+PROVISOES OPCIONAIS: LIMPE A AREA E SEGURE POR 8s`, {
+        fontFamily: THEME.typography.pixelFont, fontSize: '10px', color: '#a51e16',
+        align: 'center', lineSpacing: 8, wordWrap: { width: 800 },
+      }).setOrigin(0.5));
 
     this.rootContainer.add(parchmentContainer);
   }

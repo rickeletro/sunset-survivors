@@ -1,4 +1,6 @@
 import Phaser from 'phaser';
+import { getStage, StageConfig } from '../data/stages';
+import { createStageScenery } from './StageScenery';
 
 /**
  * Mundo grande e contínuo dividido em chunks.
@@ -13,7 +15,7 @@ export const WORLD_MARGIN = 48;
 const CHUNK = 640;
 const ACTIVE_RADIUS = 2; // chunks ao redor do jogador que mantêm sprites
 
-type Kind = 'rock' | 'cactus' | 'deadtree';
+type Kind = 'rock' | 'cactus' | 'deadtree' | 'wagon' | 'barrel' | 'crate' | 'ruin' | 'table' | 'pine' | 'tent' | 'barricade' | 'palm' | 'statue' | 'lantern';
 
 interface Obstacle {
   x: number;
@@ -21,9 +23,14 @@ interface Obstacle {
   r: number;
   kind: Kind;
   sprite?: Phaser.GameObjects.Image;
+  glow?: Phaser.GameObjects.Image;
 }
 
 const KINDS: Record<Kind, { r: number; w: number; h: number }> = {
+  wagon: { r: 34, w: 100, h: 72 }, barrel: { r: 14, w: 36, h: 44 }, crate: { r: 17, w: 44, h: 42 },
+  ruin: { r: 29, w: 76, h: 70 }, table: { r: 25, w: 66, h: 52 }, pine: { r: 12, w: 50, h: 78 },
+  tent: { r: 27, w: 76, h: 56 }, barricade: { r: 28, w: 82, h: 48 }, palm: { r: 12, w: 72, h: 84 },
+  statue: { r: 20, w: 54, h: 80 }, lantern: { r: 6, w: 24, h: 64 },
   rock: { r: 14, w: 36, h: 28 },
   cactus: { r: 9, w: 24, h: 44 },
   deadtree: { r: 10, w: 36, h: 52 },
@@ -44,14 +51,17 @@ function rng(seed: number) {
 export class WorldMap {
   private chunks = new Map<string, Obstacle[]>();
   private active = new Set<string>();
+  readonly groundTexture: string;
 
   constructor(
     private scene: Phaser.Scene,
     private safeX: number,
     private safeY: number,
     private safeRadius = 260,
+    private stage: StageConfig = getStage(1),
   ) {
     this.makeTextures();
+    this.groundTexture = createStageScenery(scene, stage);
   }
 
   private makeTextures() {
@@ -93,15 +103,19 @@ export class WorldMap {
     if (list) return list;
 
     list = [];
-    const rand = rng((cx + 1000) * 73856093 ^ (cy + 1000) * 19349663);
-    const count = 3 + Math.floor(rand() * 4);
-    const kinds: Kind[] = ['rock', 'cactus', 'cactus', 'deadtree', 'rock'];
+    const rand = rng((cx + 1000) * 73856093 ^ (cy + 1000) * 19349663 ^ this.stage.id * 83492791);
+    const count = 4 + Math.floor(rand() * 4);
+    const kinds = [...this.stage.props, 'lantern'] as Kind[];
     for (let i = 0; i < count; i++) {
       const kind = kinds[Math.floor(rand() * kinds.length)];
       const x = cx * CHUNK + 40 + rand() * (CHUNK - 80);
       const y = cy * CHUNK + 40 + rand() * (CHUNK - 80);
       if (x < WORLD_MARGIN || y < WORLD_MARGIN || x > WORLD_W - WORLD_MARGIN || y > WORLD_H - WORLD_MARGIN) continue;
       if (Math.hypot(x - this.safeX, y - this.safeY) < this.safeRadius) continue;
+      if (['railroad', 'caboose'].includes(this.stage.theme)) {
+        const railY = 4000 + Math.round((y - 4000) / 640) * 640;
+        if (Math.abs(y - railY) < 90) continue; // Keep the telegraphed rail corridors navigable.
+      }
       list.push({ x, y, r: KINDS[kind].r, kind });
     }
     this.chunks.set(k, list);
@@ -128,6 +142,9 @@ export class WorldMap {
               .setDepth(3 + o.y / WORLD_H);
           }
         }
+        for (const o of this.getChunk(cx, cy)) {
+          if (o.kind === 'lantern' && !o.glow) o.glow = this.scene.add.image(o.x, o.y - 35, 'wm_glow').setBlendMode(Phaser.BlendModes.ADD).setAlpha(0.65).setDepth(6);
+        }
         this.active.add(k);
       }
     }
@@ -136,6 +153,8 @@ export class WorldMap {
       if (wanted.has(k)) continue;
       const [cx, cy] = k.split(',').map(Number);
       for (const o of this.getChunk(cx, cy)) {
+        o.glow?.destroy();
+        o.glow = undefined;
         o.sprite?.destroy();
         o.sprite = undefined;
       }
@@ -157,7 +176,7 @@ export class WorldMap {
           const d2 = dx * dx + dy * dy;
           if (d2 < min * min) {
             const d = Math.sqrt(d2) || 0.001;
-            x = o.x + (dx / d) * min;
+            x = o.x + (d2 === 0 ? min : (dx / d) * min);
             y = o.y + (dy / d) * min;
           }
         }

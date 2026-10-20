@@ -5,7 +5,7 @@ import Phaser from 'phaser';
  * SW é o SE espelhado (flipX). Diagonais de cima (NE/NW) usam o sprite N.
  * Se uma direção não existir para um herói, há fallback (SE→E, N→S).
  *
- * Arquivos: public/assets/sprites/pixellab/<hero>/<dir>_<0..3>.png
+ * Arquivos: public/assets/characters/pixellab/<hero>/Idle/animations/walking-4-frames/<dir>/frame_<000..003>.png
  * Ao baixar novas direções do Pixellab, basta adicioná-las em AVAILABLE_DIRS.
  */
 export type PixelDir = 'north' | 'south' | 'east' | 'west' | 'south-east';
@@ -31,7 +31,7 @@ export function preloadPixellabHeroes(scene: Phaser.Scene): void {
   for (const [hero, dirs] of Object.entries(AVAILABLE_DIRS)) {
     for (const dir of dirs) {
       for (let i = 0; i < FRAMES; i++) {
-        scene.load.image(texKey(hero, dir, i), `assets/sprites/pixellab/${hero}/${dir}_${i}.png`);
+        scene.load.image(texKey(hero, dir, i), `assets/characters/pixellab/${hero}/Idle/animations/walking-4-frames/${dir}/frame_${String(i).padStart(3, '0')}.png`);
       }
     }
   }

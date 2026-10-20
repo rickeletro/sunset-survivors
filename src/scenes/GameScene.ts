@@ -22,6 +22,7 @@ import {
   GREEDWELL_SCALE,
   GREEDWELL_SHOOT_FIRE_FRAME,
   hasGreedwellSprites,
+  preloadGreedwell,
 } from '../systems/GreedwellSprites';
 import { WorldMap, WORLD_W, WORLD_H } from '../systems/WorldMap';
 import { GameDirector, SpawnOrder } from '../systems/GameDirector';
@@ -29,6 +30,11 @@ import { GameEvents, GameEventNames, SpecialWaveEvent } from '../systems/GameEve
 import { SpatialHash } from '../systems/SpatialHash';
 import { SpritePool } from '../systems/SpritePool';
 import { ENEMY_DEFS, EnemyKind } from '../data/enemies';
+import { getStage, isBossDue, stagePhase, StageConfig } from '../data/stages';
+import { bossRageMultiplier, getBossCombat, remainingBossHp } from '../data/bossCombat';
+import { mergeLoot, takeLootPacket, LootPacket } from '../systems/LootBudget';
+import { StageEncounters } from '../systems/StageEncounters';
+import { bossSpriteTexture, enemySpriteTexture, playBossMovement, playEnemyMovement, preloadCombatSprites } from '../systems/PixellabCombat';
 import { getEligibleEvolution, WEAPON_EVOLUTIONS, WeaponEvolution } from '../data/evolutions';
 
 interface Projectile {
@@ -65,9 +71,19 @@ interface Enemy {
   aiTimer?: number;
   dirX?: number;
   dirY?: number;
+  bossSlug?: string;
+  combatSprite?: boolean;
+  chargeCooldown?: number;
+  chargeWindup?: number;
+  chargeRemaining?: number;
+  chargeX?: number;
+  chargeY?: number;
+  vulnerableUntil?: number;
+  attackCount?: number;
 }
 
 interface Drop {
+  packets?: LootPacket[];
   sprite: Phaser.GameObjects.Sprite;
   type: 'gold' | 'badge' | 'whiskey';
   val: number;
@@ -87,6 +103,12 @@ interface FireZone {
 export class GameScene extends Phaser.Scene {
   private character!: CharacterData;
   private stage: number = 1;
+  private stageConfig!: StageConfig;
+  private encounters!: StageEncounters;
+  private stageStatus!: Phaser.GameObjects.Text;
+  private objectiveStatus!: Phaser.GameObjects.Text;
+  private bossMembers: Enemy[] = [];
+  private bossDefeated = false;
 
   // Player Stats
   private player!: Phaser.GameObjects.Sprite;
@@ -162,10 +184,13 @@ export class GameScene extends Phaser.Scene {
 
   init(data?: { character?: CharacterData; stage?: number }) {
     this.character = data?.character || CHARACTERS.billy;
-    this.stage = data?.stage || 1;
+    this.stage = Math.max(1, Math.min(8, data?.stage || 1));
+    this.stageConfig = getStage(this.stage);
   }
 
   preload() {
+    preloadCombatSprites(this, this.stage);
+    if (this.stage === 1 && !hasGreedwellSprites(this)) preloadGreedwell(this);
     if (!this.textures.exists('hud_avatar_steve')) {
       this.load.image('hud_avatar_steve', 'assets/ui/hud_avatar_steve.png');
       this.load.image('hud_avatar_billy', 'assets/ui/hud_avatar_billy.png');
@@ -185,6 +210,8 @@ export class GameScene extends Phaser.Scene {
     this.isGameOver = false;
     this.bossSpawned = false;
     this.bossEnemy = null;
+    this.bossMembers = [];
+    this.bossDefeated = false;
     this.enemies = [];
     this.projectiles = [];
     this.drops = [];
@@ -221,10 +248,10 @@ export class GameScene extends Phaser.Scene {
 
     // Giant explorable desert floor (world space, culled by the camera)
     this.invulnUntil = 0;
-    this.groundTile = this.add.tileSprite(0, 0, WORLD_W, WORLD_H, 'desert_ground').setOrigin(0, 0).setDepth(-10);
     const startX = WORLD_W / 2;
     const startY = WORLD_H / 2;
-    this.worldMap = new WorldMap(this, startX, startY);
+    this.worldMap = new WorldMap(this, startX, startY, 260, this.stageConfig);
+    this.groundTile = this.add.tileSprite(0, 0, WORLD_W, WORLD_H, this.worldMap.groundTexture).setOrigin(0, 0).setDepth(-10);
 
     // Player Sprite (32-bit Neo Geo Arcade Hero)
     const heroKey = `hero_${this.character.id}`;
@@ -246,14 +273,39 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.setBounds(0, 0, WORLD_W, WORLD_H);
     this.cameras.main.startFollow(this.player, true, 0.12, 0.12);
     this.worldMap.update(startX, startY);
+    const dust = this.add.particles(0, 0, 'stage_dust', {
+      frequency: 140, lifespan: 3500, speedX: { min: 12, max: 30 }, speedY: { min: -8, max: 4 },
+      alpha: { start: 0.35, end: 0 }, quantity: 1,
+    }).setDepth(18);
+    dust.startFollow(this.player, -260, -160);
 
     // Horde systems: director, pool, spatial hash, event bus
     this.gameEvents = new GameEvents();
-    this.director = new GameDirector(this.gameEvents);
+    this.director = new GameDirector(this.gameEvents, this.stageConfig);
     this.enemyPool = new SpritePool(this, 5);
     this.enemyHash = new SpatialHash<Enemy>(64);
     this.gameEvents.on(GameEventNames.SpecialWave, (e: SpecialWaveEvent) => this.showBanner(e.label, '#ffc52a'));
     this.gameEvents.on(GameEventNames.EliteSpawned, () => this.showBanner('★ ELITE BOUNTY HUNTER ★', '#ff791c'));
+
+    this.encounters = new StageEncounters(this, this.stageConfig, {
+      position: () => ({ x: this.player.x, y: this.player.y }),
+      damage: amount => this.damagePlayer(amount),
+      spawn: (kind, x, y) => this.spawnEnemy(kind, x, y),
+      reward: () => {
+        this.addBounty(300 + this.stage * 75);
+        this.hp = Math.min(this.maxHp, this.hp + 20);
+        this.updateHpBar();
+        sounds.playCoin();
+        this.addXp(Math.round((80 + this.stage * 30) * this.xpBonus));
+      },
+      banner: (message, color) => this.showBanner(message, color),
+      contested: (x, y) => this.enemies.some(e => !e.dead && Math.hypot(e.sprite.x - x, e.sprite.y - y) < 100),
+      clearPoint: (x, y) => this.worldMap.resolve(x, y, 82),
+    });
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.encounters.destroy();
+      this.gameEvents.removeAllListeners();
+    });
 
     // Keyboard Inputs
     if (this.input.keyboard) {
@@ -297,6 +349,8 @@ export class GameScene extends Phaser.Scene {
       loop: true,
     });
 
+    this.updateStageStatus();
+    this.showBanner(`FASE ${this.stage} — ${this.stageConfig.title}`, '#ffc52a');
     sounds.startBGM();
   }
 
@@ -432,7 +486,7 @@ export class GameScene extends Phaser.Scene {
       strokeThickness: 4,
     }).setOrigin(0.5).setDepth(50).setScrollFactor(0);
 
-    // Simon Greedwell Boss Bar Container (Abaixo do Timer)
+    // Stage boss health, shared by both Smith brothers.
     this.bossBarContainer = this.add.container(width / 2, 92).setDepth(55).setScrollFactor(0).setVisible(false);
 
     const bossBg = this.add.graphics();
@@ -445,7 +499,7 @@ export class GameScene extends Phaser.Scene {
     this.bossHpFill = this.add.graphics();
     this.bossBarContainer.add(this.bossHpFill);
 
-    const bossLabel = this.add.text(0, 0, '★ WANTED: SIMON GREEDWELL ★', {
+    const bossLabel = this.add.text(0, 0, `★ ${getBossForStage(this.stage).name.toUpperCase()} ★`, {
       fontFamily: THEME.typography.pixelFont,
       fontSize: '10px',
       color: '#fef08a',
@@ -453,6 +507,12 @@ export class GameScene extends Phaser.Scene {
       strokeThickness: 3,
     }).setOrigin(0.5);
     this.bossBarContainer.add(bossLabel);
+    this.stageStatus = this.add.text(width / 2, 120, '', {
+      fontFamily: THEME.typography.pixelFont, fontSize: '10px', color: '#ffc52a', stroke: '#120b08', strokeThickness: 4,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(55);
+    this.objectiveStatus = this.add.text(width / 2, 140, '', {
+      fontFamily: THEME.typography.pixelFont, fontSize: '9px', color: '#f2d49a', stroke: '#120b08', strokeThickness: 3,
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(55);
 
     // 4. RIGHT: Placa de Dinheiro (Moeda) e Caveira (Kills)
     const plaqueW = 250;
@@ -530,8 +590,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   private updateBossBar() {
-    if (!this.bossEnemy) return;
-    const pct = Math.max(0, Math.min(this.bossEnemy.hp / this.bossEnemy.maxHp, 1));
+    if (!this.bossMembers.length) return;
+    const health = remainingBossHp(this.bossMembers);
+    const pct = Math.max(0, Math.min(health.hp / Math.max(1, health.maxHp), 1));
     this.bossHpFill.clear();
     this.bossHpFill.fillStyle(0xdc2626, 1);
     this.bossHpFill.fillRoundedRect(-178, -12, 356 * pct, 24, 4);
@@ -539,7 +600,7 @@ export class GameScene extends Phaser.Scene {
 
   // 1 Second Game Tick
   private onSecondTick() {
-    if (this.isGameOver) return;
+    if (this.isGameOver || this.bossDefeated) return;
     this.gameTimeSeconds++;
 
     // Format timer MM:SS
@@ -553,10 +614,10 @@ export class GameScene extends Phaser.Scene {
       this.updateHpBar();
     }
 
-    // Boss Spawn Check: At 90 seconds (1:30) or 75 kills
-    if (!this.bossSpawned && (this.gameTimeSeconds >= 90 || this.kills >= 75)) {
-      this.spawnSimonGreedwell();
-    }
+    // The encounter lasts 10–15 minutes; kills never skip its timeline.
+    if (!this.bossSpawned && isBossDue(this.stageConfig, this.gameTimeSeconds)) this.spawnStageBoss();
+    this.encounters.tick(this.gameTimeSeconds, this.bossSpawned);
+    this.updateStageStatus();
 
     // Game Director: special waves and elites
     this.runSpawnOrders(this.director.tick(this.gameTimeSeconds, this.enemies.length));
@@ -569,6 +630,7 @@ export class GameScene extends Phaser.Scene {
       color,
       stroke: '#000',
       strokeThickness: 5,
+      align: 'center', wordWrap: { width: Math.max(240, this.scale.width - 60) },
     }).setOrigin(0.5).setScrollFactor(0).setDepth(80);
     this.tweens.add({
       targets: banner,
@@ -579,7 +641,7 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
-  private spawnSimonGreedwell() {
+  private spawnStageBoss() {
     this.bossSpawned = true;
     sounds.playBossWarning();
 
@@ -592,6 +654,7 @@ export class GameScene extends Phaser.Scene {
       color: '#ef4444',
       stroke: '#000',
       strokeThickness: 5,
+      align: 'center', wordWrap: { width: Math.max(240, this.scale.width - 60) },
     }).setOrigin(0.5).setScrollFactor(0).setDepth(80);
 
     this.tweens.add({
@@ -605,36 +668,30 @@ export class GameScene extends Phaser.Scene {
 
     this.bossBarContainer.setVisible(true);
 
-    // Spawn Boss Simon Greedwell
-    const bossSpawn = this.worldMap.spawnPointAround(this.player.x, this.player.y);
-    const spawnX = bossSpawn.x;
-    const spawnY = bossSpawn.y;
-
-    const usesPixellab = hasGreedwellSprites(this);
-    if (usesPixellab) createGreedwellAnims(this);
-    const sprite = usesPixellab
-      ? this.add.sprite(spawnX, spawnY, greedwellFirstFrame('run_east')).setScale(GREEDWELL_SCALE).setDepth(15)
-      : this.add.sprite(spawnX, spawnY, 'boss_greedwell').setScale(1.2).setDepth(15);
-    this.bossEnemy = {
-      sprite,
-      type: 'boss',
-      hp: 2000,
-      maxHp: 2000,
-      speed: 105,
-      damage: 28,
-      xpVal: 150,
-      bountyVal: 10000,
-      throwCooldown: 1200,
-      usesPixellab,
-      animLock: 0,
-    };
-    this.enemies.push(this.bossEnemy);
+    const combat = getBossCombat(this.stage);
+    for (const [index, slug] of combat.slugs.entries()) {
+      const point = this.worldMap.spawnPointAround(this.player.x, this.player.y, 480, 560);
+      const position = this.worldMap.resolve(point.x, point.y + index * 100, 24);
+      const legacy = this.stage === 1 && hasGreedwellSprites(this);
+      if (legacy) createGreedwellAnims(this);
+      const texture = this.stage === 1 ? (legacy ? greedwellFirstFrame('run_east') : 'boss_greedwell') : bossSpriteTexture(this, slug);
+      const sprite = this.add.sprite(position.x, position.y, texture).setScale(legacy ? GREEDWELL_SCALE : this.stage === 1 ? 1.2 : 1.25).setDepth(15);
+      const enemy: Enemy = {
+        sprite, type: 'boss', hp: combat.hp, maxHp: combat.hp,
+        speed: combat.speed, damage: combat.damage, xpVal: 150, bountyVal: 10000,
+        throwCooldown: 1200 + index * 600, usesPixellab: legacy, animLock: 0,
+        bossSlug: this.stage === 1 ? undefined : slug,
+      };
+      this.bossMembers.push(enemy);
+      this.enemies.push(enemy);
+    }
+    this.bossEnemy = this.bossMembers[0];
     this.updateBossBar();
   }
 
   // Wave Spawner
   private spawnWave() {
-    if (this.isGameOver) return;
+    if (this.isGameOver || this.bossDefeated) return;
     this.runSpawnOrders(this.director.waveOrders(this.gameTimeSeconds, this.enemies.length));
   }
 
@@ -646,11 +703,11 @@ export class GameScene extends Phaser.Scene {
 
     for (const order of orders) {
       const base = this.worldMap.spawnPointAround(px, py);
-      for (let i = 0; i < order.count; i++) {
+      for (let i = 0; i < order.count && this.enemies.length < 240; i++) {
         let x: number;
         let y: number;
         if (order.pattern === 'encircle') {
-          const a = (i / order.count) * Math.PI * 2;
+          const a = (i / order.count) * Math.PI * 1.65; // Escape gap remains open.
           x = clampX(px + Math.cos(a) * 650);
           y = clampY(py + Math.sin(a) * 650);
         } else if (order.pattern === 'cluster') {
@@ -667,9 +724,14 @@ export class GameScene extends Phaser.Scene {
   }
 
   private spawnEnemy(kind: EnemyKind, x: number, y: number) {
+    if (this.enemies.length >= 240) return;
     const def = ENEMY_DEFS[kind];
     const hp = def.baseHp + this.gameTimeSeconds * def.hpPerSecond;
-    const sprite = this.enemyPool.acquire(x, y, def.texture, def.scale);
+    const combatTexture = enemySpriteTexture(this, kind);
+    const frameScale = combatTexture ? 64 / this.textures.get(combatTexture).getSourceImage().width : 1;
+    const sprite = this.enemyPool.acquire(x, y, combatTexture ?? def.texture, def.scale * frameScale);
+    const safe = this.worldMap.resolve(x, y, def.radius);
+    sprite.setPosition(safe.x, safe.y);
     if (def.tint) sprite.setTint(def.tint);
     this.enemies.push({
       sprite,
@@ -680,14 +742,119 @@ export class GameScene extends Phaser.Scene {
       damage: def.damage,
       xpVal: def.xp,
       bountyVal: def.bounty,
-      throwCooldown: kind === 'dynamiter' ? 2000 : undefined,
+      throwCooldown: kind === 'dynamiter' ? 2000 : kind === 'rifle_guard' ? 1700 : undefined,
+      combatSprite: !!combatTexture,
+      chargeCooldown: kind === 'longhorn' ? 650 : undefined,
       pooled: true,
       tint: def.tint,
     });
   }
 
+  private updateStageStatus(): void {
+    const remaining = Math.max(0, this.stageConfig.duration - this.gameTimeSeconds);
+    const clock = `${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2, '0')}`;
+    const labels = { arrival: 'CHEGADA', pressure: 'CERCO', surge: 'HORDA', respite: 'RESPIRO', 'last-stand': 'RESISTA', boss: 'PROCURADO' };
+    this.stageStatus.setText(`FASE ${this.stage} • ${labels[stagePhase(this.stageConfig, this.gameTimeSeconds)]} • ${this.bossSpawned ? 'DERROTE O BOSS' : `BOSS EM ${clock}`}`);
+    this.objectiveStatus.setText(this.encounters.objectiveHint());
+  }
+
+  private updateEnemyTactics(e: Enemy, dx: number, dy: number, distance: number, delta: number): void {
+    if ((e.type === 'coyote' || e.type === 'knife_scout') && distance > 100) {
+      const angle = Math.atan2(dy, dx) + Math.sin(this.gameTimeSeconds * 0.8 + e.sprite.x * 0.01) * 0.65;
+      e.dirX = Math.cos(angle); e.dirY = Math.sin(angle);
+    }
+    if (e.type === 'longhorn') {
+      e.chargeCooldown = (e.chargeCooldown ?? 0) - delta;
+      if (e.chargeCooldown <= 0 && !(e.chargeRemaining! > 0) && !(e.chargeWindup! > 0) && distance < 800) {
+        this.startCharge(e, dx, dy);
+        e.chargeCooldown = 5200;
+      }
+    }
+    if ((e.chargeWindup ?? 0) > 0) {
+      e.chargeWindup! -= delta;
+      if (e.chargeWindup! <= 0) { e.chargeRemaining = 1050; e.sprite.clearTint(); }
+    }
+    if ((e.chargeRemaining ?? 0) > 0) {
+      e.chargeRemaining! -= delta;
+      e.dirX = e.chargeX; e.dirY = e.chargeY;
+    }
+  }
+
+  private startCharge(e: Enemy, dx: number, dy: number): void {
+    const dist = Math.hypot(dx, dy) || 1;
+    e.chargeX = dx / dist; e.chargeY = dy / dist;
+    e.chargeWindup = 1100;
+    e.sprite.setTint(0xffc52a);
+    const line = this.add.graphics().setDepth(2);
+    line.lineStyle(28, 0xff791c, 0.22).lineBetween(e.sprite.x, e.sprite.y, e.sprite.x + e.chargeX * 560, e.sprite.y + e.chargeY * 560);
+    this.time.delayedCall(1100, () => line.destroy());
+  }
+
+  private fireHostileBullet(x: number, y: number, angle: number, damage: number, range = 680, axe = false): void {
+    if (this.isGameOver || this.bossDefeated) return;
+    const bullet = this.add.sprite(x, y, axe ? 'stage_axe' : 'proj_bullet').setDepth(8).setTint(axe ? 0xf2d49a : 0xe52b20).setRotation(angle);
+    this.tweens.add({ targets: bullet, x: x + Math.cos(angle) * range, y: y + Math.sin(angle) * range,
+      rotation: axe ? angle + Math.PI * 5 : angle, duration: range / 0.3,
+      onUpdate: (tween: Phaser.Tweens.Tween) => {
+        if (!bullet.active || this.isGameOver || this.bossDefeated) return;
+        if (Math.hypot(this.player.x - bullet.x, this.player.y - bullet.y) < 20) {
+          this.damagePlayer(damage);
+          // stop() defers tween disposal until Phaser finishes updating its properties.
+          tween.stop();
+          bullet.destroy();
+        }
+      }, onComplete: () => bullet.destroy(),
+    });
+  }
+
+  private stageBossAttack(e: Enemy): void {
+    const profile = getBossCombat(this.stage);
+    const x = e.sprite.x, y = e.sprite.y;
+    const dx = this.player.x - x, dy = this.player.y - y;
+    const angle = Math.atan2(dy, dx);
+    e.attackCount = (e.attackCount ?? 0) + 1;
+    switch (profile.attack) {
+      case 'quickdraw':
+        sounds.playRevolver();
+        for (const offset of [-0.16, 0, 0.16]) this.fireHostileBullet(x, y, angle + offset, 20, 780);
+        break;
+      case 'charge':
+        this.startCharge(e, dx, dy);
+        this.fireHostileBullet(x, y, angle, 20, 800);
+        break;
+      case 'dynamite':
+        for (const offset of [-100, 0, 100]) this.enemyThrowDynamite(x, y, offset, (e.attackCount % 2 ? 1 : -1) * 70);
+        break;
+      case 'whip':
+        e.vulnerableUntil = this.time.now + 1300;
+        this.encounters.warn({ x: x + Math.cos(angle) * 100, y: y + Math.sin(angle) * 100, radius: 145 }, 1000, 350, 30);
+        this.showBanner('CHICOTE! ATAQUE QUANDO O ESCUDO BAIXAR', '#ffc52a');
+        break;
+      case 'axes':
+        for (const offset of [-0.45, 0, 0.45]) this.fireHostileBullet(x, y, angle + offset, 25, 620, true);
+        this.encounters.warn({ x, y, radius: 100 }, 850, 450, 25);
+        break;
+      case 'gatling':
+        this.showBanner('GATLING — A MIRA VAI TRAVAR!', '#ff791c');
+        this.encounters.warn({ x: this.player.x, y: this.player.y, radius: 50 }, 1000, 100, 0);
+        for (let i = 0; i < 10; i++) this.time.delayedCall(1000 + i * 90, () => {
+          if (!e.dead && !this.isGameOver && !this.bossDefeated) { sounds.playRevolver(); this.fireHostileBullet(e.sprite.x, e.sprite.y, angle + (i - 4.5) * 0.075, 18, 850); }
+        });
+        break;
+      case 'rifle':
+        sounds.playRifle();
+        for (const offset of [-0.1, 0, 0.1]) this.fireHostileBullet(x, y, angle + offset, 25, 900);
+        if (bossRageMultiplier(e.hp, e.maxHp) < 1) {
+          for (let i = 0; i < 10; i++) this.fireHostileBullet(x, y, i * Math.PI / 5 + e.attackCount * 0.2, 18, 600);
+        }
+        if (e.attackCount % 5 === 0) this.runSpawnOrders([{ kind: 'rifle_guard', count: 4, pattern: 'ring' }]);
+        break;
+      default: this.bossRevolverBarrage(x, y);
+    }
+  }
+
   update(time: number, delta: number) {
-    if (this.isGameOver) return;
+    if (this.isGameOver || this.bossDefeated) return;
 
     this.handlePlayerMovement(delta);
     this.handleWeaponsAutoFire(delta);
@@ -696,6 +863,7 @@ export class GameScene extends Phaser.Scene {
     this.worldMap.update(this.player.x, this.player.y);
     this.updateDrops(delta);
     this.updateFireZones(delta);
+    this.encounters.update(delta);
   }
 
   // 1. Player Movement & Facing Direction
@@ -1091,8 +1259,14 @@ export class GameScene extends Phaser.Scene {
         e.dirY = dy / dist;
       }
 
-      // Facing direction (Pixellab boss has dedicated east/west run cycles)
-      if (e.usesPixellab) {
+      this.updateEnemyTactics(e, dx, dy, dist, delta);
+      // During a charge, the sprite must face the locked movement direction too.
+      const charging = (e.chargeWindup ?? 0) > 0 || (e.chargeRemaining ?? 0) > 0;
+      const faceX = charging ? e.chargeX ?? dx : e.dirX ?? dx;
+      const faceY = charging ? e.chargeY ?? dy : e.dirY ?? dy;
+      if (e.bossSlug) playBossMovement(e.sprite, e.bossSlug, faceX, faceY);
+      else if (e.combatSprite && e.type !== 'boss') playEnemyMovement(e.sprite, e.type, faceX, faceY);
+      else if (e.usesPixellab) {
         if (e.animLock && e.animLock > 0) {
           e.animLock -= delta;
         } else {
@@ -1106,7 +1280,8 @@ export class GameScene extends Phaser.Scene {
       }
 
       if (e.dirX !== undefined && e.dirY !== undefined) {
-        const step = (e.speed * delta) / 1000;
+        const speed = (e.chargeWindup ?? 0) > 0 ? 0 : (e.chargeRemaining ?? 0) > 0 ? 440 : e.type === 'rifle_guard' && dist < 240 ? 0 : e.speed;
+        const step = (speed * delta) / 1000;
         e.sprite.x += e.dirX * step;
         e.sprite.y += e.dirY * step;
 
@@ -1128,7 +1303,7 @@ export class GameScene extends Phaser.Scene {
           }
         }
 
-        const fixed = this.worldMap.resolve(e.sprite.x, e.sprite.y, e.type === 'boss' ? 14 : 8);
+        const fixed = this.worldMap.resolve(e.sprite.x, e.sprite.y, e.type === 'boss' ? (this.stage === 3 ? 25 : 14) : ENEMY_DEFS[e.type].radius);
         e.sprite.x = fixed.x;
         e.sprite.y = fixed.y;
       }
@@ -1149,12 +1324,23 @@ export class GameScene extends Phaser.Scene {
         }
       }
 
-      // Simon Greedwell Dual Revolver Spray
+      if (e.type === 'rifle_guard' && e.throwCooldown !== undefined) {
+        e.throwCooldown -= delta;
+        if (e.throwCooldown <= 0 && dist < 520) {
+          e.throwCooldown = 2600;
+          const angle = Math.atan2(dy, dx);
+          this.encounters.warn({ x: this.player.x, y: this.player.y, radius: 28 }, 650, 100, 0);
+          this.time.delayedCall(650, () => { if (!e.dead && !this.isGameOver && !this.bossDefeated) this.fireHostileBullet(e.sprite.x, e.sprite.y, angle, 14, 380); });
+        }
+      }
+
+      // Stage 1 keeps its established shot timing; other bosses get weapon-specific attacks.
       if (e.type === 'boss' && e.throwCooldown !== undefined) {
         e.throwCooldown -= delta;
         if (e.throwCooldown <= 0) {
-          e.throwCooldown = 1800;
-          if (e.usesPixellab) {
+          e.throwCooldown = getBossCombat(this.stage).cooldown * (this.stage === 1 ? 1 : bossRageMultiplier(e.hp, e.maxHp));
+          if (this.stage !== 1) { this.stageBossAttack(e); }
+          else if (e.usesPixellab) {
             // Brace-and-fire animation; bullets leave on the firing frame
             e.animLock = 650;
             e.sprite.play(greedwellAnimKey('shoot'));
@@ -1174,11 +1360,13 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  private enemyThrowDynamite(x: number, y: number) {
+  private enemyThrowDynamite(x: number, y: number, offsetX = 0, offsetY = 0) {
     sounds.playRicochet();
     const tnt = this.add.sprite(x, y, 'proj_dynamite').setDepth(8);
-    const targetX = this.player.x;
-    const targetY = this.player.y;
+    const targetX = Phaser.Math.Clamp(this.player.x + offsetX, 48, WORLD_W - 48);
+    const targetY = Phaser.Math.Clamp(this.player.y + offsetY, 48, WORLD_H - 48);
+    const warning = this.add.graphics().setDepth(2);
+    warning.lineStyle(2, 0xffc52a, 0.9).strokeCircle(targetX, targetY, 65);
 
     this.tweens.add({
       targets: tnt,
@@ -1188,6 +1376,8 @@ export class GameScene extends Phaser.Scene {
       duration: 800,
       onComplete: () => {
         tnt.destroy();
+        warning.destroy();
+        if (this.isGameOver || this.bossDefeated) return;
         sounds.playExplosion();
         const blast = this.add.graphics().setDepth(20);
         blast.fillStyle(0xdc2626, 0.8);
@@ -1218,9 +1408,11 @@ export class GameScene extends Phaser.Scene {
         x: bx + Math.cos(angle) * 380,
         y: by + Math.sin(angle) * 380,
         duration: 900,
-        onUpdate: () => {
+        onUpdate: (tween: Phaser.Tweens.Tween) => {
+          if (!b.active || this.isGameOver || this.bossDefeated) return;
           if (Math.hypot(this.player.x - b.x, this.player.y - b.y) < 22) {
             this.damagePlayer(18);
+            tween.stop();
             b.destroy();
           }
         },
@@ -1277,16 +1469,16 @@ export class GameScene extends Phaser.Scene {
       if (dist < 28) {
         // Collect drop
         sounds.playCoin();
+        const { packet, exhausted } = takeLootPacket(d);
         if (d.type === 'whiskey') {
           this.hp = Math.min(this.maxHp, this.hp + 30);
           this.updateHpBar();
         } else {
-          this.addXp(Math.round(d.val * this.xpBonus));
-          this.addBounty(d.bounty);
+          this.addXp(Math.round(packet.val * this.xpBonus));
+          this.addBounty(packet.bounty);
         }
 
-        d.sprite.destroy();
-        this.drops.splice(i, 1);
+        if (exhausted) { d.sprite.destroy(); this.drops.splice(i, 1); }
       }
     }
   }
@@ -1311,6 +1503,7 @@ export class GameScene extends Phaser.Scene {
   // Damage Handlers with Critical Hit Calculation
   private damageEnemy(enemy: Enemy, dmg: number) {
     if (enemy.dead) return;
+    if (enemy.type === 'boss' && this.stage === 5 && this.time.now > (enemy.vulnerableUntil ?? 0)) dmg *= 0.45;
 
     // Critical Hit Roll
     const isCrit = Math.random() < this.critChance;
@@ -1367,13 +1560,10 @@ export class GameScene extends Phaser.Scene {
       texture = 'drop_badge';
     }
 
-    const dropSprite = this.add.sprite(enemy.sprite.x, enemy.sprite.y, texture).setScale(1.3).setDepth(4);
-    this.drops.push({
-      sprite: dropSprite,
-      type: dropType,
-      val: enemy.xpVal,
-      bounty: enemy.bountyVal,
-    });
+    if (!mergeLoot(this.drops, { type: dropType, x: enemy.sprite.x, y: enemy.sprite.y, val: enemy.xpVal, bounty: enemy.bountyVal })) {
+      const dropSprite = this.add.sprite(enemy.sprite.x, enemy.sprite.y, texture).setScale(1.3).setDepth(4);
+      this.drops.push({ sprite: dropSprite, type: dropType, val: enemy.xpVal, bounty: enemy.bountyVal });
+    }
 
     // Boss death animation plays on a detached corpse sprite
     if (enemy.type === 'boss' && enemy.usesPixellab) {
@@ -1390,8 +1580,12 @@ export class GameScene extends Phaser.Scene {
     if (enemy.pooled) this.enemyPool.release(enemy.sprite);
     else enemy.sprite.destroy();
 
-    // Check Boss Victory
+    // Both Smith brothers must be defeated; a single death cannot clear stage 4.
     if (enemy.type === 'boss') {
+      this.updateBossBar();
+      this.bossEnemy = this.bossMembers.find(b => !b.dead) ?? null;
+      if (this.bossMembers.some(b => !b.dead)) return;
+      this.bossDefeated = true;
       // Som de derrota do boss (man-screaming.mp3)
       sounds.playBossDefeatedScream();
 
@@ -1407,6 +1601,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private damagePlayer(amount: number) {
+    if (this.isGameOver || this.bossDefeated || amount <= 0) return;
     // Temporary invulnerability after taking a hit
     if (this.time.now < this.invulnUntil) return;
     this.invulnUntil = this.time.now + 600;
