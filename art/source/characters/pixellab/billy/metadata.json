@@ -1,0 +1,95 @@
+{
+  "group_id": "c444a096-8a75-4141-8b40-8b4f06ee009f",
+  "states": [
+    {
+      "character": {
+        "id": "1c70e35a-b0b6-4d47-9dab-baabf19244b1",
+        "name": "Idle",
+        "prompt": "Billy, heroic western playable gunslinger. Preserve supplied sprite identity and proportions, brown cowboy hat, vivid blue suit, white shirt, brown leather ammunition bandolier, brown boots, exactly two classic revolvers one in each hand. Match Steve pixel-art style and low top-down camera. Generate all eight genuinely rotated directions; south faces viewer, north shows back. Maintain anatomical handedness and equipment. Transparent background.",
+        "size": {
+          "width": 256,
+          "height": 256
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "low top-down",
+        "created_at": "2026-10-20T02:29:11.454495+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "south-east": "Idle/rotations/south-east.png",
+          "east": "Idle/rotations/east.png",
+          "north-east": "Idle/rotations/north-east.png",
+          "north": "Idle/rotations/north.png",
+          "north-west": "Idle/rotations/north-west.png",
+          "west": "Idle/rotations/west.png",
+          "south-west": "Idle/rotations/south-west.png"
+        },
+        "animations": {
+          "walking-south-corrected-4-frames": {
+            "south": [
+              "Idle/animations/walking-south-corrected-4-frames/south/frame_000.png",
+              "Idle/animations/walking-south-corrected-4-frames/south/frame_001.png",
+              "Idle/animations/walking-south-corrected-4-frames/south/frame_002.png",
+              "Idle/animations/walking-south-corrected-4-frames/south/frame_003.png"
+            ]
+          },
+          "walking-4-frames": {
+            "south-west": [
+              "Idle/animations/walking-4-frames/south-west/frame_000.png",
+              "Idle/animations/walking-4-frames/south-west/frame_001.png",
+              "Idle/animations/walking-4-frames/south-west/frame_002.png",
+              "Idle/animations/walking-4-frames/south-west/frame_003.png"
+            ],
+            "north-east": [
+              "Idle/animations/walking-4-frames/north-east/frame_000.png",
+              "Idle/animations/walking-4-frames/north-east/frame_001.png",
+              "Idle/animations/walking-4-frames/north-east/frame_002.png",
+              "Idle/animations/walking-4-frames/north-east/frame_003.png"
+            ],
+            "north-west": [
+              "Idle/animations/walking-4-frames/north-west/frame_000.png",
+              "Idle/animations/walking-4-frames/north-west/frame_001.png",
+              "Idle/animations/walking-4-frames/north-west/frame_002.png",
+              "Idle/animations/walking-4-frames/north-west/frame_003.png"
+            ],
+            "south": [
+              "Idle/animations/walking-4-frames/south/frame_000.png",
+              "Idle/animations/walking-4-frames/south/frame_001.png",
+              "Idle/animations/walking-4-frames/south/frame_002.png",
+              "Idle/animations/walking-4-frames/south/frame_003.png"
+            ],
+            "west": [
+              "Idle/animations/walking-4-frames/west/frame_000.png",
+              "Idle/animations/walking-4-frames/west/frame_001.png",
+              "Idle/animations/walking-4-frames/west/frame_002.png",
+              "Idle/animations/walking-4-frames/west/frame_003.png"
+            ],
+            "north": [
+              "Idle/animations/walking-4-frames/north/frame_000.png",
+              "Idle/animations/walking-4-frames/north/frame_001.png",
+              "Idle/animations/walking-4-frames/north/frame_002.png",
+              "Idle/animations/walking-4-frames/north/frame_003.png"
+            ],
+            "south-east": [
+              "Idle/animations/walking-4-frames/south-east/frame_000.png",
+              "Idle/animations/walking-4-frames/south-east/frame_001.png",
+              "Idle/animations/walking-4-frames/south-east/frame_002.png",
+              "Idle/animations/walking-4-frames/south-east/frame_003.png"
+            ],
+            "east": [
+              "Idle/animations/walking-4-frames/east/frame_000.png",
+              "Idle/animations/walking-4-frames/east/frame_001.png",
+              "Idle/animations/walking-4-frames/east/frame_002.png",
+              "Idle/animations/walking-4-frames/east/frame_003.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-10-20T03:00:20.374601"
+}

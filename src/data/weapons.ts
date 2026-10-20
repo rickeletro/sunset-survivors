@@ -123,4 +123,60 @@ export const WEAPONS: Record<string, WeaponDef> = {
       { level: 5, damage: 80, cooldownMs: 200, projectileCount: 3, pierce: 99, speed: 5, range: 150, description: '3 Razor Lassos shred anything that steps near!' },
     ],
   },
+
+  // Armas Evoluídas (Vampire Survivors Style)
+  desperado_fury: {
+    id: 'desperado_fury',
+    name: 'Desperado Fury',
+    icon: 'revolver',
+    sound: 'revolver',
+    type: 'nearest',
+    levels: [
+      { level: 1, damage: 110, cooldownMs: 260, projectileCount: 8, pierce: 4, speed: 750, range: 600, description: 'Saraivada de balas explosivas perfurantes contínuas' },
+    ],
+  },
+
+  blunderbuss_doom: {
+    id: 'blunderbuss_doom',
+    name: 'Doom Blunderbuss',
+    icon: 'shotgun',
+    sound: 'shotgun',
+    type: 'spread',
+    levels: [
+      { level: 1, damage: 105, cooldownMs: 500, projectileCount: 16, pierce: 4, speed: 650, range: 500, description: '16 estilhaços devastadores com raio extremo e repulsão' },
+    ],
+  },
+
+  golden_repeater: {
+    id: 'golden_repeater',
+    name: 'Golden Marshal',
+    icon: 'rifle',
+    sound: 'rifle',
+    type: 'directional',
+    levels: [
+      { level: 1, damage: 380, cooldownMs: 480, projectileCount: 4, pierce: 99, speed: 1100, range: 900, description: 'Linha quádrupla de snipers dourados de perfuração ilimitada' },
+    ],
+  },
+
+  hellfire_keg: {
+    id: 'hellfire_keg',
+    name: 'Hellfire Keg',
+    icon: 'dynamite',
+    sound: 'explosion',
+    type: 'lob',
+    levels: [
+      { level: 1, damage: 450, cooldownMs: 950, projectileCount: 4, pierce: 99, speed: 420, range: 500, description: 'Barris de pólvora que geram explosão maciça e chamas persistentes' },
+    ],
+  },
+
+  cyclone_whip: {
+    id: 'cyclone_whip',
+    name: 'Cyclone Whip',
+    icon: 'lasso',
+    sound: 'revolver',
+    type: 'orbit',
+    levels: [
+      { level: 1, damage: 130, cooldownMs: 160, projectileCount: 4, pierce: 99, speed: 6.5, range: 200, description: '4 laços celestiais gigantescos que aniquilam e magnetizam o cenário' },
+    ],
+  },
 };

@@ -1,0 +1,59 @@
+import { ENEMY_DEFS, EnemyDef, EnemyKind } from '../data/enemies';
+import { getStage, pressureMultiplier, stagePhase, StageConfig } from '../data/stages';
+import type { GameEvents } from './GameEvents';
+
+export type SpawnPattern = 'ring' | 'cluster' | 'encircle';
+export interface SpawnOrder { kind: EnemyKind; count: number; pattern: SpawnPattern; }
+export const MAX_ALIVE = 240;
+
+/** Pure spawn decisions; stage pacing alternates pressure, surges and recovery. */
+export class GameDirector {
+  private nextSpecialAt = 65;
+  private nextEliteAt = 90;
+  private specialIndex = 0;
+  private eliteCount = 0;
+  constructor(private events: GameEvents, private stage: StageConfig = getStage(1), private random = Math.random) {}
+  reset() { this.nextSpecialAt = 65; this.nextEliteAt = 90; this.specialIndex = 0; this.eliteCount = 0; }
+  targetCount(t: number): number {
+    const base = 28 + this.stage.id * 3 + Math.floor(Math.min(t, this.stage.duration) * 0.16);
+    return Math.min(MAX_ALIVE, Math.round(base * pressureMultiplier(stagePhase(this.stage, t))));
+  }
+  intensity(t: number): number { return Math.min(t / this.stage.duration, 1); }
+  waveOrders(t: number, alive: number): SpawnOrder[] {
+    const deficit = Math.min(MAX_ALIVE - alive, this.targetCount(t) - alive);
+    if (deficit <= 0) return [];
+    const batch = Math.min(deficit, 5 + Math.floor(t / 60));
+    const pool = (Object.values(ENEMY_DEFS) as EnemyDef[]).filter(d => (this.stage.enemies[d.kind] ?? 0) > 0 && t >= d.unlockAt);
+    if (!pool.length) return [];
+    const total = pool.reduce((sum, d) => sum + (this.stage.enemies[d.kind] ?? 0), 0);
+    const counts = new Map<EnemyKind, number>();
+    for (let i = 0; i < batch; i++) {
+      let r = this.random() * total;
+      let pick = pool[pool.length - 1];
+      for (const def of pool) { r -= this.stage.enemies[def.kind] ?? 0; if (r <= 0) { pick = def; break; } }
+      counts.set(pick.kind, (counts.get(pick.kind) ?? 0) + 1);
+    }
+    return Array.from(counts, ([kind, count]) => ({ kind, count, pattern: 'ring' }));
+  }
+  tick(t: number, alive: number): SpawnOrder[] {
+    const orders: SpawnOrder[] = [];
+    let room = MAX_ALIVE - alive;
+    const add = (kind: EnemyKind, count: number, pattern: SpawnPattern) => {
+      const accepted = Math.min(Math.max(room, 0), count);
+      if (accepted) { orders.push({ kind, count: accepted, pattern }); room -= accepted; }
+    };
+    if (t >= this.nextSpecialAt) {
+      this.nextSpecialAt = t + (stagePhase(this.stage, t) === 'respite' ? 80 : 65);
+      const ambush = this.specialIndex++ % 2 === 1;
+      this.events.emitSpecialWave({ label: ambush ? 'EMBOSCADA! ENCONTRE UMA BRECHA!' : `ONDA DA FRONTEIRA — ${this.stage.title}` });
+      add(ambush ? 'knife_bandit' : this.stage.signature, 14 + Math.floor(t / 45), ambush ? 'encircle' : 'cluster');
+    }
+    if (t >= this.nextEliteAt && t < this.stage.duration) {
+      this.nextEliteAt = t + 100;
+      this.eliteCount++;
+      if (room > 0) this.events.emitEliteSpawned();
+      add('elite', Math.min(3, 1 + Math.floor(this.eliteCount / 4)), 'ring');
+    }
+    return orders;
+  }
+}

@@ -6,13 +6,18 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "assets:check": "node scripts/audit-assets.mjs --check",
+    "assets:audit": "node scripts/audit-assets.mjs --list",
+    "check": "tsc --noEmit && npm test && npm run assets:check"
   },
   "dependencies": {
     "phaser": "^3.88.2"
   },
   "devDependencies": {
     "typescript": "^5.7.2",
-    "vite": "^6.0.7"
+    "vite": "^6.0.7",
+    "vitest": "^5.0.5"
   }
 }

@@ -1,11 +1,12 @@
+import { THEME } from '../ui/theme/tokens';
+import { createMenuRoot } from '../ui/layout/menuLayout';
 import Phaser from 'phaser';
 import { sounds } from '../audio/SoundManager';
 import { CharacterData } from '../data/characters';
-import { PASSIVES } from '../data/passives';
 import { WEAPONS } from '../data/weapons';
 
 export interface UpgradeChoice {
-  type: 'weapon' | 'passive';
+  type: 'weapon' | 'passive' | 'evolution';
   id: string;
   name: string;
   icon: string;
@@ -39,6 +40,12 @@ const ITEM_LORE: Record<string, { tagline: string; typeLabel: string }> = {
   whiskey: { tagline: 'Liquid grit.\nIron health.', typeLabel: 'Regeneration' },
   bandolier: { tagline: 'Lead rain\nwithout end.', typeLabel: 'Rate of Fire' },
   magnet: { tagline: 'Every nugget\nflies to you.', typeLabel: 'Gold Magnet' },
+  // Evolutions
+  desperado_fury: { tagline: 'MAX POWER.\nNo survivors.', typeLabel: '★ EVOLUTION ★' },
+  blunderbuss_doom: { tagline: 'Hell unleashed.\nPure wreckage.', typeLabel: '★ EVOLUTION ★' },
+  golden_repeater: { tagline: 'Infinite ricochet.\nGolden justice.', typeLabel: '★ EVOLUTION ★' },
+  hellfire_keg: { tagline: 'Scorched earth.\nAshes only.', typeLabel: '★ EVOLUTION ★' },
+  cyclone_whip: { tagline: 'Divine storm.\nVacuum vortex.', typeLabel: '★ EVOLUTION ★' },
 };
 
 export class LevelUpScene extends Phaser.Scene {
@@ -99,12 +106,8 @@ export class LevelUpScene extends Phaser.Scene {
     backdrop.fillRect(0, 0, width, height);
 
     // 2. Reference Resolution Root Container (1536 x 1024)
-    const REF_W = 1536;
-    const REF_H = 1024;
-    const scale = Math.min(width / REF_W, height / REF_H);
 
-    this.rootContainer = this.add.container(width / 2, height / 2);
-    this.rootContainer.setScale(scale);
+    this.rootContainer = createMenuRoot(this);
 
     // 3. Saloon & Desert Background Layer
     this.createBackgroundLayer();
@@ -132,140 +135,168 @@ export class LevelUpScene extends Phaser.Scene {
   }
 
   // -------------------------------------------------------------
-  // BACKGROUND LAYER: Saloon Backdrop, Wooden Beams & Props
+  // BACKGROUND LAYER: Saloon_bkg.png (Western Saloon Interior)
   // -------------------------------------------------------------
   private createBackgroundLayer() {
-    // Backdrop Image
-    if (this.textures.exists('decor_backdrop')) {
-      const bg = this.add.image(0, 0, 'decor_backdrop').setDisplaySize(1536, 1024);
-      this.rootContainer.add(bg);
-    }
+    // 1. Saloon Interior Background (Saloon_bkg.png)
+    const bkgKey = this.textures.exists('saloon_bkg') ? 'saloon_bkg' : 'decor_backdrop';
+    const bg = this.add.image(0, 0, bkgKey).setDisplaySize(1536, 1024);
+    this.rootContainer.add(bg);
 
-    // Dark tint so background doesn't compete with the cards
+    // 2. Dark tint overlay suave para dar foco e legibilidade aos cards de upgrade
     const dimGfx = this.add.graphics();
-    dimGfx.fillStyle(0x120b08, 0.45);
+    dimGfx.fillStyle(0x120b08, 0.35);
     dimGfx.fillRect(-768, -512, 1536, 1024);
     this.rootContainer.add(dimGfx);
 
-    // Saloon Side Beams (Left & Right)
-    if (this.textures.exists('decor_side_beam')) {
-      const beamL = this.add.image(-708, 0, 'decor_side_beam').setDisplaySize(130, 1024);
-      const beamR = this.add.image(708, 0, 'decor_side_beam').setDisplaySize(130, 1024).setFlipX(true);
-      this.rootContainer.add([beamL, beamR]);
+    // 3. Efeito suave de luz âmbar pulsante nas lanternas originais do Saloon
+    if (!this.textures.exists('saloon_lantern_glow')) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 128;
+      canvas.height = 128;
+      const ctx = canvas.getContext('2d')!;
+      const grad = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+      grad.addColorStop(0, 'rgba(255, 235, 120, 0.85)');
+      grad.addColorStop(0.35, 'rgba(255, 170, 30, 0.45)');
+      grad.addColorStop(0.7, 'rgba(255, 100, 10, 0.15)');
+      grad.addColorStop(1, 'rgba(255, 80, 0, 0.0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 128, 128);
+      this.textures.addCanvas('saloon_lantern_glow', canvas);
     }
 
-    // Hanging Lanterns with Amber Light Flicker
-    if (this.textures.exists('decor_lantern')) {
-      const lanternL = this.add.image(-610, -250, 'decor_lantern').setScale(0.78);
-      const lanternR = this.add.image(610, -250, 'decor_lantern').setScale(0.78).setFlipX(true);
-      this.rootContainer.add([lanternL, lanternR]);
+    const lanterns = [
+      { x: -440, y: -255, scale: 1.8 }, // Lanterna principal esquerda
+      { x: 495, y: -270, scale: 1.8 },  // Lanterna principal direita
+      { x: -285, y: -160, scale: 1.1 }, // Lanterna secundária porta esquerda
+      { x: 265, y: -160, scale: 1.1 },  // Lanterna secundária porta direita
+    ];
+
+    lanterns.forEach((coord, i) => {
+      const glow = this.add.image(coord.x, coord.y, 'saloon_lantern_glow');
+      glow.setScale(coord.scale);
+      glow.setBlendMode(Phaser.BlendModes.ADD);
+      glow.setAlpha(0.65);
+      this.rootContainer.add(glow);
 
       this.tweens.add({
-        targets: [lanternL, lanternR],
-        alpha: { from: 0.82, to: 1.0 },
-        duration: 380,
+        targets: glow,
+        alpha: { from: 0.4, to: 0.85 },
+        scaleX: { from: coord.scale * 0.95, to: coord.scale * 1.08 },
+        scaleY: { from: coord.scale * 0.95, to: coord.scale * 1.08 },
+        duration: 220 + i * 80,
         yoyo: true,
         repeat: -1,
         ease: 'Sine.easeInOut',
       });
-    }
-
-    // Saloon Props on floor
-    if (this.textures.exists('decor_barrel')) {
-      const barrelL = this.add.image(-630, 340, 'decor_barrel').setScale(0.72);
-      const barrelR = this.add.image(630, 360, 'decor_barrel').setScale(0.65).setFlipX(true);
-      this.rootContainer.add([barrelL, barrelR]);
-    }
-
-    if (this.textures.exists('decor_rope')) {
-      const ropeL = this.add.image(-570, 380, 'decor_rope').setScale(0.55);
-      this.rootContainer.add(ropeL);
-    }
-
-    if (this.textures.exists('decor_crate')) {
-      const crateR = this.add.image(580, 330, 'decor_crate').setScale(0.65);
-      this.rootContainer.add(crateR);
-    }
-
-    // Cinematic Vignette overlay
-    if (this.textures.exists('decor_vignette')) {
-      const vignette = this.add.image(0, 0, 'decor_vignette').setDisplaySize(1536, 1024).setAlpha(0.65);
-      this.rootContainer.add(vignette);
-    }
+    });
   }
 
   // -------------------------------------------------------------
-  // TOP HUD: Portrait, Level, HP Bar, Gold, Skull Kills
+  // TOP HUD: Portrait, Level, HP Bar, Gold, Skull Kills (Fiel à Referência)
   // -------------------------------------------------------------
   private createTopHUD() {
-    const hudContainer = this.add.container(0, -467);
+    const hudContainer = this.add.container(0, -450);
 
-    // --- LEFT: Hero Portrait & Level & HP Bar ---
-    const portBg = this.add.graphics();
-    portBg.fillStyle(0x23140a, 1);
-    portBg.fillRoundedRect(-665, -24, 48, 48, 5);
-    portBg.lineStyle(2, 0x8b5a2b, 1);
-    portBg.strokeRoundedRect(-665, -24, 48, 48, 5);
-    hudContainer.add(portBg);
-
+    // --- LEFT: Hero Avatar Box com Moldura de Ouro e Rebites ---
     const charId = this.character?.id || 'steve';
-    if (this.textures.exists(`hero_${charId}`)) {
-      const head = this.add.sprite(-641, -4, `hero_${charId}`, 0).setScale(0.55);
-      hudContainer.add(head);
+    const avatarKey = this.textures.exists(`hud_avatar_${charId}`) ? `hud_avatar_${charId}` : 'hud_avatar_steve';
+    
+    if (this.textures.exists(avatarKey)) {
+      const avatarImg = this.add.image(-635, 0, avatarKey).setDisplaySize(92, 98);
+      hudContainer.add(avatarImg);
+    } else {
+      // Fallback procedural
+      const portBg = this.add.graphics();
+      portBg.fillStyle(0x23140a, 1);
+      portBg.fillRoundedRect(-680, -45, 90, 90, 6);
+      portBg.lineStyle(3, 0xffc52a, 1);
+      portBg.strokeRoundedRect(-680, -45, 90, 90, 6);
+      hudContainer.add(portBg);
     }
 
-    // "LV. 12"
-    const lvlText = this.add.text(-605, -22, `LV. ${this.playerLevel}`, {
-      fontFamily: '"Press Start 2P", monospace',
-      fontSize: '13px',
-      color: '#fde047',
+    // "LV. 12" em amarelo arcade acima da barra
+    const lvlText = this.add.text(-565, -38, `LV. ${this.playerLevel}`, {
+      fontFamily: THEME.typography.pixelFont,
+      fontSize: '18px',
+      color: '#ffe066',
       stroke: '#000000',
-      strokeThickness: 3,
+      strokeThickness: 4,
     });
     hudContainer.add(lvlText);
 
-    // Health Bar
-    const barW = 150;
-    const barH = 18;
-    const barX = -605;
-    const barY = -3;
+    // Barra de Vida com Moldura de Madeira e Borda Dourada
+    const barW = 240;
+    const barH = 26;
+    const barX = -565;
+    const barY = -12;
 
     const hpGfx = this.add.graphics();
+    // Fundo escuro
     hpGfx.fillStyle(0x180b06, 1);
-    hpGfx.fillRect(barX, barY, barW, barH);
-    hpGfx.lineStyle(2, 0x48240f, 1);
-    hpGfx.strokeRect(barX, barY, barW, barH);
+    hpGfx.fillRoundedRect(barX, barY, barW, barH, 4);
+    // Moldura dourada / madeira
+    hpGfx.lineStyle(3, 0xf5d6a1, 1);
+    hpGfx.strokeRoundedRect(barX, barY, barW, barH, 4);
 
+    // Preenchimento vermelho vibrante com highlight superior
     const hpPct = Phaser.Math.Clamp(this.hp / Math.max(1, this.maxHp), 0, 1);
-    hpGfx.fillStyle(0xa51e16, 1);
-    hpGfx.fillRect(barX + 2, barY + 2, (barW - 4) * hpPct, barH - 4);
+    const fillW = Math.max(0, (barW - 6) * hpPct);
+    if (fillW > 0) {
+      hpGfx.fillStyle(0xd91414, 1);
+      hpGfx.fillRect(barX + 3, barY + 3, fillW, barH - 6);
+      // Brilho superior
+      hpGfx.fillStyle(0xff6b6b, 0.6);
+      hpGfx.fillRect(barX + 3, barY + 3, fillW, 4);
+    }
     hudContainer.add(hpGfx);
 
-    const hpText = this.add.text(barX + barW / 2, barY + barH / 2, `${this.hp} / ${this.maxHp}`, {
-      fontFamily: '"Press Start 2P", monospace',
-      fontSize: '8px',
-      color: '#ffffff',
-    }).setOrigin(0.5);
-    hudContainer.add(hpText);
-
-    // --- RIGHT: Gold & Kills ---
-    const goldFormatted = `$${String(this.gold).padStart(6, '0')}`;
-    const goldText = this.add.text(490, -14, `🪙 ${goldFormatted}`, {
-      fontFamily: '"Press Start 2P", monospace',
+    // Texto de HP "100 / 100" em branco com contorno preto abaixo da barra
+    const hpText = this.add.text(barX + 4, barY + barH + 6, `${this.hp} / ${this.maxHp}`, {
+      fontFamily: THEME.typography.pixelFont,
       fontSize: '13px',
-      color: '#fde047',
+      color: '#ffffff',
       stroke: '#000000',
       strokeThickness: 3,
     });
+    hudContainer.add(hpText);
+
+    // --- RIGHT: Gold & Kills Plaque ---
+    // Placa de fundo de madeira escura
+    const statsBg = this.add.graphics();
+    statsBg.fillStyle(0x1a0d06, 0.85);
+    statsBg.fillRoundedRect(440, -44, 250, 78, 8);
+    statsBg.lineStyle(2, 0x48240f, 1);
+    statsBg.strokeRoundedRect(440, -44, 250, 78, 8);
+    hudContainer.add(statsBg);
+
+    // 1. Linha da Moeda / Gold
+    if (this.textures.exists('hud_coin_icon')) {
+      const coinImg = this.add.image(468, -24, 'hud_coin_icon').setDisplaySize(30, 30);
+      hudContainer.add(coinImg);
+    }
+    const goldFormatted = `$${String(this.gold).padStart(6, '0')}`;
+    const goldText = this.add.text(495, -31, goldFormatted, {
+      fontFamily: THEME.typography.pixelFont,
+      fontSize: '16px',
+      color: '#ffe066',
+      stroke: '#000000',
+      strokeThickness: 4,
+    });
     hudContainer.add(goldText);
 
+    // 2. Linha da Caveira / Kills
+    if (this.textures.exists('hud_skull_icon')) {
+      const skullImg = this.add.image(468, 12, 'hud_skull_icon').setDisplaySize(26, 28);
+      hudContainer.add(skullImg);
+    }
     const killsFormatted = String(this.kills).padStart(4, '0');
-    const killsText = this.add.text(630, -14, `💀 ${killsFormatted}`, {
-      fontFamily: '"Press Start 2P", monospace',
-      fontSize: '13px',
+    const killsText = this.add.text(495, 4, killsFormatted, {
+      fontFamily: THEME.typography.pixelFont,
+      fontSize: '16px',
       color: '#ffffff',
       stroke: '#000000',
-      strokeThickness: 3,
+      strokeThickness: 4,
     });
     hudContainer.add(killsText);
 
@@ -300,7 +331,7 @@ export class LevelUpScene extends Phaser.Scene {
 
     // "LEVEL UP!" in Rye Woodcut Font
     const titleText = this.add.text(0, -435, 'LEVEL UP!', {
-      fontFamily: '"Rye", serif',
+      fontFamily: THEME.typography.westernFont,
       fontSize: '44px',
       color: '#a51e16',
       stroke: '#1e0d04',
@@ -316,7 +347,7 @@ export class LevelUpScene extends Phaser.Scene {
     }
 
     const bountyText = this.add.text(0, -369, '★ CHOOSE YOUR BOUNTY ★', {
-      fontFamily: '"Press Start 2P", monospace',
+      fontFamily: THEME.typography.pixelFont,
       fontSize: '13px',
       color: '#fff7ed',
       stroke: '#000000',
@@ -369,44 +400,48 @@ export class LevelUpScene extends Phaser.Scene {
         const cardImg = this.add.image(0, 0, cardKey).setDisplaySize(cardW, cardH);
         cardContainer.add(cardImg);
 
-        // 3. Dynamic Aged Parchment Plate for Upgrades (Level 2+)
-        if (!isNew) {
-          const plateW = cardW - 28;
-          const plateH = 118;
-          const plateY = cardH / 2 - plateH / 2 - 16;
+        // 3. Dynamic Aged Parchment Plate for Bonus Description (LV. 1 / New & Upgrades)
+        // Sobrepõe perfeitamente a área inferior do cartaz onde havia o 'LV. 1' original impresso no PNG
+        const plateW = cardW - 24; // 276px de largura
+        const plateH = 126;        // 126px cobrindo de y=95 até y=221
+        const plateY = cardH / 2 - plateH / 2 - 14; // Y = 158
 
-          const plateGfx = this.add.graphics();
-          plateGfx.fillStyle(0xeec185, 1);
-          plateGfx.fillRect(-plateW / 2, plateY - plateH / 2, plateW, plateH);
-          plateGfx.lineStyle(2, 0x3d2314, 1);
-          plateGfx.strokeRect(-plateW / 2, plateY - plateH / 2, plateW, plateH);
-          plateGfx.lineStyle(1, 0x78350f, 0.8);
-          plateGfx.strokeRect(-plateW / 2 + 3, plateY - plateH / 2 + 3, plateW - 6, plateH - 6);
-          cardContainer.add(plateGfx);
+        const plateGfx = this.add.graphics();
+        // Cor de pergaminho envelhecido idêntica à do fundo do cartaz (#efbb77)
+        plateGfx.fillStyle(0xefbb77, 1);
+        plateGfx.fillRect(-plateW / 2, plateY - plateH / 2, plateW, plateH);
+        // Borda entalhada de madeira e linha interna de xilogravura
+        plateGfx.lineStyle(2, 0x3d2314, 1);
+        plateGfx.strokeRect(-plateW / 2, plateY - plateH / 2, plateW, plateH);
+        plateGfx.lineStyle(1, 0x8c531d, 0.7);
+        plateGfx.strokeRect(-plateW / 2 + 3, plateY - plateH / 2 + 3, plateW - 6, plateH - 6);
+        cardContainer.add(plateGfx);
 
-          // Level badge: ★ LV. 2 ★
-          const lvlBadge = this.add.text(0, plateY - 36, `★ LV. ${choice.nextLevel} ★`, {
-            fontFamily: '"Rye", serif',
-            fontSize: '15px',
-            color: '#1a0d00',
-            stroke: '#78350f',
-            strokeThickness: 1,
-            backgroundColor: '#d4a373',
-            padding: { left: 10, right: 10, top: 2, bottom: 2 },
-          }).setOrigin(0.5);
-          cardContainer.add(lvlBadge);
+        // Level badge dinâmico: mostra o nível que o jogador obterá (ex: ★ LV. 1 ★ ou ★ LV. 2 ★)
+        const lvlBadge = this.add.text(0, plateY - 38, `★ LV. ${choice.nextLevel} ★`, {
+          fontFamily: THEME.typography.westernFont,
+          fontSize: '14px',
+          color: '#1a0d00',
+          stroke: '#78350f',
+          strokeThickness: 1,
+          backgroundColor: '#db9d58',
+          padding: { left: 10, right: 10, top: 2, bottom: 2 },
+        }).setOrigin(0.5);
+        cardContainer.add(lvlBadge);
 
-          // Description Text
-          const descText = this.add.text(0, plateY + 12, choice.description, {
-            fontFamily: '"Press Start 2P", monospace',
-            fontSize: '10px',
-            color: '#1f130b',
-            align: 'center',
-            lineSpacing: 4,
-            wordWrap: { width: plateW - 16 },
-          }).setOrigin(0.5);
-          cardContainer.add(descText);
-        }
+        // Texto com a descrição do bônus oferecido (nítido, legível e com peso)
+        const descText = this.add.text(0, plateY + 12, choice.description, {
+          fontFamily: '"Open Sans", "Roboto Slab", sans-serif',
+          fontSize: '13px',
+          fontStyle: 'bold',
+          color: '#21130b',
+          align: 'center',
+          lineSpacing: 3,
+          wordWrap: { width: plateW - 24 },
+        }).setOrigin(0.5);
+        // Garante nitidez máxima no canvas escalado
+        descText.setResolution(2);
+        cardContainer.add(descText);
       } else {
         // Fallback procedural card
         const fallbackBg = this.add.graphics();
@@ -417,7 +452,7 @@ export class LevelUpScene extends Phaser.Scene {
         cardContainer.add(fallbackBg);
 
         const nameText = this.add.text(0, -60, choice.name, {
-          fontFamily: '"Rye", serif',
+          fontFamily: THEME.typography.westernFont,
           fontSize: '20px',
           color: '#8b0e0e',
           align: 'center',
@@ -438,7 +473,7 @@ export class LevelUpScene extends Phaser.Scene {
         : `★ UPGRADE LV. ${choice.nextLevel} ★`;
 
       const ribbonText = this.add.text(0, -cardH / 2 - 3, ribbonTextStr, {
-        fontFamily: '"Press Start 2P", monospace',
+        fontFamily: THEME.typography.pixelFont,
         fontSize: '10px',
         color: '#ffffff',
         stroke: '#000000',
@@ -446,19 +481,28 @@ export class LevelUpScene extends Phaser.Scene {
       }).setOrigin(0.5);
       cardContainer.add(ribbonText);
 
-      // 5. Selected Card Golden Glowing Frame (selected_card_frame.png)
-      let glowFrame: Phaser.GameObjects.Image | Phaser.GameObjects.Graphics;
-      if (this.textures.exists('ui_card_selected_frame')) {
-        glowFrame = this.add.image(0, 0, 'ui_card_selected_frame').setDisplaySize(cardW + 30, cardH + 30);
-      } else {
-        const gfx = this.add.graphics();
-        gfx.lineStyle(6, 0xffc52a, 1);
-        gfx.strokeRoundedRect(-cardW / 2 - 5, -cardH / 2 - 5, cardW + 10, cardH + 10, 10);
-        glowFrame = gfx;
-      }
-      glowFrame.setVisible(false);
-      cardContainer.add(glowFrame);
-      this.cardGlows.push(glowFrame);
+      // 5. Selected Card Golden Fiery Glowing Frame (Fiel à Referência da Imagem)
+      // O contorno dourado brilhante e flamejante envolve o card inteiro e desce abraçando o botão [ CHOOSE ]
+      const glowGraphics = this.add.graphics();
+      const gw = cardW + 12;
+      const gh = cardH + 12;
+      const btnExtraH = 68; // Desce para envolver o botão inferior
+
+      // Camada 1: Halo externo suave amarelo alaranjado
+      glowGraphics.lineStyle(8, 0xff791c, 0.4);
+      glowGraphics.strokeRoundedRect(-gw / 2 - 4, -gh / 2 - 4, gw + 8, gh + btnExtraH + 8, 12);
+
+      // Camada 2: Contorno médio dourado vivo
+      glowGraphics.lineStyle(4, 0xffc52a, 0.95);
+      glowGraphics.strokeRoundedRect(-gw / 2, -gh / 2, gw, gh + btnExtraH, 10);
+
+      // Camada 3: Linha interna de brilho amarelo claro elétrico
+      glowGraphics.lineStyle(2, 0xfff3a0, 0.9);
+      glowGraphics.strokeRoundedRect(-gw / 2 + 2, -gh / 2 + 2, gw - 4, gh + btnExtraH - 4, 8);
+
+      glowGraphics.setVisible(false);
+      cardContainer.add(glowGraphics);
+      this.cardGlows.push(glowGraphics);
 
       // 6. Bottom Selection Button ("[ 1 ] CHOOSE")
       const btnY = cardH / 2 + 32;
@@ -468,7 +512,7 @@ export class LevelUpScene extends Phaser.Scene {
       this.cardButtons.push(btnImg);
 
       const btnText = this.add.text(0, btnY, `[ ${idx + 1} ] CHOOSE`, {
-        fontFamily: '"Press Start 2P", monospace',
+        fontFamily: THEME.typography.pixelFont,
         fontSize: '10px',
         color: '#d97706',
       }).setOrigin(0.5);
@@ -494,81 +538,136 @@ export class LevelUpScene extends Phaser.Scene {
   }
 
   // -------------------------------------------------------------
-  // BOTTOM DETAILS PANEL: Hero Animation, Specs & Lore Note
+  // BOTTOM DETAILS PANEL: Hero Shooting, Specs Table & Lore Note (Fiel à Referência)
   // -------------------------------------------------------------
   private createBottomDetailsPanel() {
-    const panelContainer = this.add.container(0, 385);
+    // Painel posicionado em y=390 (centro inferior)
+    const panelContainer = this.add.container(0, 390);
 
-    // Wood Board Background (details_wood_board.png)
-    if (this.textures.exists('decor_details_board')) {
-      const board = this.add.image(0, 0, 'decor_details_board').setDisplaySize(1360, 175);
-      panelContainer.add(board);
-    } else {
-      const fallback = this.add.graphics();
-      fallback.fillStyle(0x321b10, 0.95);
-      fallback.fillRoundedRect(-680, -85, 1360, 170, 8);
-      fallback.lineStyle(3, 0x8b5a2b, 1);
-      fallback.strokeRoundedRect(-680, -85, 1360, 170, 8);
-      panelContainer.add(fallback);
+    // 1. Prancha de Madeira Rústica Escura com Rebites de Aço nos 4 Cantos
+    // Dimensões: 1040px de largura x 180px de altura
+    const boardW = 1040;
+    const boardH = 180;
+    const boardX = 40; // Levemente deslocado para a direita para dar espaço ao herói na esquerda
+    const woodBoard = this.add.graphics();
+
+    // Sombra projetada
+    woodBoard.fillStyle(0x000000, 0.65);
+    woodBoard.fillRoundedRect(boardX - boardW / 2 + 6, -boardH / 2 + 8, boardW, boardH, 8);
+
+    // Madeira escura de saloon
+    woodBoard.fillStyle(0x24140b, 1);
+    woodBoard.fillRoundedRect(boardX - boardW / 2, -boardH / 2, boardW, boardH, 8);
+
+    // Textura/veios de madeira sutis
+    woodBoard.lineStyle(1, 0x180b06, 0.8);
+    for (let offset = -boardH / 2 + 20; offset < boardH / 2 - 10; offset += 30) {
+      woodBoard.lineBetween(boardX - boardW / 2 + 10, offset, boardX + boardW / 2 - 10, offset);
     }
 
-    // --- LEFT: Animated Hero Sprite ---
+    // Moldura entalhada
+    woodBoard.lineStyle(3, 0x422212, 1);
+    woodBoard.strokeRoundedRect(boardX - boardW / 2, -boardH / 2, boardW, boardH, 8);
+    woodBoard.lineStyle(1, 0x8b5a2b, 0.7);
+    woodBoard.strokeRoundedRect(boardX - boardW / 2 + 4, -boardH / 2 + 4, boardW - 8, boardH - 8, 6);
+
+    // 4 Parafusos / Rebites de Aço nos cantos
+    woodBoard.fillStyle(0xd1d5db, 1);
+    const rivets = [
+      { x: boardX - boardW / 2 + 14, y: -boardH / 2 + 14 },
+      { x: boardX + boardW / 2 - 14, y: -boardH / 2 + 14 },
+      { x: boardX - boardW / 2 + 14, y: boardH / 2 - 14 },
+      { x: boardX + boardW / 2 - 14, y: boardH / 2 - 14 },
+    ];
+    rivets.forEach((r) => {
+      woodBoard.fillCircle(r.x, r.y, 4);
+      woodBoard.lineStyle(1, 0x1f2937, 1);
+      woodBoard.strokeCircle(r.x, r.y, 4);
+    });
+    panelContainer.add(woodBoard);
+
+    // 2. HERÓI NA ESQUERDA: Posicionado do lado de fora/sobrepondo a borda esquerda da prancha
     const charId = this.character?.id || 'steve';
     const heroKey = `hero_${charId}`;
 
     if (this.textures.exists(heroKey)) {
-      // Ground shadow
+      // Sombra sob as botas
       const shadowGfx = this.add.graphics();
-      shadowGfx.fillStyle(0x000000, 0.45);
-      shadowGfx.fillEllipse(-490, 48, 44, 14);
+      shadowGfx.fillStyle(0x000000, 0.5);
+      shadowGfx.fillEllipse(-540, 56, 56, 16);
       panelContainer.add(shadowGfx);
 
-      this.heroSprite = this.add.sprite(-490, 0, heroKey, 0).setScale(1.25);
+      this.heroSprite = this.add.sprite(-540, 6, heroKey, 0).setScale(1.4);
       if (this.anims.exists(`${charId}_run`)) {
         this.heroSprite.play(`${charId}_run`);
       }
       panelContainer.add(this.heroSprite);
+
+      // Muzzle Flash na arma do herói
+      const flashGfx = this.add.graphics();
+      flashGfx.fillStyle(0xffc52a, 0.9);
+      flashGfx.fillTriangle(-505, -12, -485, -20, -485, -4);
+      flashGfx.fillStyle(0xffffff, 0.95);
+      flashGfx.fillTriangle(-505, -12, -490, -16, -490, -8);
+      panelContainer.add(flashGfx);
+
+      this.tweens.add({
+        targets: flashGfx,
+        alpha: { from: 0.2, to: 1.0 },
+        scaleX: { from: 0.9, to: 1.15 },
+        duration: 80,
+        yoyo: true,
+        repeat: -1,
+      });
     }
 
-    // --- CENTER: Item Name & Attributes Table ---
-    this.detailTitleText = this.add.text(-320, -58, '', {
-      fontFamily: '"Rye", serif',
-      fontSize: '24px',
-      color: '#fde047',
-      stroke: '#120b08',
+    // 3. CENTRO: Nome do Item em Dourado Arcade
+    this.detailTitleText = this.add.text(-440, -62, '', {
+      fontFamily: THEME.typography.pixelFont,
+      fontSize: '15px',
+      color: '#ffe066',
+      stroke: '#000000',
       strokeThickness: 3,
     });
     panelContainer.add(this.detailTitleText);
 
-    this.detailStatsText = this.add.text(-320, -25, '', {
-      fontFamily: '"Press Start 2P", monospace',
+    // Tabela de Atributos com alinhamento pixel perfeito
+    this.detailStatsText = this.add.text(-440, -32, '', {
+      fontFamily: THEME.typography.pixelFont,
       fontSize: '10px',
       color: '#fff7ed',
-      lineSpacing: 7,
+      lineSpacing: 8,
     });
     panelContainer.add(this.detailStatsText);
 
-    // --- RIGHT: Small Bounty Parchment Note (small_parchment_note.png) ---
-    if (this.textures.exists('decor_parchment_note')) {
-      const noteImg = this.add.image(500, 0, 'decor_parchment_note').setScale(0.8);
+    // 4. DIREITA: Cartaz de Lore com Rebites e Ilustração da Arma
+    if (this.textures.exists('ref_lore_note')) {
+      const noteImg = this.add.image(410, 0, 'ref_lore_note').setDisplaySize(255, 135);
       panelContainer.add(noteImg);
+    } else {
+      // Fallback estético
+      const noteGfx = this.add.graphics();
+      noteGfx.fillStyle(0xecd8b5, 1);
+      noteGfx.fillRoundedRect(280, -65, 260, 130, 4);
+      noteGfx.lineStyle(2, 0x8b5a2b, 1);
+      noteGfx.strokeRoundedRect(280, -65, 260, 130, 4);
+      panelContainer.add(noteGfx);
     }
 
-    this.detailTaglineText = this.add.text(500, -10, 'Two guns.\nOne legend.', {
-      fontFamily: '"Roboto Slab", serif',
-      fontSize: '15px',
-      fontStyle: 'bold',
-      color: '#21140d',
-      align: 'center',
-      lineSpacing: 4,
+    // Texto de Lore e Estrela sobre o pergaminho
+    this.detailTaglineText = this.add.text(355, -20, 'Two guns.\nOne legend.', {
+      fontFamily: THEME.typography.pixelFont,
+      fontSize: '10px',
+      color: '#1a0d04',
+      align: 'left',
+      lineSpacing: 6,
     }).setOrigin(0.5);
     panelContainer.add(this.detailTaglineText);
 
-    // Decorative Star underneath note
-    const starIcon = this.add.text(500, 32, '★ ★ ★', {
-      fontFamily: '"Press Start 2P", monospace',
-      fontSize: '9px',
-      color: '#a51e16',
+    const starIcon = this.add.text(355, 26, '★', {
+      fontFamily: THEME.typography.pixelFont,
+      fontSize: '14px',
+      color: '#1a0d04',
     }).setOrigin(0.5);
     panelContainer.add(starIcon);
 

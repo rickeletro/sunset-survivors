@@ -1,116 +1,400 @@
+import { preloadImages } from '../assets/registry';
+import { createMenuRoot } from '../ui/layout/menuLayout';
 import Phaser from 'phaser';
 import { sounds } from '../audio/SoundManager';
-import { CharacterData } from '../data/characters';
+import { CharacterData, CHARACTERS } from '../data/characters';
+import { BOSSES, BossData, getBossForStage } from '../data/bosses';
 import { THEME } from '../ui/theme/tokens';
 
 export class WantedScene extends Phaser.Scene {
   private character!: CharacterData;
+  private stage: number = 1;
+  private bossData!: BossData;
+  private rootContainer!: Phaser.GameObjects.Container;
+  private isAdvancing: boolean = false;
 
   constructor() {
     super('WantedScene');
   }
 
-  init(data: { character: CharacterData }) {
-    this.character = data.character;
+  init(data: { character?: CharacterData; stage?: number }) {
+    this.character = data?.character || CHARACTERS.billy;
+    const urlParams = new URLSearchParams(window.location.search);
+    const stageQuery = urlParams.get('stage');
+    this.stage = data?.stage || (stageQuery ? parseInt(stageQuery, 10) : 1);
+    this.bossData = getBossForStage(this.stage);
+  }
+
+  preload() {
+    // Preload all 8 boss posters
+    BOSSES.forEach((boss) => {
+      this.load.image(boss.posterKey, boss.posterPath);
+    });
+
+    // Ensure decor assets are available
+    if (!this.textures.exists('decor_spark')) {
+      preloadImages(this, ['decor_spark']);
+    }
+    if (!this.textures.exists('decor_lantern')) {
+      preloadImages(this, ['decor_lantern']);
+    }
   }
 
   create() {
+    this.isAdvancing = false;
     const { width, height } = this.scale;
 
-    // Wooden Saloon Wall Backdrop
+    // 1. Dark Screen Background
     const bg = this.add.graphics();
-    bg.fillStyle(0x23140a, 1);
+    bg.fillStyle(0x0a0503, 1);
     bg.fillRect(0, 0, width, height);
 
-    // Horizontal wooden planks lines
-    bg.lineStyle(2, 0x140a05, 0.8);
-    for (let y = 0; y < height; y += 40) {
-      bg.lineBetween(0, y, width, y);
+    // 2. Reference Resolution Container (1536 x 1024)
+
+    this.rootContainer = createMenuRoot(this);
+
+    // 3. Assemble Visual Layers
+    this.createSaloonBackdrop();
+    this.createAtmosphericLighting();
+    this.createStageHeader();
+    this.createBossPosterPresentation();
+    this.createHunterPrompt();
+
+    // 4. Input & Auto-advance Handling
+    this.setupInputs();
+
+    // 5. Handle Window Resizing
+
+  }
+
+  // -------------------------------------------------------------
+  // LAYER 1: SALOON WOODEN WALL BACKDROP
+  // -------------------------------------------------------------
+  private createSaloonBackdrop() {
+    const wallGfx = this.add.graphics();
+
+    // Deep rich wood planks
+    wallGfx.fillStyle(0x23140a, 1);
+    wallGfx.fillRect(-768, -512, 1536, 1024);
+
+    // Planks lines & grain textures
+    wallGfx.lineStyle(3, 0x140a05, 0.9);
+    for (let y = -512; y <= 512; y += 48) {
+      wallGfx.lineBetween(-768, y, 768, y);
     }
 
-    // Centered Wanted Poster
-    const posterW = Math.min(width * 0.55, 480);
-    const posterH = Math.min(height * 0.82, 640);
-    const poster = this.add.image(width / 2, height / 2, 'wanted_greedwell');
-    poster.setDisplaySize(posterW, posterH);
-    poster.setScale(0);
+    // Vertical seam offsets
+    wallGfx.lineStyle(2, 0x120804, 0.6);
+    for (let y = -512; y < 512; y += 96) {
+      for (let x = -700; x <= 700; x += 320) {
+        const jitterX = x + ((y / 96) % 2 === 0 ? 0 : 160);
+        wallGfx.lineBetween(jitterX, y, jitterX, y + 48);
+      }
+    }
 
-    // Stage Announcement Banner
-    const stageBanner = this.add.text(width / 2, 40, '★ STAGE 1: OUTLAW CANYON PASS ★', {
+    // Heavy dark vignette edges
+    const vignette = this.add.graphics();
+    vignette.fillStyle(0x000000, 0.45);
+    vignette.fillRect(-768, -512, 180, 1024);
+    vignette.fillRect(588, -512, 180, 1024);
+    vignette.fillRect(-768, -512, 1536, 120);
+    vignette.fillRect(-768, 392, 1536, 120);
+
+    this.rootContainer.add(wallGfx);
+    this.rootContainer.add(vignette);
+  }
+
+  // -------------------------------------------------------------
+  // LAYER 2: LANTERNS & AMBIENT GLOW
+  // -------------------------------------------------------------
+  private createAtmosphericLighting() {
+    // Generate radial glow texture if not existing
+    if (!this.textures.exists('wanted_lantern_glow')) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 128;
+      canvas.height = 128;
+      const ctx = canvas.getContext('2d')!;
+      const grad = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+      grad.addColorStop(0, 'rgba(255, 235, 120, 0.85)');
+      grad.addColorStop(0.35, 'rgba(255, 170, 30, 0.45)');
+      grad.addColorStop(0.7, 'rgba(255, 100, 10, 0.15)');
+      grad.addColorStop(1, 'rgba(255, 80, 0, 0.0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 128, 128);
+      this.textures.addCanvas('wanted_lantern_glow', canvas);
+    }
+
+    const lanterns = [
+      { x: -580, y: -260 },
+      { x: 580, y: -260 },
+    ];
+
+    lanterns.forEach((coord, i) => {
+      // Glow
+      const glow = this.add.image(coord.x, coord.y, 'wanted_lantern_glow');
+      glow.setScale(2.2);
+      glow.setBlendMode(Phaser.BlendModes.ADD);
+      glow.setAlpha(0.65);
+      this.rootContainer.add(glow);
+
+      this.tweens.add({
+        targets: glow,
+        alpha: { from: 0.45, to: 0.85 },
+        scale: { from: 2.1, to: 2.35 },
+        duration: 200 + i * 80,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut',
+      });
+    });
+
+    // Ambient floating dust particles
+    for (let i = 0; i < 15; i++) {
+      const speck = this.add.graphics();
+      speck.fillStyle(0xf5d6a1, Phaser.Math.FloatBetween(0.2, 0.5));
+      speck.fillCircle(0, 0, Phaser.Math.Between(2, 4));
+      speck.setPosition(Phaser.Math.Between(-650, 650), Phaser.Math.Between(-400, 400));
+      this.rootContainer.add(speck);
+
+      this.tweens.add({
+        targets: speck,
+        x: speck.x + Phaser.Math.Between(150, 300),
+        y: speck.y - Phaser.Math.Between(20, 60),
+        alpha: 0,
+        duration: Phaser.Math.Between(3000, 6000),
+        repeat: -1,
+        delay: Phaser.Math.Between(0, 3000),
+      });
+    }
+  }
+
+  // -------------------------------------------------------------
+  // LAYER 3: STAGE & BOSS HEADER BANNER
+  // -------------------------------------------------------------
+  private createStageHeader() {
+    const bannerContainer = this.add.container(0, -425);
+
+    // Carved wood backing plate
+    const plate = this.add.graphics();
+    plate.fillStyle(0x321b10, 0.95);
+    plate.lineStyle(3, 0xffc52a, 1);
+    plate.fillRoundedRect(-420, -32, 840, 64, 8);
+    plate.strokeRoundedRect(-420, -32, 840, 64, 8);
+
+    // Brass corner studs
+    plate.fillStyle(0xffc52a, 1);
+    [-405, 405].forEach((x) => {
+      plate.fillCircle(x, -17, 4);
+      plate.fillCircle(x, 17, 4);
+    });
+    bannerContainer.add(plate);
+
+    // Stage Title
+    const stageTitle = this.add.text(0, 0, `★ ${this.bossData.stageName} ★`, {
       fontFamily: THEME.typography.pixelFont,
-      fontSize: '16px',
-      color: '#ffe066',
-      stroke: '#8b0e0e',
+      fontSize: '18px',
+      color: '#ffc52a',
+      stroke: '#000000',
       strokeThickness: 4,
-    }).setOrigin(0.5).setAlpha(0);
+    }).setOrigin(0.5);
+    bannerContainer.add(stageTitle);
 
-    // Poster Slam / Zoom In Animation
+    this.rootContainer.add(bannerContainer);
+  }
+
+  // -------------------------------------------------------------
+  // LAYER 4: BOSS WANTED POSTER SLAM & BULLET HOLES
+  // -------------------------------------------------------------
+  private createBossPosterPresentation() {
+    const posterW = 480;
+    const posterH = 640;
+    const targetY = -35;
+
+    // Poster Container
+    const posterContainer = this.add.container(0, targetY);
+
+    // Soft drop shadow on wooden wall
+    const shadow = this.add.graphics();
+    shadow.fillStyle(0x000000, 0.65);
+    shadow.fillRoundedRect(-posterW / 2 + 14, -posterH / 2 + 18, posterW, posterH, 8);
+    posterContainer.add(shadow);
+
+    // Boss Poster Image
+    const poster = this.add.image(0, 0, this.bossData.posterKey);
+    poster.setDisplaySize(posterW, posterH);
+    posterContainer.add(poster);
+
+    // Initial state for dramatic slam
+    posterContainer.setScale(2.2);
+    posterContainer.setAlpha(0);
+    this.rootContainer.add(posterContainer);
+
+    // Slam Animation: Flies down and impacts with camera shake & shotgun roar
     this.tweens.add({
-      targets: poster,
-      scaleX: posterW / poster.width,
-      scaleY: posterH / poster.height,
-      duration: 600,
-      ease: 'Back.easeOut',
+      targets: posterContainer,
+      scaleX: 1.0,
+      scaleY: 1.0,
+      alpha: 1.0,
+      duration: 500,
+      ease: 'Power3.easeOut',
       onComplete: () => {
-        sounds.playShotgun();
-        stageBanner.setAlpha(1);
+        // 1. Pistol Shot Sound on Slam & Camera Shake
+        sounds.playPistolShot();
+        this.cameras.main.shake(140, 0.012);
 
-        // Stamp "DEAD OR ALIVE" effect
-        this.time.delayedCall(400, () => {
-          sounds.playRicochet();
-          this.createBulletHole(width / 2 - 120, height / 2 - 80);
-        });
+        // 2. Flying wood dust & spark particles
+        this.spawnImpactParticles(0, targetY);
 
-        this.time.delayedCall(800, () => {
-          sounds.playRicochet();
-          this.createBulletHole(width / 2 + 130, height / 2 + 100);
-        });
+        // 3. Bullet Hole Shots Sequence on Poster (Pinning 4 corners)
+        const bulletHolesData = [
+          { x: -170, y: -240, delay: 320 }, // Top left nail shot
+          { x: 170, y: -240, delay: 640 },  // Top right nail shot
+          { x: 170, y: 240, delay: 960 },   // Bottom right ricochet
+          { x: -170, y: 240, delay: 1280 }, // Bottom left nail shot
+        ];
 
-        // Prompt to start fight
-        const startText = this.add.text(width / 2, height - 35, 'HUNTER: ' + this.character.name + ' - PRESS TO DRAW!', {
-          fontFamily: THEME.typography.pixelFont,
-          fontSize: '12px',
-          color: '#ffffff',
-          stroke: '#000',
-          strokeThickness: 3,
-        }).setOrigin(0.5);
-
-        this.tweens.add({
-          targets: startText,
-          alpha: 0.2,
-          duration: 350,
-          yoyo: true,
-          repeat: -1,
-        });
-
-        const proceed = () => {
-          sounds.playRevolver();
-          this.time.delayedCall(160, () => {
-            sounds.playReload();
+        bulletHolesData.forEach((hole) => {
+          this.time.delayedCall(hole.delay, () => {
+            if (this.isAdvancing) return;
+            sounds.playRevolver();
+            this.time.delayedCall(40, () => sounds.playRicochet());
+            this.cameras.main.shake(80, 0.005);
+            this.createBulletHole(hole.x, hole.y + targetY);
+            this.spawnImpactParticles(hole.x, hole.y + targetY);
           });
-          this.cameras.main.fade(400, 0, 0, 0);
-          this.time.delayedCall(450, () => {
-            this.scene.start('GameScene', { character: this.character });
-          });
-        };
-
-        this.input.once('pointerdown', proceed);
-        this.input.keyboard?.once('keydown-SPACE', proceed);
-        this.input.keyboard?.once('keydown-ENTER', proceed);
-
-        // Auto proceed after 3 seconds if idle
-        this.time.delayedCall(3000, proceed);
+        });
       },
     });
   }
 
+  // -------------------------------------------------------------
+  // LAYER 5: HUNTER PROMPT & CONTROLS
+  // -------------------------------------------------------------
+  private createHunterPrompt() {
+    const bottomContainer = this.add.container(0, 395);
+
+    // Plaque background
+    const bar = this.add.graphics();
+    bar.fillStyle(0x1b120c, 0.95);
+    bar.lineStyle(2, 0x8b5a2b, 1);
+    bar.fillRoundedRect(-460, -32, 920, 64, 6);
+    bar.strokeRoundedRect(-460, -32, 920, 64, 6);
+    bottomContainer.add(bar);
+
+    // Hunter & Draw instruction
+    const hunterText = this.add.text(0, -8, `BOUNTY HUNTER: ${this.character.name.toUpperCase()}`, {
+      fontFamily: THEME.typography.pixelFont,
+      fontSize: '13px',
+      color: '#ffe066',
+      stroke: '#000000',
+      strokeThickness: 3,
+    }).setOrigin(0.5);
+    bottomContainer.add(hunterText);
+
+    const promptText = this.add.text(0, 14, 'PRESS ENTER, SPACE OR CLICK TO DRAW!', {
+      fontFamily: THEME.typography.pixelFont,
+      fontSize: '11px',
+      color: '#ef4444',
+      stroke: '#000000',
+      strokeThickness: 3,
+    }).setOrigin(0.5);
+    bottomContainer.add(promptText);
+
+    // Pulsing arcade blink
+    this.tweens.add({
+      targets: promptText,
+      alpha: 0.25,
+      duration: 380,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
+
+    this.rootContainer.add(bottomContainer);
+  }
+
+  // -------------------------------------------------------------
+  // BULLET HOLES & IMPACT PARTICLES
+  // -------------------------------------------------------------
   private createBulletHole(x: number, y: number) {
     const hole = this.add.graphics();
-    hole.fillStyle(0x1a0f08, 0.95);
-    hole.fillCircle(x, y, 9);
+    // Dark charred center
     hole.fillStyle(0x000000, 1);
-    hole.fillCircle(x, y, 6);
-    hole.lineStyle(2, 0x8b5a2b, 0.7);
-    hole.strokeCircle(x, y, 12);
+    hole.fillCircle(x, y, 7);
+    // Burnt wood rim
+    hole.fillStyle(0x180b05, 0.9);
+    hole.fillCircle(x, y, 10);
+    // Splintered wood edge
+    hole.lineStyle(2, 0xb45309, 0.85);
+    hole.strokeCircle(x, y, 14);
+    this.rootContainer.add(hole);
   }
+
+  private spawnImpactParticles(x: number, y: number) {
+    for (let i = 0; i < 8; i++) {
+      const p = this.add.graphics();
+      p.fillStyle(Phaser.Math.RND.pick([0xffc52a, 0xff791c, 0xf2d49a]), 1);
+      p.fillCircle(0, 0, Phaser.Math.Between(2, 4));
+      p.setPosition(x, y);
+      this.rootContainer.add(p);
+
+      const angle = Phaser.Math.FloatBetween(0, Math.PI * 2);
+      const dist = Phaser.Math.Between(25, 75);
+
+      this.tweens.add({
+        targets: p,
+        x: x + Math.cos(angle) * dist,
+        y: y + Math.sin(angle) * dist,
+        alpha: 0,
+        scale: 0.2,
+        duration: Phaser.Math.Between(250, 450),
+        onComplete: () => p.destroy(),
+      });
+    }
+  }
+
+  // -------------------------------------------------------------
+  // INPUT HANDLING & ADVANCE TO GAME
+  // -------------------------------------------------------------
+  private setupInputs() {
+    // Only allow drawing/advancing after the poster slams down (600ms)
+    this.time.delayedCall(600, () => {
+      if (this.isAdvancing) return;
+      const advance = () => this.advanceToGame();
+
+      this.input.once('pointerdown', advance);
+      this.input.keyboard?.once('keydown-SPACE', advance);
+      this.input.keyboard?.once('keydown-ENTER', advance);
+    });
+
+    // Auto proceed after 10 seconds if player remains idle
+    this.time.delayedCall(10000, () => this.advanceToGame());
+  }
+
+  private advanceToGame() {
+    if (this.isAdvancing) return;
+    this.isAdvancing = true;
+
+    // Gun Reload SFX
+    sounds.playGunReload();
+
+    // Start fast western galloping gameplay music
+    sounds.playGameplayMusic();
+
+    // Golden Arcade Screen Flash
+    this.cameras.main.flash(200, 255, 235, 170);
+    this.cameras.main.fade(450, 0, 0, 0);
+
+    this.time.delayedCall(500, () => {
+
+      this.scene.start('GameScene', {
+        character: this.character,
+        stage: this.stage,
+      });
+    });
+  }
+
+  // -------------------------------------------------------------
+  // RESPONSIVE SCALING HANDLER
+  // -------------------------------------------------------------
 }

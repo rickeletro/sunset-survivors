@@ -6,17 +6,73 @@
 class SoundManager {
   private ctx: AudioContext | null = null;
   private isMuted: boolean = false;
-  private bgmOscillators: OscillatorNode[] = [];
-  private bgmGain: GainNode | null = null;
-  private isBgmPlaying: boolean = false;
+  private musicVolume: number = 0.75;
+  private sfxVolume: number = 0.45;
+  private sfxGainNode: GainNode | null = null;
+
+  constructor() {
+    this.loadVolumeSettings();
+  }
+
+  private loadVolumeSettings() {
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const savedMusic = localStorage.getItem('sunset_survivors_music_volume');
+        if (savedMusic !== null) {
+          const val = parseFloat(savedMusic);
+          if (!isNaN(val)) this.musicVolume = Math.max(0, Math.min(1, val));
+        }
+        const savedSfx = localStorage.getItem('sunset_survivors_sfx_volume');
+        if (savedSfx !== null) {
+          const val = parseFloat(savedSfx);
+          if (!isNaN(val)) this.sfxVolume = Math.max(0, Math.min(1, val));
+        }
+      }
+    } catch {}
+  }
 
   private initContext() {
     if (!this.ctx) {
       const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       this.ctx = new AudioCtx();
+      this.sfxGainNode = this.ctx.createGain();
+      this.sfxGainNode.gain.setValueAtTime(this.isMuted ? 0 : this.sfxVolume, this.ctx.currentTime);
+      this.sfxGainNode.connect(this.ctx.destination);
     }
     if (this.ctx.state === 'suspended') {
       this.ctx.resume();
+    }
+  }
+
+  public getMusicVolume(): number {
+    return this.musicVolume;
+  }
+
+  public setMusicVolume(vol: number) {
+    this.musicVolume = Math.max(0, Math.min(1, vol));
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('sunset_survivors_music_volume', this.musicVolume.toString());
+      }
+    } catch {}
+    if (this.currentBgm) {
+      this.currentBgm.volume = this.isMuted ? 0 : this.musicVolume;
+    }
+  }
+
+  public getSfxVolume(): number {
+    return this.sfxVolume;
+  }
+
+  public setSfxVolume(vol: number) {
+    this.sfxVolume = Math.max(0, Math.min(1, vol));
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('sunset_survivors_sfx_volume', this.sfxVolume.toString());
+      }
+    } catch {}
+    if (this.ctx && this.sfxGainNode) {
+      this.sfxGainNode.gain.setValueAtTime(this.isMuted ? 0 : this.sfxVolume, this.ctx.currentTime);
     }
   }
 
@@ -24,8 +80,15 @@ class SoundManager {
     this.isMuted = !this.isMuted;
     if (this.currentBgm) {
       this.currentBgm.muted = this.isMuted;
-      this.currentBgm.volume = this.isMuted ? 0 : this.bgmVolume;
+      this.currentBgm.volume = this.isMuted ? 0 : this.musicVolume;
     }
+    if (this.ctx && this.sfxGainNode) {
+      this.sfxGainNode.gain.setValueAtTime(this.isMuted ? 0 : this.sfxVolume, this.ctx.currentTime);
+    }
+    return this.isMuted;
+  }
+
+  public getIsMuted(): boolean {
     return this.isMuted;
   }
 
@@ -378,7 +441,115 @@ class SoundManager {
   private currentTrack: 'intro' | 'gameplay' | null = null;
   private introAudio: HTMLAudioElement | null = null;
   private gameplayAudio: HTMLAudioElement | null = null;
-  private bgmVolume: number = 0.55;
+  private pistolAudio: HTMLAudioElement | null = null;
+  private reloadAudio: HTMLAudioElement | null = null;
+  private sfxPistolPool: HTMLAudioElement[] = [];
+  private sfxPistolPoolIndex: number = 0;
+  private sfxScreamAudio: HTMLAudioElement | null = null;
+  private heroVoiceAudios: Map<string, HTMLAudioElement> = new Map();
+
+  // Disparo da arma do jogador (usa public/assets/audio/sfx/pistol-shot.mp3 com pool de polifonia)
+  public playPlayerGunshot() {
+    if (this.isMuted) return;
+    try {
+      if (this.sfxPistolPool.length === 0) {
+        for (let i = 0; i < 6; i++) {
+          const a = new Audio('assets/audio/sfx/pistol-shot.mp3');
+          a.volume = this.sfxVolume;
+          this.sfxPistolPool.push(a);
+        }
+      }
+      const audio = this.sfxPistolPool[this.sfxPistolPoolIndex];
+      this.sfxPistolPoolIndex = (this.sfxPistolPoolIndex + 1) % this.sfxPistolPool.length;
+      audio.currentTime = 0;
+      audio.volume = this.sfxVolume;
+      audio.play().catch(() => {
+        this.playRevolver();
+      });
+    } catch {
+      this.playRevolver();
+    }
+  }
+
+  // Som de tiro ao selecionar jogador na tela de escolha (public/assets/audio/pistol-shot.mp3)
+  public playPistolShot() {
+    if (this.isMuted) return;
+    try {
+      if (!this.pistolAudio) {
+        this.pistolAudio = new Audio('assets/audio/pistol-shot.mp3');
+      }
+      this.pistolAudio.currentTime = 0;
+      this.pistolAudio.volume = this.sfxVolume;
+      this.pistolAudio.play().catch(() => {
+        this.playRevolver();
+      });
+    } catch {
+      this.playRevolver();
+    }
+  }
+
+  // Efeito de carregando arma ao entrar na tela de escolha (public/assets/audio/gun-reload.mp3)
+  public playGunReload() {
+    if (this.isMuted) return;
+    try {
+      if (!this.reloadAudio) {
+        this.reloadAudio = new Audio('assets/audio/gun-reload.mp3');
+      }
+      this.reloadAudio.currentTime = 0;
+      this.reloadAudio.volume = this.sfxVolume;
+      this.reloadAudio.play().catch(() => {
+        this.playReload();
+      });
+    } catch {
+      this.playReload();
+    }
+  }
+
+  // Som ao derrotar o boss (public/assets/audio/sfx/man-screaming.mp3)
+  public playBossDefeatedScream() {
+    if (this.isMuted) return;
+    try {
+      if (!this.sfxScreamAudio) {
+        this.sfxScreamAudio = new Audio('assets/audio/sfx/man-screaming.mp3');
+      }
+      this.sfxScreamAudio.currentTime = 0;
+      this.sfxScreamAudio.volume = this.sfxVolume;
+      this.sfxScreamAudio.play().catch(() => {});
+    } catch {}
+  }
+
+  private currentHeroVoice: HTMLAudioElement | null = null;
+
+  // Interrompe imediatamente qualquer voz de herói tocando
+  public stopHeroVoice() {
+    if (this.currentHeroVoice) {
+      try {
+        this.currentHeroVoice.pause();
+        this.currentHeroVoice.currentTime = 0;
+      } catch {}
+      this.currentHeroVoice = null;
+    }
+  }
+
+  // Voz do herói ao selecioná-lo (public/assets/audio/voices/{characterId}.mp3)
+  // Interrompe imediatamente qualquer voz tocando anteriormente
+  public playHeroVoice(characterId: string) {
+    if (this.isMuted) return;
+    try {
+      this.stopHeroVoice();
+
+      const id = characterId.toLowerCase();
+      let voice = this.heroVoiceAudios.get(id);
+      if (!voice) {
+        voice = new Audio(`assets/audio/voices/${id}.mp3`);
+        this.heroVoiceAudios.set(id, voice);
+      }
+      voice.currentTime = 0;
+      voice.volume = this.sfxVolume;
+      this.currentHeroVoice = voice;
+      voice.play().catch(() => {});
+    } catch {}
+  }
 
   public playIntroMusic() {
     this.playTrack('intro');
@@ -426,7 +597,7 @@ class SoundManager {
       }
     }
 
-    audio.volume = this.isMuted ? 0 : this.bgmVolume;
+    audio.volume = this.isMuted ? 0 : this.musicVolume;
     audio.muted = this.isMuted;
     this.currentBgm = audio;
     this.currentTrack = track;

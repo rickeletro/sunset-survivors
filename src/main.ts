@@ -1,17 +1,65 @@
 import Phaser from 'phaser';
 import { CharacterSelectScene } from './scenes/CharacterSelectScene';
+import { ControlsScene } from './scenes/ControlsScene';
+import { GameCompleteScene } from './scenes/GameCompleteScene';
 import { GameOverScene } from './scenes/GameOverScene';
 import { GameScene } from './scenes/GameScene';
 import { LevelUpScene } from './scenes/LevelUpScene';
+import { PauseScene } from './scenes/PauseScene';
+import { StageClearScene } from './scenes/StageClearScene';
+import { StageIntroScene } from './scenes/StageIntroScene';
+import { StatsScene } from './scenes/StatsScene';
 import { StoryScene } from './scenes/StoryScene';
 import { TitleScene } from './scenes/TitleScene';
+import { UnlockablesScene } from './scenes/UnlockablesScene';
 import { WantedScene } from './scenes/WantedScene';
+
+const allScenes: (typeof Phaser.Scene)[] = [
+  TitleScene,
+  StoryScene,
+  CharacterSelectScene,
+  StageIntroScene,
+  WantedScene,
+  GameScene,
+  LevelUpScene,
+  PauseScene,
+  StageClearScene,
+  GameOverScene,
+  GameCompleteScene,
+  StatsScene,
+  UnlockablesScene,
+  ControlsScene,
+];
+
+// URL parameter quick switcher for standalone scene validation & playtesting
+const urlParams = new URLSearchParams(window.location.search);
+const sceneParam = urlParams.get('scene');
+
+const sceneMap: Record<string, typeof Phaser.Scene> = {
+  stageintro: StageIntroScene,
+  wanted: WantedScene,
+  select: CharacterSelectScene,
+  game: GameScene,
+  pause: PauseScene,
+  clear: StageClearScene,
+  gameover: GameOverScene,
+  complete: GameCompleteScene,
+  stats: StatsScene,
+  unlocks: UnlockablesScene,
+  controls: ControlsScene,
+};
+
+if (sceneParam && sceneMap[sceneParam]) {
+  const target = sceneMap[sceneParam];
+  allScenes.splice(allScenes.indexOf(target), 1);
+  allScenes.unshift(target);
+}
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   parent: 'game-container',
-  width: 960,
-  height: 600,
+  width: 1920,
+  height: 1080,
   pixelArt: true,
   roundPixels: true,
   backgroundColor: '#0a0503',
@@ -26,15 +74,7 @@ const config: Phaser.Types.Core.GameConfig = {
       debug: false,
     },
   },
-  scene: [
-    TitleScene,
-    StoryScene,
-    CharacterSelectScene,
-    WantedScene,
-    GameScene,
-    LevelUpScene,
-    GameOverScene,
-  ],
+  scene: allScenes,
 };
 
 window.addEventListener('DOMContentLoaded', () => {

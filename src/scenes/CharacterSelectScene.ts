@@ -1,6 +1,8 @@
+import { preloadImages } from '../assets/registry';
+import { createMenuRoot } from '../ui/layout/menuLayout';
 import Phaser from 'phaser';
 import { sounds } from '../audio/SoundManager';
-import { CHARACTERS, CharacterData } from '../data/characters';
+import { CHARACTERS } from '../data/characters';
 import { THEME } from '../ui/theme/tokens';
 
 export class CharacterSelectScene extends Phaser.Scene {
@@ -41,25 +43,25 @@ export class CharacterSelectScene extends Phaser.Scene {
   preload() {
     // Safety check: ensure all select assets are loaded if scene launched standalone
     if (!this.textures.exists('select_saloon_backdrop')) {
-      this.load.image('select_saloon_backdrop', 'assets/select_characters/select_saloon_backdrop.png');
+      preloadImages(this, ['select_saloon_backdrop']);
     }
     if (!this.textures.exists('bottom_panel_clean')) {
-      this.load.image('bottom_panel_clean', 'assets/select_characters/bottom_panel_clean.png');
+      preloadImages(this, ['bottom_panel_clean']);
     }
     if (!this.textures.exists('poster_steve')) {
-      this.load.image('poster_steve', 'assets/select_characters/poster_steve.png');
+      preloadImages(this, ['poster_steve']);
     }
     if (!this.textures.exists('poster_billy')) {
-      this.load.image('poster_billy', 'assets/select_characters/poster_billy.png');
+      preloadImages(this, ['poster_billy']);
     }
     if (!this.textures.exists('poster_bob')) {
-      this.load.image('poster_bob', 'assets/select_characters/poster_bob.png');
+      preloadImages(this, ['poster_bob']);
     }
     if (!this.textures.exists('poster_cormano')) {
-      this.load.image('poster_cormano', 'assets/select_characters/poster_cormano.png');
+      preloadImages(this, ['poster_cormano']);
     }
     if (!this.textures.exists('ui_card_selected_frame')) {
-      this.load.image('ui_card_selected_frame', 'assets/ui/selected_card_frame.png');
+      preloadImages(this, ['ui_card_selected_frame']);
     }
   }
 
@@ -80,12 +82,10 @@ export class CharacterSelectScene extends Phaser.Scene {
     bg.fillRect(0, 0, width, height);
 
     // 2. Reference Resolution Root Container (1536 x 1024)
-    const REF_W = 1536;
-    const REF_H = 1024;
-    const scale = Math.min(width / REF_W, height / REF_H);
 
-    this.rootContainer = this.add.container(width / 2, height / 2);
-    this.rootContainer.setScale(scale);
+    const REF_W = THEME.layout.referenceWidth;
+    const REF_H = THEME.layout.referenceHeight;
+    this.rootContainer = createMenuRoot(this);
 
     // 3. Saloon Backdrop Artwork (Authentic 1880s Saloon Wall, Header & Lantern)
     if (this.textures.exists('select_saloon_backdrop')) {
@@ -127,12 +127,15 @@ export class CharacterSelectScene extends Phaser.Scene {
     this.selectIndex(0, false);
 
     // 8. Handle window resizing to keep everything centered and scaled
-    this.scale.on('resize', this.handleResize, this);
+
 
     // 9. Ensure intro soundtrack is playing
     sounds.playIntroMusic();
 
-    // 10. Soft entrance camera fade-in
+    // 10. Efeito de carregando arma ao entrar na tela de escolher o jogador
+    sounds.playGunReload();
+
+    // 11. Soft entrance camera fade-in
     this.cameras.main.fadeIn(350, 0, 0, 0);
   }
 
@@ -146,7 +149,6 @@ export class CharacterSelectScene extends Phaser.Scene {
     const cardBaseY = -32;
 
     this.characterKeys.forEach((key, idx) => {
-      const char = CHARACTERS[key];
       const cx = cardXPositions[idx];
 
       const container = this.add.container(cx, cardBaseY);
@@ -268,7 +270,7 @@ export class CharacterSelectScene extends Phaser.Scene {
 
     // 1. Character Name & Title Header (Rye / Western Woodcut Font)
     this.infoNameTitle = this.add.text(-635, -80, 'STEVE — THE QUICKDRAW GAMBLER', {
-      fontFamily: '"Rye", serif',
+      fontFamily: THEME.typography.westernFont,
       fontSize: '32px',
       color: '#b91c1c',
       stroke: '#3b0b0b',
@@ -313,7 +315,7 @@ export class CharacterSelectScene extends Phaser.Scene {
 
     // 4. Quote Row (Rich Vintage Italic)
     this.infoQuote = this.add.text(-635, 52, '', {
-      fontFamily: '"Rye", serif',
+      fontFamily: THEME.typography.westernFont,
       fontSize: '22px',
       fontStyle: 'italic',
       color: '#702d12',
@@ -414,8 +416,13 @@ export class CharacterSelectScene extends Phaser.Scene {
   // -------------------------------------------------------------
   private selectIndex(idx: number, playSound: boolean = true) {
     this.selectedIndex = idx;
+    const charKey = this.characterKeys[idx];
+
     if (playSound) {
-      sounds.playRevolver();
+      // Efeito de carregando a arma ao selecionar o jogador
+      sounds.playGunReload();
+      // Toca a voz do jogador (cessando imediatamente a anterior)
+      sounds.playHeroVoice(charKey);
     }
 
     const cardWidth = 300;
@@ -500,7 +507,6 @@ export class CharacterSelectScene extends Phaser.Scene {
     });
 
     // Update Bottom Panel info with character data
-    const charKey = this.characterKeys[idx];
     const selectedChar = CHARACTERS[charKey];
 
     // Character title with primary color accent
@@ -545,8 +551,9 @@ export class CharacterSelectScene extends Phaser.Scene {
     const charKey = this.characterKeys[this.selectedIndex];
     const selectedChar = CHARACTERS[charKey];
 
-    // Arcade gunfire confirm sound
-    sounds.playShotgun();
+    // Som de tiro ao selecionar o jogador (pistol-shot.mp3) e voz do herói
+    sounds.playPistolShot();
+    sounds.playHeroVoice(charKey);
 
     // Camera flash (arcade yellow/white burst)
     this.cameras.main.flash(200, 255, 245, 210);
@@ -579,25 +586,15 @@ export class CharacterSelectScene extends Phaser.Scene {
     }
     this.rideOutGlow.alpha = 1;
 
-    // Fade to black and start WantedScene with chosen hero
+    // Fade to black and start WantedScene (cartaz do boss) direto, sem tela de stage
     this.cameras.main.fade(520, 0, 0, 0);
     this.time.delayedCall(560, () => {
-      this.scale.off('resize', this.handleResize, this);
-      this.scene.start('WantedScene', { character: selectedChar });
+
+      this.scene.start('WantedScene', { character: selectedChar, stage: 1 });
     });
   }
 
   // -------------------------------------------------------------
   // RESPONSIVE SCALING HANDLER
   // -------------------------------------------------------------
-  private handleResize() {
-    if (!this.rootContainer || !this.scene.isActive()) return;
-    const { width, height } = this.scale;
-    const REF_W = 1536;
-    const REF_H = 1024;
-    const scale = Math.min(width / REF_W, height / REF_H);
-
-    this.rootContainer.setPosition(width / 2, height / 2);
-    this.rootContainer.setScale(scale);
-  }
 }

@@ -1,0 +1,59 @@
+{
+  "group_id": "d0a6bafd-9141-468a-80ee-ea783ca94c01",
+  "states": [
+    {
+      "character": {
+        "id": "803351ec-6f1d-4d0a-938b-e95d9c6a093f",
+        "name": "Idle",
+        "prompt": "SUNSET SURVIVORS Western Pulp 98, rich late 90s Neo Geo arcade pixel art, warm earthy colors, crisp dark pixel outlines, readable full-body silhouette, low top-down camera, transparent background, no text, no scenery. 64x64 canvas. Scruffy outlaw with battered black hat, purple-brown duster, orange bandana, ammunition belt carrying red dynamite bundles, one bundle with lit fuse in right hand.",
+        "size": {
+          "width": 92,
+          "height": 92
+        },
+        "template_id": "mannequin",
+        "directions": 4,
+        "view": "low top-down",
+        "created_at": "2026-10-20T03:20:20.283517+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "west": "Idle/rotations/west.png",
+          "east": "Idle/rotations/east.png",
+          "north": "Idle/rotations/north.png"
+        },
+        "animations": {
+          "move-attack": {
+            "west": [
+              "Idle/animations/move-attack/west/frame_000.png",
+              "Idle/animations/move-attack/west/frame_001.png",
+              "Idle/animations/move-attack/west/frame_002.png",
+              "Idle/animations/move-attack/west/frame_003.png"
+            ],
+            "east": [
+              "Idle/animations/move-attack/east/frame_000.png",
+              "Idle/animations/move-attack/east/frame_001.png",
+              "Idle/animations/move-attack/east/frame_002.png",
+              "Idle/animations/move-attack/east/frame_003.png"
+            ],
+            "north": [
+              "Idle/animations/move-attack/north/frame_000.png",
+              "Idle/animations/move-attack/north/frame_001.png",
+              "Idle/animations/move-attack/north/frame_002.png",
+              "Idle/animations/move-attack/north/frame_003.png"
+            ],
+            "south": [
+              "Idle/animations/move-attack/south/frame_000.png",
+              "Idle/animations/move-attack/south/frame_001.png",
+              "Idle/animations/move-attack/south/frame_002.png",
+              "Idle/animations/move-attack/south/frame_003.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-10-20T03:31:13.299240"
+}

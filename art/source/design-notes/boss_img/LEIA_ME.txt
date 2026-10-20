@@ -1,0 +1,3 @@
+SUNSET SURVIVORS — 8 cartazes de chefes separados
+
+Recortes individuais da arte original em PNG. Os cartazes possuem textos e recompensas ilustrativos fixos. Para dados dinâmicos no Phaser 3, sobreponha textos renderizados pelo jogo ou use versões sem texto.

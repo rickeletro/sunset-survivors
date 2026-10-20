@@ -1,0 +1,254 @@
+[
+  {
+    "slug": "knife_bandit",
+    "name": "Frontier Knife Bandit",
+    "character_id": "620ee9c1-cd07-4db4-86fc-b1dac649142e",
+    "description": "SUNSET SURVIVORS Western Pulp 98, rich late 90s Neo Geo arcade pixel art, warm earthy colors, crisp dark pixel outlines, readable full-body silhouette, low top-down camera, transparent background, no text, no scenery. 64x64 canvas. Masked outlaw with brown hat, red bandana covering mouth, dusty charcoal waistcoat, cream sleeves, brown boots, one large steel bowie knife in right hand.",
+    "action": "Running forward while brandishing and slashing with one bowie knife, keep the knife held in the right hand, preserve facing direction.",
+    "creation_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 620ee9c1-cd07-4db4-86fc-b1dac649142e\nname: Frontier Knife Bandit\nmode: standard (1 generation)\ndirections: 4\nbody: humanoid\nsize: ~64px character on a 92x92px canvas (standard mode adds ~40% so animations fit)\nstyle: basic shading, single color black outline, high detail\nstatus: processing (~2-3 minutes)\n\nhint: get_character(character_id=\"620ee9c1-cd07-4db4-86fc-b1dac649142e\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "last_status": "status: completed\nid: 620ee9c1-cd07-4db4-86fc-b1dac649142e\nname: Frontier Knife Bandit\nstate_name: Idle\ndirections: 4 (south, east, north, west)\nsize: 92x92px\nview: low top-down\nstyle: basic shading, single color black outline, high detail\ngroup: bf04e109-b931-4a05-8820-3ec11b8fb21e (1 state)\n\nrotations:\n  south: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/620ee9c1-cd07-4db4-86fc-b1dac649142e/rotations/south.png?t=1792466478\n  east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/620ee9c1-cd07-4db4-86fc-b1dac649142e/rotations/east.png?t=1792466478\n  north: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/620ee9c1-cd07-4db4-86fc-b1dac649142e/rotations/north.png?t=1792466478\n  west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/620ee9c1-cd07-4db4-86fc-b1dac649142e/rotations/west.png?t=1792466478\n\nanimations (1 group, 4 total):\n  move-attack \u2014 4 dir (north, south, west, east), 4f 2026-10-20 [type=custom-Running forward while brandish] [group: b3e52715-71cb-4f5c-a97d-c4ff7c237fd4]\n    north: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/620ee9c1-cd07-4db4-86fc-b1dac649142e/animations/713d90fc-3430-4da4-b174-a0a29f8c1da8/north/{i}.png?t=1792466731390 (i=0..3)\n    south: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/620ee9c1-cd07-4db4-86fc-b1dac649142e/animations/d8d9375e-8dd5-4305-b343-7e15de748156/south/{i}.png?t=1792466702462 (i=0..3)\n    west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/620ee9c1-cd07-4db4-86fc-b1dac649142e/animations/c4dc4d6a-254e-466b-b5d2-ec13eab1cc5c/west/{i}.png?t=1792466697577 (i=0..3)\n    east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/620ee9c1-cd07-4db4-86fc-b1dac649142e/animations/fa3577ce-0d5b-4466-8a95-e5f1a141b3e8/east/{i}.png?t=1792466656926 (i=0..3)\n\ndownload: https://api.pixellab.ai/mcp/characters/620ee9c1-cd07-4db4-86fc-b1dac649142e/download\nspritesheet: https://api.pixellab.ai/mcp/characters/620ee9c1-cd07-4db4-86fc-b1dac649142e/spritesheet (this state only \u2014 one uniform-grid sheet PNG + layout JSON, zipped; cells pivot-centred)\n\navailable_animations: backflip, breathing-idle, cross-punch, crouched-walking, crouching, drinking, falling-back-death, fight-stance-idle-8-frames, fireball, flying-kick, front-flip, getting-up, high-kick, hurricane-kick, jumping-1, jumping-2, lead-jab, leg-sweep, picking-up, pull-heavy-object, pushing, roundhouse-kick, running-4-frames, running-6-frames, running-8-frames, running-jump, running-slide, sad-walk, scary-walk, surprise-uppercut, taking-punch, throw-object, two-footed-jump, walk, walk-1, walk-2, walking, walking-10, walking-2, walking-3, walking-4, walking-4-frames, walking-5, walking-6, walking-6-frames, walking-7, walking-8, walking-8-frames, walking-9\n\nactions: animate_character(character_id=\"620ee9c1-cd07-4db4-86fc-b1dac649142e\", ...) | create_character_state(character_id=\"620ee9c1-cd07-4db4-86fc-b1dac649142e\", ...) | delete_animation(character_id=\"620ee9c1-cd07-4db4-86fc-b1dac649142e\", animation_group_id=\"<group>\") | delete_character(character_id=\"620ee9c1-cd07-4db4-86fc-b1dac649142e\")",
+    "animation_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "character: 620ee9c1-cd07-4db4-86fc-b1dac649142e\nanimation: v3 custom (Running forward while brandishing and slashing with one bowie knife, keep the knife held in the right hand, preserve facing direction. Seamless four-frame loop in place. Fixed low top-down camera, transparent background, consistent identity and scale, no camera movement.)\ndirections: south, east, north, west (4 jobs)\njob_ids: south=402a91a9-aba6-4280-8b5c-558b5c02d4a4, east=9ae63e0b-4f6f-4445-831e-eb073c6282d6, north=88cd3e7d-a089-404d-b535-cabd7c77e85f, west=ed3ef45d-06aa-4c5d-892c-eb4f741bfe8d\ngroup: b3e52715-71cb-4f5c-a97d-c4ff7c237fd4\nframes: 4 (reference stripped, keep_first_frame=false)\ncanvas: south 92x92, east 100x100, north 96x96, west 100x100 (frames are stored at this size: the character plus room to move)\ncost: 4 generations (1/dir x 4)\neta: ~2-4 min/direction\n\nhint: get_character(character_id=\"620ee9c1-cd07-4db4-86fc-b1dac649142e\")\nadd more directions to this group: animate_character(character_id=\"620ee9c1-cd07-4db4-86fc-b1dac649142e\", action_description=\"Running forward while brandishing and slashing with one bowie knife, keep the knife held in the right hand, preserve facing direction. Seamless four-frame loop in place. Fixed low top-down camera, transparent background, consistent identity and scale, no camera movement.\", animation_group_id=\"b3e52715-71cb-4f5c-a97d-c4ff7c237fd4\", directions=[...])"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "downloaded": "public/assets/enemies/pixellab/knife_bandit",
+    "verified": {
+      "directions": 4,
+      "frames_per_direction": 4,
+      "animated_frames": 16,
+      "archive_integrity": "passed",
+      "requested_character_size": 64
+    }
+  },
+  {
+    "slug": "knife_scout",
+    "name": "Renegade Knife Scout",
+    "character_id": "cc47fbad-8947-4493-875f-7cfe3393c4a8",
+    "description": "SUNSET SURVIVORS Western Pulp 98, rich late 90s Neo Geo arcade pixel art, warm earthy colors, crisp dark pixel outlines, readable full-body silhouette, low top-down camera, transparent background, no text, no scenery. 64x64 canvas. Fictional indigenous frontier mercenary, long dark hair tied with a plain red headband, practical ochre buckskin tunic, blue sash, leather leggings and moccasins, one steel hunting knife. Athletic adult, respectful grounded design, no feather crown or caricature.",
+    "action": "Running forward while making short forward hunting-knife slashes, weapon remains in the same hand, preserve facing direction.",
+    "creation_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: cc47fbad-8947-4493-875f-7cfe3393c4a8\nname: Renegade Knife Scout\nmode: standard (1 generation)\ndirections: 4\nbody: humanoid\nsize: ~64px character on a 92x92px canvas (standard mode adds ~40% so animations fit)\nstyle: basic shading, single color black outline, high detail\nstatus: processing (~2-3 minutes)\n\nhint: get_character(character_id=\"cc47fbad-8947-4493-875f-7cfe3393c4a8\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "last_status": "status: completed\nid: cc47fbad-8947-4493-875f-7cfe3393c4a8\nname: Renegade Knife Scout\nstate_name: Idle\ndirections: 4 (south, east, north, west)\nsize: 92x92px\nview: low top-down\nstyle: basic shading, single color black outline, high detail\ngroup: 27817c72-575d-4ffa-bd77-9d6eabb583d0 (1 state)\n\nrotations:\n  south: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/cc47fbad-8947-4493-875f-7cfe3393c4a8/rotations/south.png?t=1792466463\n  east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/cc47fbad-8947-4493-875f-7cfe3393c4a8/rotations/east.png?t=1792466463\n  north: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/cc47fbad-8947-4493-875f-7cfe3393c4a8/rotations/north.png?t=1792466463\n  west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/cc47fbad-8947-4493-875f-7cfe3393c4a8/rotations/west.png?t=1792466463\n\nanimations (1 group, 4 total):\n  move-attack \u2014 4 dir (north, south, east, west), 4f 2026-10-20 [type=custom-Running forward while making s] [group: 2b8f09bd-d54f-4fe0-b657-a543415afa61]\n    north: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/cc47fbad-8947-4493-875f-7cfe3393c4a8/animations/771860d1-f9c1-41bf-822f-41a47869d4de/north/{i}.png?t=1792466770969 (i=0..3)\n    south: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/cc47fbad-8947-4493-875f-7cfe3393c4a8/animations/6271e03d-fb56-47ff-837f-aed66c77f57d/south/{i}.png?t=1792466736440 (i=0..3)\n    east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/cc47fbad-8947-4493-875f-7cfe3393c4a8/animations/d0293396-ceb1-473e-acec-1f236291bcaf/east/{i}.png?t=1792466735426 (i=0..3)\n    west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/cc47fbad-8947-4493-875f-7cfe3393c4a8/animations/bad7420a-0611-4aaa-bd80-b96e0ef2005b/west/{i}.png?t=1792466713516 (i=0..3)\n\ndownload: https://api.pixellab.ai/mcp/characters/cc47fbad-8947-4493-875f-7cfe3393c4a8/download\nspritesheet: https://api.pixellab.ai/mcp/characters/cc47fbad-8947-4493-875f-7cfe3393c4a8/spritesheet (this state only \u2014 one uniform-grid sheet PNG + layout JSON, zipped; cells pivot-centred)\n\navailable_animations: backflip, breathing-idle, cross-punch, crouched-walking, crouching, drinking, falling-back-death, fight-stance-idle-8-frames, fireball, flying-kick, front-flip, getting-up, high-kick, hurricane-kick, jumping-1, jumping-2, lead-jab, leg-sweep, picking-up, pull-heavy-object, pushing, roundhouse-kick, running-4-frames, running-6-frames, running-8-frames, running-jump, running-slide, sad-walk, scary-walk, surprise-uppercut, taking-punch, throw-object, two-footed-jump, walk, walk-1, walk-2, walking, walking-10, walking-2, walking-3, walking-4, walking-4-frames, walking-5, walking-6, walking-6-frames, walking-7, walking-8, walking-8-frames, walking-9\n\nactions: animate_character(character_id=\"cc47fbad-8947-4493-875f-7cfe3393c4a8\", ...) | create_character_state(character_id=\"cc47fbad-8947-4493-875f-7cfe3393c4a8\", ...) | delete_animation(character_id=\"cc47fbad-8947-4493-875f-7cfe3393c4a8\", animation_group_id=\"<group>\") | delete_character(character_id=\"cc47fbad-8947-4493-875f-7cfe3393c4a8\")",
+    "animation_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "character: cc47fbad-8947-4493-875f-7cfe3393c4a8\nanimation: v3 custom (Running forward while making short forward hunting-knife slashes, weapon remains in the same hand, preserve facing direction. Seamless four-frame loop in place. Fixed low top-down camera, transparent background, consistent identity and scale, no camera movement.)\ndirections: south, east, north, west (4 jobs)\njob_ids: south=b7bfd242-7d5e-407e-9dc3-4eb0944a595c, east=757dbdcb-5584-4d95-8036-52a4b64ffb25, north=4ea088d0-b139-45ea-bd46-6df9f5ee0bbb, west=f5f5b63b-574f-422d-9c64-b12a7eeb6803\ngroup: 2b8f09bd-d54f-4fe0-b657-a543415afa61\nframes: 4 (reference stripped, keep_first_frame=false)\ncanvas: south 92x92, east 100x100, north 96x96, west 100x100 (frames are stored at this size: the character plus room to move)\ncost: 4 generations (1/dir x 4)\neta: ~2-4 min/direction\n\nhint: get_character(character_id=\"cc47fbad-8947-4493-875f-7cfe3393c4a8\")\nadd more directions to this group: animate_character(character_id=\"cc47fbad-8947-4493-875f-7cfe3393c4a8\", action_description=\"Running forward while making short forward hunting-knife slashes, weapon remains in the same hand, preserve facing direction. Seamless four-frame loop in place. Fixed low top-down camera, transparent background, consistent identity and scale, no camera movement.\", animation_group_id=\"2b8f09bd-d54f-4fe0-b657-a543415afa61\", directions=[...])"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "downloaded": "public/assets/enemies/pixellab/knife_scout",
+    "verified": {
+      "directions": 4,
+      "frames_per_direction": 4,
+      "animated_frames": 16,
+      "archive_integrity": "passed",
+      "requested_character_size": 64
+    }
+  },
+  {
+    "slug": "coyote",
+    "name": "Desert Coyote",
+    "character_id": "ddff6b19-98e2-467c-aed6-ff610cae10d7",
+    "description": "SUNSET SURVIVORS Western Pulp 98, rich late 90s Neo Geo arcade pixel art, warm earthy colors, crisp dark pixel outlines, readable full-body silhouette, low top-down camera, transparent background, no text, no scenery. 64x64 canvas. Lean wild desert coyote, sandy gray fur, darker back, pointed ears, narrow muzzle, bushy dark-tipped tail, quadruped with four legs. No clothing or weapons.",
+    "action": "A coyote running forward in a natural four-legged gait, ears alert, tail follows its motion, preserve facing direction.",
+    "creation_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: ddff6b19-98e2-467c-aed6-ff610cae10d7\nname: Desert Coyote\nmode: standard (1 generation)\ndirections: 4\nbody: quadruped (dog)\nsize: ~64px character on a 92x92px canvas (standard mode adds ~40% so animations fit)\nstyle: basic shading, single color black outline, high detail\nstatus: processing (~2-3 minutes)\n\nhint: get_character(character_id=\"ddff6b19-98e2-467c-aed6-ff610cae10d7\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "last_status": "status: completed\nid: ddff6b19-98e2-467c-aed6-ff610cae10d7\nname: Desert Coyote\nstate_name: Idle\ndirections: 4 (south, east, north, west)\nsize: 92x92px\nview: low top-down\nstyle: basic shading, single color black outline, high detail\ngroup: f79257c2-9463-4f3a-a917-4f3003098108 (1 state)\n\nrotations:\n  south: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/ddff6b19-98e2-467c-aed6-ff610cae10d7/rotations/south.png?t=1792466490\n  east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/ddff6b19-98e2-467c-aed6-ff610cae10d7/rotations/east.png?t=1792466490\n  north: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/ddff6b19-98e2-467c-aed6-ff610cae10d7/rotations/north.png?t=1792466490\n  west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/ddff6b19-98e2-467c-aed6-ff610cae10d7/rotations/west.png?t=1792466490\n\nanimations (1 group, 4 total):\n  move-attack \u2014 4 dir (east, west, south, north), 4f 2026-10-20 [type=custom-A coyote running forward in a ] [group: 774157d9-7b8a-4725-8460-68bd2bd86b9e]\n    east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/ddff6b19-98e2-467c-aed6-ff610cae10d7/animations/4a412c43-c918-4bce-bcb3-1e80e8aacc5d/east/{i}.png?t=1792466901380 (i=0..3)\n    west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/ddff6b19-98e2-467c-aed6-ff610cae10d7/animations/c8845f6c-c4d7-4f20-aa54-3f8b821cf588/west/{i}.png?t=1792466886913 (i=0..3)\n    south: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/ddff6b19-98e2-467c-aed6-ff610cae10d7/animations/7360a288-8196-4e91-b919-3e6edf838bde/south/{i}.png?t=1792466873542 (i=0..3)\n    north: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/ddff6b19-98e2-467c-aed6-ff610cae10d7/animations/ae65f597-b3d3-424d-b5b4-d2b060775335/north/{i}.png?t=1792466868978 (i=0..3)\n\ndownload: https://api.pixellab.ai/mcp/characters/ddff6b19-98e2-467c-aed6-ff610cae10d7/download\nspritesheet: https://api.pixellab.ai/mcp/characters/ddff6b19-98e2-467c-aed6-ff610cae10d7/spritesheet (this state only \u2014 one uniform-grid sheet PNG + layout JSON, zipped; cells pivot-centred)\n\navailable_animations: bark, fast-walk, idle, running-4-frames, running-6-frames, running-8-frames, sneaking, walk-4-frames, walk-6-frames, walk-8-frames\n\nactions: animate_character(character_id=\"ddff6b19-98e2-467c-aed6-ff610cae10d7\", ...) | create_character_state(character_id=\"ddff6b19-98e2-467c-aed6-ff610cae10d7\", ...) | delete_animation(character_id=\"ddff6b19-98e2-467c-aed6-ff610cae10d7\", animation_group_id=\"<group>\") | delete_character(character_id=\"ddff6b19-98e2-467c-aed6-ff610cae10d7\")",
+    "animation_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "character: ddff6b19-98e2-467c-aed6-ff610cae10d7\nanimation: v3 custom (A coyote running forward in a natural four-legged gait, ears alert, tail follows its motion, preserve facing direction. Seamless four-frame loop in place. Fixed low top-down camera, transparent background, consistent identity and scale, no camera movement.)\ndirections: south, east, north, west (4 jobs)\njob_ids: south=d3421efa-13a4-4741-94bd-599561bcc12a, east=ca63fee0-f78d-4ed4-9dc2-227e7b00069d, north=2c839958-8536-4cc6-8ab4-f333526cdfeb, west=264b1eec-c954-4bd0-b5ce-b45a54a4c44f\ngroup: 774157d9-7b8a-4725-8460-68bd2bd86b9e\nframes: 4 (reference stripped, keep_first_frame=false)\ncanvas: south 100x100, east 116x116, north 96x96, west 120x120 (frames are stored at this size: the character plus room to move)\ncost: 4 generations (1/dir x 4)\neta: ~2-4 min/direction\n\nhint: get_character(character_id=\"ddff6b19-98e2-467c-aed6-ff610cae10d7\")\nadd more directions to this group: animate_character(character_id=\"ddff6b19-98e2-467c-aed6-ff610cae10d7\", action_description=\"A coyote running forward in a natural four-legged gait, ears alert, tail follows its motion, preserve facing direction. Seamless four-frame loop in place. Fixed low top-down camera, transparent background, consistent identity and scale, no camera movement.\", animation_group_id=\"774157d9-7b8a-4725-8460-68bd2bd86b9e\", directions=[...])"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "downloaded": "public/assets/enemies/pixellab/coyote",
+    "verified": {
+      "directions": 4,
+      "frames_per_direction": 4,
+      "animated_frames": 16,
+      "archive_integrity": "passed",
+      "requested_character_size": 64
+    }
+  },
+  {
+    "slug": "dynamite_outlaw",
+    "name": "Dynamite Outlander",
+    "character_id": "803351ec-6f1d-4d0a-938b-e95d9c6a093f",
+    "description": "SUNSET SURVIVORS Western Pulp 98, rich late 90s Neo Geo arcade pixel art, warm earthy colors, crisp dark pixel outlines, readable full-body silhouette, low top-down camera, transparent background, no text, no scenery. 64x64 canvas. Scruffy outlaw with battered black hat, purple-brown duster, orange bandana, ammunition belt carrying red dynamite bundles, one bundle with lit fuse in right hand.",
+    "action": "Jogging forward while drawing and throwing a red dynamite bundle in its facing direction, wind-up release and follow-through, tiny fuse sparks, no explosion, preserve facing direction.",
+    "creation_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 803351ec-6f1d-4d0a-938b-e95d9c6a093f\nname: Dynamite Outlander\nmode: standard (1 generation)\ndirections: 4\nbody: humanoid\nsize: ~64px character on a 92x92px canvas (standard mode adds ~40% so animations fit)\nstyle: basic shading, single color black outline, high detail\nstatus: processing (~2-3 minutes)\n\nhint: get_character(character_id=\"803351ec-6f1d-4d0a-938b-e95d9c6a093f\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "last_status": "status: completed\nid: 803351ec-6f1d-4d0a-938b-e95d9c6a093f\nname: Dynamite Outlander\nstate_name: Idle\ndirections: 4 (south, east, north, west)\nsize: 92x92px\nview: low top-down\nstyle: basic shading, single color black outline, high detail\ngroup: d0a6bafd-9141-468a-80ee-ea783ca94c01 (1 state)\n\nrotations:\n  south: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/803351ec-6f1d-4d0a-938b-e95d9c6a093f/rotations/south.png?t=1792466481\n  east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/803351ec-6f1d-4d0a-938b-e95d9c6a093f/rotations/east.png?t=1792466481\n  north: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/803351ec-6f1d-4d0a-938b-e95d9c6a093f/rotations/north.png?t=1792466481\n  west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/803351ec-6f1d-4d0a-938b-e95d9c6a093f/rotations/west.png?t=1792466481\n\nanimations (1 group, 4 total):\n  move-attack \u2014 4 dir (south, east, north, west), 4f 2026-10-20 [type=custom-Jogging forward while drawing ] [group: 1e6afcff-3f7a-4cdb-8c7c-31d84f2f190c]\n    south: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/803351ec-6f1d-4d0a-938b-e95d9c6a093f/animations/e5862b77-36a4-49bf-b0f2-62f7d2a3d8cf/south/{i}.png?t=1792467043195 (i=0..3)\n    east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/803351ec-6f1d-4d0a-938b-e95d9c6a093f/animations/8f6574d6-0966-4bcf-a919-824db2db5433/east/{i}.png?t=1792467039575 (i=0..3)\n    north: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/803351ec-6f1d-4d0a-938b-e95d9c6a093f/animations/cefbd362-6f00-4c15-98ce-3144c2d1cb43/north/{i}.png?t=1792467025103 (i=0..3)\n    west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/803351ec-6f1d-4d0a-938b-e95d9c6a093f/animations/144a0d77-52d6-47dc-a80c-1d285896b391/west/{i}.png?t=1792467022959 (i=0..3)\n\ndownload: https://api.pixellab.ai/mcp/characters/803351ec-6f1d-4d0a-938b-e95d9c6a093f/download\nspritesheet: https://api.pixellab.ai/mcp/characters/803351ec-6f1d-4d0a-938b-e95d9c6a093f/spritesheet (this state only \u2014 one uniform-grid sheet PNG + layout JSON, zipped; cells pivot-centred)\n\navailable_animations: backflip, breathing-idle, cross-punch, crouched-walking, crouching, drinking, falling-back-death, fight-stance-idle-8-frames, fireball, flying-kick, front-flip, getting-up, high-kick, hurricane-kick, jumping-1, jumping-2, lead-jab, leg-sweep, picking-up, pull-heavy-object, pushing, roundhouse-kick, running-4-frames, running-6-frames, running-8-frames, running-jump, running-slide, sad-walk, scary-walk, surprise-uppercut, taking-punch, throw-object, two-footed-jump, walk, walk-1, walk-2, walking, walking-10, walking-2, walking-3, walking-4, walking-4-frames, walking-5, walking-6, walking-6-frames, walking-7, walking-8, walking-8-frames, walking-9\n\nactions: animate_character(character_id=\"803351ec-6f1d-4d0a-938b-e95d9c6a093f\", ...) | create_character_state(character_id=\"803351ec-6f1d-4d0a-938b-e95d9c6a093f\", ...) | delete_animation(character_id=\"803351ec-6f1d-4d0a-938b-e95d9c6a093f\", animation_group_id=\"<group>\") | delete_character(character_id=\"803351ec-6f1d-4d0a-938b-e95d9c6a093f\")",
+    "animation_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "character: 803351ec-6f1d-4d0a-938b-e95d9c6a093f\nanimation: v3 custom (Jogging forward while drawing and throwing a red dynamite bundle in its facing direction, wind-up release and follow-through, tiny fuse sparks, no explosion, preserve facing direction. Seamless four-frame loop in place. Fixed low top-down camera, transparent background, consistent identity and scale, no camera movement.)\ndirections: south, east, north, west (4 jobs)\njob_ids: south=b793c8f1-f098-463f-bdbc-3aaba4502788, east=b645fd39-1494-45f5-b685-d59e61bd57a6, north=86d5cdea-37f0-42dc-b158-e3cdd8275a9f, west=a7508515-242c-4f85-a3e7-8807d776bea1\ngroup: 1e6afcff-3f7a-4cdb-8c7c-31d84f2f190c\nframes: 4 (reference stripped, keep_first_frame=false)\ncanvas: south 96x96, east 104x104, north 96x96, west 104x104 (frames are stored at this size: the character plus room to move)\ncost: 4 generations (1/dir x 4)\neta: ~2-4 min/direction\n\nhint: get_character(character_id=\"803351ec-6f1d-4d0a-938b-e95d9c6a093f\")\nadd more directions to this group: animate_character(character_id=\"803351ec-6f1d-4d0a-938b-e95d9c6a093f\", action_description=\"Jogging forward while drawing and throwing a red dynamite bundle in its facing direction, wind-up release and follow-through, tiny fuse sparks, no explosion, preserve facing direction. Seamless four-frame loop in place. Fixed low top-down camera, transparent background, consistent identity and scale, no camera movement.\", animation_group_id=\"1e6afcff-3f7a-4cdb-8c7c-31d84f2f190c\", directions=[...])"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "downloaded": "public/assets/enemies/pixellab/dynamite_outlaw",
+    "verified": {
+      "directions": 4,
+      "frames_per_direction": 4,
+      "animated_frames": 16,
+      "archive_integrity": "passed",
+      "requested_character_size": 64
+    }
+  },
+  {
+    "slug": "longhorn",
+    "name": "Longhorn Stampede Bull",
+    "character_id": "28104f90-783c-424b-bc61-76c73aa72873",
+    "description": "SUNSET SURVIVORS Western Pulp 98, rich late 90s Neo Geo arcade pixel art, warm earthy colors, crisp dark pixel outlines, readable full-body silhouette, low top-down camera, transparent background, no text, no scenery. 64x64 canvas. Powerful Texas longhorn bull, dark reddish brown coat, broad pale horns, cream muzzle, heavy shoulders, four hooves and tufted tail, no rider or equipment. Entire horns fit inside canvas.",
+    "action": "Charging forward with a natural powerful four-legged gallop, head lowered, horns stable and visible, preserve facing direction.",
+    "creation_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 28104f90-783c-424b-bc61-76c73aa72873\nname: Longhorn Stampede Bull\nmode: standard (1 generation)\ndirections: 4\nbody: quadruped (horse)\nsize: ~64px character on a 92x92px canvas (standard mode adds ~40% so animations fit)\nstyle: basic shading, single color black outline, high detail\nstatus: processing (~2-3 minutes)\n\nhint: get_character(character_id=\"28104f90-783c-424b-bc61-76c73aa72873\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "last_status": "status: completed\nid: 28104f90-783c-424b-bc61-76c73aa72873\nname: Longhorn Stampede Bull\nstate_name: Idle\ndirections: 4 (south, east, north, west)\nsize: 92x92px\nview: low top-down\nstyle: basic shading, single color black outline, high detail\ngroup: 4b731588-a779-498d-a906-08b30f6e728c (1 state)\n\nrotations:\n  south: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/28104f90-783c-424b-bc61-76c73aa72873/rotations/south.png?t=1792466521\n  east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/28104f90-783c-424b-bc61-76c73aa72873/rotations/east.png?t=1792466521\n  north: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/28104f90-783c-424b-bc61-76c73aa72873/rotations/north.png?t=1792466521\n  west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/28104f90-783c-424b-bc61-76c73aa72873/rotations/west.png?t=1792466521\n\nanimations (1 group, 4 total):\n  move-attack \u2014 4 dir (east, south, west, north), 4f 2026-10-20 [type=custom-Charging forward with a natura] [group: ace78e0c-db97-43cc-8efe-8a3a054ee2d7]\n    east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/28104f90-783c-424b-bc61-76c73aa72873/animations/722e7d7f-e29d-4675-be4d-248b51a82cca/east/{i}.png?t=1792466935994 (i=0..3)\n    south: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/28104f90-783c-424b-bc61-76c73aa72873/animations/80c2fa45-df79-4210-991a-3568f765e7f2/south/{i}.png?t=1792466915668 (i=0..3)\n    west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/28104f90-783c-424b-bc61-76c73aa72873/animations/7d51b0cb-1e91-4c7c-8f9a-2d8ed0f41fa5/west/{i}.png?t=1792466904336 (i=0..3)\n    north: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/28104f90-783c-424b-bc61-76c73aa72873/animations/5226faf4-01b7-4764-90a1-df3da17a4230/north/{i}.png?t=1792466895532 (i=0..3)\n\ndownload: https://api.pixellab.ai/mcp/characters/28104f90-783c-424b-bc61-76c73aa72873/download\nspritesheet: https://api.pixellab.ai/mcp/characters/28104f90-783c-424b-bc61-76c73aa72873/spritesheet (this state only \u2014 one uniform-grid sheet PNG + layout JSON, zipped; cells pivot-centred)\n\navailable_animations: attack, attack-back, dying, eat-end, eat-start, eating, hit-left, hit-right, idle-shaking-head, lie-down, rest-cycle, rest-idle, running-4-frames, running-6-frames, running-8-frames, running-headbutt, running-turn-left, running-turn-right, sleep-cycle, stand-up, start-sleep, swimming, wake-up, walk-4-frames, walk-6-frames, walk-8-frames, walk-turn-left, walk-turn-right\n\nactions: animate_character(character_id=\"28104f90-783c-424b-bc61-76c73aa72873\", ...) | create_character_state(character_id=\"28104f90-783c-424b-bc61-76c73aa72873\", ...) | delete_animation(character_id=\"28104f90-783c-424b-bc61-76c73aa72873\", animation_group_id=\"<group>\") | delete_character(character_id=\"28104f90-783c-424b-bc61-76c73aa72873\")",
+    "animation_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "character: 28104f90-783c-424b-bc61-76c73aa72873\nanimation: v3 custom (Charging forward with a natural powerful four-legged gallop, head lowered, horns stable and visible, preserve facing direction. Seamless four-frame loop in place. Fixed low top-down camera, transparent background, consistent identity and scale, no camera movement.)\ndirections: south, east, north, west (4 jobs)\njob_ids: south=e2c1e05d-5aa9-479f-a8f9-f517cffd952d, east=05d9f790-a686-4eda-8507-b231e6cbe9a8, north=0184ffae-638a-4dad-bfb6-f2202f32ef3d, west=0741c39b-b7ea-4f69-a57e-51fc651bb8ff\ngroup: ace78e0c-db97-43cc-8efe-8a3a054ee2d7\nframes: 4 (reference stripped, keep_first_frame=false)\ncanvas: south 92x92, east 104x104, north 96x96, west 104x104 (frames are stored at this size: the character plus room to move)\ncost: 4 generations (1/dir x 4)\neta: ~2-4 min/direction\n\nhint: get_character(character_id=\"28104f90-783c-424b-bc61-76c73aa72873\")\nadd more directions to this group: animate_character(character_id=\"28104f90-783c-424b-bc61-76c73aa72873\", action_description=\"Charging forward with a natural powerful four-legged gallop, head lowered, horns stable and visible, preserve facing direction. Seamless four-frame loop in place. Fixed low top-down camera, transparent background, consistent identity and scale, no camera movement.\", animation_group_id=\"ace78e0c-db97-43cc-8efe-8a3a054ee2d7\", directions=[...])"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "downloaded": "public/assets/enemies/pixellab/longhorn",
+    "verified": {
+      "directions": 4,
+      "frames_per_direction": 4,
+      "animated_frames": 16,
+      "archive_integrity": "passed",
+      "requested_character_size": 64
+    }
+  },
+  {
+    "slug": "rifle_guard",
+    "name": "Railroad Rifle Guard",
+    "character_id": "1feabb9b-ad71-4f64-ac34-bbe60efb5370",
+    "description": "SUNSET SURVIVORS Western Pulp 98, rich late 90s Neo Geo arcade pixel art, warm earthy colors, crisp dark pixel outlines, readable full-body silhouette, low top-down camera, transparent background, no text, no scenery. 64x64 canvas. Frontier hired rifleman in dark navy vest, tan hat, cream shirt, leather belt, brown boots, holds one long Winchester rifle with both hands.",
+    "action": "Walking forward while aiming a Winchester rifle in the facing direction, subtle shoulder recoil, both hands remain on rifle, preserve facing direction.",
+    "creation_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 1feabb9b-ad71-4f64-ac34-bbe60efb5370\nname: Railroad Rifle Guard\nmode: standard (1 generation)\ndirections: 4\nbody: humanoid\nsize: ~64px character on a 92x92px canvas (standard mode adds ~40% so animations fit)\nstyle: basic shading, single color black outline, high detail\nstatus: processing (~2-3 minutes)\n\nhint: get_character(character_id=\"1feabb9b-ad71-4f64-ac34-bbe60efb5370\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "last_status": "status: completed\nid: 1feabb9b-ad71-4f64-ac34-bbe60efb5370\nname: Railroad Rifle Guard\nstate_name: Idle\ndirections: 4 (south, east, north, west)\nsize: 92x92px\nview: low top-down\nstyle: basic shading, single color black outline, high detail\ngroup: 9349f69e-2042-4bd0-bba9-5f9eb26df653 (1 state)\n\nrotations:\n  south: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/1feabb9b-ad71-4f64-ac34-bbe60efb5370/rotations/south.png?t=1792466487\n  east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/1feabb9b-ad71-4f64-ac34-bbe60efb5370/rotations/east.png?t=1792466487\n  north: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/1feabb9b-ad71-4f64-ac34-bbe60efb5370/rotations/north.png?t=1792466487\n  west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/1feabb9b-ad71-4f64-ac34-bbe60efb5370/rotations/west.png?t=1792466487\n\nanimations (1 group, 4 total):\n  move-attack \u2014 4 dir (south, north, east, west), 4f 2026-10-20 [type=custom-Walking forward while aiming a] [group: 06bf929b-5bc1-4129-81da-56a73585a6b2]\n    south: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/1feabb9b-ad71-4f64-ac34-bbe60efb5370/animations/72e3eb54-2673-47da-8c05-e9bbc8cbacca/south/{i}.png?t=1792467098815 (i=0..3)\n    north: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/1feabb9b-ad71-4f64-ac34-bbe60efb5370/animations/cbfe21bb-9ecb-4adf-b235-d13f2322c979/north/{i}.png?t=1792467095376 (i=0..3)\n    east: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/1feabb9b-ad71-4f64-ac34-bbe60efb5370/animations/fc9e2dd1-5a29-429e-b1d4-66540736918a/east/{i}.png?t=1792467084076 (i=0..3)\n    west: https://backblaze.pixellab.ai/file/pixellab-characters/52bc453b-aad4-4a96-9d09-02d8fc4e4262/1feabb9b-ad71-4f64-ac34-bbe60efb5370/animations/ef0e792f-eb9a-4e05-842b-9ff47a1510a4/west/{i}.png?t=1792467084056 (i=0..3)\n\ndownload: https://api.pixellab.ai/mcp/characters/1feabb9b-ad71-4f64-ac34-bbe60efb5370/download\nspritesheet: https://api.pixellab.ai/mcp/characters/1feabb9b-ad71-4f64-ac34-bbe60efb5370/spritesheet (this state only \u2014 one uniform-grid sheet PNG + layout JSON, zipped; cells pivot-centred)\n\navailable_animations: backflip, breathing-idle, cross-punch, crouched-walking, crouching, drinking, falling-back-death, fight-stance-idle-8-frames, fireball, flying-kick, front-flip, getting-up, high-kick, hurricane-kick, jumping-1, jumping-2, lead-jab, leg-sweep, picking-up, pull-heavy-object, pushing, roundhouse-kick, running-4-frames, running-6-frames, running-8-frames, running-jump, running-slide, sad-walk, scary-walk, surprise-uppercut, taking-punch, throw-object, two-footed-jump, walk, walk-1, walk-2, walking, walking-10, walking-2, walking-3, walking-4, walking-4-frames, walking-5, walking-6, walking-6-frames, walking-7, walking-8, walking-8-frames, walking-9\n\nactions: animate_character(character_id=\"1feabb9b-ad71-4f64-ac34-bbe60efb5370\", ...) | create_character_state(character_id=\"1feabb9b-ad71-4f64-ac34-bbe60efb5370\", ...) | delete_animation(character_id=\"1feabb9b-ad71-4f64-ac34-bbe60efb5370\", animation_group_id=\"<group>\") | delete_character(character_id=\"1feabb9b-ad71-4f64-ac34-bbe60efb5370\")",
+    "animation_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "character: 1feabb9b-ad71-4f64-ac34-bbe60efb5370\nanimation: v3 custom (Walking forward while aiming a Winchester rifle in the facing direction, subtle shoulder recoil, both hands remain on rifle, preserve facing direction. Seamless four-frame loop in place. Fixed low top-down camera, transparent background, consistent identity and scale, no camera movement.)\ndirections: south, east, north, west (4 jobs)\njob_ids: south=18d7dc0c-a134-472f-aaac-e9ab5071a57d, east=7da502a6-1699-419f-8be5-349b68fcb833, north=d6ebf932-aff9-441c-9b37-8ae22936ec63, west=6da21e53-cf69-4514-ba36-5615dde5fbd7\ngroup: 06bf929b-5bc1-4129-81da-56a73585a6b2\nframes: 4 (reference stripped, keep_first_frame=false)\ncanvas: south 100x100, east 100x100, north 104x104, west 100x100 (frames are stored at this size: the character plus room to move)\ncost: 4 generations (1/dir x 4)\neta: ~2-4 min/direction\n\nhint: get_character(character_id=\"1feabb9b-ad71-4f64-ac34-bbe60efb5370\")\nadd more directions to this group: animate_character(character_id=\"1feabb9b-ad71-4f64-ac34-bbe60efb5370\", action_description=\"Walking forward while aiming a Winchester rifle in the facing direction, subtle shoulder recoil, both hands remain on rifle, preserve facing direction. Seamless four-frame loop in place. Fixed low top-down camera, transparent background, consistent identity and scale, no camera movement.\", animation_group_id=\"06bf929b-5bc1-4129-81da-56a73585a6b2\", directions=[...])"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "downloaded": "public/assets/enemies/pixellab/rifle_guard",
+    "verified": {
+      "directions": 4,
+      "frames_per_direction": 4,
+      "animated_frames": 16,
+      "archive_integrity": "passed",
+      "requested_character_size": 64
+    }
+  }
+]

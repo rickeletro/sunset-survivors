@@ -10,7 +10,6 @@ export class StoryScene extends Phaser.Scene {
   private subtitleText!: Phaser.GameObjects.Text;
   private bodyText!: Phaser.GameObjects.Text;
   private quoteText!: Phaser.GameObjects.Text;
-  private continuePrompt!: Phaser.GameObjects.Text;
   private fullText: string = '';
   private displayedLength: number = 0;
   private isTyping: boolean = false;
@@ -92,7 +91,7 @@ export class StoryScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     // Continue & Skip Controls
-    this.continuePrompt = this.add.text(width / 2, cardY + cardHeight - 36, 'CLICK OR PRESS ENTER TO CONTINUE ▶', {
+    this.add.text(width / 2, cardY + cardHeight - 36, 'CLICK OR PRESS ENTER TO CONTINUE ▶', {
       fontFamily: THEME.typography.pixelFont,
       fontSize: '11px',
       color: '#78350f',

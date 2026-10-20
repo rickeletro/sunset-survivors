@@ -1,0 +1,2084 @@
+{
+  "runtimeImages": 774,
+  "removedImages": 387,
+  "removedBytes": 49814193,
+  "removed": [
+    {
+      "path": "public/assets/background/bar_bkg.png",
+      "bytes": 2470862,
+      "sha256": "0d01cba622deb3d0bdf3f481460171dea7878538fe137402ed15f9ca8b04a927"
+    },
+    {
+      "path": "public/assets/background/estatistica.png",
+      "bytes": 2763018,
+      "sha256": "19b4cd84cf10d1151f2156d8ca9c06bd23edbfc21debd357425d3583caf77707"
+    },
+    {
+      "path": "public/assets/background/game_over_bkg.png",
+      "bytes": 2832276,
+      "sha256": "3a31af85261c0f2862adf18650c43a426c9aa94d715fd085161f4ae5a33814a5"
+    },
+    {
+      "path": "public/assets/background/stage_intro.png",
+      "bytes": 2853956,
+      "sha256": "c316b610fb1983ca868a281d375ceb296e032b3658a1dc4bf14d25602aa3474e"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/chief-wigwam/Idle/rotations/east.png",
+      "bytes": 5986,
+      "sha256": "c6a71ab65910af3bf21c8fd5f35f4c2f242ed6eebc6b56969f84d27ef253dca9"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/chief-wigwam/Idle/rotations/north-east.png",
+      "bytes": 5112,
+      "sha256": "0cfea44f3171810c3721b7d1cb01e3a9b057104bfe8ea5eefa50cc6ed3ccd9cd"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/chief-wigwam/Idle/rotations/north-west.png",
+      "bytes": 5327,
+      "sha256": "b65a0c3bf0bb45c152d01d39cfb83a7e0522076239d39beba5be962661702f84"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/chief-wigwam/Idle/rotations/north.png",
+      "bytes": 5356,
+      "sha256": "9c5f29d2853e6d6f20d176f6219b0994019011446be8df68d2cbb8e3df3c93d6"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/chief-wigwam/Idle/rotations/south-east.png",
+      "bytes": 6231,
+      "sha256": "02d819f2be683d359ce047e0c998d0a7452fd253d595b6247941d2c60f9035ef"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/chief-wigwam/Idle/rotations/south-west.png",
+      "bytes": 6264,
+      "sha256": "be8eae2431ee2745ae8d165154d933696cc32106b94dd7a259330a434b15ce68"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/chief-wigwam/Idle/rotations/south.png",
+      "bytes": 6907,
+      "sha256": "31466635ce080eb4aa4c315c70814bc4565da3e2e02e57e5acbf95dea947404d"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/chief-wigwam/Idle/rotations/west.png",
+      "bytes": 6018,
+      "sha256": "eeeb8471b19c9e5a4d992729a2e612668808f40bbc07593ce2f7bde52cde66df"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/dark-horse/Idle/rotations/east.png",
+      "bytes": 5885,
+      "sha256": "3e4dfc33032095132bb2b6dc7c4ac0f8e90e0873a8031d8c59571a3c300d336f"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/dark-horse/Idle/rotations/north-east.png",
+      "bytes": 4831,
+      "sha256": "ecf121632d0d20413541c584f8584c215a278cff21d720c8950d81ee7a13d4d1"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/dark-horse/Idle/rotations/north-west.png",
+      "bytes": 4745,
+      "sha256": "ff3e43cef38b71238fd82e6d48e868a89b4cbf895d6ed941a941622f1df78976"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/dark-horse/Idle/rotations/north.png",
+      "bytes": 3502,
+      "sha256": "b73f9c3e42f6b4cec37144f7d347d1692069ce8cb3e75d2202dbeb46d623f34f"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/dark-horse/Idle/rotations/south-east.png",
+      "bytes": 5916,
+      "sha256": "ead4ee4176a859f9ebd4d803785e5633751b61f68915a4c9daae93a3ab8d0deb"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/dark-horse/Idle/rotations/south-west.png",
+      "bytes": 6095,
+      "sha256": "79d6debf1e3339039c35a158996a72cfee097cb5bb986fa7be6d8e8d98fcb1ab"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/dark-horse/Idle/rotations/south.png",
+      "bytes": 5174,
+      "sha256": "d35aa0d46459098281c31b342e1e6b0fd2e1ac8aed2a222cf6c9f44a6cd508a1"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/dark-horse/Idle/rotations/west.png",
+      "bytes": 6151,
+      "sha256": "0edc21c77af2f24a5aa268628df0b67d25ee1effca4fae244ce300d7983b775f"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/el-greco/Idle/rotations/east.png",
+      "bytes": 5240,
+      "sha256": "d534962112c6c297d43e029f5c5f46f308acb9ae1338f600e5b98ec210d22078"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/el-greco/Idle/rotations/north-east.png",
+      "bytes": 4948,
+      "sha256": "5b7ba9a7165a7ade16e694e907e274ab29e3119ff22030bcf7dcd98098d69fbb"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/el-greco/Idle/rotations/north-west.png",
+      "bytes": 4407,
+      "sha256": "02bc56bb1be480ac30c44c1c3ad69740753b0cb199b373ee9502a62841d67a44"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/el-greco/Idle/rotations/north.png",
+      "bytes": 6742,
+      "sha256": "f7350dd5dbeaa9abdb9a481c92b95bc883c2a94b7a1d40752e19accc9763e70d"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/el-greco/Idle/rotations/south-east.png",
+      "bytes": 4097,
+      "sha256": "cc8d345edd571b96d25a91766530469a01369cb92599d94d15ce645514118d4d"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/el-greco/Idle/rotations/south-west.png",
+      "bytes": 4300,
+      "sha256": "0113e6269f39d8c10337cf4d8f9ad941f2866ecebcae953ab03afd169fe6ef47"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/el-greco/Idle/rotations/south.png",
+      "bytes": 4296,
+      "sha256": "c41b95dac03c55e3d05f1f4a4771ab43fc778ac226e6ab6c05a286c55eed8254"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/el-greco/Idle/rotations/west.png",
+      "bytes": 4956,
+      "sha256": "72483afe7c8a2a925e8ca0cec1e977c4fb0d7beed70748a4741b2f1b045605f1"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/hawkeye-hank-hatfield/Idle/rotations/east.png",
+      "bytes": 2855,
+      "sha256": "c0c0d9a695373e2bd1169c13aade740cccf0d43532a623d893f1ea74837117d1"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/hawkeye-hank-hatfield/Idle/rotations/north-east.png",
+      "bytes": 2614,
+      "sha256": "cc03a1bdd8e5392837599b756a3676cfaf01fbf6632bc5aba139d873121d100b"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/hawkeye-hank-hatfield/Idle/rotations/north-west.png",
+      "bytes": 2285,
+      "sha256": "f5a1ac1897add0ab62dd6d351600f47596bfe6bb0c748fc7e0b5266c8149ca84"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/hawkeye-hank-hatfield/Idle/rotations/north.png",
+      "bytes": 2423,
+      "sha256": "aceddf07736da02857e55d50fead8fcc53c08f5a1ae9dafe2aeee02c9d5bdd4e"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/hawkeye-hank-hatfield/Idle/rotations/south-east.png",
+      "bytes": 3606,
+      "sha256": "7a1fd0df2bd2a62a0bb9a5e6fe8297840b823dc1a6417c193f6576f07c18c3ab"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/hawkeye-hank-hatfield/Idle/rotations/south-west.png",
+      "bytes": 3476,
+      "sha256": "53210e563ef118ac4f8bb70e825277fa220dbd1dc1afc8fba93091f56069f5e0"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/hawkeye-hank-hatfield/Idle/rotations/south.png",
+      "bytes": 3524,
+      "sha256": "02b327dd8370954b63d40fcde0f94616ccc1490b3fa94508be1d6786a27fc1d2"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/hawkeye-hank-hatfield/Idle/rotations/west.png",
+      "bytes": 2686,
+      "sha256": "51cceaaf7ac3530f1848121b4cff3e7abf826f80e0084c670442755258e382cd"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/paco-loco/Idle/rotations/east.png",
+      "bytes": 4354,
+      "sha256": "98adf1ea657dd47f019e2ecce8fc70804b234115386d69dca0d44d8ccc22e141"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/paco-loco/Idle/rotations/north-east.png",
+      "bytes": 3768,
+      "sha256": "306795402e576f34d7059ffc3884c7728059653b126f8eafd99bc33b5db34180"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/paco-loco/Idle/rotations/north-west.png",
+      "bytes": 3905,
+      "sha256": "d730ec894308218d1ff2e36fc1f761a0dfa11e6dd481e5300e330c08398a2b33"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/paco-loco/Idle/rotations/north.png",
+      "bytes": 3384,
+      "sha256": "68a7a7a9cba3bd4d57914fa45fd58087cc3efd049d5a30f5f26d9d1901a8ef9f"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/paco-loco/Idle/rotations/south-east.png",
+      "bytes": 4834,
+      "sha256": "3cc41211b99622fc16d8b29367409c3d41211373a1d074742cee314f2dbd12f9"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/paco-loco/Idle/rotations/south-west.png",
+      "bytes": 4679,
+      "sha256": "d9df693c4b4ea19be17d3ca85bfeea896bbd23020b299380a3d311ffb2650465"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/paco-loco/Idle/rotations/south.png",
+      "bytes": 4356,
+      "sha256": "719147162d5064025831172206da8f6f85c76b6a135bf90ee551a4741f41f7e0"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/paco-loco/Idle/rotations/west.png",
+      "bytes": 4244,
+      "sha256": "bd24e3cf996dd13f81b70400ebb0f35983ac3f1bfff1a57151717b6651038698"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/east/frame_000.png",
+      "bytes": 8274,
+      "sha256": "1479db0b60e33917913c55a1d722be5157da1a84f7cd2fecec61364cefca4a0d"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/east/frame_001.png",
+      "bytes": 7428,
+      "sha256": "8cf8dcef7430d271022c71caa3359f91cafb62d639996b42736351c7c7b4b6cf"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/east/frame_002.png",
+      "bytes": 7671,
+      "sha256": "d1cfc4b7c995e0e047ecc9aaf8c9d251a826f3cfe669ce0ad944643848579966"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/east/frame_003.png",
+      "bytes": 7075,
+      "sha256": "52196e13a49147c711079062067209b938cd2e5e988f3dd90e665a42e6e4de19"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/east/frame_004.png",
+      "bytes": 7292,
+      "sha256": "58dbe32ac6315b5550d1a711c3429f2d4e6cca501ea8a62da732cd1d1c50dcf2"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/east/frame_005.png",
+      "bytes": 7164,
+      "sha256": "18d3ebd02e222af1788ee7f583ed43cf9c44f52461e93f26adf4a98dfb0eeb79"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/east/frame_006.png",
+      "bytes": 7307,
+      "sha256": "b857f9863f06a60096891ef740129adec0516b7b101ba339c374d41549283a3c"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/east/frame_007.png",
+      "bytes": 7290,
+      "sha256": "fb2a5af4fda0fb8182feaaed13998d00a170843b90966ae080c0876f522a77bb"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/north/frame_000.png",
+      "bytes": 5319,
+      "sha256": "9e65b370606c831f4c4a45b453dc0a37c78bd9adaa775ca5e100e7dbc8cb9614"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/north/frame_001.png",
+      "bytes": 4939,
+      "sha256": "ea9372776d870545072de4d071e1ca3ef5ccfc2cf8993252f0f196b007d040f9"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/north/frame_002.png",
+      "bytes": 4468,
+      "sha256": "04f30b7ccd82d0f71fb9458e35f3c4350a6cb46719ac0bd00e964a154defa543"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/north/frame_003.png",
+      "bytes": 5149,
+      "sha256": "d913fcd69ef208c074a3fcc8ab59bfc007d665426e06bf16df63408829c06a0b"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/north/frame_004.png",
+      "bytes": 5598,
+      "sha256": "f7f57cceb1ebb17cc253948ca19c343e11e1d8a557923909661a9b785e9bd2b9"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/north/frame_005.png",
+      "bytes": 5094,
+      "sha256": "09687722f03e51b3c59843098facb906e91fb09e3461ffe46b7f2a1d6f55251b"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/north/frame_006.png",
+      "bytes": 5711,
+      "sha256": "042a6f94a0b056e6d6545ba493abd8da5157844c592e418a76e8937e29687e6e"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/north/frame_007.png",
+      "bytes": 4935,
+      "sha256": "9d4565a5718138d87bd268bd0b6aebef15ed4c41b941091c68f5332953fca144"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/north-east/frame_000.png",
+      "bytes": 7220,
+      "sha256": "dcbeae3f2734cbdfab064d47ba2a055ea45a5fb5d0980d2b493f502bc9f92d90"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/north-east/frame_001.png",
+      "bytes": 6997,
+      "sha256": "e34c411479fe8e015d429646dd25f2a761f6f032410581d9cb918f09b34796c2"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/north-east/frame_002.png",
+      "bytes": 6808,
+      "sha256": "ed4bceeba040f4f060ee9aaecec06aaf3399b654451d669f7a805f5b0e88e959"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/north-east/frame_003.png",
+      "bytes": 6320,
+      "sha256": "0901561a0b960d4c61b4e9d63d9943eeda43698f19d4118c40631b34faa65cd8"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/north-east/frame_004.png",
+      "bytes": 5752,
+      "sha256": "ea7c358258b8760b314192daece345abffc9caaeacd46a48f7c6edf79bff01e6"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/north-east/frame_005.png",
+      "bytes": 5573,
+      "sha256": "8452e50bac9789709cb63be118b8d198b773a91e35156c09ec473eb3638cc4de"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/north-east/frame_006.png",
+      "bytes": 6132,
+      "sha256": "1703d5ca66351908694f96b421a954d6a1e93fa341d5681abb5c4b10a9c90659"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/north-east/frame_007.png",
+      "bytes": 6381,
+      "sha256": "0a0267c828b14cce277d83ac513bda8d3d790b1e2d9f7a2fb82b64f43542e93c"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/north-west/frame_000.png",
+      "bytes": 5695,
+      "sha256": "85db5ae69d608b02103a0c0f681add8ccace6b813b1597d292d2bf5e0493a23c"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/north-west/frame_001.png",
+      "bytes": 5369,
+      "sha256": "bec1e9fba4e3cdbe358346620795463c28b8094cb3680ec076acfcf7e38763aa"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/north-west/frame_002.png",
+      "bytes": 5352,
+      "sha256": "37030bc2427bf7b28bd5c4c73005c0581e8ef64497b3f574b482607ff1e048c5"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/north-west/frame_003.png",
+      "bytes": 4837,
+      "sha256": "2aadb651f1999088c7d00f6c64c1352796fd60f310fbf06f5b7c5b347d4aedae"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/north-west/frame_004.png",
+      "bytes": 4835,
+      "sha256": "fdcdcaafe92cae6ed868e52bfda7bd1b7c0ee472bd60c077dfdf555cb2e719fa"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/north-west/frame_005.png",
+      "bytes": 5462,
+      "sha256": "1dc6e1a137bbc702083275fa7b9a17bf2b246bbca51630793c45c8dac4b230d5"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/north-west/frame_006.png",
+      "bytes": 6384,
+      "sha256": "56c432e41783c75ac9e0d994fd522bfb8fb83b08c6a0ba457c8485e8a5ecaf97"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/north-west/frame_007.png",
+      "bytes": 5517,
+      "sha256": "a29d8e1164cb25fe95a78aaa993322e2df2e6453fb7e86ef5e743f9fc2ed92c8"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/south/frame_000.png",
+      "bytes": 9491,
+      "sha256": "2069c383d3b16f0e2fe37a16e6b69e4d40c37e235ce3eab0f05f80de21d89454"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/south/frame_001.png",
+      "bytes": 8786,
+      "sha256": "1add869c35e20294f11b9092cf9f8d87c1ff16a2083e2f53c2289bd7c446ae9d"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/south/frame_002.png",
+      "bytes": 8968,
+      "sha256": "3f539d13663ce3fd524d31afc1a55c7abb376ded833c204894db2a5efea4ee30"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/south/frame_003.png",
+      "bytes": 7737,
+      "sha256": "9bb6c9013518648a44a32bef8d81764c2f2a6434e33921761cdb123861850c0b"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/south/frame_004.png",
+      "bytes": 7584,
+      "sha256": "bb8c2864bf1b1e66de76e545b06b340f1355f4fdfcb9783fe5b6516adbcefe95"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/south/frame_005.png",
+      "bytes": 7165,
+      "sha256": "5558caa6954d851f0ebc6e49cd8a5bd98328995c8b0e478ed565b52e37bec747"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/south/frame_006.png",
+      "bytes": 8170,
+      "sha256": "0242f6a3927636c8ed7ab7a3dfec829270ff81464159ae9bca2d963aa6913a9e"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/south/frame_007.png",
+      "bytes": 7283,
+      "sha256": "82936165787bd943324895365591fa499f59789bdff9d7b7a6b2583b6355b849"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/south-east/frame_000.png",
+      "bytes": 8572,
+      "sha256": "28b10073365b7ee67e8dd9f92a7701d8eb44cf49f9ee63c8dfa043de598bb1b1"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/south-east/frame_001.png",
+      "bytes": 7801,
+      "sha256": "50bd77e488a66ef5bcdcb485cd82c4200aae13ea395bdbcb053c135e15396637"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/south-east/frame_002.png",
+      "bytes": 7843,
+      "sha256": "53439635bb591c31e8ed5d02910571109f394f8d5605942e4dab905f64dacd72"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/south-east/frame_003.png",
+      "bytes": 7554,
+      "sha256": "7655c02796ec4fc475bcded6becf1f3b224c228d733897b060016a1586ec1065"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/south-east/frame_004.png",
+      "bytes": 8311,
+      "sha256": "94df1d7cb5f559bc9135891849970bee55b897a7c92ccc42754ae711c1c16be3"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/south-east/frame_005.png",
+      "bytes": 7846,
+      "sha256": "971b69fba6de14bc355b7db30ae51dc0e2c6411a3a428a9c511f2f95a693dd9a"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/south-east/frame_006.png",
+      "bytes": 8529,
+      "sha256": "03c5fdd0a75c313cbc066e73fa7390be840b259dd0a214ad6cce345a7b7efa60"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/south-east/frame_007.png",
+      "bytes": 7560,
+      "sha256": "c0c6aff3d3c315a18824a9a5176db3931af943358ec980fa8781bf820baa8c04"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/south-west/frame_000.png",
+      "bytes": 9065,
+      "sha256": "e5f65bd12d6714622e48398d9a05c3bf8caa0bfc102394f801f9154f7a2d3244"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/south-west/frame_001.png",
+      "bytes": 7650,
+      "sha256": "a813dde3be761a465137d6b289228f01f7da6cea0d41512042af8161fc4c27ae"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/south-west/frame_002.png",
+      "bytes": 7241,
+      "sha256": "fba62d23186bc4e1702333a4562184094626dca08f62d4969f1c42e99501178c"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/south-west/frame_003.png",
+      "bytes": 6653,
+      "sha256": "ac58fae15e260ae57d2ad652e675b025410ec6ad40f8dbc324cce6538f82b0a8"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/south-west/frame_004.png",
+      "bytes": 7063,
+      "sha256": "a5ef717cc552c04e12b5e9817f8366904552ab47ce1eaeb73e73e8a62e3190a1"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/south-west/frame_005.png",
+      "bytes": 6883,
+      "sha256": "b9cb066ec905247cd27e0f6e98380af42ca08d72243462655e7e773028afe726"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/south-west/frame_006.png",
+      "bytes": 7124,
+      "sha256": "ca9ab5495bdf9ca4dc022c66c610f242da3612b7c36efe3cec1d5ce6411319e8"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/south-west/frame_007.png",
+      "bytes": 6667,
+      "sha256": "9d968db74a79de53a83cbc84e66fe597c99fe9df823af4c3f595e8106cf64315"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/west/frame_000.png",
+      "bytes": 8609,
+      "sha256": "0e18a858ebe951d8407df0cb23711b1864bc8ba90145b2e9b832b2bbde6be43b"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/west/frame_001.png",
+      "bytes": 7661,
+      "sha256": "9ec010cc02a92e6a3c44dd8f6fd7bde58fca252710d5a316ad35dcfd99e058a9"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/west/frame_002.png",
+      "bytes": 7258,
+      "sha256": "5780e8e402012ae36933162c173b68f79e639e19db43fbd0d6211a2849e724a4"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/west/frame_003.png",
+      "bytes": 6712,
+      "sha256": "74f6e142a2428be67c11d3d49118b479b5ba7c909ea9f5c4ac33f55c60847b06"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/west/frame_004.png",
+      "bytes": 7314,
+      "sha256": "dced16118ea22921634353bc30cf38ccc64e72cb1dbae25bc8841371527be951"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/west/frame_005.png",
+      "bytes": 6830,
+      "sha256": "833fd28501aa84b4a53f5ccd9cfad18788d6ce50a026e02d09eda9df010f5d23"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/west/frame_006.png",
+      "bytes": 6981,
+      "sha256": "27277cd163ed6e3e4d3eed6efa45b1243b0e54f4a7fa3ceb60fc610e875b513b"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/animations/run-attack-eight-directions/west/frame_007.png",
+      "bytes": 6573,
+      "sha256": "4109bcda2880c99debe11c9715955caada4f147e4bb2009d3964b924f804d80f"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/rotations/east.png",
+      "bytes": 5007,
+      "sha256": "da99713589c79a4c0d4dfdb36e7cf5331c9685c4e11d7c3f57d314d39bf5f7ba"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/rotations/north-east.png",
+      "bytes": 4078,
+      "sha256": "0ae97dc6a1f19d4842a95b8ca40b7f7630688420708ae125d73d57112083c6bd"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/rotations/north-west.png",
+      "bytes": 3725,
+      "sha256": "62a79637ed4288aee616ba61473dd531d7d3fc4dc139219029881a79eb37c656"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/rotations/north.png",
+      "bytes": 3709,
+      "sha256": "b2e8f5f8cb27fe8ef5e1f2163315b1deaebef76b98e22afdf08c042149533656"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/rotations/south-east.png",
+      "bytes": 5639,
+      "sha256": "20cb5e22c38a35c46360e42f4c508731685504629f743b98b4a11d8fc9a83ae6"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/rotations/south-west.png",
+      "bytes": 5714,
+      "sha256": "b43ce833ef33f7f4ead209b6ad2a5b663c5ae1aae64d382926292e429355d126"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/rotations/south.png",
+      "bytes": 5817,
+      "sha256": "0d5ab66f834df3aecbb7b5f98c0d2881732a8c32ce75dfe57384d35a0854384e"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/simon-greedwell/Idle/rotations/west.png",
+      "bytes": 4983,
+      "sha256": "aaeefe31ab920403142e0febec92128db4760df313ad94db8d95be959bb5c717"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/sir-richard-rose/Idle/rotations/east.png",
+      "bytes": 2218,
+      "sha256": "6e0b3715668e62841419a9377d1a5ed2f701b3bbac121909585782497f9971c8"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/sir-richard-rose/Idle/rotations/north-east.png",
+      "bytes": 1481,
+      "sha256": "d2148006ce405948fde83faad93fccb10d281d3e49c98823fb4d9db18e021b5c"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/sir-richard-rose/Idle/rotations/north-west.png",
+      "bytes": 1459,
+      "sha256": "f9b97449cac9fdd27855d1c655c6729539ed2c84d94cf9e1da42307e3d6b06e3"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/sir-richard-rose/Idle/rotations/north.png",
+      "bytes": 1361,
+      "sha256": "43335b187ad36986aa3a736a3be2e2d7452a4e693d9a5097a0cfe7f26f74a39f"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/sir-richard-rose/Idle/rotations/south-east.png",
+      "bytes": 2700,
+      "sha256": "9d2a984ec244f417e0cfb9c2c39f0fdc4113d5059eba2aeb749186f076852906"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/sir-richard-rose/Idle/rotations/south-west.png",
+      "bytes": 2075,
+      "sha256": "73e8d09cfec4938559961a7367860c236a560254a38401b2a046f9635bbd4e75"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/sir-richard-rose/Idle/rotations/south.png",
+      "bytes": 2082,
+      "sha256": "c814850566114c0b3dcd8cec5685f0f09b19a32987702ef7576f731b5714d815"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/sir-richard-rose/Idle/rotations/west.png",
+      "bytes": 1717,
+      "sha256": "2c79e8cd78dd90270379a32b1a04735d43fb9f4663c0e822c2088ae4effb11af"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/smith-brother-gray/Idle/rotations/east.png",
+      "bytes": 3405,
+      "sha256": "a5cdca07adb7a67119fce9578b5c3fe88002b828e057ef21eb89464c8528c7fb"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/smith-brother-gray/Idle/rotations/north-east.png",
+      "bytes": 3547,
+      "sha256": "81950576eb1a3023d1a4d2629cb63aa92e7229420f29798e28c264682bb929e6"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/smith-brother-gray/Idle/rotations/north-west.png",
+      "bytes": 3579,
+      "sha256": "9abd04d4c33b0dfc09152767c6e02206cc7227b6f3757587db61a3059d01fb67"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/smith-brother-gray/Idle/rotations/north.png",
+      "bytes": 3574,
+      "sha256": "31b22289829bdd81a5909e409790c66814945dc995bc55ea1ca2e0b90631442a"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/smith-brother-gray/Idle/rotations/south-east.png",
+      "bytes": 4211,
+      "sha256": "3946441c7be20426177e6c34641a3b19932b0b51889845d5c1f1ea09372ecd8e"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/smith-brother-gray/Idle/rotations/south-west.png",
+      "bytes": 4170,
+      "sha256": "d246ec1aa8bb2c4dfb01bdf13b0583117876e6052b9598ae815f4943161ffa95"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/smith-brother-gray/Idle/rotations/south.png",
+      "bytes": 4540,
+      "sha256": "ce13b18eb26db4aeb2f32679e94f60c4d8644b594e9b0f86f23ba2005a5938e5"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/smith-brother-gray/Idle/rotations/west.png",
+      "bytes": 3342,
+      "sha256": "97e3344cf4c10a50854059addedc335469b64da9b0ec4aedca5ae89e145bb2d9"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/smith-brother-red/Idle/rotations/east.png",
+      "bytes": 4096,
+      "sha256": "420d818460c80bd4ba856af39f670f8290643b388f33450a9eff8a337737b785"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/smith-brother-red/Idle/rotations/north-east.png",
+      "bytes": 2866,
+      "sha256": "9dc6e1bc61c01d07cde60ea2eeac8cf6508fc4b8c588d13ec49995e9c541a6a8"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/smith-brother-red/Idle/rotations/north-west.png",
+      "bytes": 2912,
+      "sha256": "1f405aae004597acefa13edc195d84532a46b70c3edf63c4e7fca180804be00c"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/smith-brother-red/Idle/rotations/north.png",
+      "bytes": 3106,
+      "sha256": "7fc84173932170f50454cd1fca3b3e3b76e747df9c52e421595cf19081ddd735"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/smith-brother-red/Idle/rotations/south-east.png",
+      "bytes": 4098,
+      "sha256": "a23503731fcc0e162db9c7b82f42e789a5e6afdc4272ecd7e9ed293f50f92126"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/smith-brother-red/Idle/rotations/south-west.png",
+      "bytes": 4199,
+      "sha256": "5fbac35acc8ab4b3680df47b914d9c96348de48f96db9db9b8c2007037aa3ed6"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/smith-brother-red/Idle/rotations/south.png",
+      "bytes": 3861,
+      "sha256": "373eb01de0a8e33cf66a5410c1aeb3bc776687ef0baeda4c19a25d63291126de"
+    },
+    {
+      "path": "public/assets/bosses/pixellab/smith-brother-red/Idle/rotations/west.png",
+      "bytes": 4047,
+      "sha256": "f652eee572e969f95f662f6377a8eb6ad6ec6eff762b10f263c93a769bc59165"
+    },
+    {
+      "path": "public/assets/cards/ammo_bandolier.png",
+      "bytes": 315377,
+      "sha256": "89f1b20525d4118d8bea31f7ea68ddaf5e0d934387f0391d0a9a68cb3f747dca"
+    },
+    {
+      "path": "public/assets/cards/dual_revolvers.png",
+      "bytes": 239243,
+      "sha256": "a61883dbeb87786a945c0ccfd76c0f4e045c7b754b080e1b737f24e94d99e754"
+    },
+    {
+      "path": "public/assets/cards/frontier_whiskey.png",
+      "bytes": 300843,
+      "sha256": "901cea2d0302044a259def1b70899f6ad94cbd24916f148af4e2331e883c2bb9"
+    },
+    {
+      "path": "public/assets/cards/horseshoe_magnet.png",
+      "bytes": 312505,
+      "sha256": "1ec1b0da6d8a1ffe8dcb68b0db2521c241c1026e464419e2261cf706a22e21f5"
+    },
+    {
+      "path": "public/assets/cards/normalized/ammo_bandolier.png",
+      "bytes": 269887,
+      "sha256": "4ba07d00d98f04bbba3af375ec133892b7d94857b7a3852c2451e7d15646a2ee"
+    },
+    {
+      "path": "public/assets/cards/normalized/dual_revolvers.png",
+      "bytes": 236254,
+      "sha256": "5de0426b9a47bee7bb0ca66319bae53a3186af7943727439c5f8d5991c32aab3"
+    },
+    {
+      "path": "public/assets/cards/normalized/frontier_whiskey.png",
+      "bytes": 258367,
+      "sha256": "d060a8a9a2d50f3ee5517bf9380989c976b6fced0bdbaaf447e628fc3ef7f877"
+    },
+    {
+      "path": "public/assets/cards/normalized/horseshoe_magnet.png",
+      "bytes": 270220,
+      "sha256": "a8e8fa135e4c3db825676ed749d7eae7263237a1cbc483569cfdb5d4850656b4"
+    },
+    {
+      "path": "public/assets/cards/normalized/sawed_off_shotgun.png",
+      "bytes": 220585,
+      "sha256": "29c359041e5141c0b4dba889053d14a261dfff41627c58043972bde2b622d890"
+    },
+    {
+      "path": "public/assets/cards/normalized/sheriffs_star.png",
+      "bytes": 217236,
+      "sha256": "7596a9f0b76643031bf00645201a9be64bee412d1566b220edc6adc82ff13a6e"
+    },
+    {
+      "path": "public/assets/cards/normalized/silver_spurs.png",
+      "bytes": 268701,
+      "sha256": "182321a8b7aa5097338a6b8e52b218805f6a8f08cd5afcc9a4324d1d6032ccf3"
+    },
+    {
+      "path": "public/assets/cards/normalized/spinning_lasso.png",
+      "bytes": 173542,
+      "sha256": "b374dd6c5c46b12b05939e5b39651c91549f96ddef9a787bcda567df217c61ec"
+    },
+    {
+      "path": "public/assets/cards/normalized/tnt_dynamite.png",
+      "bytes": 213706,
+      "sha256": "3eecf532c985ca534798963dcfdad8a03577712b12f04ea65655c30545b51adf"
+    },
+    {
+      "path": "public/assets/cards/normalized/twin_peacemakers.png",
+      "bytes": 232610,
+      "sha256": "e8f3d72ca45be6847deab0a011b5ca503b4bdc74f9405bd2b6f821e241b6cc8a"
+    },
+    {
+      "path": "public/assets/cards/normalized/whiskey_molotov.png",
+      "bytes": 188336,
+      "sha256": "8c322d1247e38956edea8204073aee9f386b4b654b860e4e0ea3fe4011da2236"
+    },
+    {
+      "path": "public/assets/cards/normalized/winchester_repeater.png",
+      "bytes": 216417,
+      "sha256": "32aea0ea7b45990eb86b0fc274b463f1f4f3bd087f2fbcd6ca7be93e0c681233"
+    },
+    {
+      "path": "public/assets/cards/sawed_off_shotgun.png",
+      "bytes": 221278,
+      "sha256": "ca0f2d84435505cf6e2fe14284f244f66edadb52bf394816a306456da47370a8"
+    },
+    {
+      "path": "public/assets/cards/sheriffs_star.png",
+      "bytes": 393290,
+      "sha256": "344b82d846b79af296bc0943bfb9b762c6292cf2a393dade0d15a686a050017e"
+    },
+    {
+      "path": "public/assets/cards/silver_spurs.png",
+      "bytes": 325003,
+      "sha256": "58ad2ae68b8dc80e08cb9aed6183536236ce2f0c6d9de7d3dd624fb5fd0cec65"
+    },
+    {
+      "path": "public/assets/cards/spinning_lasso.png",
+      "bytes": 170092,
+      "sha256": "36f8a9b514998409c2b4b4449772a8d5a6b1e9ff79cfd93929e22ee4abd84286"
+    },
+    {
+      "path": "public/assets/cards/tnt_dynamite.png",
+      "bytes": 213642,
+      "sha256": "f544081ac2f773cdaeaa0ab995c71c831263adc7b6bf7b07a55961f3555fb385"
+    },
+    {
+      "path": "public/assets/cards/twin_peacemakers.png",
+      "bytes": 234774,
+      "sha256": "377e20a6799ecf2641d84c35861396ad5a4d80b0467e4cdeab7ff4ff7a47c376"
+    },
+    {
+      "path": "public/assets/cards/whiskey_molotov.png",
+      "bytes": 186735,
+      "sha256": "146745448554eea32be28a00fea60fd4c3cfdb0b9582b5ae86704338320727ed"
+    },
+    {
+      "path": "public/assets/cards/winchester_repeater.png",
+      "bytes": 216502,
+      "sha256": "c1ae9a553b7c437e29a7f4b119cf0f6c739d2705a569deef26387bb83f5c0271"
+    },
+    {
+      "path": "public/assets/characters/pixellab/billy/Idle/animations/walking-south-corrected-4-frames/south/frame_000.png",
+      "bytes": 13729,
+      "sha256": "16b01bb5868e28cc4e2792788ddb63fee5c60e717315c8d547a49955551cd7f5"
+    },
+    {
+      "path": "public/assets/characters/pixellab/billy/Idle/animations/walking-south-corrected-4-frames/south/frame_001.png",
+      "bytes": 12854,
+      "sha256": "5ac185666d1292e3da34a997b3074d62faff77cad1d0e9a881eb04304ea08f89"
+    },
+    {
+      "path": "public/assets/characters/pixellab/billy/Idle/animations/walking-south-corrected-4-frames/south/frame_002.png",
+      "bytes": 12762,
+      "sha256": "84c22aee5cbbe1cbb9dcc2a2b40ac8642b7c1c340ddf5b405dc7faf2e1a56ced"
+    },
+    {
+      "path": "public/assets/characters/pixellab/billy/Idle/animations/walking-south-corrected-4-frames/south/frame_003.png",
+      "bytes": 13067,
+      "sha256": "59f3c463ff5924b1a0863650e71a8f3043c6f3b8fb3d4c5562b476cd177d9f6b"
+    },
+    {
+      "path": "public/assets/characters/pixellab/billy/Idle/rotations/east.png",
+      "bytes": 9191,
+      "sha256": "f6f6261bc859be96689cfafd9178c7b4e6be73154701ca3affedda152a7499d8"
+    },
+    {
+      "path": "public/assets/characters/pixellab/billy/Idle/rotations/north-east.png",
+      "bytes": 10846,
+      "sha256": "30fb8b7d1de472fab6056a97f540050d88e80547b9d3436faa773238afffd4b7"
+    },
+    {
+      "path": "public/assets/characters/pixellab/billy/Idle/rotations/north-west.png",
+      "bytes": 10571,
+      "sha256": "17411b60df525cfa1b39e6ba739e7a5b25c577bce977fb66361de627ff4251b1"
+    },
+    {
+      "path": "public/assets/characters/pixellab/billy/Idle/rotations/north.png",
+      "bytes": 10461,
+      "sha256": "529675a1d2d39499bb8b491784bf6f3d9a3a1df69da8dcdaeda9ea60c7e860eb"
+    },
+    {
+      "path": "public/assets/characters/pixellab/billy/Idle/rotations/south-east.png",
+      "bytes": 12672,
+      "sha256": "8bee51ba5beb5a45bb99af812abced3ff40039ca45add49e1998c2863c172542"
+    },
+    {
+      "path": "public/assets/characters/pixellab/billy/Idle/rotations/south-west.png",
+      "bytes": 12883,
+      "sha256": "3dc4539850949dfc8e27961e13919a51d505d8fb6261cfff71dfc6f890010e2c"
+    },
+    {
+      "path": "public/assets/characters/pixellab/billy/Idle/rotations/south.png",
+      "bytes": 12647,
+      "sha256": "842ca44d0bc5adbcf8f1fd8fe020166b15a0c48ba822adc7e55a07f756336d21"
+    },
+    {
+      "path": "public/assets/characters/pixellab/billy/Idle/rotations/west.png",
+      "bytes": 9212,
+      "sha256": "0e26119d23eaa1181361bc0cfc4d1c57c863b89ddb20fac17e4bc3da52a47eb0"
+    },
+    {
+      "path": "public/assets/characters/pixellab/billy/base-reference.png",
+      "bytes": 12647,
+      "sha256": "842ca44d0bc5adbcf8f1fd8fe020166b15a0c48ba822adc7e55a07f756336d21"
+    },
+    {
+      "path": "public/assets/decor/barrel.png",
+      "bytes": 1643,
+      "sha256": "add81b777c48e1c2b6c1d13acd953330f5e47a5a2a675c46cc9de8bdbb4e9ba4"
+    },
+    {
+      "path": "public/assets/decor/bullet_casing.png",
+      "bytes": 302,
+      "sha256": "ec71d75ba2ac65dc97de5c3ea28691899955a2d71a112b488539638ad042ad34"
+    },
+    {
+      "path": "public/assets/decor/cactus_silhouette.png",
+      "bytes": 938,
+      "sha256": "3ede9d8757e8e7db6dd49b13667e78199676799d1d32341ec95824fc22dcf6b7"
+    },
+    {
+      "path": "public/assets/decor/cinematic_vignette.png",
+      "bytes": 125315,
+      "sha256": "8f2abf43116cc6ab5342391df830ab80c6c051148121c9b8151a0ec23a6d3bbc"
+    },
+    {
+      "path": "public/assets/decor/details_wood_board.png",
+      "bytes": 4777,
+      "sha256": "3aa5bab3fa1622f5fa7ab50a6b0af3ea53226214080db7e3295304a11a86da32"
+    },
+    {
+      "path": "public/assets/decor/level_up_reference.png",
+      "bytes": 1419708,
+      "sha256": "718e2c88ee55643bcba10ccd8864370fe0355de71f0c9fe651934f34c85ee878"
+    },
+    {
+      "path": "public/assets/decor/rope.png",
+      "bytes": 1693,
+      "sha256": "ebe38a01298ca63a12f49a148f59eb51e4afc242853eae4d356dfd8a1de72fdb"
+    },
+    {
+      "path": "public/assets/decor/small_parchment_note.png",
+      "bytes": 6314,
+      "sha256": "6cc63148bcc22a3865afe332996422c2fc7c0b4182b14620e8dd76f1f9c9d8d8"
+    },
+    {
+      "path": "public/assets/decor/wood_crate.png",
+      "bytes": 1991,
+      "sha256": "14de2cca41cb811832dc4a605a584aed120ed6695dfb3023472a21f60662f2fa"
+    },
+    {
+      "path": "public/assets/decor/wooden_side_beam.png",
+      "bytes": 6189,
+      "sha256": "d203310e0f7495d3eab8482f6872a195bb127424a40204a2857f2a1deed83ebd"
+    },
+    {
+      "path": "public/assets/desert_ground.jpg",
+      "bytes": 1079119,
+      "sha256": "f517a41731ef5506b607f26fa33eb57d2094f312a880133fb5d777c4bc5e4ab5"
+    },
+    {
+      "path": "public/assets/enemies/pixellab/coyote/Idle/rotations/east.png",
+      "bytes": 1784,
+      "sha256": "9cae9cf104edabc40f05a2ae2c579e78e1ba95e0d5f6526408aafa7d415f9b07"
+    },
+    {
+      "path": "public/assets/enemies/pixellab/coyote/Idle/rotations/north.png",
+      "bytes": 1115,
+      "sha256": "422b9376b46077b7469372b09c4eee64750e9247713c8b6ccd9eb605044077a6"
+    },
+    {
+      "path": "public/assets/enemies/pixellab/coyote/Idle/rotations/south.png",
+      "bytes": 1464,
+      "sha256": "867f688ea57c88b487a1994938bb74201ea95934d2c1370043f6a6d8aa4660ff"
+    },
+    {
+      "path": "public/assets/enemies/pixellab/coyote/Idle/rotations/west.png",
+      "bytes": 1893,
+      "sha256": "d8dbbfb2832834ea7da2c60dfbb00938e71774de85aea58d7e718ee55faf4221"
+    },
+    {
+      "path": "public/assets/enemies/pixellab/dynamite_outlaw/Idle/rotations/east.png",
+      "bytes": 1762,
+      "sha256": "5515159fcc0409cfbaad94c94bf48b3aa2f14e1f94de9f1656112011a05652f9"
+    },
+    {
+      "path": "public/assets/enemies/pixellab/dynamite_outlaw/Idle/rotations/north.png",
+      "bytes": 2438,
+      "sha256": "159eec2d9c9b0382121eab7f4d1c38fa0a7bbcf3d758cc3c520eed96a6efe676"
+    },
+    {
+      "path": "public/assets/enemies/pixellab/dynamite_outlaw/Idle/rotations/south.png",
+      "bytes": 2764,
+      "sha256": "3d3b536154c28490f33a866014f6c438fb39c2cfe608f1fbe189d8716f73c669"
+    },
+    {
+      "path": "public/assets/enemies/pixellab/dynamite_outlaw/Idle/rotations/west.png",
+      "bytes": 1795,
+      "sha256": "b7163cacf9529e03ba502ed3af67fc9cdc330b8608536a3ce08b9b8528065d33"
+    },
+    {
+      "path": "public/assets/enemies/pixellab/knife_bandit/Idle/rotations/east.png",
+      "bytes": 1159,
+      "sha256": "f930fd5231ff17e550e038c0f7b08a4b9385dc5e58df4bba9bb490911d0f61c3"
+    },
+    {
+      "path": "public/assets/enemies/pixellab/knife_bandit/Idle/rotations/north.png",
+      "bytes": 1130,
+      "sha256": "95c71802a25fbeee3e0e5af0d6de0dca841c1263c796a9411f773677eb4f88b6"
+    },
+    {
+      "path": "public/assets/enemies/pixellab/knife_bandit/Idle/rotations/south.png",
+      "bytes": 1241,
+      "sha256": "3bcaffa2516701c09d09db7507ae596150def383529edd56715b564a2b57395a"
+    },
+    {
+      "path": "public/assets/enemies/pixellab/knife_bandit/Idle/rotations/west.png",
+      "bytes": 1100,
+      "sha256": "aca1ffecb1c2e38651d17ad0d528a088535d8b22ddfbcb2cf285b161498e1bd2"
+    },
+    {
+      "path": "public/assets/enemies/pixellab/knife_scout/Idle/rotations/east.png",
+      "bytes": 1518,
+      "sha256": "88114c095b095ea8797219a3be98a0e7ada9c094b3bc839a549333a1494cfe96"
+    },
+    {
+      "path": "public/assets/enemies/pixellab/knife_scout/Idle/rotations/north.png",
+      "bytes": 1805,
+      "sha256": "d6402cb5802cced7b8f022def917c14c72228d949f7002088827a731fe0933d0"
+    },
+    {
+      "path": "public/assets/enemies/pixellab/knife_scout/Idle/rotations/south.png",
+      "bytes": 1844,
+      "sha256": "0a35a47ffa72b1d1578fd3be83094c9aa45adb89497068d0c2c629ed4fcb6587"
+    },
+    {
+      "path": "public/assets/enemies/pixellab/knife_scout/Idle/rotations/west.png",
+      "bytes": 1444,
+      "sha256": "75f237005e44d85af0d7a85f239dc0cee11135449667a8bfb51503a33ca1b799"
+    },
+    {
+      "path": "public/assets/enemies/pixellab/longhorn/Idle/rotations/east.png",
+      "bytes": 2128,
+      "sha256": "595bb26653537cbd1715fcb22129a09e6d03cd47b85528727f9a11bc49303550"
+    },
+    {
+      "path": "public/assets/enemies/pixellab/longhorn/Idle/rotations/north.png",
+      "bytes": 1499,
+      "sha256": "e45b5c873880dd4d7670742ac4d8089325a628c635ca3b1247e626d82b0d4ad0"
+    },
+    {
+      "path": "public/assets/enemies/pixellab/longhorn/Idle/rotations/south.png",
+      "bytes": 1524,
+      "sha256": "ce3f5d0fe0a7d70ebbfecdc0494d55322684c04aeb93188bcde25d5ffe542e7b"
+    },
+    {
+      "path": "public/assets/enemies/pixellab/longhorn/Idle/rotations/west.png",
+      "bytes": 2113,
+      "sha256": "dc51607f4924e156e02967978ec260c162124a8072e7ec71bd6a9cc97280ef15"
+    },
+    {
+      "path": "public/assets/enemies/pixellab/rifle_guard/Idle/rotations/east.png",
+      "bytes": 1976,
+      "sha256": "fbda330d7285a9b58ffc68a7a56babde3479daa7aa0bf3cfcc7ee063a9d82d65"
+    },
+    {
+      "path": "public/assets/enemies/pixellab/rifle_guard/Idle/rotations/north.png",
+      "bytes": 2089,
+      "sha256": "e12c5b1c75953fda7e95258ee8fb73cef1f0352c57d2930a158b4950617776e7"
+    },
+    {
+      "path": "public/assets/enemies/pixellab/rifle_guard/Idle/rotations/south.png",
+      "bytes": 2412,
+      "sha256": "8336d7f7608eb35f8ea29eab46fe91a963849c3155a6b3ab8365e13c848285d8"
+    },
+    {
+      "path": "public/assets/enemies/pixellab/rifle_guard/Idle/rotations/west.png",
+      "bytes": 1570,
+      "sha256": "383c179e01d68d19c6d5079ba469733577db7993bde9a4c66d79060fdd12f092"
+    },
+    {
+      "path": "public/assets/intro/btn_start_glow.png",
+      "bytes": 51963,
+      "sha256": "bc4e89a54fafa9cf8afabb3797b6a2ec87e9a28756b2d503d90bef008ba3ce8d"
+    },
+    {
+      "path": "public/assets/intro/reference.png",
+      "bytes": 750006,
+      "sha256": "f2e06723308b84316bfd9da5807ed200dabf2b3e9fb3112aebcb536e588f01f3"
+    },
+    {
+      "path": "public/assets/intro/title_frame.png",
+      "bytes": 318577,
+      "sha256": "4e72d0c5fbea57866bc3711e24533bbdfc1c9fe07c4738aef9e433068a64c194"
+    },
+    {
+      "path": "public/assets/intro/title_hero_billy.png",
+      "bytes": 40057,
+      "sha256": "4b5592500c9a083551f1e13a4860fba16f70777677dd9afefe4a1b08c1cce73a"
+    },
+    {
+      "path": "public/assets/intro/title_hero_bob.png",
+      "bytes": 42639,
+      "sha256": "16462a312930e21f7396fdab88edd3357eb14e634b490439204f21940af8e67c"
+    },
+    {
+      "path": "public/assets/intro/title_hero_cormano.png",
+      "bytes": 47007,
+      "sha256": "d659e79f73b584e3332c9c4a1ed6c59cd9fae8cd0f88b7b7c6b2cb8b9e6fcb41"
+    },
+    {
+      "path": "public/assets/intro/title_hero_steve.png",
+      "bytes": 38266,
+      "sha256": "b236001adee1db94dfa1c11060da534a3c1d4daa173b3c5f7f35da82394506c4"
+    },
+    {
+      "path": "public/assets/select_characters/cabecalho_referencia.png",
+      "bytes": 229277,
+      "sha256": "90501123ae9653fc65ba67ecf79221d9c584c1b3c980a3e6724e52b423664bee"
+    },
+    {
+      "path": "public/assets/select_characters/painel_inferior_referencia.png",
+      "bytes": 736326,
+      "sha256": "57a125b79e146c47cb4b85950139001cc3bcf305c8b4e8e79137d1111b3c00cc"
+    },
+    {
+      "path": "public/assets/select_characters/posters/billy.png",
+      "bytes": 367004,
+      "sha256": "abdfdeea4c28e0c1fab10c3504a22b3296e3c7f5458c7714a73ba0e7fe6f3609"
+    },
+    {
+      "path": "public/assets/select_characters/posters/billy_clean.png",
+      "bytes": 372089,
+      "sha256": "9fb98a2b0bb84906c61eb1fd6427f77d113b010c8830ba5cedb866fdf6ab75d0"
+    },
+    {
+      "path": "public/assets/select_characters/posters/bob.png",
+      "bytes": 375868,
+      "sha256": "8370d05d905434e6caa292842d6678ade9fa761545612e4c832757f31ed2e60f"
+    },
+    {
+      "path": "public/assets/select_characters/posters/bob_clean.png",
+      "bytes": 376021,
+      "sha256": "aef45bff2dcfb93a53585dec03ed37218256f18297f684f2328059cdeaaf6a89"
+    },
+    {
+      "path": "public/assets/select_characters/posters/cormano.png",
+      "bytes": 360732,
+      "sha256": "401533b7b8c0592b7f3909ad40a5acecf25492f222bdb47be223be1443ad28b0"
+    },
+    {
+      "path": "public/assets/select_characters/posters/cormano_clean.png",
+      "bytes": 372097,
+      "sha256": "a6bba5821e91c383918c0d1728a9f47b49bee6a0a44d645f7a1a521bbeab5cb9"
+    },
+    {
+      "path": "public/assets/select_characters/posters/steve.png",
+      "bytes": 398621,
+      "sha256": "2ed151677439582bf8aff29e2a776cea8f9d9fa114ed3fbc63f4d3aa98ee6730"
+    },
+    {
+      "path": "public/assets/select_characters/posters/steve_clean.png",
+      "bytes": 374984,
+      "sha256": "67d6fb2b316e324bb37290ee58cf23a9236adf54fc5184b8ef6d0275747e6936"
+    },
+    {
+      "path": "public/assets/select_characters/steve_ref_tag.png",
+      "bytes": 6965,
+      "sha256": "e99defc781e90c47fe60c068368bf8d4219c12ed809022aba876d21b5670dc32"
+    },
+    {
+      "path": "public/assets/select_characters/tela_selecao_referencia.png",
+      "bytes": 3290698,
+      "sha256": "1a495ae2ba4c4b3d86daa04d5dceff7ba0c3be7b86a29004bf51d713b72976af"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r0_c0.png",
+      "bytes": 16666,
+      "sha256": "66fd92783282877d05fb5bb5e35fbd4214f82058b416b87b1e38021169a9116f"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r0_c1.png",
+      "bytes": 17652,
+      "sha256": "7e72b4ac4a541dfbf37b4c2576862348a176a6d6b87f404416a8a316512dbf3d"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r0_c2.png",
+      "bytes": 17048,
+      "sha256": "0ba5fc9da7e355751484b1f610617ecf3bb74e7d8431d3859eec9f880eaad927"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r0_c3.png",
+      "bytes": 16570,
+      "sha256": "c1036146d4f379398301e8b176de0c2a8740520b053c4b9b50969fca52ae52f6"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r0_c4.png",
+      "bytes": 15768,
+      "sha256": "0437aa372b89514579ce97ff62febeb6b4fac3726a8dbfdf566a3987ee84eb06"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r0_c5.png",
+      "bytes": 14827,
+      "sha256": "25717e0696118d298529d161c7bee2aad6413e8176affd4e0c0fb75b2df1859d"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r0_c6.png",
+      "bytes": 20403,
+      "sha256": "176e82d143a944541727bde19940cb9a8bd98464a0999b5a8549566ac38c8c83"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r0_c7.png",
+      "bytes": 17640,
+      "sha256": "43d6da7e5f4b43e07b5c007ccb106d3ffb4183b83bb3f19c1047b561f6161b3b"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r1_c0.png",
+      "bytes": 19290,
+      "sha256": "15f577a491b7d8d76986ff448768d52d69103f53980a03d201467ebaabe19908"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r1_c1.png",
+      "bytes": 17321,
+      "sha256": "973d44bb6c5c2db627af7cea9edcecae927ba35a5f93894dd0b37e8a3a39883f"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r1_c2.png",
+      "bytes": 16920,
+      "sha256": "56a7862c4cd74f7608bdd32cc07c18c5bc1bf02057d29afefd5bf6cb5a075e7c"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r1_c3.png",
+      "bytes": 16952,
+      "sha256": "6ed88b0649e420fd848483970cb591941b9dc1cb8fb0f79d7557a4d79ca0e572"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r1_c4.png",
+      "bytes": 17078,
+      "sha256": "51363b7035f4b9dc358a8f1de7679a156d9316683bd54a67143c07de92830e67"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r1_c5.png",
+      "bytes": 15593,
+      "sha256": "00c77674e2b2d928d9442d02c786b7ad9c83bbdc4513d061cdfd2efc716f52d1"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r1_c6.png",
+      "bytes": 18965,
+      "sha256": "29c1a6d27b35004c361583997dbeb3864234bf57172799d7a3e4508b5eff1e82"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r1_c7.png",
+      "bytes": 19491,
+      "sha256": "9cdc0eff8cb3afcc3e6689bcd68e4249a0886977fc7af0115b8297a3ea832be1"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r2_c0.png",
+      "bytes": 15858,
+      "sha256": "c942c212b8fe1ba71b2b8b2c45670002ac44e55bbf6fbe7177711c13e05123a5"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r2_c1.png",
+      "bytes": 17556,
+      "sha256": "17b59ff1a3ba25ec8939d812c6d5cf11f8e5371ffb973f608ff70be7e9390e1a"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r2_c2.png",
+      "bytes": 15702,
+      "sha256": "fe3bc44c19cdbd86e975d75f72a3f4bf91e7fa4deeed6c7efb7d38dbe6814d28"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r2_c3.png",
+      "bytes": 14948,
+      "sha256": "df6a79b3f2b2ce09aef4168b2c038649a051f50a6b107762bdf91b49a3c7809c"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r2_c4.png",
+      "bytes": 16285,
+      "sha256": "7b24397b9e978acc2b424c469f1dcfec3c35dd7878039516bb52f62995c852c8"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r2_c5.png",
+      "bytes": 16907,
+      "sha256": "daf1a8bb1870743a4db091f4636ff51f85af3aab565efb2c0f4543141ff5fc39"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r2_c6.png",
+      "bytes": 15746,
+      "sha256": "468b537fa40abea21cf1517e7eb945fd9dae330bf32d3481ad08a3c934d551ee"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r2_c7.png",
+      "bytes": 16024,
+      "sha256": "bab459b703a0a1e5e31e3437507c412f3cd7796271b40690dbd4a5d4fde3ec21"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r3_c0.png",
+      "bytes": 19685,
+      "sha256": "d7982df0dd318bceb1af9b4a20ecce430d7fde90bdd6ec08c5d1a3b7c201e2be"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r3_c1.png",
+      "bytes": 19137,
+      "sha256": "a4e1658bfa5143d5696b93137db1bcf387613394515cb0a09c55ae8ab86b5236"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r3_c2.png",
+      "bytes": 17521,
+      "sha256": "5daf414ad3233373a628049ee4b12faed9f1a0466da4ef4a42287fc32b30dcf1"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r3_c3.png",
+      "bytes": 16231,
+      "sha256": "26ed19a89ecba7574add7202d7d62718aa155a60b21095d23c3ac3f1c7d1d889"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r3_c4.png",
+      "bytes": 18600,
+      "sha256": "7958b6ddc063bbfdd0c179ca9c672b1b30aab735fb80936eb445a9c8c3f2590e"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r3_c5.png",
+      "bytes": 18948,
+      "sha256": "68e16f09bfecdee33264d736a19f557a3214f7f60add1b39918b15866411c378"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r3_c6.png",
+      "bytes": 19403,
+      "sha256": "e92c878b28ba4cd542f615d5271d94be3fb542a6d5561a5d582b1067756a59a9"
+    },
+    {
+      "path": "public/assets/sprites/heroes/sprite_r3_c7.png",
+      "bytes": 20617,
+      "sha256": "86c99876faed507d592dd9039b2ee7333094cdc92180abf2723798cf6f7b72d1"
+    },
+    {
+      "path": "public/assets/ui/Logo_Western_Sunset_Survivors.png",
+      "bytes": 1657389,
+      "sha256": "e3e9d6eb19ade609775be749800ce3895eeee4c6fc684eab62af0d05362029cf"
+    },
+    {
+      "path": "public/assets/ui/background_dim_vignette.png",
+      "bytes": 73674,
+      "sha256": "4b1c68054027a11f090aa7409bca91e156c2d8178c6b41deb5ce65c1e0f6ffdb"
+    },
+    {
+      "path": "public/assets/ui/blank_wanted_poster.png",
+      "bytes": 25407,
+      "sha256": "8a47ca7b12140e19dd9d3670b82a4f8280b3497ca7b9aecdcb8f8572db361802"
+    },
+    {
+      "path": "public/assets/ui/hud_avatar_steve_perfect.png",
+      "bytes": 13590,
+      "sha256": "973265baebbba14d6dbaec895db3e155f288e4e2d9d281e1ad59c9bcb50fc585"
+    },
+    {
+      "path": "public/assets/ui/hud_bottom_patch.png",
+      "bytes": 202118,
+      "sha256": "d62a66c456fb524441d4839395aab72614d7cf595dfae03f7787b35368d4f0fa"
+    },
+    {
+      "path": "public/assets/ui/hud_coin.png",
+      "bytes": 1707,
+      "sha256": "b34adcb7709b3b36c730cb51f60bbc859c7cb8d4a2b3a749e947c6983b231ec0"
+    },
+    {
+      "path": "public/assets/ui/hud_coin_clean.png",
+      "bytes": 1717,
+      "sha256": "374c40b7d0561f14838c9a47f32b578c42133f5f8922f84349d8431750c53499"
+    },
+    {
+      "path": "public/assets/ui/hud_coin_perfect.png",
+      "bytes": 1654,
+      "sha256": "f508cf380e9d3abc901937a061c56ded9ff8caac2e3482d004b9008dfe0be4d0"
+    },
+    {
+      "path": "public/assets/ui/hud_portrait_frame.png",
+      "bytes": 12284,
+      "sha256": "15563e55b35ec92b043555cba6ede7ffd3ad7e75c6580330e32b59bc1b068da3"
+    },
+    {
+      "path": "public/assets/ui/hud_portrait_steve.png",
+      "bytes": 10476,
+      "sha256": "3f1e8807ed7c7153cd91e43e04cae5d4c2639298219fc4e42cfe454f97e06652"
+    },
+    {
+      "path": "public/assets/ui/hud_portrait_steve_clean.png",
+      "bytes": 21310,
+      "sha256": "ce31d8d80f75751c4171d037b3c6810c32192de7502b5129aea1e2a15b8a0fe1"
+    },
+    {
+      "path": "public/assets/ui/hud_skull.png",
+      "bytes": 1711,
+      "sha256": "755ee89d35c5a4848cae3c26b301dd96991dd49e3aa8f96475249f0dd41c008e"
+    },
+    {
+      "path": "public/assets/ui/hud_skull_clean.png",
+      "bytes": 1752,
+      "sha256": "1c86a9e2dcba728b92405d5623ff08cc6baba3c8d60828334aa9c5ccee30603c"
+    },
+    {
+      "path": "public/assets/ui/hud_skull_perfect.png",
+      "bytes": 1608,
+      "sha256": "6b70d84af8686a5e8c0ecd86a32991d0136ef737dfb6e3060b924f22bfd919fc"
+    },
+    {
+      "path": "public/assets/ui/hud_top_left_patch.png",
+      "bytes": 62892,
+      "sha256": "1e14101d8bccc7f7bda8d414dabd08b24ba4971ab41aa7f81247fdea7679a8f8"
+    },
+    {
+      "path": "public/assets/ui/hud_top_right_patch.png",
+      "bytes": 28822,
+      "sha256": "50b0265061a4346b09554d56f6facc75b579561a4c5a1c719ecd22a9ce38bec1"
+    },
+    {
+      "path": "public/assets/ui/ornamental_separator.png",
+      "bytes": 293,
+      "sha256": "da41878cb00c2e12c7dc635b900d7a786ca78ca909771f51d327ed453a3702e3"
+    },
+    {
+      "path": "public/assets/ui/parchment_info_panel.png",
+      "bytes": 1705,
+      "sha256": "baf243b5a263bb479697ab2cd1fb8060e0dc724f817756c0cdc70c1f6d500076"
+    },
+    {
+      "path": "public/assets/ui/ref_bottom_board.png",
+      "bytes": 127929,
+      "sha256": "562a64b084fb4ba4fce4ff625248b1566664e0072ee1efdd6b429101be77c82c"
+    },
+    {
+      "path": "public/assets/ui/ref_bottom_wood_board.png",
+      "bytes": 134361,
+      "sha256": "7ac0b8ac95ae864bf8278691d6c638e0164f2881cf39d5b3fcfecfa2edeaaec2"
+    },
+    {
+      "path": "public/assets/ui/ref_card1_full.png",
+      "bytes": 177323,
+      "sha256": "dbfe1da9c33f2e400bae5beb14d73436971a5878e533da6d4568e6147f6e9385"
+    },
+    {
+      "path": "public/assets/ui/ref_card2_unselected.png",
+      "bytes": 160141,
+      "sha256": "51c037a676253d363450a53622b9e84fe36bc6c8f333afa54cd345e5231dfe26"
+    },
+    {
+      "path": "public/assets/ui/ref_hp_bar.png",
+      "bytes": 5691,
+      "sha256": "567a0d7501bc70fec5a4d8c837b8edfedbcf0f3d57cf5a28306c8ce8a4deb051"
+    },
+    {
+      "path": "public/assets/ui/ref_lore_note.png",
+      "bytes": 39259,
+      "sha256": "5ddd378ffe5da2e0b1cd039598fee5178c6faa3930671dd906eb3d6f1bf7268d"
+    },
+    {
+      "path": "public/assets/ui/ref_lvl_text.png",
+      "bytes": 3633,
+      "sha256": "22c220b988fe6e22d850a3e5db4d0a35e63fbfe2b1f795074b01571110643d1a"
+    },
+    {
+      "path": "public/assets/ui/ref_selected_card.png",
+      "bytes": 167472,
+      "sha256": "da856154e48f85bcd00638f253a94c33c68e7cb6919a1a24d030e6e73f29186e"
+    },
+    {
+      "path": "public/assets/ui/ribbon_max.png",
+      "bytes": 766,
+      "sha256": "af0a1c42155d7ae60879621a4dc436c1508767a1676622fd7b369e9eb27319b9"
+    },
+    {
+      "path": "public/assets/ui/wood_description_panel.png",
+      "bytes": 4402,
+      "sha256": "9a9cab4928cb461fe792d4763caba8348d9bc007be74c9d8732c0f8d7a9a2ae8"
+    },
+    {
+      "path": "public/test_cutout.png",
+      "bytes": 549229,
+      "sha256": "78f4ab8d69c3f61c5decc148aece9e2bc7e683fd53447befd471dc915f6b7008"
+    },
+    {
+      "path": "public/test_cutout_clean.png",
+      "bytes": 549918,
+      "sha256": "8cef415c4c5dc5e4238cbdf5b023ab69c3dd0b32b4455b4e532f5fd9df21922a"
+    },
+    {
+      "path": "src/assets/boss_img/01_simon_greedwell.png",
+      "bytes": 407161,
+      "sha256": "5712e86fc8bb563a72fad1410f1f77f0c1768cd54f2a94fb3f74585b55649b51"
+    },
+    {
+      "path": "src/assets/boss_img/02_hawkeye_hank_hatfield.png",
+      "bytes": 395204,
+      "sha256": "1628ab1aec3a8c078302a5996031d42bee2559896796f8ceb22cd765a2cdd2e2"
+    },
+    {
+      "path": "src/assets/boss_img/03_dark_horse.png",
+      "bytes": 395267,
+      "sha256": "6290f46358308b418e39bc3a9f8d638055ecac5c9f603b9cdbefff889b2c5ab1"
+    },
+    {
+      "path": "src/assets/boss_img/04_the_smith_brothers.png",
+      "bytes": 389942,
+      "sha256": "3e78dae6b687fc8ea13de317024867a70ff15aa0f01e9a6741aaf671a00c4b99"
+    },
+    {
+      "path": "src/assets/boss_img/05_el_greco.png",
+      "bytes": 391085,
+      "sha256": "1d4776dec25b03626e08b93cf5604c6d9cf14eadee7b14f002e55a63dc3e6b39"
+    },
+    {
+      "path": "src/assets/boss_img/06_chief_wigwam.png",
+      "bytes": 389608,
+      "sha256": "9f6387e8d8a9e478665259e4b753702bdb0ffa1cba68c96740de9fcbda89ded0"
+    },
+    {
+      "path": "src/assets/boss_img/07_paco_loco.png",
+      "bytes": 391561,
+      "sha256": "3dc0617530009b6881057d882e3b5f940128d02a6cb0a92dc56eb085c4aa69c6"
+    },
+    {
+      "path": "src/assets/boss_img/08_sir_richard_rose.png",
+      "bytes": 380373,
+      "sha256": "2792bb257bdcddfec33e02d4161060933ad97f4f2f1703b1126f68da2d477a28"
+    },
+    {
+      "path": "src/assets/cards_reference/ammo_bandolier.png",
+      "bytes": 315377,
+      "sha256": "89f1b20525d4118d8bea31f7ea68ddaf5e0d934387f0391d0a9a68cb3f747dca"
+    },
+    {
+      "path": "src/assets/cards_reference/dual_revolvers.png",
+      "bytes": 239243,
+      "sha256": "a61883dbeb87786a945c0ccfd76c0f4e045c7b754b080e1b737f24e94d99e754"
+    },
+    {
+      "path": "src/assets/cards_reference/frontier_whiskey.png",
+      "bytes": 300843,
+      "sha256": "901cea2d0302044a259def1b70899f6ad94cbd24916f148af4e2331e883c2bb9"
+    },
+    {
+      "path": "src/assets/cards_reference/horseshoe_magnet.png",
+      "bytes": 312505,
+      "sha256": "1ec1b0da6d8a1ffe8dcb68b0db2521c241c1026e464419e2261cf706a22e21f5"
+    },
+    {
+      "path": "src/assets/cards_reference/sawed_off_shotgun.png",
+      "bytes": 221278,
+      "sha256": "ca0f2d84435505cf6e2fe14284f244f66edadb52bf394816a306456da47370a8"
+    },
+    {
+      "path": "src/assets/cards_reference/sheriffs_star.png",
+      "bytes": 393290,
+      "sha256": "344b82d846b79af296bc0943bfb9b762c6292cf2a393dade0d15a686a050017e"
+    },
+    {
+      "path": "src/assets/cards_reference/silver_spurs.png",
+      "bytes": 325003,
+      "sha256": "58ad2ae68b8dc80e08cb9aed6183536236ce2f0c6d9de7d3dd624fb5fd0cec65"
+    },
+    {
+      "path": "src/assets/cards_reference/spinning_lasso.png",
+      "bytes": 170092,
+      "sha256": "36f8a9b514998409c2b4b4449772a8d5a6b1e9ff79cfd93929e22ee4abd84286"
+    },
+    {
+      "path": "src/assets/cards_reference/tnt_dynamite.png",
+      "bytes": 213642,
+      "sha256": "f544081ac2f773cdaeaa0ab995c71c831263adc7b6bf7b07a55961f3555fb385"
+    },
+    {
+      "path": "src/assets/cards_reference/twin_peacemakers.png",
+      "bytes": 234774,
+      "sha256": "377e20a6799ecf2641d84c35861396ad5a4d80b0467e4cdeab7ff4ff7a47c376"
+    },
+    {
+      "path": "src/assets/cards_reference/whiskey_molotov.png",
+      "bytes": 186735,
+      "sha256": "146745448554eea32be28a00fea60fd4c3cfdb0b9582b5ae86704338320727ed"
+    },
+    {
+      "path": "src/assets/cards_reference/winchester_repeater.png",
+      "bytes": 216502,
+      "sha256": "c1ae9a553b7c437e29a7f4b119cf0f6c739d2705a569deef26387bb83f5c0271"
+    },
+    {
+      "path": "src/assets/decor/barrel.png",
+      "bytes": 1643,
+      "sha256": "add81b777c48e1c2b6c1d13acd953330f5e47a5a2a675c46cc9de8bdbb4e9ba4"
+    },
+    {
+      "path": "src/assets/decor/bullet_casing.png",
+      "bytes": 302,
+      "sha256": "ec71d75ba2ac65dc97de5c3ea28691899955a2d71a112b488539638ad042ad34"
+    },
+    {
+      "path": "src/assets/decor/cactus_silhouette.png",
+      "bytes": 938,
+      "sha256": "3ede9d8757e8e7db6dd49b13667e78199676799d1d32341ec95824fc22dcf6b7"
+    },
+    {
+      "path": "src/assets/decor/cinematic_vignette.png",
+      "bytes": 125315,
+      "sha256": "8f2abf43116cc6ab5342391df830ab80c6c051148121c9b8151a0ec23a6d3bbc"
+    },
+    {
+      "path": "src/assets/decor/desert_saloon_backdrop.png",
+      "bytes": 84207,
+      "sha256": "72bfb7885674009b0fefbb141d36ca61babb16b6a893f15550a10b68b3a602f2"
+    },
+    {
+      "path": "src/assets/decor/details_wood_board.png",
+      "bytes": 4777,
+      "sha256": "3aa5bab3fa1622f5fa7ab50a6b0af3ea53226214080db7e3295304a11a86da32"
+    },
+    {
+      "path": "src/assets/decor/gold_spark.png",
+      "bytes": 351,
+      "sha256": "1c0654e2cc142ed9f0314e48cb7823bbb5250f4db029123dc2d778b4e08dd3bc"
+    },
+    {
+      "path": "src/assets/decor/hanging_chain.png",
+      "bytes": 911,
+      "sha256": "37e5e587ef3aa5ca1b8c4c9194df8f1e61f0bb5b4899a361c2ad44fa794df5ca"
+    },
+    {
+      "path": "src/assets/decor/hanging_lantern.png",
+      "bytes": 14757,
+      "sha256": "bb00c7e5c9d5ea1c341ffefdfd61ed630ccfd65678b5c411bc24912438c1b562"
+    },
+    {
+      "path": "src/assets/decor/hanging_title_parchment.png",
+      "bytes": 17134,
+      "sha256": "f3017308726ed064f154fd085ce91184622a2b5d30c659410cfaa5df882b45d3"
+    },
+    {
+      "path": "src/assets/decor/rope.png",
+      "bytes": 1693,
+      "sha256": "ebe38a01298ca63a12f49a148f59eb51e4afc242853eae4d356dfd8a1de72fdb"
+    },
+    {
+      "path": "src/assets/decor/small_parchment_note.png",
+      "bytes": 6314,
+      "sha256": "6cc63148bcc22a3865afe332996422c2fc7c0b4182b14620e8dd76f1f9c9d8d8"
+    },
+    {
+      "path": "src/assets/decor/subtitle_wood_board.png",
+      "bytes": 2294,
+      "sha256": "0b264977bff32c906706de0a1065c8c5de28f8c1f764155d8442e257bda8a6a2"
+    },
+    {
+      "path": "src/assets/decor/western_star.png",
+      "bytes": 685,
+      "sha256": "374c927ed0f1c5b05cfff72a52ece57120b22950bc19b8e2b1d2520cc667dc8f"
+    },
+    {
+      "path": "src/assets/decor/wood_crate.png",
+      "bytes": 1991,
+      "sha256": "14de2cca41cb811832dc4a605a584aed120ed6695dfb3023472a21f60662f2fa"
+    },
+    {
+      "path": "src/assets/decor/wooden_side_beam.png",
+      "bytes": 6189,
+      "sha256": "d203310e0f7495d3eab8482f6872a195bb127424a40204a2857f2a1deed83ebd"
+    },
+    {
+      "path": "src/assets/intro/barrel_stack.png",
+      "bytes": 38384,
+      "sha256": "faefa410be93322c7dc96c592fec7cbd918e12fc1105baa530281c4ab451bb48"
+    },
+    {
+      "path": "src/assets/intro/bg_ground.png",
+      "bytes": 118231,
+      "sha256": "b687b4eaef023ecdb4b38ef99aea86214b7194ec97c36ab7420e6a8f133719f5"
+    },
+    {
+      "path": "src/assets/intro/bg_mountains.png",
+      "bytes": 94688,
+      "sha256": "d531c586bc3b3914f24fbb741f7059b76dc244ecc2fc84fd7ebf84516dbfd1d4"
+    },
+    {
+      "path": "src/assets/intro/bg_sky.png",
+      "bytes": 213540,
+      "sha256": "acb249c860909398002530306aac9caef74f92e8e987633c9c06e634948cc3f1"
+    },
+    {
+      "path": "src/assets/intro/bg_town.png",
+      "bytes": 148920,
+      "sha256": "67cdc3e36e01482341a2c9a94a87f37c1f241366f126a92d1bf81e3b9b7f42fc"
+    },
+    {
+      "path": "src/assets/intro/cactus.png",
+      "bytes": 24339,
+      "sha256": "9addb89a9ab1b239605c00c97a9bd9d87061025f127153a8119199f5e605a9f8"
+    },
+    {
+      "path": "src/assets/intro/char_billy.png",
+      "bytes": 76051,
+      "sha256": "9f3e1a11a147f480681e6c7766a7a43ce5ca656fbb71877c4f9073c25652f15e"
+    },
+    {
+      "path": "src/assets/intro/char_bob.png",
+      "bytes": 74542,
+      "sha256": "a5bb917c920616de5f58cb9cd41d2f36d9514801cac902424f0179cae8efe557"
+    },
+    {
+      "path": "src/assets/intro/char_cormano.png",
+      "bytes": 75000,
+      "sha256": "05928363bd26f23d447e3c85db27e08f6cd17048e530e0460c406b3d73695ef0"
+    },
+    {
+      "path": "src/assets/intro/char_steve.png",
+      "bytes": 73490,
+      "sha256": "ffb2cb012e99a72f12f783f388bb73e0417a7b30f886c1af18fe1b6ddf933183"
+    },
+    {
+      "path": "src/assets/intro/clean_char_billy.png",
+      "bytes": 40057,
+      "sha256": "4b5592500c9a083551f1e13a4860fba16f70777677dd9afefe4a1b08c1cce73a"
+    },
+    {
+      "path": "src/assets/intro/clean_char_bob.png",
+      "bytes": 42639,
+      "sha256": "16462a312930e21f7396fdab88edd3357eb14e634b490439204f21940af8e67c"
+    },
+    {
+      "path": "src/assets/intro/clean_char_cormano.png",
+      "bytes": 47007,
+      "sha256": "d659e79f73b584e3332c9c4a1ed6c59cd9fae8cd0f88b7b7c6b2cb8b9e6fcb41"
+    },
+    {
+      "path": "src/assets/intro/clean_char_steve.png",
+      "bytes": 38266,
+      "sha256": "b236001adee1db94dfa1c11060da534a3c1d4daa173b3c5f7f35da82394506c4"
+    },
+    {
+      "path": "src/assets/intro/clean_frame_main.png",
+      "bytes": 318577,
+      "sha256": "4e72d0c5fbea57866bc3711e24533bbdfc1c9fe07c4738aef9e433068a64c194"
+    },
+    {
+      "path": "src/assets/intro/clean_logo.png",
+      "bytes": 198063,
+      "sha256": "7f55a66ef7f567bea5af7c355ac3dfbdbb92b41f85e0ad2df9d02d000317eba9"
+    },
+    {
+      "path": "src/assets/intro/clean_start_button.png",
+      "bytes": 102903,
+      "sha256": "37d138c8173134e755f22cf72d10c79cee8198e87a44622d2061c89061928299"
+    },
+    {
+      "path": "src/assets/intro/clean_start_dark.png",
+      "bytes": 46306,
+      "sha256": "b9c7cfd7b9f18872c22cd92e6fecdcfa141755987479d92357c793582794eed9"
+    },
+    {
+      "path": "src/assets/intro/clean_start_glow.png",
+      "bytes": 52165,
+      "sha256": "f8feb4bcf3d648ff976eeeacb502e9c2dd2c206e2dd9531983845dce2f1ff18c"
+    },
+    {
+      "path": "src/assets/intro/crate.png",
+      "bytes": 27206,
+      "sha256": "525b8b383ccc415b0df3142e5c067a73c387f68511636444a82cbbc9cc63b9c1"
+    },
+    {
+      "path": "src/assets/intro/dust_particles.png",
+      "bytes": 18585,
+      "sha256": "0d167ef88c5c009a0de7bfb084ad307db24cd7fd55b99acc2de154a09c626b98"
+    },
+    {
+      "path": "src/assets/intro/frame_main.png",
+      "bytes": 363459,
+      "sha256": "830da75d88f5892ac2ff9d8f8b5a5330e40094f2d6fb645b7192df209cdb4ad2"
+    },
+    {
+      "path": "src/assets/intro/hud_top.png",
+      "bytes": 23533,
+      "sha256": "0a03e6ac672c4ca07e74471e8fe41bc883aa2861dc5657b095746609373c4a04"
+    },
+    {
+      "path": "src/assets/intro/lantern_left.png",
+      "bytes": 49232,
+      "sha256": "c10ed0fe1b558405c9a5cff293854da6f3f5be6bc236f94771a2d1b0bcda219d"
+    },
+    {
+      "path": "src/assets/intro/lantern_right.png",
+      "bytes": 45768,
+      "sha256": "480a996faae1b1127daeccb330cee947a71dacdfd42e9a480d1dba36c43befee"
+    },
+    {
+      "path": "src/assets/intro/logo_sunset_survivors.png",
+      "bytes": 241304,
+      "sha256": "2f9b7eddf5b59cfa32980022d22243da8e1faaee6f92cd352f14e773393e0039"
+    },
+    {
+      "path": "src/assets/intro/preview_title_screen.png",
+      "bytes": 716609,
+      "sha256": "4d6eb28265b3df06e261bc950d3b5cf86cc0daad0bfc15adde8875b0a61fad40"
+    },
+    {
+      "path": "src/assets/intro/rope.png",
+      "bytes": 19899,
+      "sha256": "2cb85dd0cfbb879f95cf6854ceed5d5f718111a383d63557d6c916af981d1b5e"
+    },
+    {
+      "path": "src/assets/intro/saloon_sign.png",
+      "bytes": 30783,
+      "sha256": "0005795acd886bf59dd5562f1a4033aa2fe97905645c34769b55fd3af8621f55"
+    },
+    {
+      "path": "src/assets/intro/skull.png",
+      "bytes": 15770,
+      "sha256": "c82e7f8c887110567ae184a0a6605867836727a8ff9c215fe9e4adfd04e481bd"
+    },
+    {
+      "path": "src/assets/intro/start_button.png",
+      "bytes": 112742,
+      "sha256": "7bb9b03dca348ba009928f35e47134a377e42a08a48fe7cbd8caeff5a813b179"
+    },
+    {
+      "path": "src/assets/intro/start_button_dark.png",
+      "bytes": 46798,
+      "sha256": "86b95a5d9daf76b0fe6b4cfc98e7da74f240b47f7e18ca416263833cd72fd8d1"
+    },
+    {
+      "path": "src/assets/intro/start_button_glow.png",
+      "bytes": 50426,
+      "sha256": "b9872a01d244db92604fa477ce2a5777ab0c0bd613ae6b7c7749e095e127ba94"
+    },
+    {
+      "path": "src/assets/intro/sun_glow.png",
+      "bytes": 22437,
+      "sha256": "d486a41d942b33d0431122732875caab78e79e775ac75f3f50e6b7f959cf6ae7"
+    },
+    {
+      "path": "src/assets/intro/tumbleweed.png",
+      "bytes": 19203,
+      "sha256": "91c3ab1a1067c50d17669ddc401f44371a5b59d440335a8de8f3d154ff05f786"
+    },
+    {
+      "path": "src/assets/intro/wagon_wheel.png",
+      "bytes": 37078,
+      "sha256": "096531aa62ae2c0e84e863e5f96036bda63fb9d00d2b7283f70a446ff255e2e0"
+    },
+    {
+      "path": "src/assets/intro/wanted_poster.png",
+      "bytes": 42032,
+      "sha256": "092410f1c8d3458f969f5dcf53ddd4cfb55b0f7acf30fc14746f27f495da27ae"
+    },
+    {
+      "path": "src/assets/intro/wood_post.png",
+      "bytes": 19818,
+      "sha256": "a31f472395c23fd743cee5974303d8149430f3176b6d9e2728bd9d3ccf37d929"
+    },
+    {
+      "path": "src/assets/seclect_ characters/cabecalho_referencia.png",
+      "bytes": 229277,
+      "sha256": "90501123ae9653fc65ba67ecf79221d9c584c1b3c980a3e6724e52b423664bee"
+    },
+    {
+      "path": "src/assets/seclect_ characters/cartazes_referencia/billy.png",
+      "bytes": 367004,
+      "sha256": "abdfdeea4c28e0c1fab10c3504a22b3296e3c7f5458c7714a73ba0e7fe6f3609"
+    },
+    {
+      "path": "src/assets/seclect_ characters/cartazes_referencia/bob.png",
+      "bytes": 375868,
+      "sha256": "8370d05d905434e6caa292842d6678ade9fa761545612e4c832757f31ed2e60f"
+    },
+    {
+      "path": "src/assets/seclect_ characters/cartazes_referencia/cormano.png",
+      "bytes": 360732,
+      "sha256": "401533b7b8c0592b7f3909ad40a5acecf25492f222bdb47be223be1443ad28b0"
+    },
+    {
+      "path": "src/assets/seclect_ characters/cartazes_referencia/steve.png",
+      "bytes": 398621,
+      "sha256": "2ed151677439582bf8aff29e2a776cea8f9d9fa114ed3fbc63f4d3aa98ee6730"
+    },
+    {
+      "path": "src/assets/seclect_ characters/painel_inferior_referencia.png",
+      "bytes": 736326,
+      "sha256": "57a125b79e146c47cb4b85950139001cc3bcf305c8b4e8e79137d1111b3c00cc"
+    },
+    {
+      "path": "src/assets/seclect_ characters/tela_atual.png",
+      "bytes": 130158,
+      "sha256": "1f814496db781b7b106cf77d04410345bebacf1cb1da0034505585a8ea5eb4ac"
+    },
+    {
+      "path": "src/assets/seclect_ characters/tela_selecao_referencia.png",
+      "bytes": 3290698,
+      "sha256": "1a495ae2ba4c4b3d86daa04d5dceff7ba0c3be7b86a29004bf51d713b72976af"
+    },
+    {
+      "path": "src/assets/ui/background_dim_vignette.png",
+      "bytes": 73674,
+      "sha256": "4b1c68054027a11f090aa7409bca91e156c2d8178c6b41deb5ce65c1e0f6ffdb"
+    },
+    {
+      "path": "src/assets/ui/blank_wanted_poster.png",
+      "bytes": 25407,
+      "sha256": "8a47ca7b12140e19dd9d3670b82a4f8280b3497ca7b9aecdcb8f8572db361802"
+    },
+    {
+      "path": "src/assets/ui/button_idle.png",
+      "bytes": 887,
+      "sha256": "a33262567642637648ce9b75a2517d8155599f1ee89a7cee3a89521dfd7b6643"
+    },
+    {
+      "path": "src/assets/ui/button_selected.png",
+      "bytes": 845,
+      "sha256": "0f900e37c8000f4a3895ea46ee4e98e66c565013e325b83c59b7ab8da4fd35da"
+    },
+    {
+      "path": "src/assets/ui/ornamental_separator.png",
+      "bytes": 293,
+      "sha256": "da41878cb00c2e12c7dc635b900d7a786ca78ca909771f51d327ed453a3702e3"
+    },
+    {
+      "path": "src/assets/ui/parchment_info_panel.png",
+      "bytes": 1705,
+      "sha256": "baf243b5a263bb479697ab2cd1fb8060e0dc724f817756c0cdc70c1f6d500076"
+    },
+    {
+      "path": "src/assets/ui/ribbon_max.png",
+      "bytes": 766,
+      "sha256": "af0a1c42155d7ae60879621a4dc436c1508767a1676622fd7b369e9eb27319b9"
+    },
+    {
+      "path": "src/assets/ui/ribbon_new.png",
+      "bytes": 781,
+      "sha256": "380e842fb1bb12f3ac61f22e0e9ee1617b00b524c8faa8d8e54da1f67dd00dc6"
+    },
+    {
+      "path": "src/assets/ui/ribbon_upgrade.png",
+      "bytes": 763,
+      "sha256": "ac511d0ebc63dd0607ae3b4a3b42c77310cdf9a93bd52d1de41dd38f715e9cba"
+    },
+    {
+      "path": "src/assets/ui/selected_card_frame.png",
+      "bytes": 3392,
+      "sha256": "7715ee327ce6054f237c6f89e20acdf0c8a2b8b19b4980ba9fa501606dcf3fd3"
+    },
+    {
+      "path": "src/assets/ui/wood_description_panel.png",
+      "bytes": 4402,
+      "sha256": "9a9cab4928cb461fe792d4763caba8348d9bc007be74c9d8732c0f8d7a9a2ae8"
+    },
+    {
+      "path": "src/assets/ui/wood_title_board.png",
+      "bytes": 2992,
+      "sha256": "e5b52ad3981492a96e0fe64a50d568902a6ac2b7c8691a1032c5cc767253980d"
+    }
+  ],
+  "movedSourceArtifacts": [
+    {
+      "from": "public/assets/bosses/pixellab/chief-wigwam/character.zip",
+      "to": "art/source/bosses/pixellab/chief-wigwam/character.zip"
+    },
+    {
+      "from": "public/assets/bosses/pixellab/chief-wigwam/metadata.json",
+      "to": "art/source/bosses/pixellab/chief-wigwam/metadata.json"
+    },
+    {
+      "from": "public/assets/bosses/pixellab/dark-horse/character.zip",
+      "to": "art/source/bosses/pixellab/dark-horse/character.zip"
+    },
+    {
+      "from": "public/assets/bosses/pixellab/dark-horse/metadata.json",
+      "to": "art/source/bosses/pixellab/dark-horse/metadata.json"
+    },
+    {
+      "from": "public/assets/bosses/pixellab/el-greco/character.zip",
+      "to": "art/source/bosses/pixellab/el-greco/character.zip"
+    },
+    {
+      "from": "public/assets/bosses/pixellab/el-greco/metadata.json",
+      "to": "art/source/bosses/pixellab/el-greco/metadata.json"
+    },
+    {
+      "from": "public/assets/bosses/pixellab/hawkeye-hank-hatfield/character.zip",
+      "to": "art/source/bosses/pixellab/hawkeye-hank-hatfield/character.zip"
+    },
+    {
+      "from": "public/assets/bosses/pixellab/hawkeye-hank-hatfield/metadata.json",
+      "to": "art/source/bosses/pixellab/hawkeye-hank-hatfield/metadata.json"
+    },
+    {
+      "from": "public/assets/bosses/pixellab/paco-loco/character.zip",
+      "to": "art/source/bosses/pixellab/paco-loco/character.zip"
+    },
+    {
+      "from": "public/assets/bosses/pixellab/paco-loco/metadata.json",
+      "to": "art/source/bosses/pixellab/paco-loco/metadata.json"
+    },
+    {
+      "from": "public/assets/bosses/pixellab/simon-greedwell/character.zip",
+      "to": "art/source/bosses/pixellab/simon-greedwell/character.zip"
+    },
+    {
+      "from": "public/assets/bosses/pixellab/simon-greedwell/metadata.json",
+      "to": "art/source/bosses/pixellab/simon-greedwell/metadata.json"
+    },
+    {
+      "from": "public/assets/bosses/pixellab/sir-richard-rose/character.zip",
+      "to": "art/source/bosses/pixellab/sir-richard-rose/character.zip"
+    },
+    {
+      "from": "public/assets/bosses/pixellab/sir-richard-rose/metadata.json",
+      "to": "art/source/bosses/pixellab/sir-richard-rose/metadata.json"
+    },
+    {
+      "from": "public/assets/bosses/pixellab/smith-brother-gray/character.zip",
+      "to": "art/source/bosses/pixellab/smith-brother-gray/character.zip"
+    },
+    {
+      "from": "public/assets/bosses/pixellab/smith-brother-gray/metadata.json",
+      "to": "art/source/bosses/pixellab/smith-brother-gray/metadata.json"
+    },
+    {
+      "from": "public/assets/bosses/pixellab/smith-brother-red/character.zip",
+      "to": "art/source/bosses/pixellab/smith-brother-red/character.zip"
+    },
+    {
+      "from": "public/assets/bosses/pixellab/smith-brother-red/metadata.json",
+      "to": "art/source/bosses/pixellab/smith-brother-red/metadata.json"
+    },
+    {
+      "from": "public/assets/characters/pixellab/billy/animation-selection.json",
+      "to": "art/source/characters/pixellab/billy/animation-selection.json"
+    },
+    {
+      "from": "public/assets/characters/pixellab/billy/billy.zip",
+      "to": "art/source/characters/pixellab/billy/billy.zip"
+    },
+    {
+      "from": "public/assets/characters/pixellab/billy/metadata.json",
+      "to": "art/source/characters/pixellab/billy/metadata.json"
+    },
+    {
+      "from": "public/assets/characters/pixellab/billy/pixellab-source.zip",
+      "to": "art/source/characters/pixellab/billy/pixellab-source.zip"
+    },
+    {
+      "from": "public/assets/characters/pixellab/billy/template-original.zip",
+      "to": "art/source/characters/pixellab/billy/template-original.zip"
+    },
+    {
+      "from": "public/assets/enemies/pixellab/coyote/character.zip",
+      "to": "art/source/enemies/pixellab/coyote/character.zip"
+    },
+    {
+      "from": "public/assets/enemies/pixellab/coyote/metadata.json",
+      "to": "art/source/enemies/pixellab/coyote/metadata.json"
+    },
+    {
+      "from": "public/assets/enemies/pixellab/dynamite_outlaw/character.zip",
+      "to": "art/source/enemies/pixellab/dynamite_outlaw/character.zip"
+    },
+    {
+      "from": "public/assets/enemies/pixellab/dynamite_outlaw/metadata.json",
+      "to": "art/source/enemies/pixellab/dynamite_outlaw/metadata.json"
+    },
+    {
+      "from": "public/assets/enemies/pixellab/knife_bandit/character.zip",
+      "to": "art/source/enemies/pixellab/knife_bandit/character.zip"
+    },
+    {
+      "from": "public/assets/enemies/pixellab/knife_bandit/metadata.json",
+      "to": "art/source/enemies/pixellab/knife_bandit/metadata.json"
+    },
+    {
+      "from": "public/assets/enemies/pixellab/knife_scout/character.zip",
+      "to": "art/source/enemies/pixellab/knife_scout/character.zip"
+    },
+    {
+      "from": "public/assets/enemies/pixellab/knife_scout/metadata.json",
+      "to": "art/source/enemies/pixellab/knife_scout/metadata.json"
+    },
+    {
+      "from": "public/assets/enemies/pixellab/longhorn/character.zip",
+      "to": "art/source/enemies/pixellab/longhorn/character.zip"
+    },
+    {
+      "from": "public/assets/enemies/pixellab/longhorn/metadata.json",
+      "to": "art/source/enemies/pixellab/longhorn/metadata.json"
+    },
+    {
+      "from": "public/assets/enemies/pixellab/rifle_guard/character.zip",
+      "to": "art/source/enemies/pixellab/rifle_guard/character.zip"
+    },
+    {
+      "from": "public/assets/enemies/pixellab/rifle_guard/metadata.json",
+      "to": "art/source/enemies/pixellab/rifle_guard/metadata.json"
+    }
+  ]
+}
