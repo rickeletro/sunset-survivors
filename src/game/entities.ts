@@ -21,6 +21,7 @@ export interface Projectile {
 export interface Enemy {
   sprite: Phaser.GameObjects.Sprite;
   type: EnemyKind | 'boss';
+  training?: boolean;
   hp: number;
   maxHp: number;
   speed: number;

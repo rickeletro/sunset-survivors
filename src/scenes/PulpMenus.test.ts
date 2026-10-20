@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const { Node } = vi.hoisted(() => {
   class Node {
+    visible = true; fontSize = 0;
     active = true; x = 0; y = 0; width = 100; height = 100; scaleX = 1; scaleY = 1;
     text = ''; list: any[] = []; scene: any; parentContainer?: Node;
     listeners = new Map<string, { fn: (...args: any[]) => void; context?: any; once: boolean }[]>();
@@ -9,7 +10,7 @@ const { Node } = vi.hoisted(() => {
     on(event: string, fn: (...args: any[]) => void, context?: any) { this.listeners.set(event, [...this.listeners.get(event) ?? [], { fn, context, once: false }]); return this; }
     once(event: string, fn: (...args: any[]) => void) { this.on(event, fn); this.listeners.get(event)!.at(-1)!.once = true; return this; }
     off(event: string, fn: (...args: any[]) => void) { this.listeners.set(event, (this.listeners.get(event) ?? []).filter(item => item.fn !== fn)); return this; }
-    emit(event: string) { for (const item of [...this.listeners.get(event) ?? []]) { if (item.once) this.off(event, item.fn); item.fn.call(item.context); } return this; }
+    emit(event: string, ...args: any[]) { for (const item of [...this.listeners.get(event) ?? []]) { if (item.once) this.off(event, item.fn); item.fn.apply(item.context, args); } return this; }
     add(node: any) { this.list.push(node); node.parentContainer = this; return this; }
     removeAll(destroy = false) { if (destroy) this.list.forEach(node => node.destroy()); this.list = []; return this; }
     destroy() { this.active = false; this.removeAll(true); this.listeners.clear(); }
@@ -17,6 +18,10 @@ const { Node } = vi.hoisted(() => {
     setScale(x: number, y = x) { this.scaleX = x; this.scaleY = y; return this; }
     setSize(width: number, height: number) { this.width = width; this.height = height; return this; }
     setText(text: string) { this.text = text; return this; }
+    setScrollFactor() { return this; } setFontFamily() { return this; }
+    setFontSize(size: number) { this.fontSize = size; return this; }
+    setY(y: number) { this.y = y; return this; }
+    setVisible(visible: boolean) { this.visible = visible; return this; }
     setOrigin() { return this; } setAlpha() { return this; } setBlendMode() { return this; }
     setDepth() { return this; } setStroke() { return this; } setColor() { return this; }
     setTint() { return this; } setInteractive() { return this; }
@@ -33,6 +38,8 @@ import { StageClearScene } from './StageClearScene';
 import { ControlsScene } from './ControlsScene';
 import { UnlockablesScene } from './UnlockablesScene';
 import { WesternButton } from '../ui/components/WesternButton';
+import { FirstRunTutorial } from '../systems/FirstRunTutorial';
+import { FirstRunTutorialView } from '../ui/hud/FirstRunTutorialView';
 import { bindPulpMenu } from '../ui/layout/pulpSceneKit';
 
 function setup(Scene: any, data: any = {}) {
@@ -115,5 +122,35 @@ describe('composed Western Pulp menus without browser gameplay or screenshots', 
     expect(h.scene.input.keyboard.listeners.size).toBe(0);
     for (let i = 0; i < 10; i++) { h.scene.create(); h.scene.events.emit('shutdown'); }
     for (const handlers of h.scene.input.keyboard.listeners.values()) expect(handlers).toHaveLength(0);
+  });
+});
+
+
+describe('live in-world tutorial presentation', () => {
+  it.each([[320, 720], [390, 844], [1280, 720], [640, 360]])('keeps the card within a %i × %i viewport, readable and skippable', (width, height) => {
+    const h = setup(PauseScene);
+    h.scene.scale.width = width; h.scene.scale.height = height;
+    const model = new FirstRunTutorial(false, width < 600 ? 'touch' : 'keyboard', vi.fn());
+    const skip = vi.fn();
+    const view: any = new FirstRunTutorialView(h.scene, model, skip);
+    view.update(4000, 4000, 0);
+    if (height >= 480) expect(view.root.x).toBe(width / 2);
+    else {
+      expect(view.root.y - 36).toBeGreaterThan(height / 2 + 30);
+      expect(view.root.x + view.root.scaleX * 380).toBeLessThan(view.skipButton.x - 82);
+    }
+    expect(view.root.scaleX * 760).toBeLessThanOrEqual(width - 24);
+    expect(view.body.fontSize * view.root.scaleX).toBeGreaterThanOrEqual(14);
+    expect(view.skipButton.width).toBeGreaterThanOrEqual(44);
+    expect(view.skipButton.height).toBeGreaterThanOrEqual(44);
+    expect(view.skipButton.visible).toBe(true);
+    expect(view.skipLabel.text).toBe(width < 600 ? 'PULAR' : 'PULAR [T]');
+    h.scene.input.keyboard.emit('keydown-T'); expect(skip).toHaveBeenCalledTimes(1);
+    model.skip(); view.update(4000, 4000, 0); expect(view.skipButton.visible).toBe(false);
+    model.tick(3000); view.update(4000, 4000, 0); expect(view.root.visible).toBe(false);
+    h.scene.events.emit('shutdown');
+    expect(view.root.active).toBe(false);
+    expect(h.scene.input.keyboard.listeners.get('keydown-T')).toHaveLength(0);
+    expect(h.scene.scale.listeners.get('resize')).toHaveLength(0);
   });
 });
