@@ -1,0 +1,991 @@
+{
+  "locomotive": {
+    "args": {
+      "description": "An 1880 American steam locomotive facing right, black boiler, brass bell, red cowcatcher, large steel wheels, no smoke cloud. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.",
+      "width": 256,
+      "height": 128,
+      "view": "low top-down",
+      "outline": "single color outline",
+      "shading": "detailed shading",
+      "detail": "high detail"
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 1ddf309b-57f9-4c81-8b32-ac2cd6a5cd35\ndescription: An 1880 American steam locomotive facing right, black boiler, brass bell, red cowcatcher, large steel wheels, no smoke cloud. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 256x128px\nview: low top-down\nmode: basic\nstatus: processing (~30-90s)\n\nthe object is permanent \u2014 place it with place_map_object once ready\nhint: get_map_object(object_id=\"1ddf309b-57f9-4c81-8b32-ac2cd6a5cd35\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "status_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "status: completed\nid: 1ddf309b-57f9-4c81-8b32-ac2cd6a5cd35\ndescription: An 1880 American steam locomotive facing right, black boiler, brass bell, red cowcatcher, large steel wheels, no smoke cloud. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 256x128px\nview: low top-down\nbackground: transparent\ncreated: 2026-10-20 04:28\ndownload: https://api.pixellab.ai/mcp/map-objects/1ddf309b-57f9-4c81-8b32-ac2cd6a5cd35/download\n\nhint: place_map_object(map_id=\"<map>\", x=..., y=..., object_id=\"1ddf309b-57f9-4c81-8b32-ac2cd6a5cd35\")"
+          }
+        ],
+        "isError": false
+      }
+    }
+  },
+  "cargo-wagon": {
+    "args": {
+      "description": "An 1880 wooden railroad cargo boxcar, horizontal left-to-right orientation, rust-red planks, sliding door closed, dark metal wheels and couplers. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.",
+      "width": 256,
+      "height": 128,
+      "view": "low top-down",
+      "outline": "single color outline",
+      "shading": "detailed shading",
+      "detail": "high detail"
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 557ff2eb-4905-4890-89c1-53f8c527a24d\ndescription: An 1880 wooden railroad cargo boxcar, horizontal left-to-right orientation, rust-red planks, sliding door closed, dark metal wheels and couplers. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 256x128px\nview: low top-down\nmode: basic\nstatus: processing (~30-90s)\n\nthe object is permanent \u2014 place it with place_map_object once ready\nhint: get_map_object(object_id=\"557ff2eb-4905-4890-89c1-53f8c527a24d\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "status_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "status: completed\nid: 557ff2eb-4905-4890-89c1-53f8c527a24d\ndescription: An 1880 wooden railroad cargo boxcar, horizontal left-to-right orientation, rust-red planks, sliding door closed, dark metal wheels and couplers. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 256x128px\nview: low top-down\nbackground: transparent\ncreated: 2026-10-20 04:29\ndownload: https://api.pixellab.ai/mcp/map-objects/557ff2eb-4905-4890-89c1-53f8c527a24d/download\n\nhint: place_map_object(map_id=\"<map>\", x=..., y=..., object_id=\"557ff2eb-4905-4890-89c1-53f8c527a24d\")"
+          }
+        ],
+        "isError": false
+      }
+    }
+  },
+  "passenger-wagon": {
+    "args": {
+      "description": "An 1880 railroad passenger carriage, horizontal left-to-right orientation, dark green body, brass trim, cream roof, row of warm amber windows, wheels and couplers. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.",
+      "width": 256,
+      "height": 128,
+      "view": "low top-down",
+      "outline": "single color outline",
+      "shading": "detailed shading",
+      "detail": "high detail"
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 7fba4943-3260-499b-9487-81cc96db9423\ndescription: An 1880 railroad passenger carriage, horizontal left-to-right orientation, dark green body, brass trim, cream roof, row of warm amber windows, wheels and couplers. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 256x128px\nview: low top-down\nmode: basic\nstatus: processing (~30-90s)\n\nthe object is permanent \u2014 place it with place_map_object once ready\nhint: get_map_object(object_id=\"7fba4943-3260-499b-9487-81cc96db9423\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "status_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "status: completed\nid: 7fba4943-3260-499b-9487-81cc96db9423\ndescription: An 1880 railroad passenger carriage, horizontal left-to-right orientation, dark green body, brass trim, cream roof, row of warm amber windows, wheels and couplers. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 256x128px\nview: low top-down\nbackground: transparent\ncreated: 2026-10-20 04:29\ndownload: https://api.pixellab.ai/mcp/map-objects/7fba4943-3260-499b-9487-81cc96db9423/download\n\nhint: place_map_object(map_id=\"<map>\", x=..., y=..., object_id=\"7fba4943-3260-499b-9487-81cc96db9423\")"
+          }
+        ],
+        "isError": false
+      }
+    }
+  },
+  "saloon": {
+    "args": {
+      "description": "An 1880 frontier two-storey wooden saloon building facing south, ornate false front, balcony, swinging double doors, warm amber windows, red SALOON sign, complete roof visible. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.",
+      "width": 256,
+      "height": 256,
+      "view": "low top-down",
+      "outline": "single color outline",
+      "shading": "detailed shading",
+      "detail": "high detail"
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: c92139ba-7ee7-424c-9cde-dc65fcacf444\ndescription: An 1880 frontier two-storey wooden saloon building facing south, ornate false front, balcony, swinging double doors, warm amber windows, red SALOON sign, complete roof visible. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 256x256px\nview: low top-down\nmode: basic\nstatus: processing (~30-90s)\n\nthe object is permanent \u2014 place it with place_map_object once ready\nhint: get_map_object(object_id=\"c92139ba-7ee7-424c-9cde-dc65fcacf444\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "status_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "status: completed\nid: c92139ba-7ee7-424c-9cde-dc65fcacf444\ndescription: An 1880 frontier two-storey wooden saloon building facing south, ornate false front, balcony, swinging double doors, warm amber windows, red SALOON sign, complete roof visible. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 256x256px\nview: low top-down\nbackground: transparent\ncreated: 2026-10-20 04:29\ndownload: https://api.pixellab.ai/mcp/map-objects/c92139ba-7ee7-424c-9cde-dc65fcacf444/download\n\nhint: place_map_object(map_id=\"<map>\", x=..., y=..., object_id=\"c92139ba-7ee7-424c-9cde-dc65fcacf444\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "alpha_history": [
+      {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\n  \"background_job_id\": \"0eef1c8a-1ebd-4ec2-95d0-d1cbc9bb800c\",\n  \"image_id\": \"6acf16a4-f109-5ad2-9541-820256b611e9\",\n  \"status\": \"processing\",\n  \"source_image_id\": \"6acf16a4-f109-5ad2-9541-820256b611e9\",\n  \"job_id\": \"0eef1c8a-1ebd-4ec2-95d0-d1cbc9bb800c\",\n  \"description\": \"Remove the plain background completely. Preserve the complete original pixel art building, its outline, every wooden detail, colors, perspective and size. Keep the building isolated as a clean transparent cutout. Transparent empty space surrounding the building, no floor rectangle, no scene background, no people. Do not redesign the building.\",\n  \"seed\": 0,\n  \"image_size\": {\n    \"width\": 256,\n    \"height\": 256\n  },\n  \"output_count\": 1,\n  \"estimated_generations\": 9,\n  \"pricing_provisional\": true,\n  \"poll_tool\": \"get_image\",\n  \"download_path\": \"/mcp/images/0eef1c8a-1ebd-4ec2-95d0-d1cbc9bb800c/download\"\n}\nPoll get_image(job_id=\"0eef1c8a-1ebd-4ec2-95d0-d1cbc9bb800c\"). The source_image_id is usable after completion; it is an image ID, not a character/object ID. Actual usage is reported on completion. cancel_job(job_id=...) cancels unfinished work."
+            }
+          ],
+          "structuredContent": {
+            "background_job_id": "0eef1c8a-1ebd-4ec2-95d0-d1cbc9bb800c",
+            "image_id": "6acf16a4-f109-5ad2-9541-820256b611e9",
+            "status": "processing",
+            "source_image_id": "6acf16a4-f109-5ad2-9541-820256b611e9",
+            "job_id": "0eef1c8a-1ebd-4ec2-95d0-d1cbc9bb800c",
+            "description": "Remove the plain background completely. Preserve the complete original pixel art building, its outline, every wooden detail, colors, perspective and size. Keep the building isolated as a clean transparent cutout. Transparent empty space surrounding the building, no floor rectangle, no scene background, no people. Do not redesign the building.",
+            "seed": 0,
+            "image_size": {
+              "width": 256,
+              "height": 256
+            },
+            "output_count": 1,
+            "estimated_generations": 9,
+            "pricing_provisional": true,
+            "poll_tool": "get_image",
+            "download_path": "/mcp/images/0eef1c8a-1ebd-4ec2-95d0-d1cbc9bb800c/download"
+          },
+          "isError": false
+        }
+      }
+    ],
+    "alpha_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 54a1fe7e-b9b2-478c-93a7-3b80f1f0a3e7\njob_id: 54a1fe7e-b9b2-478c-93a7-3b80f1f0a3e7\nmodel: pixen\nedit: Remove the plain background completely. Preserve the complete original pixel art building, its outline, every wooden detail, colors, perspective and size. Keep the building isolated as a clean transparent cutout. Transparent empty space surrounding the building, no floor rectangle, no scene background, no people. Do not redesign the building.\nsource: 256x256px\nsize: 256x256px\ntransparent: True\nasset_id: b807e303-ea8f-5e82-aed3-6dedef39eb18\nasset_status: pending (saved when generation completes)\ncost: 1 generation\nstatus: processing (~10-40s)\n\nhint: get_image(job_id=\"54a1fe7e-b9b2-478c-93a7-3b80f1f0a3e7\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "alpha_completed": true,
+    "alpha_status": "status: completed\nid: 54a1fe7e-b9b2-478c-93a7-3b80f1f0a3e7\njob_id: 54a1fe7e-b9b2-478c-93a7-3b80f1f0a3e7\nframes: 1\ntransparent: yes\nasset_id: b807e303-ea8f-5e82-aed3-6dedef39eb18\nasset_type: image\nasset_status: saved\ngallery: saved to your PixelLab gallery (pixellab.ai/create)\ncharged: 1 generation\ndownload: https://api.pixellab.ai/mcp/images/54a1fe7e-b9b2-478c-93a7-3b80f1f0a3e7/download\n",
+    "transparent_object": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"background_job_id\": \"ba879b99-8ccf-4a46-be40-3f04e60c6ff2\",\n  \"object_id\": \"a23840d3-6de2-4bfe-88bc-7c1f8198a954\",\n  \"status\": \"processing\",\n  \"first_direction_generated\": false,\n  \"estimated_generations\": 0,\n  \"job_id\": \"ba879b99-8ccf-4a46-be40-3f04e60c6ff2\",\n  \"n_directions\": 1,\n  \"poll_tool\": \"get_object\",\n  \"status_path\": \"/v2/background-jobs/ba879b99-8ccf-4a46-be40-3f04e60c6ff2\",\n  \"download_path\": \"/mcp/objects/a23840d3-6de2-4bfe-88bc-7c1f8198a954/download\"\n}\nid: a23840d3-6de2-4bfe-88bc-7c1f8198a954\nPoll get_object(object_id=\"a23840d3-6de2-4bfe-88bc-7c1f8198a954\") or /v2/background-jobs/ba879b99-8ccf-4a46-be40-3f04e60c6ff2; wait for the outer job to complete before downloading or animating. The selected first direction is reused without another image charge. One-direction finalization is free."
+          }
+        ],
+        "structuredContent": {
+          "background_job_id": "ba879b99-8ccf-4a46-be40-3f04e60c6ff2",
+          "object_id": "a23840d3-6de2-4bfe-88bc-7c1f8198a954",
+          "status": "processing",
+          "first_direction_generated": false,
+          "estimated_generations": 0,
+          "job_id": "ba879b99-8ccf-4a46-be40-3f04e60c6ff2",
+          "n_directions": 1,
+          "poll_tool": "get_object",
+          "status_path": "/v2/background-jobs/ba879b99-8ccf-4a46-be40-3f04e60c6ff2",
+          "download_path": "/mcp/objects/a23840d3-6de2-4bfe-88bc-7c1f8198a954/download"
+        },
+        "isError": false
+      }
+    },
+    "transparent_object_status": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "status: completed\nid: a23840d3-6de2-4bfe-88bc-7c1f8198a954\nname: SS98 - Saloon - Transparente\nstate_name: base\ndirections: 1\nsize: 256x256px\nview: low top-down\ngroup: 3703454f-1a98-4fed-ae4a-dd2d6464cc28\n\nrotations:\n  unknown: https://backblaze.pixellab.ai/file/pixellab-characters/objects/52bc453b-aad4-4a96-9d09-02d8fc4e4262/a23840d3-6de2-4bfe-88bc-7c1f8198a954/rotations/unknown.png\n\nanimations: none\n\ndownload: https://api.pixellab.ai/mcp/objects/a23840d3-6de2-4bfe-88bc-7c1f8198a954/download\nspritesheet: https://api.pixellab.ai/mcp/objects/a23840d3-6de2-4bfe-88bc-7c1f8198a954/spritesheet (one uniform-grid sheet PNG + layout JSON, zipped)\n\nactions: animate_object(object_id=\"a23840d3-6de2-4bfe-88bc-7c1f8198a954\", ...) | create_object_state(object_id=\"a23840d3-6de2-4bfe-88bc-7c1f8198a954\", ...) | delete_object(object_id=\"a23840d3-6de2-4bfe-88bc-7c1f8198a954\")\nhint: animate_object(object_id=\"a23840d3-6de2-4bfe-88bc-7c1f8198a954\", animation_description=\"...\")"
+          }
+        ],
+        "isError": false
+      }
+    }
+  },
+  "house": {
+    "args": {
+      "description": "An 1880 small frontier timber house facing south, cedar shingle pitched roof, porch, one door and two windows, warm ochre wood. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.",
+      "width": 192,
+      "height": 192,
+      "view": "low top-down",
+      "outline": "single color outline",
+      "shading": "detailed shading",
+      "detail": "high detail"
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 9eb5e024-25b9-45db-9843-987d5c28f2de\ndescription: An 1880 small frontier timber house facing south, cedar shingle pitched roof, porch, one door and two windows, warm ochre wood. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 192x192px\nview: low top-down\nmode: basic\nstatus: processing (~30-90s)\n\nthe object is permanent \u2014 place it with place_map_object once ready\nhint: get_map_object(object_id=\"9eb5e024-25b9-45db-9843-987d5c28f2de\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "status_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "status: completed\nid: 9eb5e024-25b9-45db-9843-987d5c28f2de\ndescription: An 1880 small frontier timber house facing south, cedar shingle pitched roof, porch, one door and two windows, warm ochre wood. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 192x192px\nview: low top-down\nbackground: transparent\ncreated: 2026-10-20 04:30\ndownload: https://api.pixellab.ai/mcp/map-objects/9eb5e024-25b9-45db-9843-987d5c28f2de/download\n\nhint: place_map_object(map_id=\"<map>\", x=..., y=..., object_id=\"9eb5e024-25b9-45db-9843-987d5c28f2de\")"
+          }
+        ],
+        "isError": false
+      }
+    }
+  },
+  "sheriff": {
+    "args": {
+      "description": "An 1880 frontier sheriff office facing south, dark timber false front, brass sheriff star above door, two barred windows, small porch. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.",
+      "width": 192,
+      "height": 192,
+      "view": "low top-down",
+      "outline": "single color outline",
+      "shading": "detailed shading",
+      "detail": "high detail"
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 2041c16e-def8-418b-8438-ed6c7cc0683a\ndescription: An 1880 frontier sheriff office facing south, dark timber false front, brass sheriff star above door, two barred windows, small porch. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 192x192px\nview: low top-down\nmode: basic\nstatus: processing (~30-90s)\n\nthe object is permanent \u2014 place it with place_map_object once ready\nhint: get_map_object(object_id=\"2041c16e-def8-418b-8438-ed6c7cc0683a\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "status_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "status: completed\nid: 2041c16e-def8-418b-8438-ed6c7cc0683a\ndescription: An 1880 frontier sheriff office facing south, dark timber false front, brass sheriff star above door, two barred windows, small porch. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 192x192px\nview: low top-down\nbackground: transparent\ncreated: 2026-10-20 04:30\ndownload: https://api.pixellab.ai/mcp/map-objects/2041c16e-def8-418b-8438-ed6c7cc0683a/download\n\nhint: place_map_object(map_id=\"<map>\", x=..., y=..., object_id=\"2041c16e-def8-418b-8438-ed6c7cc0683a\")"
+          }
+        ],
+        "isError": false
+      }
+    }
+  },
+  "general-store": {
+    "args": {
+      "description": "An 1880 frontier general store facing south, wooden false front, red canvas awning, wide windows, porch and small GENERAL STORE sign. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.",
+      "width": 256,
+      "height": 192,
+      "view": "low top-down",
+      "outline": "single color outline",
+      "shading": "detailed shading",
+      "detail": "high detail"
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 2256dc0c-72b3-4c94-bf7f-c42404d1eac5\ndescription: An 1880 frontier general store facing south, wooden false front, red canvas awning, wide windows, porch and small GENERAL STORE sign. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 256x192px\nview: low top-down\nmode: basic\nstatus: processing (~30-90s)\n\nthe object is permanent \u2014 place it with place_map_object once ready\nhint: get_map_object(object_id=\"2256dc0c-72b3-4c94-bf7f-c42404d1eac5\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "status_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "status: completed\nid: 2256dc0c-72b3-4c94-bf7f-c42404d1eac5\ndescription: An 1880 frontier general store facing south, wooden false front, red canvas awning, wide windows, porch and small GENERAL STORE sign. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 256x192px\nview: low top-down\nbackground: transparent\ncreated: 2026-10-20 04:30\ndownload: https://api.pixellab.ai/mcp/map-objects/2256dc0c-72b3-4c94-bf7f-c42404d1eac5/download\n\nhint: place_map_object(map_id=\"<map>\", x=..., y=..., object_id=\"2256dc0c-72b3-4c94-bf7f-c42404d1eac5\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "alpha_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"background_job_id\": \"0edcf15d-f658-4032-bf1d-1ae683b6b11c\",\n  \"image_id\": \"11e0abbb-6664-5fa7-bd7f-9f0ce113d4f9\",\n  \"status\": \"processing\",\n  \"source_image_id\": \"11e0abbb-6664-5fa7-bd7f-9f0ce113d4f9\",\n  \"job_id\": \"0edcf15d-f658-4032-bf1d-1ae683b6b11c\",\n  \"description\": \"Remove the plain background completely. Preserve the complete original pixel art building, its outline, every wooden detail, colors, perspective and size. Keep the building isolated as a clean transparent cutout. Transparent empty space surrounding the building, no floor rectangle, no scene background, no people. Do not redesign the building.\",\n  \"seed\": 0,\n  \"image_size\": {\n    \"width\": 256,\n    \"height\": 192\n  },\n  \"output_count\": 1,\n  \"estimated_generations\": 9,\n  \"pricing_provisional\": true,\n  \"poll_tool\": \"get_image\",\n  \"download_path\": \"/mcp/images/0edcf15d-f658-4032-bf1d-1ae683b6b11c/download\"\n}\nPoll get_image(job_id=\"0edcf15d-f658-4032-bf1d-1ae683b6b11c\"). The source_image_id is usable after completion; it is an image ID, not a character/object ID. Actual usage is reported on completion. cancel_job(job_id=...) cancels unfinished work."
+          }
+        ],
+        "structuredContent": {
+          "background_job_id": "0edcf15d-f658-4032-bf1d-1ae683b6b11c",
+          "image_id": "11e0abbb-6664-5fa7-bd7f-9f0ce113d4f9",
+          "status": "processing",
+          "source_image_id": "11e0abbb-6664-5fa7-bd7f-9f0ce113d4f9",
+          "job_id": "0edcf15d-f658-4032-bf1d-1ae683b6b11c",
+          "description": "Remove the plain background completely. Preserve the complete original pixel art building, its outline, every wooden detail, colors, perspective and size. Keep the building isolated as a clean transparent cutout. Transparent empty space surrounding the building, no floor rectangle, no scene background, no people. Do not redesign the building.",
+          "seed": 0,
+          "image_size": {
+            "width": 256,
+            "height": 192
+          },
+          "output_count": 1,
+          "estimated_generations": 9,
+          "pricing_provisional": true,
+          "poll_tool": "get_image",
+          "download_path": "/mcp/images/0edcf15d-f658-4032-bf1d-1ae683b6b11c/download"
+        },
+        "isError": false
+      }
+    },
+    "alpha_completed": true,
+    "alpha_status": "status: completed\nid: 0edcf15d-f658-4032-bf1d-1ae683b6b11c\njob_id: 0edcf15d-f658-4032-bf1d-1ae683b6b11c\nframes: 1\ntransparent: yes\nasset_id: 11e0abbb-6664-5fa7-bd7f-9f0ce113d4f9\nasset_type: image\nasset_status: saved\ngallery: saved to your PixelLab gallery (pixellab.ai/create)\ncharged: 9 generations\ndownload: https://api.pixellab.ai/mcp/images/0edcf15d-f658-4032-bf1d-1ae683b6b11c/download\n",
+    "transparent_object": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"background_job_id\": \"db17ad61-73fd-4d03-a63a-f26ea7074a41\",\n  \"object_id\": \"9b10ab1c-c7d0-4045-9451-23f86091301f\",\n  \"status\": \"processing\",\n  \"first_direction_generated\": false,\n  \"estimated_generations\": 0,\n  \"job_id\": \"db17ad61-73fd-4d03-a63a-f26ea7074a41\",\n  \"n_directions\": 1,\n  \"poll_tool\": \"get_object\",\n  \"status_path\": \"/v2/background-jobs/db17ad61-73fd-4d03-a63a-f26ea7074a41\",\n  \"download_path\": \"/mcp/objects/9b10ab1c-c7d0-4045-9451-23f86091301f/download\"\n}\nid: 9b10ab1c-c7d0-4045-9451-23f86091301f\nPoll get_object(object_id=\"9b10ab1c-c7d0-4045-9451-23f86091301f\") or /v2/background-jobs/db17ad61-73fd-4d03-a63a-f26ea7074a41; wait for the outer job to complete before downloading or animating. The selected first direction is reused without another image charge. One-direction finalization is free."
+          }
+        ],
+        "structuredContent": {
+          "background_job_id": "db17ad61-73fd-4d03-a63a-f26ea7074a41",
+          "object_id": "9b10ab1c-c7d0-4045-9451-23f86091301f",
+          "status": "processing",
+          "first_direction_generated": false,
+          "estimated_generations": 0,
+          "job_id": "db17ad61-73fd-4d03-a63a-f26ea7074a41",
+          "n_directions": 1,
+          "poll_tool": "get_object",
+          "status_path": "/v2/background-jobs/db17ad61-73fd-4d03-a63a-f26ea7074a41",
+          "download_path": "/mcp/objects/9b10ab1c-c7d0-4045-9451-23f86091301f/download"
+        },
+        "isError": false
+      }
+    },
+    "transparent_object_status": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "status: completed\nid: 9b10ab1c-c7d0-4045-9451-23f86091301f\nname: SS98 - Armazem - Transparente\nstate_name: base\ndirections: 1\nsize: 256x192px\nview: low top-down\ngroup: 64a0edd1-2464-4890-a0dd-0bd81fbb5c20\n\nrotations:\n  unknown: https://backblaze.pixellab.ai/file/pixellab-characters/objects/52bc453b-aad4-4a96-9d09-02d8fc4e4262/9b10ab1c-c7d0-4045-9451-23f86091301f/rotations/unknown.png\n\nanimations: none\n\ndownload: https://api.pixellab.ai/mcp/objects/9b10ab1c-c7d0-4045-9451-23f86091301f/download\nspritesheet: https://api.pixellab.ai/mcp/objects/9b10ab1c-c7d0-4045-9451-23f86091301f/spritesheet (one uniform-grid sheet PNG + layout JSON, zipped)\n\nactions: animate_object(object_id=\"9b10ab1c-c7d0-4045-9451-23f86091301f\", ...) | create_object_state(object_id=\"9b10ab1c-c7d0-4045-9451-23f86091301f\", ...) | delete_object(object_id=\"9b10ab1c-c7d0-4045-9451-23f86091301f\")\nhint: animate_object(object_id=\"9b10ab1c-c7d0-4045-9451-23f86091301f\", animation_description=\"...\")"
+          }
+        ],
+        "isError": false
+      }
+    }
+  },
+  "water-tower": {
+    "args": {
+      "description": "An 1880 railroad water tower, round wooden water tank on four heavy timber legs, small ladder, curved iron water pipe. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.",
+      "width": 128,
+      "height": 192,
+      "view": "low top-down",
+      "outline": "single color outline",
+      "shading": "detailed shading",
+      "detail": "high detail"
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 46d364ce-f048-4828-9d8e-0f2ae4161706\ndescription: An 1880 railroad water tower, round wooden water tank on four heavy timber legs, small ladder, curved iron water pipe. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 128x192px\nview: low top-down\nmode: basic\nstatus: processing (~30-90s)\n\nthe object is permanent \u2014 place it with place_map_object once ready\nhint: get_map_object(object_id=\"46d364ce-f048-4828-9d8e-0f2ae4161706\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "status_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "status: completed\nid: 46d364ce-f048-4828-9d8e-0f2ae4161706\ndescription: An 1880 railroad water tower, round wooden water tank on four heavy timber legs, small ladder, curved iron water pipe. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 128x192px\nview: low top-down\nbackground: transparent\ncreated: 2026-10-20 04:30\ndownload: https://api.pixellab.ai/mcp/map-objects/46d364ce-f048-4828-9d8e-0f2ae4161706/download\n\nhint: place_map_object(map_id=\"<map>\", x=..., y=..., object_id=\"46d364ce-f048-4828-9d8e-0f2ae4161706\")"
+          }
+        ],
+        "isError": false
+      }
+    }
+  },
+  "barn": {
+    "args": {
+      "description": "An 1880 western farm barn facing south, weathered red wooden boards, cream trim, large double doors closed, hayloft, pitched shingle roof. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.",
+      "width": 256,
+      "height": 192,
+      "view": "low top-down",
+      "outline": "single color outline",
+      "shading": "detailed shading",
+      "detail": "high detail"
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 08663047-dccf-4057-9f0b-26ed0f92ffbd\ndescription: An 1880 western farm barn facing south, weathered red wooden boards, cream trim, large double doors closed, hayloft, pitched shingle roof. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 256x192px\nview: low top-down\nmode: basic\nstatus: processing (~30-90s)\n\nthe object is permanent \u2014 place it with place_map_object once ready\nhint: get_map_object(object_id=\"08663047-dccf-4057-9f0b-26ed0f92ffbd\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "status_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "status: completed\nid: 08663047-dccf-4057-9f0b-26ed0f92ffbd\ndescription: An 1880 western farm barn facing south, weathered red wooden boards, cream trim, large double doors closed, hayloft, pitched shingle roof. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 256x192px\nview: low top-down\nbackground: transparent\ncreated: 2026-10-20 04:30\ndownload: https://api.pixellab.ai/mcp/map-objects/08663047-dccf-4057-9f0b-26ed0f92ffbd/download\n\nhint: place_map_object(map_id=\"<map>\", x=..., y=..., object_id=\"08663047-dccf-4057-9f0b-26ed0f92ffbd\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "alpha_history": [
+      {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\n  \"background_job_id\": \"65180478-ad1d-496a-a151-2a078160c758\",\n  \"image_id\": \"29c35e83-45d4-5cf8-a233-ca7dce93d4d9\",\n  \"status\": \"processing\",\n  \"source_image_id\": \"29c35e83-45d4-5cf8-a233-ca7dce93d4d9\",\n  \"job_id\": \"65180478-ad1d-496a-a151-2a078160c758\",\n  \"description\": \"Remove the plain background completely. Preserve the complete original pixel art building, its outline, every wooden detail, colors, perspective and size. Keep the building isolated as a clean transparent cutout. Transparent empty space surrounding the building, no floor rectangle, no scene background, no people. Do not redesign the building.\",\n  \"seed\": 0,\n  \"image_size\": {\n    \"width\": 256,\n    \"height\": 192\n  },\n  \"output_count\": 1,\n  \"estimated_generations\": 9,\n  \"pricing_provisional\": true,\n  \"poll_tool\": \"get_image\",\n  \"download_path\": \"/mcp/images/65180478-ad1d-496a-a151-2a078160c758/download\"\n}\nPoll get_image(job_id=\"65180478-ad1d-496a-a151-2a078160c758\"). The source_image_id is usable after completion; it is an image ID, not a character/object ID. Actual usage is reported on completion. cancel_job(job_id=...) cancels unfinished work."
+            }
+          ],
+          "structuredContent": {
+            "background_job_id": "65180478-ad1d-496a-a151-2a078160c758",
+            "image_id": "29c35e83-45d4-5cf8-a233-ca7dce93d4d9",
+            "status": "processing",
+            "source_image_id": "29c35e83-45d4-5cf8-a233-ca7dce93d4d9",
+            "job_id": "65180478-ad1d-496a-a151-2a078160c758",
+            "description": "Remove the plain background completely. Preserve the complete original pixel art building, its outline, every wooden detail, colors, perspective and size. Keep the building isolated as a clean transparent cutout. Transparent empty space surrounding the building, no floor rectangle, no scene background, no people. Do not redesign the building.",
+            "seed": 0,
+            "image_size": {
+              "width": 256,
+              "height": 192
+            },
+            "output_count": 1,
+            "estimated_generations": 9,
+            "pricing_provisional": true,
+            "poll_tool": "get_image",
+            "download_path": "/mcp/images/65180478-ad1d-496a-a151-2a078160c758/download"
+          },
+          "isError": false
+        }
+      }
+    ],
+    "alpha_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 24c4469e-8511-490f-8eb6-f3f2cdd89e34\njob_id: 24c4469e-8511-490f-8eb6-f3f2cdd89e34\nmodel: pixen\nedit: Remove the plain background completely. Preserve the complete original pixel art building, its outline, every wooden detail, colors, perspective and size. Keep the building isolated as a clean transparent cutout. Transparent empty space surrounding the building, no floor rectangle, no scene background, no people. Do not redesign the building.\nsource: 256x192px\nsize: 256x192px\ntransparent: True\nasset_id: ecdf0126-b30e-5779-9a18-432bc36f8b29\nasset_status: pending (saved when generation completes)\ncost: 1 generation\nstatus: processing (~10-40s)\n\nhint: get_image(job_id=\"24c4469e-8511-490f-8eb6-f3f2cdd89e34\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "alpha_completed": true,
+    "alpha_status": "status: completed\nid: 24c4469e-8511-490f-8eb6-f3f2cdd89e34\njob_id: 24c4469e-8511-490f-8eb6-f3f2cdd89e34\nframes: 1\ntransparent: yes\nasset_id: ecdf0126-b30e-5779-9a18-432bc36f8b29\nasset_type: image\nasset_status: saved\ngallery: saved to your PixelLab gallery (pixellab.ai/create)\ncharged: 1 generation\ndownload: https://api.pixellab.ai/mcp/images/24c4469e-8511-490f-8eb6-f3f2cdd89e34/download\n",
+    "transparent_object": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"background_job_id\": \"0b5b232d-f84a-4644-8257-06ddc7790a94\",\n  \"object_id\": \"ad88fb67-494b-413d-be16-2c6ce6497dff\",\n  \"status\": \"processing\",\n  \"first_direction_generated\": false,\n  \"estimated_generations\": 0,\n  \"job_id\": \"0b5b232d-f84a-4644-8257-06ddc7790a94\",\n  \"n_directions\": 1,\n  \"poll_tool\": \"get_object\",\n  \"status_path\": \"/v2/background-jobs/0b5b232d-f84a-4644-8257-06ddc7790a94\",\n  \"download_path\": \"/mcp/objects/ad88fb67-494b-413d-be16-2c6ce6497dff/download\"\n}\nid: ad88fb67-494b-413d-be16-2c6ce6497dff\nPoll get_object(object_id=\"ad88fb67-494b-413d-be16-2c6ce6497dff\") or /v2/background-jobs/0b5b232d-f84a-4644-8257-06ddc7790a94; wait for the outer job to complete before downloading or animating. The selected first direction is reused without another image charge. One-direction finalization is free."
+          }
+        ],
+        "structuredContent": {
+          "background_job_id": "0b5b232d-f84a-4644-8257-06ddc7790a94",
+          "object_id": "ad88fb67-494b-413d-be16-2c6ce6497dff",
+          "status": "processing",
+          "first_direction_generated": false,
+          "estimated_generations": 0,
+          "job_id": "0b5b232d-f84a-4644-8257-06ddc7790a94",
+          "n_directions": 1,
+          "poll_tool": "get_object",
+          "status_path": "/v2/background-jobs/0b5b232d-f84a-4644-8257-06ddc7790a94",
+          "download_path": "/mcp/objects/ad88fb67-494b-413d-be16-2c6ce6497dff/download"
+        },
+        "isError": false
+      }
+    },
+    "transparent_object_status": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "status: completed\nid: ad88fb67-494b-413d-be16-2c6ce6497dff\nname: SS98 - Celeiro - Transparente\nstate_name: base\ndirections: 1\nsize: 256x192px\nview: low top-down\ngroup: f169c9ad-2a01-4105-aa3b-b0fe3a62751e\n\nrotations:\n  unknown: https://backblaze.pixellab.ai/file/pixellab-characters/objects/52bc453b-aad4-4a96-9d09-02d8fc4e4262/ad88fb67-494b-413d-be16-2c6ce6497dff/rotations/unknown.png\n\nanimations: none\n\ndownload: https://api.pixellab.ai/mcp/objects/ad88fb67-494b-413d-be16-2c6ce6497dff/download\nspritesheet: https://api.pixellab.ai/mcp/objects/ad88fb67-494b-413d-be16-2c6ce6497dff/spritesheet (one uniform-grid sheet PNG + layout JSON, zipped)\n\nactions: animate_object(object_id=\"ad88fb67-494b-413d-be16-2c6ce6497dff\", ...) | create_object_state(object_id=\"ad88fb67-494b-413d-be16-2c6ce6497dff\", ...) | delete_object(object_id=\"ad88fb67-494b-413d-be16-2c6ce6497dff\")\nhint: animate_object(object_id=\"ad88fb67-494b-413d-be16-2c6ce6497dff\", animation_description=\"...\")"
+          }
+        ],
+        "isError": false
+      }
+    }
+  },
+  "hacienda": {
+    "args": {
+      "description": "An 1880 Mexican hacienda building facing south, cream adobe walls, terracotta tiled roof, arched porch, heavy wooden door, turquoise window trim. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.",
+      "width": 256,
+      "height": 256,
+      "view": "low top-down",
+      "outline": "single color outline",
+      "shading": "detailed shading",
+      "detail": "high detail"
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 86caa9df-e805-4149-9b17-fe61fa1a241b\ndescription: An 1880 Mexican hacienda building facing south, cream adobe walls, terracotta tiled roof, arched porch, heavy wooden door, turquoise window trim. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 256x256px\nview: low top-down\nmode: basic\nstatus: processing (~30-90s)\n\nthe object is permanent \u2014 place it with place_map_object once ready\nhint: get_map_object(object_id=\"86caa9df-e805-4149-9b17-fe61fa1a241b\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "status_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "status: completed\nid: 86caa9df-e805-4149-9b17-fe61fa1a241b\ndescription: An 1880 Mexican hacienda building facing south, cream adobe walls, terracotta tiled roof, arched porch, heavy wooden door, turquoise window trim. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 256x256px\nview: low top-down\nbackground: transparent\ncreated: 2026-10-20 04:30\ndownload: https://api.pixellab.ai/mcp/map-objects/86caa9df-e805-4149-9b17-fe61fa1a241b/download\n\nhint: place_map_object(map_id=\"<map>\", x=..., y=..., object_id=\"86caa9df-e805-4149-9b17-fe61fa1a241b\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "alpha_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 0d828ca6-d7dd-491a-b0eb-598215881700\njob_id: 0d828ca6-d7dd-491a-b0eb-598215881700\nmodel: pixen\nedit: Remove the plain background completely. Preserve the complete original pixel art building, its outline, every wooden detail, colors, perspective and size. Keep the building isolated as a clean transparent cutout. Transparent empty space surrounding the building, no floor rectangle, no scene background, no people. Do not redesign the building.\nsource: 256x256px\nsize: 256x256px\ntransparent: True\nasset_id: e5bff9c5-e362-5fdf-b58f-fc7c0682c960\nasset_status: pending (saved when generation completes)\ncost: 1 generation\nstatus: processing (~10-40s)\n\nhint: get_image(job_id=\"0d828ca6-d7dd-491a-b0eb-598215881700\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "alpha_completed": true,
+    "alpha_status": "status: completed\nid: 0d828ca6-d7dd-491a-b0eb-598215881700\njob_id: 0d828ca6-d7dd-491a-b0eb-598215881700\nframes: 1\ntransparent: yes\nasset_id: e5bff9c5-e362-5fdf-b58f-fc7c0682c960\nasset_type: image\nasset_status: saved\ngallery: saved to your PixelLab gallery (pixellab.ai/create)\ncharged: 1 generation\ndownload: https://api.pixellab.ai/mcp/images/0d828ca6-d7dd-491a-b0eb-598215881700/download\n",
+    "transparent_object": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"background_job_id\": \"7563f90c-8977-49a2-8a1e-5741bdbf11ba\",\n  \"object_id\": \"8a7366c5-e9a9-41ef-9594-c9aaaa102ded\",\n  \"status\": \"processing\",\n  \"first_direction_generated\": false,\n  \"estimated_generations\": 0,\n  \"job_id\": \"7563f90c-8977-49a2-8a1e-5741bdbf11ba\",\n  \"n_directions\": 1,\n  \"poll_tool\": \"get_object\",\n  \"status_path\": \"/v2/background-jobs/7563f90c-8977-49a2-8a1e-5741bdbf11ba\",\n  \"download_path\": \"/mcp/objects/8a7366c5-e9a9-41ef-9594-c9aaaa102ded/download\"\n}\nid: 8a7366c5-e9a9-41ef-9594-c9aaaa102ded\nPoll get_object(object_id=\"8a7366c5-e9a9-41ef-9594-c9aaaa102ded\") or /v2/background-jobs/7563f90c-8977-49a2-8a1e-5741bdbf11ba; wait for the outer job to complete before downloading or animating. The selected first direction is reused without another image charge. One-direction finalization is free."
+          }
+        ],
+        "structuredContent": {
+          "background_job_id": "7563f90c-8977-49a2-8a1e-5741bdbf11ba",
+          "object_id": "8a7366c5-e9a9-41ef-9594-c9aaaa102ded",
+          "status": "processing",
+          "first_direction_generated": false,
+          "estimated_generations": 0,
+          "job_id": "7563f90c-8977-49a2-8a1e-5741bdbf11ba",
+          "n_directions": 1,
+          "poll_tool": "get_object",
+          "status_path": "/v2/background-jobs/7563f90c-8977-49a2-8a1e-5741bdbf11ba",
+          "download_path": "/mcp/objects/8a7366c5-e9a9-41ef-9594-c9aaaa102ded/download"
+        },
+        "isError": false
+      }
+    },
+    "transparent_object_status": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "status: completed\nid: 8a7366c5-e9a9-41ef-9594-c9aaaa102ded\nname: SS98 - Hacienda - Transparente\nstate_name: base\ndirections: 1\nsize: 256x256px\nview: low top-down\ngroup: 694f7707-d551-4b38-a7a6-91d5b4a4fec3\n\nrotations:\n  unknown: https://backblaze.pixellab.ai/file/pixellab-characters/objects/52bc453b-aad4-4a96-9d09-02d8fc4e4262/8a7366c5-e9a9-41ef-9594-c9aaaa102ded/rotations/unknown.png\n\nanimations: none\n\ndownload: https://api.pixellab.ai/mcp/objects/8a7366c5-e9a9-41ef-9594-c9aaaa102ded/download\nspritesheet: https://api.pixellab.ai/mcp/objects/8a7366c5-e9a9-41ef-9594-c9aaaa102ded/spritesheet (one uniform-grid sheet PNG + layout JSON, zipped)\n\nactions: animate_object(object_id=\"8a7366c5-e9a9-41ef-9594-c9aaaa102ded\", ...) | create_object_state(object_id=\"8a7366c5-e9a9-41ef-9594-c9aaaa102ded\", ...) | delete_object(object_id=\"8a7366c5-e9a9-41ef-9594-c9aaaa102ded\")\nhint: animate_object(object_id=\"8a7366c5-e9a9-41ef-9594-c9aaaa102ded\", animation_description=\"...\")"
+          }
+        ],
+        "isError": false
+      }
+    }
+  },
+  "manor": {
+    "args": {
+      "description": "An 1880 Victorian frontier manor facing south, burgundy and charcoal walls, golden trim, symmetrical facade, peaked slate roofs, arched windows and front steps. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.",
+      "width": 256,
+      "height": 256,
+      "view": "low top-down",
+      "outline": "single color outline",
+      "shading": "detailed shading",
+      "detail": "high detail"
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 00745fd6-732c-4689-9e2d-5f99db460f9d\ndescription: An 1880 Victorian frontier manor facing south, burgundy and charcoal walls, golden trim, symmetrical facade, peaked slate roofs, arched windows and front steps. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 256x256px\nview: low top-down\nmode: basic\nstatus: processing (~30-90s)\n\nthe object is permanent \u2014 place it with place_map_object once ready\nhint: get_map_object(object_id=\"00745fd6-732c-4689-9e2d-5f99db460f9d\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "status_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "status: completed\nid: 00745fd6-732c-4689-9e2d-5f99db460f9d\ndescription: An 1880 Victorian frontier manor facing south, burgundy and charcoal walls, golden trim, symmetrical facade, peaked slate roofs, arched windows and front steps. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 256x256px\nview: low top-down\nbackground: transparent\ncreated: 2026-10-20 04:30\ndownload: https://api.pixellab.ai/mcp/map-objects/00745fd6-732c-4689-9e2d-5f99db460f9d/download\n\nhint: place_map_object(map_id=\"<map>\", x=..., y=..., object_id=\"00745fd6-732c-4689-9e2d-5f99db460f9d\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "alpha_response": {
+      "result": {
+        "structuredContent": {
+          "job_id": "a3068514-06e4-455d-a203-12452e30dfa8",
+          "source_image_id": "9f5cbfd5-c9d2-5b93-af98-055a068f5de3"
+        }
+      }
+    },
+    "alpha_completed": true,
+    "alpha_status": "status: completed\nid: a3068514-06e4-455d-a203-12452e30dfa8\njob_id: a3068514-06e4-455d-a203-12452e30dfa8\nframes: 1\ntransparent: yes\nasset_id: 9f5cbfd5-c9d2-5b93-af98-055a068f5de3\nasset_type: image\nasset_status: saved\ngallery: saved to your PixelLab gallery (pixellab.ai/create)\ncharged: 9 generations\ndownload: https://api.pixellab.ai/mcp/images/a3068514-06e4-455d-a203-12452e30dfa8/download\n",
+    "transparent_object": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"background_job_id\": \"883f3172-4ae8-41f2-aea3-1bb8e8b0908e\",\n  \"object_id\": \"8a24a9f1-bd3e-4b9d-ae5f-0fa74cc3db80\",\n  \"status\": \"processing\",\n  \"first_direction_generated\": false,\n  \"estimated_generations\": 0,\n  \"job_id\": \"883f3172-4ae8-41f2-aea3-1bb8e8b0908e\",\n  \"n_directions\": 1,\n  \"poll_tool\": \"get_object\",\n  \"status_path\": \"/v2/background-jobs/883f3172-4ae8-41f2-aea3-1bb8e8b0908e\",\n  \"download_path\": \"/mcp/objects/8a24a9f1-bd3e-4b9d-ae5f-0fa74cc3db80/download\"\n}\nid: 8a24a9f1-bd3e-4b9d-ae5f-0fa74cc3db80\nPoll get_object(object_id=\"8a24a9f1-bd3e-4b9d-ae5f-0fa74cc3db80\") or /v2/background-jobs/883f3172-4ae8-41f2-aea3-1bb8e8b0908e; wait for the outer job to complete before downloading or animating. The selected first direction is reused without another image charge. One-direction finalization is free."
+          }
+        ],
+        "structuredContent": {
+          "background_job_id": "883f3172-4ae8-41f2-aea3-1bb8e8b0908e",
+          "object_id": "8a24a9f1-bd3e-4b9d-ae5f-0fa74cc3db80",
+          "status": "processing",
+          "first_direction_generated": false,
+          "estimated_generations": 0,
+          "job_id": "883f3172-4ae8-41f2-aea3-1bb8e8b0908e",
+          "n_directions": 1,
+          "poll_tool": "get_object",
+          "status_path": "/v2/background-jobs/883f3172-4ae8-41f2-aea3-1bb8e8b0908e",
+          "download_path": "/mcp/objects/8a24a9f1-bd3e-4b9d-ae5f-0fa74cc3db80/download"
+        },
+        "isError": false
+      }
+    },
+    "transparent_object_status": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "status: completed\nid: 8a24a9f1-bd3e-4b9d-ae5f-0fa74cc3db80\nname: SS98 - Mansao - Transparente\nstate_name: base\ndirections: 1\nsize: 256x256px\nview: low top-down\ngroup: 838d3c01-45a3-4498-a7ca-35a58ba97437\n\nrotations:\n  unknown: https://backblaze.pixellab.ai/file/pixellab-characters/objects/52bc453b-aad4-4a96-9d09-02d8fc4e4262/8a24a9f1-bd3e-4b9d-ae5f-0fa74cc3db80/rotations/unknown.png\n\nanimations: none\n\ndownload: https://api.pixellab.ai/mcp/objects/8a24a9f1-bd3e-4b9d-ae5f-0fa74cc3db80/download\nspritesheet: https://api.pixellab.ai/mcp/objects/8a24a9f1-bd3e-4b9d-ae5f-0fa74cc3db80/spritesheet (one uniform-grid sheet PNG + layout JSON, zipped)\n\nactions: animate_object(object_id=\"8a24a9f1-bd3e-4b9d-ae5f-0fa74cc3db80\", ...) | create_object_state(object_id=\"8a24a9f1-bd3e-4b9d-ae5f-0fa74cc3db80\", ...) | delete_object(object_id=\"8a24a9f1-bd3e-4b9d-ae5f-0fa74cc3db80\")\nhint: animate_object(object_id=\"8a24a9f1-bd3e-4b9d-ae5f-0fa74cc3db80\", animation_description=\"...\")"
+          }
+        ],
+        "isError": false
+      }
+    }
+  },
+  "supply-cart": {
+    "args": {
+      "description": "An 1880 western freight handcart loaded with distinct rope-tied wooden crates and rolled sacks, two wooden wheels, low wooden bed. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.",
+      "width": 128,
+      "height": 128,
+      "view": "low top-down",
+      "outline": "single color outline",
+      "shading": "detailed shading",
+      "detail": "high detail"
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 763d5126-d4d2-48d6-8b4c-48937d0f9e19\ndescription: An 1880 western freight handcart loaded with distinct rope-tied wooden crates and rolled sacks, two wooden wheels, low wooden bed. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 128x128px\nview: low top-down\nmode: basic\nstatus: processing (~30-90s)\n\nthe object is permanent \u2014 place it with place_map_object once ready\nhint: get_map_object(object_id=\"763d5126-d4d2-48d6-8b4c-48937d0f9e19\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "status_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "status: completed\nid: 763d5126-d4d2-48d6-8b4c-48937d0f9e19\ndescription: An 1880 western freight handcart loaded with distinct rope-tied wooden crates and rolled sacks, two wooden wheels, low wooden bed. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 128x128px\nview: low top-down\nbackground: transparent\ncreated: 2026-10-20 04:30\ndownload: https://api.pixellab.ai/mcp/map-objects/763d5126-d4d2-48d6-8b4c-48937d0f9e19/download\n\nhint: place_map_object(map_id=\"<map>\", x=..., y=..., object_id=\"763d5126-d4d2-48d6-8b4c-48937d0f9e19\")"
+          }
+        ],
+        "isError": false
+      }
+    }
+  },
+  "rail-station": {
+    "args": {
+      "description": "An 1880 small frontier railroad station facing south, timber ticket office, long covered platform, brass clock, red shingle roof, STATION sign. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.",
+      "width": 256,
+      "height": 192,
+      "view": "low top-down",
+      "outline": "single color outline",
+      "shading": "detailed shading",
+      "detail": "high detail"
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 988808d3-895f-41df-bdac-1ef2a745c671\ndescription: An 1880 small frontier railroad station facing south, timber ticket office, long covered platform, brass clock, red shingle roof, STATION sign. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 256x192px\nview: low top-down\nmode: basic\nstatus: processing (~30-90s)\n\nthe object is permanent \u2014 place it with place_map_object once ready\nhint: get_map_object(object_id=\"988808d3-895f-41df-bdac-1ef2a745c671\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "status_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "status: completed\nid: 988808d3-895f-41df-bdac-1ef2a745c671\ndescription: An 1880 small frontier railroad station facing south, timber ticket office, long covered platform, brass clock, red shingle roof, STATION sign. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 256x192px\nview: low top-down\nbackground: transparent\ncreated: 2026-10-20 04:33\ndownload: https://api.pixellab.ai/mcp/map-objects/988808d3-895f-41df-bdac-1ef2a745c671/download\n\nhint: place_map_object(map_id=\"<map>\", x=..., y=..., object_id=\"988808d3-895f-41df-bdac-1ef2a745c671\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "alpha_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 28f3822f-e771-4acc-9d37-a0c7149456a1\njob_id: 28f3822f-e771-4acc-9d37-a0c7149456a1\nmodel: pixen\nedit: Remove the plain background completely. Preserve the complete original pixel art building, its outline, every wooden detail, colors, perspective and size. Keep the building isolated as a clean transparent cutout. Transparent empty space surrounding the building, no floor rectangle, no scene background, no people. Do not redesign the building.\nsource: 256x192px\nsize: 256x192px\ntransparent: True\nasset_id: 5d889a45-8b8a-5628-83f2-a090e446fda8\nasset_status: pending (saved when generation completes)\ncost: 1 generation\nstatus: processing (~10-40s)\n\nhint: get_image(job_id=\"28f3822f-e771-4acc-9d37-a0c7149456a1\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "alpha_completed": true,
+    "alpha_status": "status: completed\nid: 28f3822f-e771-4acc-9d37-a0c7149456a1\njob_id: 28f3822f-e771-4acc-9d37-a0c7149456a1\nframes: 1\ntransparent: yes\nasset_id: 5d889a45-8b8a-5628-83f2-a090e446fda8\nasset_type: image\nasset_status: saved\ngallery: saved to your PixelLab gallery (pixellab.ai/create)\ncharged: 1 generation\ndownload: https://api.pixellab.ai/mcp/images/28f3822f-e771-4acc-9d37-a0c7149456a1/download\n",
+    "transparent_object": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"background_job_id\": \"c16fb21d-dd85-4c05-8de6-358f82a568a7\",\n  \"object_id\": \"abe9028d-b757-490d-8648-b92f07c93292\",\n  \"status\": \"processing\",\n  \"first_direction_generated\": false,\n  \"estimated_generations\": 0,\n  \"job_id\": \"c16fb21d-dd85-4c05-8de6-358f82a568a7\",\n  \"n_directions\": 1,\n  \"poll_tool\": \"get_object\",\n  \"status_path\": \"/v2/background-jobs/c16fb21d-dd85-4c05-8de6-358f82a568a7\",\n  \"download_path\": \"/mcp/objects/abe9028d-b757-490d-8648-b92f07c93292/download\"\n}\nid: abe9028d-b757-490d-8648-b92f07c93292\nPoll get_object(object_id=\"abe9028d-b757-490d-8648-b92f07c93292\") or /v2/background-jobs/c16fb21d-dd85-4c05-8de6-358f82a568a7; wait for the outer job to complete before downloading or animating. The selected first direction is reused without another image charge. One-direction finalization is free."
+          }
+        ],
+        "structuredContent": {
+          "background_job_id": "c16fb21d-dd85-4c05-8de6-358f82a568a7",
+          "object_id": "abe9028d-b757-490d-8648-b92f07c93292",
+          "status": "processing",
+          "first_direction_generated": false,
+          "estimated_generations": 0,
+          "job_id": "c16fb21d-dd85-4c05-8de6-358f82a568a7",
+          "n_directions": 1,
+          "poll_tool": "get_object",
+          "status_path": "/v2/background-jobs/c16fb21d-dd85-4c05-8de6-358f82a568a7",
+          "download_path": "/mcp/objects/abe9028d-b757-490d-8648-b92f07c93292/download"
+        },
+        "isError": false
+      }
+    },
+    "transparent_object_status": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "status: completed\nid: abe9028d-b757-490d-8648-b92f07c93292\nname: SS98 - Estacao - Transparente\nstate_name: base\ndirections: 1\nsize: 256x192px\nview: low top-down\ngroup: ae03bd08-7338-46b5-a777-561997495b79\n\nrotations:\n  unknown: https://backblaze.pixellab.ai/file/pixellab-characters/objects/52bc453b-aad4-4a96-9d09-02d8fc4e4262/abe9028d-b757-490d-8648-b92f07c93292/rotations/unknown.png\n\nanimations: none\n\ndownload: https://api.pixellab.ai/mcp/objects/abe9028d-b757-490d-8648-b92f07c93292/download\nspritesheet: https://api.pixellab.ai/mcp/objects/abe9028d-b757-490d-8648-b92f07c93292/spritesheet (one uniform-grid sheet PNG + layout JSON, zipped)\n\nactions: animate_object(object_id=\"abe9028d-b757-490d-8648-b92f07c93292\", ...) | create_object_state(object_id=\"abe9028d-b757-490d-8648-b92f07c93292\", ...) | delete_object(object_id=\"abe9028d-b757-490d-8648-b92f07c93292\")\nhint: animate_object(object_id=\"abe9028d-b757-490d-8648-b92f07c93292\", animation_description=\"...\")"
+          }
+        ],
+        "isError": false
+      }
+    }
+  },
+  "mine-entrance": {
+    "args": {
+      "description": "An 1880 western mine entrance cut into a small charcoal purple rock outcrop, heavy timber supports, black tunnel opening, short rails emerging toward bottom, pickaxe leaning against beam. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.",
+      "width": 192,
+      "height": 192,
+      "view": "low top-down",
+      "outline": "single color outline",
+      "shading": "detailed shading",
+      "detail": "high detail"
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: 43e87b2b-e73f-4afb-8f99-2c0eb95c4b5c\ndescription: An 1880 western mine entrance cut into a small charcoal purple rock outcrop, heavy timber supports, black tunnel opening, short rails emerging toward bottom, pickaxe leaning against beam. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 192x192px\nview: low top-down\nmode: basic\nstatus: processing (~30-90s)\n\nthe object is permanent \u2014 place it with place_map_object once ready\nhint: get_map_object(object_id=\"43e87b2b-e73f-4afb-8f99-2c0eb95c4b5c\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "status_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "status: completed\nid: 43e87b2b-e73f-4afb-8f99-2c0eb95c4b5c\ndescription: An 1880 western mine entrance cut into a small charcoal purple rock outcrop, heavy timber supports, black tunnel opening, short rails emerging toward bottom, pickaxe leaning against beam. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 192x192px\nview: low top-down\nbackground: transparent\ncreated: 2026-10-20 04:33\ndownload: https://api.pixellab.ai/mcp/map-objects/43e87b2b-e73f-4afb-8f99-2c0eb95c4b5c/download\n\nhint: place_map_object(map_id=\"<map>\", x=..., y=..., object_id=\"43e87b2b-e73f-4afb-8f99-2c0eb95c4b5c\")"
+          }
+        ],
+        "isError": false
+      }
+    }
+  },
+  "well": {
+    "args": {
+      "description": "An 1880 frontier village water well, circular rough stone rim, two timber posts and little wood shingle canopy, rope pulley and bucket. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.",
+      "width": 96,
+      "height": 96,
+      "view": "low top-down",
+      "outline": "single color outline",
+      "shading": "detailed shading",
+      "detail": "high detail"
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: fe18432d-d65a-458c-a2c1-29868ab1b251\ndescription: An 1880 frontier village water well, circular rough stone rim, two timber posts and little wood shingle canopy, rope pulley and bucket. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 96x96px\nview: low top-down\nmode: basic\nstatus: processing (~30-90s)\n\nthe object is permanent \u2014 place it with place_map_object once ready\nhint: get_map_object(object_id=\"fe18432d-d65a-458c-a2c1-29868ab1b251\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "status_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "status: completed\nid: fe18432d-d65a-458c-a2c1-29868ab1b251\ndescription: An 1880 frontier village water well, circular rough stone rim, two timber posts and little wood shingle canopy, rope pulley and bucket. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 96x96px\nview: low top-down\nbackground: transparent\ncreated: 2026-10-20 04:33\ndownload: https://api.pixellab.ai/mcp/map-objects/fe18432d-d65a-458c-a2c1-29868ab1b251/download\n\nhint: place_map_object(map_id=\"<map>\", x=..., y=..., object_id=\"fe18432d-d65a-458c-a2c1-29868ab1b251\")"
+          }
+        ],
+        "isError": false
+      }
+    }
+  },
+  "hitching-post": {
+    "args": {
+      "description": "An 1880 saloon horse hitching rail, two carved wooden upright posts joined by one horizontal wooden beam, iron rings and coiled rope, no horses. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.",
+      "width": 128,
+      "height": 64,
+      "view": "low top-down",
+      "outline": "single color outline",
+      "shading": "detailed shading",
+      "detail": "high detail"
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "id: fca25e65-d52c-4258-92af-e7d11c91f038\ndescription: An 1880 saloon horse hitching rail, two carved wooden upright posts joined by one horizontal wooden beam, iron rings and coiled rope, no horses. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 128x64px\nview: low top-down\nmode: basic\nstatus: processing (~30-90s)\n\nthe object is permanent \u2014 place it with place_map_object once ready\nhint: get_map_object(object_id=\"fca25e65-d52c-4258-92af-e7d11c91f038\")"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "status_response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "status: completed\nid: fca25e65-d52c-4258-92af-e7d11c91f038\ndescription: An 1880 saloon horse hitching rail, two carved wooden upright posts joined by one horizontal wooden beam, iron rings and coiled rope, no horses. Single isolated complete game scenery prop, transparent background, low top-down orthographic view with front and roof visible, no isometric diamond, no terrain, no people, no scene background. WESTERN PULP 98, rich 32-bit Neo Geo arcade pixel art, crisp pixels, thick charcoal outlines, detailed clustered shading, warm sunset light from upper left. Palette aged parchment #F2D49A, wood #603719, dark wood #321B10, charcoal #120B08, burnt red #A51E16, gold #FFC52A. Consistent scale for 64px tall cowboys; building door roughly one third of facade height. Object centered with transparent padding; no cast shadow outside canvas.\nsize: 128x64px\nview: low top-down\nbackground: transparent\ncreated: 2026-10-20 04:33\ndownload: https://api.pixellab.ai/mcp/map-objects/fca25e65-d52c-4258-92af-e7d11c91f038/download\n\nhint: place_map_object(map_id=\"<map>\", x=..., y=..., object_id=\"fca25e65-d52c-4258-92af-e7d11c91f038\")"
+          }
+        ],
+        "isError": false
+      }
+    }
+  }
+}

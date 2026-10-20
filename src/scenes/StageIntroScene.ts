@@ -1,3 +1,5 @@
+import { preloadImages } from '../assets/registry';
+import { createMenuRoot } from '../ui/layout/menuLayout';
 import Phaser from 'phaser';
 import { sounds } from '../audio/SoundManager';
 import { CharacterData, CHARACTERS } from '../data/characters';
@@ -28,10 +30,10 @@ export class StageIntroScene extends Phaser.Scene {
 
   preload() {
     if (!this.textures.exists('title_sky')) {
-      this.load.image('title_sky', 'assets/intro/title_sky.png');
+      preloadImages(this, ['title_sky']);
     }
     if (!this.textures.exists('title_landscape')) {
-      this.load.image('title_landscape', 'assets/intro/title_landscape.png');
+      preloadImages(this, ['title_landscape']);
     }
   }
 
@@ -45,12 +47,8 @@ export class StageIntroScene extends Phaser.Scene {
     bg.fillRect(0, 0, width, height);
 
     // Reference Resolution Container (1536 x 1024)
-    const REF_W = 1536;
-    const REF_H = 1024;
-    const scale = Math.min(width / REF_W, height / REF_H);
 
-    this.rootContainer = this.add.container(width / 2, height / 2);
-    this.rootContainer.setScale(scale);
+    this.rootContainer = createMenuRoot(this);
 
     // 1. Layer: Sunset Canyon Landscape
     this.createLandscapeView();
@@ -75,7 +73,6 @@ export class StageIntroScene extends Phaser.Scene {
     // 5. Input & Auto-transition
     this.setupInputs();
 
-    this.scale.on('resize', this.handleResize, this);
   }
 
   private createLandscapeView() {
@@ -247,7 +244,7 @@ PROVISOES OPCIONAIS: LIMPE A AREA E SEGURE POR 8s`, {
     this.cameras.main.fade(350, 0, 0, 0);
 
     this.time.delayedCall(380, () => {
-      this.scale.off('resize', this.handleResize, this);
+
       this.scene.start('WantedScene', {
         character: this.character,
         stage: this.stage,
@@ -255,11 +252,4 @@ PROVISOES OPCIONAIS: LIMPE A AREA E SEGURE POR 8s`, {
     });
   }
 
-  private handleResize() {
-    if (!this.rootContainer || !this.scene.isActive()) return;
-    const { width, height } = this.scale;
-    const scale = Math.min(width / 1536, height / 1024);
-    this.rootContainer.setPosition(width / 2, height / 2);
-    this.rootContainer.setScale(scale);
-  }
 }

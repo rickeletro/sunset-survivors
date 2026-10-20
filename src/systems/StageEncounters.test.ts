@@ -56,6 +56,27 @@ describe('telegraphed hazards and optional supply camps', () => {
     encounters.tick(240, false);
     expect(hooks.spawn).toHaveBeenCalled();
   });
+  it('shows the PixelLab locomotive only during the active train pass and disposes it', () => {
+    const train = { setOrigin: vi.fn().mockReturnThis(), setDepth: vi.fn().mockReturnThis(), setPosition: vi.fn().mockReturnThis(), destroy: vi.fn() };
+    const graphic: any = {};
+    for (const key of ['setDepth', 'clear', 'lineStyle', 'fillStyle', 'fillRect', 'strokeRect', 'destroy']) graphic[key] = vi.fn().mockReturnValue(graphic);
+    const scene = { textures: { exists: () => true }, add: { image: vi.fn(() => train), graphics: () => graphic } } as unknown as Phaser.Scene;
+    const hooks = { position: () => ({ x: 4000, y: 4200 }), damage: vi.fn(), spawn: vi.fn(), reward: vi.fn(), banner: vi.fn(), contested: () => false, clearPoint: (x: number, y: number) => ({ x, y }) };
+    const encounters = new StageEncounters(scene, getStage(2), hooks);
+    encounters.warn({ x: 4000, y: 4000, radius: 0, width: 1200, height: 80 }, 2400, 1300, 35);
+    encounters.update(2399);
+    expect(scene.add.image).not.toHaveBeenCalled();
+    encounters.update(1);
+    expect(scene.add.image).toHaveBeenCalledWith(3350, 4048, 'scenery_locomotive');
+    encounters.update(650);
+    expect(train.setPosition).toHaveBeenLastCalledWith(4000, 4048);
+    expect(scene.add.image).toHaveBeenCalledTimes(1);
+    encounters.update(650);
+    expect(train.destroy).toHaveBeenCalledTimes(1);
+    expect(hooks.damage).not.toHaveBeenCalled();
+    encounters.destroy();
+    expect(train.destroy).toHaveBeenCalledTimes(1);
+  });
   it('does not hit the entire warned rail lane while the train is still far away', () => {
     const { encounters, hooks } = fixture(2);
     encounters.warn({ x: 4000, y: 4000, radius: 0, width: 1200, height: 80 }, 2400, 1300, 35);

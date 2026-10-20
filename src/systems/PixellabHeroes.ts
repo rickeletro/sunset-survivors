@@ -1,20 +1,19 @@
+import { CATALOG, framePath, SequenceKey } from '../assets/registry';
 import Phaser from 'phaser';
 
 /**
- * Heróis do Pixellab com caminhada em 6 direções: N, S, E, W, SE, SW.
- * SW é o SE espelhado (flipX). Diagonais de cima (NE/NW) usam o sprite N.
+ * Heróis do Pixellab com direções disponíveis declaradas no catálogo de assets.
+ * Direções ausentes usam os fallbacks legados; Billy possui as oito vistas reais.
  * Se uma direção não existir para um herói, há fallback (SE→E, N→S).
  *
  * Arquivos: public/assets/characters/pixellab/<hero>/Idle/animations/walking-4-frames/<dir>/frame_<000..003>.png
- * Ao baixar novas direções do Pixellab, basta adicioná-las em AVAILABLE_DIRS.
+ * Ao baixar novas direções, registre-as em assets/catalog.json.
  */
-export type PixelDir = 'north' | 'south' | 'east' | 'west' | 'south-east';
+export type PixelDir = 'north' | 'south' | 'east' | 'west' | 'south-east' | 'south-west' | 'north-east' | 'north-west';
 
-const AVAILABLE_DIRS: Record<string, PixelDir[]> = {
-  steve: ['south', 'north', 'east', 'west', 'south-east'],
-  bob: ['south', 'north', 'east', 'west'],
-  cormano: ['south', 'east', 'west'],
-};
+const AVAILABLE_DIRS = Object.fromEntries(Object.entries(CATALOG.sequences)
+  .filter(([key]) => key.startsWith('hero:'))
+  .map(([key, config]) => [key.slice(5), config.directions])) as Record<string, PixelDir[]>;
 
 const FRAMES = 4;
 const FRAME_RATE = 8;
@@ -31,7 +30,7 @@ export function preloadPixellabHeroes(scene: Phaser.Scene): void {
   for (const [hero, dirs] of Object.entries(AVAILABLE_DIRS)) {
     for (const dir of dirs) {
       for (let i = 0; i < FRAMES; i++) {
-        scene.load.image(texKey(hero, dir, i), `assets/characters/pixellab/${hero}/Idle/animations/walking-4-frames/${dir}/frame_${String(i).padStart(3, '0')}.png`);
+        scene.load.image(texKey(hero, dir, i), framePath(`hero:${hero}` as SequenceKey, dir, i));
       }
     }
   }
@@ -70,7 +69,11 @@ export function pickDirection(hero: string, dx: number, dy: number): DirChoice {
 
   if (theta < 25) return side();
   if (theta > 65) return dy < 0 ? north() : south();
-  if (dy < 0) return north(); // NE / NW
+  if (dy < 0) {
+    const diagonal = right ? 'north-east' : 'north-west';
+    return has(diagonal) ? { dir: diagonal, flipX: false } : north();
+  }
+  if (!right && has('south-west')) return { dir: 'south-west', flipX: false };
   return has('south-east') ? { dir: 'south-east', flipX: !right } : side(); // SE / SW
 }
 

@@ -1,7 +1,8 @@
+import { THEME } from '../ui/theme/tokens';
+import { createMenuRoot } from '../ui/layout/menuLayout';
 import Phaser from 'phaser';
 import { sounds } from '../audio/SoundManager';
 import { CharacterData } from '../data/characters';
-import { PASSIVES } from '../data/passives';
 import { WEAPONS } from '../data/weapons';
 
 export interface UpgradeChoice {
@@ -105,12 +106,8 @@ export class LevelUpScene extends Phaser.Scene {
     backdrop.fillRect(0, 0, width, height);
 
     // 2. Reference Resolution Root Container (1536 x 1024)
-    const REF_W = 1536;
-    const REF_H = 1024;
-    const scale = Math.min(width / REF_W, height / REF_H);
 
-    this.rootContainer = this.add.container(width / 2, height / 2);
-    this.rootContainer.setScale(scale);
+    this.rootContainer = createMenuRoot(this);
 
     // 3. Saloon & Desert Background Layer
     this.createBackgroundLayer();
@@ -220,7 +217,7 @@ export class LevelUpScene extends Phaser.Scene {
 
     // "LV. 12" em amarelo arcade acima da barra
     const lvlText = this.add.text(-565, -38, `LV. ${this.playerLevel}`, {
-      fontFamily: '"Press Start 2P", monospace',
+      fontFamily: THEME.typography.pixelFont,
       fontSize: '18px',
       color: '#ffe066',
       stroke: '#000000',
@@ -256,7 +253,7 @@ export class LevelUpScene extends Phaser.Scene {
 
     // Texto de HP "100 / 100" em branco com contorno preto abaixo da barra
     const hpText = this.add.text(barX + 4, barY + barH + 6, `${this.hp} / ${this.maxHp}`, {
-      fontFamily: '"Press Start 2P", monospace',
+      fontFamily: THEME.typography.pixelFont,
       fontSize: '13px',
       color: '#ffffff',
       stroke: '#000000',
@@ -280,7 +277,7 @@ export class LevelUpScene extends Phaser.Scene {
     }
     const goldFormatted = `$${String(this.gold).padStart(6, '0')}`;
     const goldText = this.add.text(495, -31, goldFormatted, {
-      fontFamily: '"Press Start 2P", monospace',
+      fontFamily: THEME.typography.pixelFont,
       fontSize: '16px',
       color: '#ffe066',
       stroke: '#000000',
@@ -295,7 +292,7 @@ export class LevelUpScene extends Phaser.Scene {
     }
     const killsFormatted = String(this.kills).padStart(4, '0');
     const killsText = this.add.text(495, 4, killsFormatted, {
-      fontFamily: '"Press Start 2P", monospace',
+      fontFamily: THEME.typography.pixelFont,
       fontSize: '16px',
       color: '#ffffff',
       stroke: '#000000',
@@ -334,7 +331,7 @@ export class LevelUpScene extends Phaser.Scene {
 
     // "LEVEL UP!" in Rye Woodcut Font
     const titleText = this.add.text(0, -435, 'LEVEL UP!', {
-      fontFamily: '"Rye", serif',
+      fontFamily: THEME.typography.westernFont,
       fontSize: '44px',
       color: '#a51e16',
       stroke: '#1e0d04',
@@ -350,7 +347,7 @@ export class LevelUpScene extends Phaser.Scene {
     }
 
     const bountyText = this.add.text(0, -369, '★ CHOOSE YOUR BOUNTY ★', {
-      fontFamily: '"Press Start 2P", monospace',
+      fontFamily: THEME.typography.pixelFont,
       fontSize: '13px',
       color: '#fff7ed',
       stroke: '#000000',
@@ -422,7 +419,7 @@ export class LevelUpScene extends Phaser.Scene {
 
         // Level badge dinâmico: mostra o nível que o jogador obterá (ex: ★ LV. 1 ★ ou ★ LV. 2 ★)
         const lvlBadge = this.add.text(0, plateY - 38, `★ LV. ${choice.nextLevel} ★`, {
-          fontFamily: '"Rye", serif',
+          fontFamily: THEME.typography.westernFont,
           fontSize: '14px',
           color: '#1a0d00',
           stroke: '#78350f',
@@ -455,7 +452,7 @@ export class LevelUpScene extends Phaser.Scene {
         cardContainer.add(fallbackBg);
 
         const nameText = this.add.text(0, -60, choice.name, {
-          fontFamily: '"Rye", serif',
+          fontFamily: THEME.typography.westernFont,
           fontSize: '20px',
           color: '#8b0e0e',
           align: 'center',
@@ -476,7 +473,7 @@ export class LevelUpScene extends Phaser.Scene {
         : `★ UPGRADE LV. ${choice.nextLevel} ★`;
 
       const ribbonText = this.add.text(0, -cardH / 2 - 3, ribbonTextStr, {
-        fontFamily: '"Press Start 2P", monospace',
+        fontFamily: THEME.typography.pixelFont,
         fontSize: '10px',
         color: '#ffffff',
         stroke: '#000000',
@@ -515,7 +512,7 @@ export class LevelUpScene extends Phaser.Scene {
       this.cardButtons.push(btnImg);
 
       const btnText = this.add.text(0, btnY, `[ ${idx + 1} ] CHOOSE`, {
-        fontFamily: '"Press Start 2P", monospace',
+        fontFamily: THEME.typography.pixelFont,
         fontSize: '10px',
         color: '#d97706',
       }).setOrigin(0.5);
@@ -626,7 +623,7 @@ export class LevelUpScene extends Phaser.Scene {
 
     // 3. CENTRO: Nome do Item em Dourado Arcade
     this.detailTitleText = this.add.text(-440, -62, '', {
-      fontFamily: '"Press Start 2P", monospace',
+      fontFamily: THEME.typography.pixelFont,
       fontSize: '15px',
       color: '#ffe066',
       stroke: '#000000',
@@ -636,7 +633,7 @@ export class LevelUpScene extends Phaser.Scene {
 
     // Tabela de Atributos com alinhamento pixel perfeito
     this.detailStatsText = this.add.text(-440, -32, '', {
-      fontFamily: '"Press Start 2P", monospace',
+      fontFamily: THEME.typography.pixelFont,
       fontSize: '10px',
       color: '#fff7ed',
       lineSpacing: 8,
@@ -659,7 +656,7 @@ export class LevelUpScene extends Phaser.Scene {
 
     // Texto de Lore e Estrela sobre o pergaminho
     this.detailTaglineText = this.add.text(355, -20, 'Two guns.\nOne legend.', {
-      fontFamily: '"Press Start 2P", monospace',
+      fontFamily: THEME.typography.pixelFont,
       fontSize: '10px',
       color: '#1a0d04',
       align: 'left',
@@ -668,7 +665,7 @@ export class LevelUpScene extends Phaser.Scene {
     panelContainer.add(this.detailTaglineText);
 
     const starIcon = this.add.text(355, 26, '★', {
-      fontFamily: '"Press Start 2P", monospace',
+      fontFamily: THEME.typography.pixelFont,
       fontSize: '14px',
       color: '#1a0d04',
     }).setOrigin(0.5);

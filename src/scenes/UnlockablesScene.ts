@@ -1,3 +1,4 @@
+import { createMenuRoot } from '../ui/layout/menuLayout';
 import Phaser from 'phaser';
 import { sounds } from '../audio/SoundManager';
 import { BOSSES } from '../data/bosses';
@@ -25,9 +26,7 @@ export class UnlockablesScene extends Phaser.Scene {
     bg.fillRect(0, 0, width, height);
 
     // Root Container
-    const scale = Math.min(width / 1536, height / 1024);
-    this.rootContainer = this.add.container(width / 2, height / 2);
-    this.rootContainer.setScale(scale);
+    this.rootContainer = createMenuRoot(this);
 
     // Saloon Wood Wall
     const wall = new WesternPanel(this, {
@@ -72,7 +71,6 @@ export class UnlockablesScene extends Phaser.Scene {
 
     this.input.keyboard?.once('keydown-ESC', () => this.goBack());
 
-    this.scale.on('resize', this.handleResize, this);
   }
 
   private createTabs() {
@@ -202,15 +200,8 @@ export class UnlockablesScene extends Phaser.Scene {
 
   private goBack() {
     sounds.playRevolver();
-    this.scale.off('resize', this.handleResize, this);
+
     this.scene.start('TitleScene');
   }
 
-  private handleResize() {
-    if (!this.rootContainer || !this.scene.isActive()) return;
-    const { width, height } = this.scale;
-    const scale = Math.min(width / 1536, height / 1024);
-    this.rootContainer.setPosition(width / 2, height / 2);
-    this.rootContainer.setScale(scale);
-  }
 }

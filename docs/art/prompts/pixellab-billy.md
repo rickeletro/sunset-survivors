@@ -19,7 +19,7 @@ Os jogadores consultados tinham vistas em oito direções, mas animações concl
 
 Concluído: 8 vistas base e 8 caminhadas de 4 frames, total de 32 frames animados. Todos os 40 PNGs e a integridade do ZIP foram verificados. A falha temporária de nordeste por sobrecarga foi resolvida com reenvio apenas dessa direção no mesmo grupo.
 
-Download local: `public/assets/characters/pixellab/billy/billy.zip`. Ainda não integrado às cenas ou regras de combate do jogo.
+Download local: `art/source/characters/pixellab/billy/billy.zip`. Integrado ao catálogo de jogadores em `src/assets/catalog.json`, com oito direções animadas. Os PNGs de execução ficam em `public/assets/characters/pixellab/billy/`; fontes e metadados ficam em `art/source/characters/pixellab/billy/`.
 
 ### Correção visual da direção sul
 

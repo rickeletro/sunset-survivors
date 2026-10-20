@@ -6,9 +6,6 @@
 class SoundManager {
   private ctx: AudioContext | null = null;
   private isMuted: boolean = false;
-  private bgmOscillators: OscillatorNode[] = [];
-  private bgmGain: GainNode | null = null;
-  private isBgmPlaying: boolean = false;
   private musicVolume: number = 0.75;
   private sfxVolume: number = 0.45;
   private sfxGainNode: GainNode | null = null;
@@ -446,7 +443,6 @@ class SoundManager {
   private gameplayAudio: HTMLAudioElement | null = null;
   private pistolAudio: HTMLAudioElement | null = null;
   private reloadAudio: HTMLAudioElement | null = null;
-  private bgmVolume: number = 0.55;
   private sfxPistolPool: HTMLAudioElement[] = [];
   private sfxPistolPoolIndex: number = 0;
   private sfxScreamAudio: HTMLAudioElement | null = null;

@@ -1,3 +1,5 @@
+import { sceneryKey, worldDepth } from '../data/scenery';
+import { THEME } from '../ui/theme/tokens';
 import type Phaser from 'phaser';
 import { objectiveProgress, safeEventPoint, StageConfig, stagePhase } from '../data/stages';
 import type { EnemyKind } from '../data/enemies';
@@ -8,7 +10,7 @@ export function insideHazard(shape: HazardShape, x: number, y: number): boolean 
     ? Math.abs(x - shape.x) <= shape.width / 2 && Math.abs(y - shape.y) <= shape.height / 2
     : Math.hypot(x - shape.x, y - shape.y) <= shape.radius;
 }
-interface Hazard extends HazardShape { age: number; warning: number; duration: number; damage: number; graphic: Phaser.GameObjects.Graphics; }
+interface Hazard extends HazardShape { age: number; warning: number; duration: number; damage: number; graphic: Phaser.GameObjects.Graphics; train?: Phaser.GameObjects.Image; }
 interface Supply { x: number; y: number; progress: number; age: number; marker: Phaser.GameObjects.Image; text: Phaser.GameObjects.Text; }
 interface EncounterHooks {
   position: () => { x: number; y: number };
@@ -53,7 +55,7 @@ export class StageEncounters {
     const point = safeEventPoint(p.x, p.y, this.eventIndex++ * 2.4, 380);
     const clear = this.hooks.clearPoint(point.x, point.y);
     const marker = this.scene.add.image(clear.x, clear.y, 'wm_supply').setDepth(5);
-    const text = this.scene.add.text(clear.x, clear.y - 55, 'PROVISOES\nFIQUE NO CIRCULO', { fontFamily: "'Press Start 2P', monospace", fontSize: '9px', color: '#ffc52a', stroke: '#120b08', strokeThickness: 3, align: 'center' }).setOrigin(0.5).setDepth(20);
+    const text = this.scene.add.text(clear.x, clear.y - 55, 'PROVISOES\nFIQUE NO CIRCULO', { fontFamily: THEME.typography.pixelFont, fontSize: '9px', color: '#ffc52a', stroke: '#120b08', strokeThickness: 3, align: 'center' }).setOrigin(0.5).setDepth(20);
     this.supply = { ...clear, progress: 0, age: 0, marker, text };
     this.hooks.banner(this.stage.objective, '#ffc52a');
     // Guarded objective: enter the camp, clear its guards, hold for 8 seconds.
@@ -96,7 +98,7 @@ export class StageEncounters {
     for (let i = this.hazards.length - 1; i >= 0; i--) {
       const h = this.hazards[i];
       h.age += delta;
-      if (h.age >= h.warning + h.duration) { h.graphic.destroy(); this.hazards.splice(i, 1); continue; }
+      if (h.age >= h.warning + h.duration) { h.train?.destroy(); h.graphic.destroy(); this.hazards.splice(i, 1); continue; }
       const active = h.age >= h.warning;
       h.graphic.clear().lineStyle(active ? 3 : 2, active ? 0xe52b20 : 0xffc52a, 0.95);
       h.graphic.fillStyle(active ? 0xe52b20 : 0xff791c, active ? 0.65 : 0.12 + Math.sin(h.age * 0.015) * 0.07);
@@ -105,11 +107,10 @@ export class StageEncounters {
         h.graphic.strokeRect(h.x - h.width / 2, h.y - h.height / 2, h.width, h.height);
         if (active && this.stage.hazard === 'train') {
           const trainX = h.x - 650 + (h.age - h.warning) / h.duration * 1300;
-          h.graphic.fillStyle(0x120b08, 1).fillRect(trainX - 140, h.y - 34, 280, 68);
-          h.graphic.fillStyle(0x603719, 1).fillRect(trainX - 130, h.y - 27, 240, 52);
-          h.graphic.fillStyle(0xffc52a, 1).fillRect(trainX + 88, h.y - 20, 18, 40);
-          h.graphic.fillStyle(0x88817a, 1);
-          for (let wheel = -100; wheel < 110; wheel += 60) h.graphic.fillCircle(trainX + wheel, h.y + 30, 10);
+          if (!h.train && this.scene.textures?.exists(sceneryKey('locomotive'))) {
+            h.train = this.scene.add.image(trainX, h.y + 48, sceneryKey('locomotive')).setOrigin(0.5, 1).setDepth(worldDepth(h.y + 40));
+          }
+          h.train?.setPosition(trainX, h.y + 48);
         }
         // Railroad sleepers make the danger lane readable before the train passes.
         for (let x = -h.width / 2; x < h.width / 2; x += 48) h.graphic.fillRect(h.x + x, h.y - h.height / 2, 8, h.height);
@@ -141,5 +142,5 @@ export class StageEncounters {
     return `PROVISOES ${dir} ${Math.round(Math.hypot(dx, dy))}m • ${Math.max(0, 80 - Math.floor(s.age / 1000))}s`;
   }
   private clearSupply(): void { this.supply?.marker.destroy(); this.supply?.text.destroy(); this.supply = undefined; }
-  destroy(): void { this.clearSupply(); this.hazards.forEach(h => h.graphic.destroy()); this.hazards = []; }
+  destroy(): void { this.clearSupply(); this.hazards.forEach(h => { h.train?.destroy(); h.graphic.destroy(); }); this.hazards = []; }
 }

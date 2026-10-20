@@ -1,3 +1,8 @@
+import { sceneryForStage, sceneryKey, worldDepth } from '../data/scenery';
+import { HostileProjectiles } from '../systems/HostileProjectiles';
+import type { Projectile, Enemy, Drop, FireZone } from '../game/entities';
+import { CombatHUD } from '../ui/hud/CombatHUD';
+import { preloadImages } from '../assets/registry';
 import Phaser from 'phaser';
 import { sounds } from '../audio/SoundManager';
 import { CharacterData, CHARACTERS } from '../data/characters';
@@ -32,73 +37,10 @@ import { SpritePool } from '../systems/SpritePool';
 import { ENEMY_DEFS, EnemyKind } from '../data/enemies';
 import { getStage, isBossDue, stagePhase, StageConfig } from '../data/stages';
 import { bossRageMultiplier, getBossCombat, remainingBossHp } from '../data/bossCombat';
-import { mergeLoot, takeLootPacket, LootPacket } from '../systems/LootBudget';
+import { mergeLoot, takeLootPacket } from '../systems/LootBudget';
 import { StageEncounters } from '../systems/StageEncounters';
 import { bossSpriteTexture, enemySpriteTexture, playBossMovement, playEnemyMovement, preloadCombatSprites } from '../systems/PixellabCombat';
-import { getEligibleEvolution, WEAPON_EVOLUTIONS, WeaponEvolution } from '../data/evolutions';
-
-interface Projectile {
-  sprite: Phaser.GameObjects.Sprite | Phaser.GameObjects.Arc;
-  vx: number;
-  vy: number;
-  damage: number;
-  pierce: number;
-  hits: Set<Enemy>;
-  life: number;
-  isLasso?: boolean;
-  angleOffset?: number;
-  radius?: number;
-  isBouncingSniper?: boolean;
-  bouncesLeft?: number;
-  isExplosiveBullet?: boolean;
-}
-
-interface Enemy {
-  sprite: Phaser.GameObjects.Sprite;
-  type: EnemyKind | 'boss';
-  hp: number;
-  maxHp: number;
-  speed: number;
-  damage: number;
-  xpVal: number;
-  bountyVal: number;
-  throwCooldown?: number;
-  usesPixellab?: boolean;
-  animLock?: number;
-  pooled?: boolean;
-  dead?: boolean;
-  tint?: number;
-  aiTimer?: number;
-  dirX?: number;
-  dirY?: number;
-  bossSlug?: string;
-  combatSprite?: boolean;
-  chargeCooldown?: number;
-  chargeWindup?: number;
-  chargeRemaining?: number;
-  chargeX?: number;
-  chargeY?: number;
-  vulnerableUntil?: number;
-  attackCount?: number;
-}
-
-interface Drop {
-  packets?: LootPacket[];
-  sprite: Phaser.GameObjects.Sprite;
-  type: 'gold' | 'badge' | 'whiskey';
-  val: number;
-  bounty: number;
-}
-
-interface FireZone {
-  x: number;
-  y: number;
-  radius: number;
-  damage: number;
-  life: number;
-  tickTimer: number;
-  graphics: Phaser.GameObjects.Graphics;
-}
+import { getEligibleEvolution, WEAPON_EVOLUTIONS } from '../data/evolutions';
 
 export class GameScene extends Phaser.Scene {
   private character!: CharacterData;
@@ -127,7 +69,6 @@ export class GameScene extends Phaser.Scene {
   private critMultiplier: number = 2.0;
   private areaMultiplier: number = 1.0;
   private extraProjectiles: number = 0;
-  private luck: number = 1.0;
 
   // Progression
   private level: number = 1;
@@ -148,11 +89,9 @@ export class GameScene extends Phaser.Scene {
   private projectiles: Projectile[] = [];
   private drops: Drop[] = [];
   private fireZones: FireZone[] = [];
-  private bossEnemy: Enemy | null = null;
   private bossSpawned: boolean = false;
 
   // Background & Camera
-  private groundTile!: Phaser.GameObjects.TileSprite;
   private worldMap!: WorldMap;
   private invulnUntil: number = 0;
   private director!: GameDirector;
@@ -162,16 +101,15 @@ export class GameScene extends Phaser.Scene {
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private keysWASD!: { [key: string]: Phaser.Input.Keyboard.Key };
 
+  private hud!: CombatHUD;
+  private hostileProjectiles?: HostileProjectiles;
+
   // HUD Elements
-  private xpBarFill!: Phaser.GameObjects.Graphics;
-  private hpBarFill!: Phaser.GameObjects.Graphics;
-  private hpText!: Phaser.GameObjects.Text;
   private levelText!: Phaser.GameObjects.Text;
   private bountyText!: Phaser.GameObjects.Text;
   private timeText!: Phaser.GameObjects.Text;
   private killsText!: Phaser.GameObjects.Text;
   private bossBarContainer!: Phaser.GameObjects.Container;
-  private bossHpFill!: Phaser.GameObjects.Graphics;
 
   // Mobile Touch Controls
   private touchOrigin: { x: number; y: number } | null = null;
@@ -189,27 +127,26 @@ export class GameScene extends Phaser.Scene {
   }
 
   preload() {
+    preloadImages(this, sceneryForStage(this.stageConfig.theme).map(sceneryKey));
     preloadCombatSprites(this, this.stage);
     if (this.stage === 1 && !hasGreedwellSprites(this)) preloadGreedwell(this);
     if (!this.textures.exists('hud_avatar_steve')) {
-      this.load.image('hud_avatar_steve', 'assets/ui/hud_avatar_steve.png');
-      this.load.image('hud_avatar_billy', 'assets/ui/hud_avatar_billy.png');
-      this.load.image('hud_avatar_bob', 'assets/ui/hud_avatar_bob.png');
-      this.load.image('hud_avatar_cormano', 'assets/ui/hud_avatar_cormano.png');
+      preloadImages(this, ['hud_avatar_steve']);
+      preloadImages(this, ['hud_avatar_billy']);
+      preloadImages(this, ['hud_avatar_bob']);
+      preloadImages(this, ['hud_avatar_cormano']);
     }
     if (!this.textures.exists('hud_coin_icon')) {
-      this.load.image('hud_coin_icon', 'assets/ui/hud_coin_icon.png');
+      preloadImages(this, ['hud_coin_icon']);
     }
     if (!this.textures.exists('hud_skull_icon')) {
-      this.load.image('hud_skull_icon', 'assets/ui/hud_skull_icon.png');
+      preloadImages(this, ['hud_skull_icon']);
     }
   }
 
   create() {
-    const { width, height } = this.scale;
     this.isGameOver = false;
     this.bossSpawned = false;
-    this.bossEnemy = null;
     this.bossMembers = [];
     this.bossDefeated = false;
     this.enemies = [];
@@ -237,7 +174,6 @@ export class GameScene extends Phaser.Scene {
     this.critMultiplier = 2.0;
     this.areaMultiplier = 1.0;
     this.extraProjectiles = 0;
-    this.luck = 1.0;
 
     // Initialize Inventory with Starter Weapon
     this.activeWeapons.clear();
@@ -251,7 +187,7 @@ export class GameScene extends Phaser.Scene {
     const startX = WORLD_W / 2;
     const startY = WORLD_H / 2;
     this.worldMap = new WorldMap(this, startX, startY, 260, this.stageConfig);
-    this.groundTile = this.add.tileSprite(0, 0, WORLD_W, WORLD_H, this.worldMap.groundTexture).setOrigin(0, 0).setDepth(-10);
+    this.add.tileSprite(0, 0, WORLD_W, WORLD_H, this.worldMap.groundTexture).setOrigin(0, 0).setDepth(-10);
 
     // Player Sprite (32-bit Neo Geo Arcade Hero)
     const heroKey = `hero_${this.character.id}`;
@@ -404,198 +340,25 @@ export class GameScene extends Phaser.Scene {
     this.touchJoystickGfx.fillCircle(tx, ty, 20);
   }
 
-  private createHUD() {
-    const { width } = this.scale;
-
-    // 1. Top XP Bar Frame (madeira escura no topo)
-    const xpBg = this.add.graphics().setDepth(50).setScrollFactor(0);
-    xpBg.fillStyle(0x1a0f08, 0.95);
-    xpBg.fillRect(0, 0, width, 14);
-    xpBg.lineStyle(1, 0x8b5a2b, 1);
-    xpBg.strokeRect(0, 0, width, 14);
-
-    this.xpBarFill = this.add.graphics().setDepth(51).setScrollFactor(0);
-    this.updateXpBar();
-
-    // 2. LEFT: Hero Avatar Box com Moldura de Ouro e Rebites
-    const charId = this.character?.id || 'steve';
-    const avatarKey = this.textures.exists(`hud_avatar_${charId}`) ? `hud_avatar_${charId}` : 'hud_avatar_steve';
-
-    if (this.textures.exists(avatarKey)) {
-      this.add.image(68, 70, avatarKey)
-        .setDisplaySize(92, 98)
-        .setDepth(52)
-        .setScrollFactor(0);
-    } else {
-      // Fallback procedural
-      const portBg = this.add.graphics().setDepth(52).setScrollFactor(0);
-      portBg.fillStyle(0x23140a, 1);
-      portBg.fillRoundedRect(22, 21, 90, 90, 6);
-      portBg.lineStyle(3, 0xffc52a, 1);
-      portBg.strokeRoundedRect(22, 21, 90, 90, 6);
-    }
-
-    // "LV. 1" em amarelo arcade acima da barra
-    this.levelText = this.add.text(126, 28, `LV. ${this.level}`, {
-      fontFamily: '"Press Start 2P", monospace',
-      fontSize: '18px',
-      color: '#ffe066',
-      stroke: '#000000',
-      strokeThickness: 4,
-    }).setDepth(52).setScrollFactor(0);
-
-    // Barra de Vida com Moldura de Madeira e Borda Dourada
-    const barW = 240;
-    const barH = 26;
-    const barX = 126;
-    const barY = 56;
-
-    const hpBg = this.add.graphics().setDepth(50).setScrollFactor(0);
-    // Fundo escuro
-    hpBg.fillStyle(0x180b06, 1);
-    hpBg.fillRoundedRect(barX, barY, barW, barH, 4);
-    // Moldura dourada / pergaminho
-    hpBg.lineStyle(3, 0xf5d6a1, 1);
-    hpBg.strokeRoundedRect(barX, barY, barW, barH, 4);
-
-    this.hpBarFill = this.add.graphics().setDepth(51).setScrollFactor(0);
-
-    // Texto de HP "100 / 100" em branco com contorno preto abaixo da barra
-    this.hpText = this.add.text(barX + 4, barY + barH + 6, `${Math.max(0, Math.round(this.hp))} / ${this.maxHp}`, {
-      fontFamily: '"Press Start 2P", monospace',
-      fontSize: '13px',
-      color: '#ffffff',
-      stroke: '#000000',
-      strokeThickness: 3,
-    }).setDepth(52).setScrollFactor(0);
-
-    this.updateHpBar();
-
-    // 3. CENTER: Timer (Madeira de Saloon & Tipografia Arcade)
-    const timerBg = this.add.graphics().setDepth(49).setScrollFactor(0);
-    timerBg.fillStyle(0x1a0d06, 0.85);
-    timerBg.fillRoundedRect(width / 2 - 70, 24, 140, 42, 6);
-    timerBg.lineStyle(2, 0x48240f, 1);
-    timerBg.strokeRoundedRect(width / 2 - 70, 24, 140, 42, 6);
-
-    this.timeText = this.add.text(width / 2, 45, '00:00', {
-      fontFamily: '"Press Start 2P", monospace',
-      fontSize: '18px',
-      color: '#ffffff',
-      stroke: '#8b0e0e',
-      strokeThickness: 4,
-    }).setOrigin(0.5).setDepth(50).setScrollFactor(0);
-
-    // Stage boss health, shared by both Smith brothers.
-    this.bossBarContainer = this.add.container(width / 2, 92).setDepth(55).setScrollFactor(0).setVisible(false);
-
-    const bossBg = this.add.graphics();
-    bossBg.fillStyle(0x1a0f08, 0.95);
-    bossBg.fillRoundedRect(-180, -14, 360, 28, 6);
-    bossBg.lineStyle(2, 0xdc2626, 1);
-    bossBg.strokeRoundedRect(-180, -14, 360, 28, 6);
-    this.bossBarContainer.add(bossBg);
-
-    this.bossHpFill = this.add.graphics();
-    this.bossBarContainer.add(this.bossHpFill);
-
-    const bossLabel = this.add.text(0, 0, `★ ${getBossForStage(this.stage).name.toUpperCase()} ★`, {
-      fontFamily: THEME.typography.pixelFont,
-      fontSize: '10px',
-      color: '#fef08a',
-      stroke: '#8b0e0e',
-      strokeThickness: 3,
-    }).setOrigin(0.5);
-    this.bossBarContainer.add(bossLabel);
-    this.stageStatus = this.add.text(width / 2, 120, '', {
-      fontFamily: THEME.typography.pixelFont, fontSize: '10px', color: '#ffc52a', stroke: '#120b08', strokeThickness: 4,
-    }).setOrigin(0.5).setScrollFactor(0).setDepth(55);
-    this.objectiveStatus = this.add.text(width / 2, 140, '', {
-      fontFamily: THEME.typography.pixelFont, fontSize: '9px', color: '#f2d49a', stroke: '#120b08', strokeThickness: 3,
-    }).setOrigin(0.5).setScrollFactor(0).setDepth(55);
-
-    // 4. RIGHT: Placa de Dinheiro (Moeda) e Caveira (Kills)
-    const plaqueW = 250;
-    const plaqueH = 78;
-    const plaqueX = width - plaqueW - 24;
-    const plaqueY = 24;
-
-    const statsBg = this.add.graphics().setDepth(50).setScrollFactor(0);
-    statsBg.fillStyle(0x1a0d06, 0.85);
-    statsBg.fillRoundedRect(plaqueX, plaqueY, plaqueW, plaqueH, 8);
-    statsBg.lineStyle(2, 0x48240f, 1);
-    statsBg.strokeRoundedRect(plaqueX, plaqueY, plaqueW, plaqueH, 8);
-
-    // Linha 1: Moeda / Gold ($000000)
-    if (this.textures.exists('hud_coin_icon')) {
-      this.add.image(plaqueX + 28, plaqueY + 22, 'hud_coin_icon')
-        .setDisplaySize(30, 30)
-        .setDepth(51)
-        .setScrollFactor(0);
-    }
-    const goldFormatted = `$${String(this.bounty).padStart(6, '0')}`;
-    this.bountyText = this.add.text(plaqueX + 54, plaqueY + 14, goldFormatted, {
-      fontFamily: '"Press Start 2P", monospace',
-      fontSize: '16px',
-      color: '#ffe066',
-      stroke: '#000000',
-      strokeThickness: 4,
-    }).setDepth(51).setScrollFactor(0);
-
-    // Linha 2: Caveira / Kills (0000)
-    if (this.textures.exists('hud_skull_icon')) {
-      this.add.image(plaqueX + 28, plaqueY + 56, 'hud_skull_icon')
-        .setDisplaySize(26, 28)
-        .setDepth(51)
-        .setScrollFactor(0);
-    }
-    const killsFormatted = String(this.kills).padStart(4, '0');
-    this.killsText = this.add.text(plaqueX + 54, plaqueY + 48, killsFormatted, {
-      fontFamily: '"Press Start 2P", monospace',
-      fontSize: '16px',
-      color: '#ffffff',
-      stroke: '#000000',
-      strokeThickness: 4,
-    }).setDepth(51).setScrollFactor(0);
+  private createHUD(): void {
+    this.hud = new CombatHUD(this, {
+      characterId: this.character.id, hp: this.hp, maxHp: this.maxHp, currentXp: this.currentXp,
+      xpToNextLevel: this.xpToNextLevel, level: this.level, bounty: this.bounty, kills: this.kills,
+    }, getBossForStage(this.stage).name);
+    this.levelText = this.hud.levelText;
+    this.bountyText = this.hud.bountyText;
+    this.timeText = this.hud.timeText;
+    this.killsText = this.hud.killsText;
+    this.bossBarContainer = this.hud.bossBarContainer;
+    this.stageStatus = this.hud.stageStatus;
+    this.objectiveStatus = this.hud.objectiveStatus;
   }
-
-  private updateXpBar() {
-    const { width } = this.scale;
-    const pct = Math.min(this.currentXp / Math.max(1, this.xpToNextLevel), 1);
-    this.xpBarFill.clear();
-    this.xpBarFill.fillStyle(0x00f0ff, 1);
-    this.xpBarFill.fillRect(1, 1, (width - 2) * pct, 12);
-    this.xpBarFill.fillStyle(0xafffff, 0.6);
-    this.xpBarFill.fillRect(1, 1, (width - 2) * pct, 3);
-  }
-
-  private updateHpBar() {
-    const barX = 126;
-    const barY = 56;
-    const barW = 240;
-    const barH = 26;
-
-    const hpPct = Phaser.Math.Clamp(this.hp / Math.max(1, this.maxHp), 0, 1);
-    const fillW = Math.max(0, (barW - 6) * hpPct);
-    this.hpBarFill.clear();
-    if (fillW > 0) {
-      this.hpBarFill.fillStyle(0xd91414, 1);
-      this.hpBarFill.fillRect(barX + 3, barY + 3, fillW, barH - 6);
-      this.hpBarFill.fillStyle(0xff6b6b, 0.6);
-      this.hpBarFill.fillRect(barX + 3, barY + 3, fillW, 4);
-    }
-    if (this.hpText) {
-      this.hpText.setText(`${Math.max(0, Math.round(this.hp))} / ${this.maxHp}`);
-    }
-  }
-
-  private updateBossBar() {
+  private updateXpBar(): void { this.hud.setXp(this.currentXp, this.xpToNextLevel); }
+  private updateHpBar(): void { this.hud.setHealth(this.hp, this.maxHp); }
+  private updateBossBar(): void {
     if (!this.bossMembers.length) return;
     const health = remainingBossHp(this.bossMembers);
-    const pct = Math.max(0, Math.min(health.hp / Math.max(1, health.maxHp), 1));
-    this.bossHpFill.clear();
-    this.bossHpFill.fillStyle(0xdc2626, 1);
-    this.bossHpFill.fillRoundedRect(-178, -12, 356 * pct, 24, 4);
+    this.hud.setBossHealth(health.hp, health.maxHp);
   }
 
   // 1 Second Game Tick
@@ -685,7 +448,6 @@ export class GameScene extends Phaser.Scene {
       this.bossMembers.push(enemy);
       this.enemies.push(enemy);
     }
-    this.bossEnemy = this.bossMembers[0];
     this.updateBossBar();
   }
 
@@ -790,21 +552,15 @@ export class GameScene extends Phaser.Scene {
     this.time.delayedCall(1100, () => line.destroy());
   }
 
-  private fireHostileBullet(x: number, y: number, angle: number, damage: number, range = 680, axe = false): void {
-    if (this.isGameOver || this.bossDefeated) return;
-    const bullet = this.add.sprite(x, y, axe ? 'stage_axe' : 'proj_bullet').setDepth(8).setTint(axe ? 0xf2d49a : 0xe52b20).setRotation(angle);
-    this.tweens.add({ targets: bullet, x: x + Math.cos(angle) * range, y: y + Math.sin(angle) * range,
-      rotation: axe ? angle + Math.PI * 5 : angle, duration: range / 0.3,
-      onUpdate: (tween: Phaser.Tweens.Tween) => {
-        if (!bullet.active || this.isGameOver || this.bossDefeated) return;
-        if (Math.hypot(this.player.x - bullet.x, this.player.y - bullet.y) < 20) {
-          this.damagePlayer(damage);
-          // stop() defers tween disposal until Phaser finishes updating its properties.
-          tween.stop();
-          bullet.destroy();
-        }
-      }, onComplete: () => bullet.destroy(),
+  private getProjectileSystem(): HostileProjectiles {
+    return this.hostileProjectiles ??= new HostileProjectiles(this, {
+      position: () => this.player,
+      active: () => !this.isGameOver && !this.bossDefeated,
+      damage: amount => this.damagePlayer(amount),
     });
+  }
+  private fireHostileBullet(x: number, y: number, angle: number, damage: number, range = 680, axe = false): void {
+    this.getProjectileSystem().fire(x, y, angle, damage, { range, axe });
   }
 
   private stageBossAttack(e: Enemy): void {
@@ -853,13 +609,14 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  update(time: number, delta: number) {
+  update(_time: number, delta: number) {
     if (this.isGameOver || this.bossDefeated) return;
 
     this.handlePlayerMovement(delta);
     this.handleWeaponsAutoFire(delta);
     this.updateProjectiles(delta);
     this.updateEnemies(delta);
+    this.player.setDepth(worldDepth(this.player.y));
     this.worldMap.update(this.player.x, this.player.y);
     this.updateDrops(delta);
     this.updateFireZones(delta);
@@ -1255,8 +1012,12 @@ export class GameScene extends Phaser.Scene {
       const refresh = e.type === 'boss' || e.aiTimer <= 0;
       if (refresh && e.type !== 'boss') e.aiTimer = 100 + Math.random() * 60;
       if (refresh && dist > 0.1) {
-        e.dirX = dx / dist;
-        e.dirY = dy / dist;
+        const radius = e.type === 'boss' ? (this.stage === 3 ? 25 : 14) : ENEMY_DEFS[e.type].radius;
+        const target = this.worldMap.chaseTarget?.(e.sprite.x, e.sprite.y, this.player.x, this.player.y, radius) ?? this.player;
+        const steerX = target.x - e.sprite.x, steerY = target.y - e.sprite.y;
+        const steerDistance = Math.hypot(steerX, steerY) || 1;
+        e.dirX = steerX / steerDistance;
+        e.dirY = steerY / steerDistance;
       }
 
       this.updateEnemyTactics(e, dx, dy, dist, delta);
@@ -1307,6 +1068,8 @@ export class GameScene extends Phaser.Scene {
         e.sprite.x = fixed.x;
         e.sprite.y = fixed.y;
       }
+
+      e.sprite.setDepth(worldDepth(e.sprite.y));
 
       // Enemies left far behind are recycled to the spawn ring (keeps hordes on you)
       if (dist > 1400 && e.type !== 'boss') {
@@ -1395,30 +1158,8 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
-  private bossRevolverBarrage(bx: number, by: number) {
-    sounds.playRevolver();
-    const bullets = 8;
-    for (let i = 0; i < bullets; i++) {
-      const angle = (i * (Math.PI * 2)) / bullets;
-      const b = this.add.sprite(bx, by, 'proj_bullet').setDepth(8).setTint(0xef4444);
-      b.setRotation(angle);
-
-      this.tweens.add({
-        targets: b,
-        x: bx + Math.cos(angle) * 380,
-        y: by + Math.sin(angle) * 380,
-        duration: 900,
-        onUpdate: (tween: Phaser.Tweens.Tween) => {
-          if (!b.active || this.isGameOver || this.bossDefeated) return;
-          if (Math.hypot(this.player.x - b.x, this.player.y - b.y) < 22) {
-            this.damagePlayer(18);
-            tween.stop();
-            b.destroy();
-          }
-        },
-        onComplete: () => b.destroy(),
-      });
-    }
+  private bossRevolverBarrage(bx: number, by: number): void {
+    this.getProjectileSystem().simonBarrage(bx, by);
   }
 
   // 5. Fire Zones (Molotov)
@@ -1583,7 +1324,6 @@ export class GameScene extends Phaser.Scene {
     // Both Smith brothers must be defeated; a single death cannot clear stage 4.
     if (enemy.type === 'boss') {
       this.updateBossBar();
-      this.bossEnemy = this.bossMembers.find(b => !b.dead) ?? null;
       if (this.bossMembers.some(b => !b.dead)) return;
       this.bossDefeated = true;
       // Som de derrota do boss (man-screaming.mp3)

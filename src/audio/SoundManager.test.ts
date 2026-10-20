@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { sounds } from './SoundManager';
 
 describe('SoundManager - Western Pulp 98 Audio', () => {

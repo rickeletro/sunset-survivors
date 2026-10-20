@@ -29,10 +29,10 @@ function expectAssetsExist(images, root) {
 describe('Pixellab asset migration', () => {
   it('loads every existing hero frame from the character folders with unchanged texture keys', () => {
     const { scene, images, animations } = captureAssets(preloadPixellabHeroes);
-    expect(images.size).toBe(48);
+    expect(images.size).toBe(80);
     expectAssetsExist(images, 'characters');
-    for (const hero of ['steve', 'bob', 'cormano']) createPixellabAnims(scene, hero);
-    expect(animations).toHaveLength(12);
+    for (const hero of ['steve', 'bob', 'cormano', 'billy']) createPixellabAnims(scene, hero);
+    expect(animations).toHaveLength(20);
     for (const animation of animations) {
       expect(animation.frameRate).toBe(8);
       expect(animation.repeat).toBe(-1);
@@ -40,6 +40,8 @@ describe('Pixellab asset migration', () => {
       expect(frames).toHaveLength(4);
       for (const frame of frames) expect(images.has(frame.key)).toBe(true);
     }
+    expect(pickDirection('billy', -1, -1)).toEqual({ dir: 'north-west', flipX: false });
+    expect(pickDirection('billy', -1, 1)).toEqual({ dir: 'south-west', flipX: false });
     expect(pickDirection('steve', -1, 1)).toEqual({ dir: 'south-east', flipX: true });
     expect(pickDirection('bob', 0, -1)).toEqual({ dir: 'north', flipX: false });
     expect(pickDirection('cormano', 0, -1)).toEqual({ dir: 'south', flipX: false });

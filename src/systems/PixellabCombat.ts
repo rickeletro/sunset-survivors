@@ -1,3 +1,4 @@
+import { framePath, SequenceKey } from '../assets/registry';
 import type Phaser from 'phaser';
 import { getBossCombat } from '../data/bossCombat';
 import type { EnemyKind } from '../data/enemies';
@@ -19,16 +20,16 @@ export function bossDirection(dx: number, dy: number): typeof BOSS_DIRECTIONS[nu
   return (['east', 'south-east', 'south', 'south-west', 'west', 'north-west', 'north', 'north-east'] as const)[i];
 }
 export function preloadCombatSprites(scene: Phaser.Scene, stage: number): void {
-  for (const [kind, slug] of Object.entries(ENEMY_ASSETS)) {
+  for (const kind of Object.keys(ENEMY_ASSETS)) {
     for (const dir of COMBAT_DIRECTIONS) for (let i = 0; i < 4; i++) {
       const key = enemyKey(kind, dir, i);
-      if (!scene.textures.exists(key)) scene.load.image(key, `assets/enemies/pixellab/${slug}/Idle/animations/move-attack/${dir}/frame_${String(i).padStart(3, '0')}.png`);
+      if (!scene.textures.exists(key)) scene.load.image(key, framePath(`enemy:${kind}` as SequenceKey, dir, i));
     }
   }
   if (stage === 1) return; // Simon retains his original run/shoot/death animations.
   for (const slug of getBossCombat(stage).slugs) for (const dir of BOSS_DIRECTIONS) for (let i = 0; i < 8; i++) {
     const key = bossKey(slug, dir, i);
-    if (!scene.textures.exists(key)) scene.load.image(key, `assets/bosses/pixellab/${slug}/Idle/animations/run-attack-eight-directions/${dir}/frame_${String(i).padStart(3, '0')}.png`);
+    if (!scene.textures.exists(key)) scene.load.image(key, framePath(`boss:${slug}` as SequenceKey, dir, i));
   }
 }
 function ensureAnimation(scene: Phaser.Scene, key: string, keys: string[], frameRate: number): void {

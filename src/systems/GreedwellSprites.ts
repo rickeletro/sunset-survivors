@@ -1,3 +1,4 @@
+import { framePath } from '../assets/registry';
 import Phaser from 'phaser';
 
 /**
@@ -23,7 +24,7 @@ export const greedwellAnimKey = (anim: GreedwellAnim) => `pl_greedwell_${anim}`;
 export function preloadGreedwell(scene: Phaser.Scene): void {
   (Object.keys(ANIMS) as GreedwellAnim[]).forEach((anim) => {
     for (let i = 0; i < ANIMS[anim].frames; i++) {
-      scene.load.image(texKey(anim, i), `assets/bosses/pixellab/greedwell/Idle/animations/${anim}/frame_${String(i).padStart(3, '0')}.png`);
+      scene.load.image(texKey(anim, i), framePath(`greedwell:${anim}`, '', i));
     }
   });
 }

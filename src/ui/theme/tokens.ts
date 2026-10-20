@@ -1,14 +1,20 @@
+import { PALETTE } from './palette';
+
 /**
  * Sunset Survivors - Design Tokens & Theme
- * Based on Sunset Riders (SNES / Arcade) 16-bit Western Color Palette
+ * Foundation → semantic → component tokens for WESTERN PULP 98.
  */
 
 export const THEME = {
+  palette: PALETTE,
+  layout: { referenceWidth: 1536, referenceHeight: 1024, spacing: 8 },
+  layers: { ground: -10, scenery: 3, actor: 10, hud: 50, overlay: 80, modal: 100 },
+  motion: { hover: 100, press: 60, release: 80 },
   colors: {
     // Parchment & Wanted Poster
     parchment: {
       light: '#f7e7c4',
-      base: '#e8c48a',
+      base: PALETTE.parchment,
       dark: '#c49a55',
       shadow: '#7a5223',
       border: '#452b14',
@@ -17,14 +23,14 @@ export const THEME = {
     // Reward / Blood Red
     reward: {
       light: '#ff3b30',
-      base: '#c81d1d',
+      base: PALETTE.burntRed,
       dark: '#8b0e0e',
       glow: 'rgba(200, 29, 29, 0.6)',
     },
     // Gold & Coins
     gold: {
       light: '#ffe066',
-      base: '#f5c518',
+      base: PALETTE.gold,
       dark: '#c69500',
       shimmer: '#fff2a8',
     },
@@ -67,7 +73,7 @@ export const THEME = {
     },
     // UI Elements
     ui: {
-      background: '#0d0705',
+      background: PALETTE.charcoal,
       cardBg: 'rgba(25, 14, 9, 0.92)',
       cardBorder: '#c49a55',
       cardSelected: '#ffe066',
@@ -92,16 +98,4 @@ export const THEME = {
     },
   },
 
-  borders: {
-    wanted: '4px solid #452b14',
-    card: '3px solid #8b5a2b',
-    goldGlow: '0 0 12px rgba(245, 197, 24, 0.8)',
-    redGlow: '0 0 16px rgba(200, 29, 29, 0.9)',
-  },
-
-  audio: {
-    masterVolume: 0.8,
-    sfxVolume: 0.9,
-    bgmVolume: 0.6,
-  },
 };

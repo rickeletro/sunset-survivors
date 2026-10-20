@@ -1,3 +1,4 @@
+import { createMenuRoot } from '../ui/layout/menuLayout';
 import Phaser from 'phaser';
 import { sounds } from '../audio/SoundManager';
 import { CharacterData, CHARACTERS } from '../data/characters';
@@ -69,9 +70,7 @@ export class StageClearScene extends Phaser.Scene {
     bg.fillRect(0, 0, width, height);
 
     // Root Container
-    const scale = Math.min(width / 1536, height / 1024);
-    this.rootContainer = this.add.container(width / 2, height / 2);
-    this.rootContainer.setScale(scale);
+    this.rootContainer = createMenuRoot(this);
 
     // 1. Fiery Sunset Red Backdrop
     this.createSunsetBackdrop();
@@ -97,7 +96,6 @@ export class StageClearScene extends Phaser.Scene {
     // 5. Action Buttons (NEXT STAGE & STATS)
     this.createActionButtons();
 
-    this.scale.on('resize', this.handleResize, this);
   }
 
   private createSunsetBackdrop() {
@@ -254,7 +252,7 @@ export class StageClearScene extends Phaser.Scene {
 
   private proceedNext() {
     sounds.playRevolver();
-    this.scale.off('resize', this.handleResize, this);
+
 
     if (this.dataReceived.stage >= 8) {
       // Completed final stage 8!
@@ -279,11 +277,4 @@ export class StageClearScene extends Phaser.Scene {
     this.scene.start('StatsScene', { fromScene: 'StageClearScene', prevData: this.dataReceived });
   }
 
-  private handleResize() {
-    if (!this.rootContainer || !this.scene.isActive()) return;
-    const { width, height } = this.scale;
-    const scale = Math.min(width / 1536, height / 1024);
-    this.rootContainer.setPosition(width / 2, height / 2);
-    this.rootContainer.setScale(scale);
-  }
 }

@@ -1,3 +1,5 @@
+import { CATALOG, preloadHeroSheets, preloadImages } from '../assets/registry';
+import { createMenuRoot } from '../ui/layout/menuLayout';
 import Phaser from 'phaser';
 import { sounds } from '../audio/SoundManager';
 import { THEME } from '../ui/theme/tokens';
@@ -9,7 +11,6 @@ import { preloadGreedwell } from '../systems/GreedwellSprites';
 export class TitleScene extends Phaser.Scene {
   private rootContainer!: Phaser.GameObjects.Container;
   private isAdvancing: boolean = false;
-  private introTimeline?: Phaser.Time.TimerEvent;
 
   // Visual layers & objects
   private bkgImage!: Phaser.GameObjects.Image;
@@ -20,7 +21,6 @@ export class TitleScene extends Phaser.Scene {
   private startBtnBorderGlow!: Phaser.GameObjects.Graphics;
   private lanternGlows: Phaser.GameObjects.Image[] = [];
   private sunGlowGraphics!: Phaser.GameObjects.Graphics;
-  private dustEmitter?: Phaser.GameObjects.Particles.ParticleEmitter;
   private optionsModalContainer?: Phaser.GameObjects.Container;
 
   constructor() {
@@ -28,90 +28,10 @@ export class TitleScene extends Phaser.Scene {
   }
 
   preload() {
-    // 1. Core Title & Intro Layer Assets (WESTERN PULP '98)
-    this.load.image('intro_bkg', 'assets/background/sunsetsurvivors_bkg.png');
-    this.load.image('intro_logo_new', 'assets/intro/Logo_Western_Sunset_Survivors.png');
-    this.load.image('intro_players_group', 'assets/intro/players.png');
-    this.load.image('intro_sky', 'assets/intro/title_sky.png');
-    this.load.image('intro_landscape', 'assets/intro/title_landscape.png');
-    this.load.image('intro_frame', 'assets/intro/title_frame.png');
-    this.load.image('intro_logo', 'assets/intro/title_logo.png');
-    this.load.image('intro_btn_dark', 'assets/intro/btn_start_dark.png');
-    this.load.image('intro_btn_glow', 'assets/intro/btn_start_glow.png');
-
-    // 2. Fallbacks & Legacy Assets
-    this.load.image('title_bg', 'assets/title_screen.jpg');
-    this.load.image('wanted_greedwell', 'assets/wanted_greedwell.jpg');
-    this.load.image('characters_select', 'assets/characters_select.jpg');
-    this.load.image('desert_ground', 'assets/desert_ground.jpg');
-
-    // 3. 32-bit Neo Geo Arcade Hero Spritesheets (for gameplay & selection)
-    this.load.spritesheet('hero_steve', 'assets/sprites/heroes/steve_sheet.png', { frameWidth: 128, frameHeight: 144 });
-    this.load.spritesheet('hero_billy', 'assets/sprites/heroes/billy_sheet.png', { frameWidth: 128, frameHeight: 144 });
-    this.load.spritesheet('hero_bob', 'assets/sprites/heroes/bob_sheet.png', { frameWidth: 128, frameHeight: 144 });
-    this.load.spritesheet('hero_cormano', 'assets/sprites/heroes/cormano_sheet.png', { frameWidth: 128, frameHeight: 144 });
-
-    // 3b. Pixellab heroes: walk cycles in 6 directions (gameplay)
+    preloadImages(this, CATALOG.titleImages);
+    preloadHeroSheets(this);
     preloadPixellabHeroes(this);
     preloadGreedwell(this);
-
-    // 4. Character Select Assets (WESTERN PULP '98)
-    this.load.image('select_saloon_backdrop', 'assets/select_characters/select_saloon_backdrop.png');
-    this.load.image('bottom_panel_clean', 'assets/select_characters/bottom_panel_clean.png');
-    this.load.image('poster_steve', 'assets/select_characters/poster_steve.png');
-    this.load.image('poster_billy', 'assets/select_characters/poster_billy.png');
-    this.load.image('poster_bob', 'assets/select_characters/poster_bob.png');
-    this.load.image('poster_cormano', 'assets/select_characters/poster_cormano.png');
-    this.load.image('ui_card_selected_frame', 'assets/ui/selected_card_frame.png');
-
-    // 5. Western Powerup & Bounty Cards
-    this.load.image('card_revolver', 'assets/powerup/dual_revolvers.png');
-    this.load.image('card_peacemaker', 'assets/powerup/twin_peacemakers.png');
-    this.load.image('card_shotgun', 'assets/powerup/sawed_off_shotgun.png');
-    this.load.image('card_rifle', 'assets/powerup/winchester_repeater.png');
-    this.load.image('card_dynamite', 'assets/powerup/tnt_dynamite.png');
-    this.load.image('card_molotov', 'assets/powerup/whiskey_molotov.png');
-    this.load.image('card_lasso', 'assets/powerup/spinning_lasso.png');
-    this.load.image('card_badge', 'assets/powerup/sheriffs_star.png');
-    this.load.image('card_spurs', 'assets/powerup/silver_spurs.png');
-    this.load.image('card_whiskey', 'assets/powerup/frontier_whiskey.png');
-    this.load.image('card_bandolier', 'assets/powerup/ammo_bandolier.png');
-    this.load.image('card_magnet', 'assets/powerup/horseshoe_magnet.png');
-
-    // 6. Saloon & Level Up Decor Assets
-    this.load.image('saloon_bkg', 'assets/background/Saloon_bkg.png');
-    this.load.image('hud_avatar_steve', 'assets/ui/hud_avatar_steve.png');
-    this.load.image('hud_avatar_billy', 'assets/ui/hud_avatar_billy.png');
-    this.load.image('hud_avatar_bob', 'assets/ui/hud_avatar_bob.png');
-    this.load.image('hud_avatar_cormano', 'assets/ui/hud_avatar_cormano.png');
-    this.load.image('hud_coin_icon', 'assets/ui/hud_coin_icon.png');
-    this.load.image('hud_skull_icon', 'assets/ui/hud_skull_icon.png');
-    this.load.image('ref_lore_note', 'assets/ui/ref_lore_note_clean.png');
-    this.load.image('decor_backdrop', 'assets/decor/desert_saloon_backdrop.png');
-    this.load.image('decor_vignette', 'assets/decor/cinematic_vignette.png');
-    this.load.image('decor_side_beam', 'assets/decor/wooden_side_beam.png');
-    this.load.image('decor_lantern', 'assets/decor/hanging_lantern.png');
-    this.load.image('decor_chain', 'assets/decor/hanging_chain.png');
-    this.load.image('decor_title_parchment', 'assets/decor/hanging_title_parchment.png');
-    this.load.image('decor_subtitle_board', 'assets/decor/subtitle_wood_board.png');
-    this.load.image('decor_star', 'assets/decor/western_star.png');
-    this.load.image('decor_barrel', 'assets/decor/barrel.png');
-    this.load.image('decor_crate', 'assets/decor/wood_crate.png');
-    this.load.image('decor_rope', 'assets/decor/rope.png');
-    this.load.image('decor_casing', 'assets/decor/bullet_casing.png');
-    this.load.image('decor_spark', 'assets/decor/gold_spark.png');
-    this.load.image('decor_details_board', 'assets/decor/details_wood_board.png');
-    this.load.image('decor_parchment_note', 'assets/decor/small_parchment_note.png');
-
-    // 7. UI Elements
-    this.load.image('ui_wood_title', 'assets/ui/wood_title_board.png');
-    this.load.image('ui_btn_idle', 'assets/ui/button_idle.png');
-    this.load.image('ui_btn_selected', 'assets/ui/button_selected.png');
-    this.load.image('ui_ribbon_new', 'assets/ui/ribbon_new.png');
-    this.load.image('ui_ribbon_upgrade', 'assets/ui/ribbon_upgrade.png');
-    this.load.image('ui_ribbon_max', 'assets/ui/ribbon_max.png');
-    this.load.image('ui_dim_vignette', 'assets/ui/background_dim_vignette.png');
-    this.load.image('ui_wanted_poster', 'assets/ui/blank_wanted_poster.png');
   }
 
   create() {
@@ -141,12 +61,8 @@ export class TitleScene extends Phaser.Scene {
     bg.fillRect(0, 0, width, height);
 
     // 2. Reference Resolution Root Container (1536 x 1024)
-    const REF_W = 1536;
-    const REF_H = 1024;
-    const scale = Math.min(width / REF_W, height / REF_H);
 
-    this.rootContainer = this.add.container(width / 2, height / 2);
-    this.rootContainer.setScale(scale);
+    this.rootContainer = createMenuRoot(this);
 
     // 3. Assemble the Layers of WESTERN PULP '98 Intro
     this.createBackgroundAndAtmosphere();
@@ -172,7 +88,7 @@ export class TitleScene extends Phaser.Scene {
     this.playCinematicOpening();
 
     // 7. Handle Window Resizing
-    this.scale.on('resize', this.handleResize, this);
+
   }
 
   // -------------------------------------------------------------
@@ -254,7 +170,7 @@ export class TitleScene extends Phaser.Scene {
   // Steve (Rosa/Colts), Billy (Azul/Colts), Bob (Verde/Winchester), Cormano (Poncho/Shotgun)
   // -------------------------------------------------------------
   private createPlayersGroup() {
-    const playersKey = this.textures.exists('intro_players_group') ? 'intro_players_group' : 'characters_select';
+    const playersKey = 'intro_players_group';
     
     // Dimensões originais de players.png: 2172 x 724
     // Redução de 50% => escala base de 0.5 (largura efetiva 1086px x 362px)
@@ -441,7 +357,7 @@ export class TitleScene extends Phaser.Scene {
     modalContainer.add(titlePlaque);
 
     const titleText = this.add.text(0, -boxH / 2 + 48, '★ AUDIO OPTIONS ★', {
-      fontFamily: '"Rye", serif',
+      fontFamily: THEME.typography.westernFont,
       fontSize: '20px',
       color: '#fff7ed',
       stroke: '#000000',
@@ -757,21 +673,21 @@ export class TitleScene extends Phaser.Scene {
   private openControls() {
     if (this.isAdvancing) return;
     sounds.playRevolver();
-    this.scale.off('resize', this.handleResize, this);
+
     this.scene.start('ControlsScene', { fromScene: 'TitleScene' });
   }
 
   private openStats() {
     if (this.isAdvancing) return;
     sounds.playRevolver();
-    this.scale.off('resize', this.handleResize, this);
+
     this.scene.start('StatsScene', { fromScene: 'TitleScene' });
   }
 
   private openUnlockables() {
     if (this.isAdvancing) return;
     sounds.playRevolver();
-    this.scale.off('resize', this.handleResize, this);
+
     this.scene.start('UnlockablesScene');
   }
 
@@ -835,7 +751,7 @@ export class TitleScene extends Phaser.Scene {
 
     this.cameras.main.fade(550, 0, 0, 0);
     this.time.delayedCall(600, () => {
-      this.scale.off('resize', this.handleResize, this);
+
       this.scene.start('CharacterSelectScene');
     });
   }
@@ -843,14 +759,4 @@ export class TitleScene extends Phaser.Scene {
   // -------------------------------------------------------------
   // RESPONSIVE SCALING HANDLER
   // -------------------------------------------------------------
-  private handleResize() {
-    if (!this.rootContainer || !this.scene.isActive()) return;
-    const { width, height } = this.scale;
-    const REF_W = 1536;
-    const REF_H = 1024;
-    const scale = Math.min(width / REF_W, height / REF_H);
-
-    this.rootContainer.setPosition(width / 2, height / 2);
-    this.rootContainer.setScale(scale);
-  }
 }

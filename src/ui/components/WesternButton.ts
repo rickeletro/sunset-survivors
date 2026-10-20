@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { sounds } from '../../audio/SoundManager';
+import { BUTTON_STYLES, ButtonVariant } from '../theme/buttons';
 import { THEME } from '../theme/tokens';
 
 export interface WesternButtonConfig {
@@ -8,7 +9,7 @@ export interface WesternButtonConfig {
   width?: number;
   height?: number;
   text: string;
-  variant?: 'gold' | 'wood' | 'parchment' | 'danger';
+  variant?: ButtonVariant;
   fontSize?: string;
   onClick: () => void;
 }
@@ -18,7 +19,7 @@ export class WesternButton extends Phaser.GameObjects.Container {
   private btnText: Phaser.GameObjects.Text;
   private btnWidth: number;
   private btnHeight: number;
-  private variant: 'gold' | 'wood' | 'parchment' | 'danger';
+  private variant: ButtonVariant;
   private isHovered: boolean = false;
   private isPressed: boolean = false;
   private clickHandler: () => void;
@@ -71,7 +72,7 @@ export class WesternButton extends Phaser.GameObjects.Container {
       targets: this,
       scaleX: 1.04,
       scaleY: 1.04,
-      duration: 100,
+      duration: THEME.motion.hover,
       ease: 'Quad.easeOut',
     });
   }
@@ -84,7 +85,7 @@ export class WesternButton extends Phaser.GameObjects.Container {
       targets: this,
       scaleX: 1.0,
       scaleY: 1.0,
-      duration: 100,
+      duration: THEME.motion.hover,
       ease: 'Quad.easeOut',
     });
   }
@@ -97,7 +98,7 @@ export class WesternButton extends Phaser.GameObjects.Container {
       targets: this,
       scaleX: 0.95,
       scaleY: 0.95,
-      duration: 60,
+      duration: THEME.motion.press,
       ease: 'Quad.easeInOut',
     });
   }
@@ -110,7 +111,7 @@ export class WesternButton extends Phaser.GameObjects.Container {
         targets: this,
         scaleX: 1.04,
         scaleY: 1.04,
-        duration: 80,
+        duration: THEME.motion.release,
         ease: 'Back.easeOut',
         onComplete: () => {
           this.clickHandler();
@@ -130,28 +131,8 @@ export class WesternButton extends Phaser.GameObjects.Container {
     this.btnBg.fillStyle(0x000000, 0.45);
     this.btnBg.fillRoundedRect(-halfW + 4, -halfH + 4, w, h, 6);
 
-    let bgColor = 0x321b10;
-    let strokeColor = 0x8b5a2b;
-    let textColor = '#ffffff';
-
-    if (this.variant === 'gold') {
-      bgColor = this.isHovered ? 0xffa01a : 0xcc7711;
-      strokeColor = 0xffe066;
-      textColor = '#120b08';
-    } else if (this.variant === 'danger') {
-      bgColor = this.isHovered ? 0xd32f2f : 0xa51e16;
-      strokeColor = 0xff6659;
-      textColor = '#ffffff';
-    } else if (this.variant === 'parchment') {
-      bgColor = this.isHovered ? 0xf5deb3 : 0xe8c48a;
-      strokeColor = 0x603719;
-      textColor = '#2b1d0c';
-    } else {
-      // Wood
-      bgColor = this.isHovered ? 0x4a2a16 : 0x321b10;
-      strokeColor = this.isHovered ? 0xffc52a : 0x8b5a2b;
-      textColor = this.isHovered ? '#ffe066' : '#f2d49a';
-    }
+    const style = BUTTON_STYLES[this.variant][this.isHovered ? 'hover' : 'idle'];
+    const { background: bgColor, border: strokeColor, text: textColor } = style;
 
     // Main button face
     this.btnBg.fillStyle(bgColor, 1);

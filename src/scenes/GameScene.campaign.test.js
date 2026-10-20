@@ -45,7 +45,7 @@ describe('campaign scene integration without rendering', () => {
     game.spawnStageBoss();
     game.killEnemy(game.bossMembers[0]);
     expect(game.victory).not.toHaveBeenCalled();
-    expect(game.bossEnemy).toBe(game.bossMembers[1]);
+    expect(game.bossMembers.filter(enemy => !enemy.dead)).toEqual([game.bossMembers[1]]);
     game.killEnemy(game.bossMembers[1]);
     expect(game.victory).toHaveBeenCalledTimes(1);
     game.killEnemy(game.bossMembers[1]);

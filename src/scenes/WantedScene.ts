@@ -1,3 +1,5 @@
+import { preloadImages } from '../assets/registry';
+import { createMenuRoot } from '../ui/layout/menuLayout';
 import Phaser from 'phaser';
 import { sounds } from '../audio/SoundManager';
 import { CharacterData, CHARACTERS } from '../data/characters';
@@ -31,10 +33,10 @@ export class WantedScene extends Phaser.Scene {
 
     // Ensure decor assets are available
     if (!this.textures.exists('decor_spark')) {
-      this.load.image('decor_spark', 'assets/decor/gold_spark.png');
+      preloadImages(this, ['decor_spark']);
     }
     if (!this.textures.exists('decor_lantern')) {
-      this.load.image('decor_lantern', 'assets/decor/hanging_lantern.png');
+      preloadImages(this, ['decor_lantern']);
     }
   }
 
@@ -48,12 +50,8 @@ export class WantedScene extends Phaser.Scene {
     bg.fillRect(0, 0, width, height);
 
     // 2. Reference Resolution Container (1536 x 1024)
-    const REF_W = 1536;
-    const REF_H = 1024;
-    const scale = Math.min(width / REF_W, height / REF_H);
 
-    this.rootContainer = this.add.container(width / 2, height / 2);
-    this.rootContainer.setScale(scale);
+    this.rootContainer = createMenuRoot(this);
 
     // 3. Assemble Visual Layers
     this.createSaloonBackdrop();
@@ -66,7 +64,7 @@ export class WantedScene extends Phaser.Scene {
     this.setupInputs();
 
     // 5. Handle Window Resizing
-    this.scale.on('resize', this.handleResize, this);
+
   }
 
   // -------------------------------------------------------------
@@ -388,7 +386,7 @@ export class WantedScene extends Phaser.Scene {
     this.cameras.main.fade(450, 0, 0, 0);
 
     this.time.delayedCall(500, () => {
-      this.scale.off('resize', this.handleResize, this);
+
       this.scene.start('GameScene', {
         character: this.character,
         stage: this.stage,
@@ -399,11 +397,4 @@ export class WantedScene extends Phaser.Scene {
   // -------------------------------------------------------------
   // RESPONSIVE SCALING HANDLER
   // -------------------------------------------------------------
-  private handleResize() {
-    if (!this.rootContainer || !this.scene.isActive()) return;
-    const { width, height } = this.scale;
-    const scale = Math.min(width / 1536, height / 1024);
-    this.rootContainer.setPosition(width / 2, height / 2);
-    this.rootContainer.setScale(scale);
-  }
 }

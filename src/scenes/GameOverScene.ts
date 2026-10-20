@@ -1,3 +1,4 @@
+import { createMenuRoot } from '../ui/layout/menuLayout';
 import Phaser from 'phaser';
 import { sounds } from '../audio/SoundManager';
 import { CharacterData, CHARACTERS } from '../data/characters';
@@ -63,9 +64,7 @@ export class GameOverScene extends Phaser.Scene {
     bg.fillRect(0, 0, width, height);
 
     // Root Container (1536 x 1024)
-    const scale = Math.min(width / 1536, height / 1024);
-    this.rootContainer = this.add.container(width / 2, height / 2);
-    this.rootContainer.setScale(scale);
+    this.rootContainer = createMenuRoot(this);
 
     // 1. Ominous Crimson Sunset & Cemetery Silhouettes
     this.createCemeteryBackdrop();
@@ -94,7 +93,6 @@ export class GameOverScene extends Phaser.Scene {
     // 6. Atmospheric dust & floating red embers
     this.createAmbientEmbers();
 
-    this.scale.on('resize', this.handleResize, this);
   }
 
   private createCemeteryBackdrop() {
@@ -160,7 +158,6 @@ export class GameOverScene extends Phaser.Scene {
     const mins = Math.floor(this.stats.timeSurvivedSeconds / 60);
     const secs = this.stats.timeSurvivedSeconds % 60;
     const timeStr = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    const scoreVal = this.stats.bounty * 10 + this.stats.kills * 50;
 
     const statItems = [
       { label: 'GUNSLINGER:', value: this.stats.character.name, valueColor: this.stats.character.primaryColor },
@@ -242,7 +239,7 @@ export class GameOverScene extends Phaser.Scene {
   private retry() {
     sounds.playGunReload();
     sounds.playGameplayMusic();
-    this.scale.off('resize', this.handleResize, this);
+
     this.scene.start('WantedScene', {
       character: this.stats.character,
       stage: this.stats.stage || 1,
@@ -252,15 +249,8 @@ export class GameOverScene extends Phaser.Scene {
   private returnToTitle() {
     sounds.playRevolver();
     sounds.playIntroMusic();
-    this.scale.off('resize', this.handleResize, this);
+
     this.scene.start('TitleScene');
   }
 
-  private handleResize() {
-    if (!this.rootContainer || !this.scene.isActive()) return;
-    const { width, height } = this.scale;
-    const scale = Math.min(width / 1536, height / 1024);
-    this.rootContainer.setPosition(width / 2, height / 2);
-    this.rootContainer.setScale(scale);
-  }
 }

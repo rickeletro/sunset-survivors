@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { getStage, StageConfig } from '../data/stages';
 import { createStageScenery } from './StageScenery';
+import { StageLandmarks } from './StageLandmarks';
 
 /**
  * Mundo grande e contínuo dividido em chunks.
@@ -52,6 +53,7 @@ export class WorldMap {
   private chunks = new Map<string, Obstacle[]>();
   private active = new Set<string>();
   readonly groundTexture: string;
+  private landmarks: StageLandmarks;
 
   constructor(
     private scene: Phaser.Scene,
@@ -62,6 +64,7 @@ export class WorldMap {
   ) {
     this.makeTextures();
     this.groundTexture = createStageScenery(scene, stage);
+    this.landmarks = new StageLandmarks(scene, stage.theme);
   }
 
   private makeTextures() {
@@ -116,6 +119,7 @@ export class WorldMap {
         const railY = 4000 + Math.round((y - 4000) / 640) * 640;
         if (Math.abs(y - railY) < 90) continue; // Keep the telegraphed rail corridors navigable.
       }
+      if (this.landmarks.reserved(x, y, KINDS[kind].r)) continue;
       list.push({ x, y, r: KINDS[kind].r, kind });
     }
     this.chunks.set(k, list);
@@ -124,6 +128,7 @@ export class WorldMap {
 
   /** Cria/destrói sprites conforme a distância do jogador. */
   update(px: number, py: number) {
+    this.landmarks.update(px, py, this.scene.time.now);
     const pcx = Math.floor(px / CHUNK);
     const pcy = Math.floor(py / CHUNK);
     const wanted = new Set<string>();
@@ -162,6 +167,10 @@ export class WorldMap {
     }
   }
 
+  chaseTarget(x: number, y: number, targetX: number, targetY: number, radius: number): { x: number; y: number } {
+    return this.landmarks.chaseTarget(x, y, targetX, targetY, radius);
+  }
+
   /** Empurra um círculo para fora dos obstáculos próximos e limita ao mundo. */
   resolve(x: number, y: number, radius: number): { x: number; y: number } {
     const cx = Math.floor(x / CHUNK);
@@ -182,6 +191,7 @@ export class WorldMap {
         }
       }
     }
+    ({ x, y } = this.landmarks.resolve(x, y, radius));
     x = Phaser.Math.Clamp(x, WORLD_MARGIN, WORLD_W - WORLD_MARGIN);
     y = Phaser.Math.Clamp(y, WORLD_MARGIN, WORLD_H - WORLD_MARGIN);
     return { x, y };
@@ -195,9 +205,9 @@ export class WorldMap {
       const x = px + Math.cos(a) * d;
       const y = py + Math.sin(a) * d;
       if (x > WORLD_MARGIN && y > WORLD_MARGIN && x < WORLD_W - WORLD_MARGIN && y < WORLD_H - WORLD_MARGIN) {
-        return { x, y };
+        return this.resolve(x, y, 24);
       }
     }
-    return { x: Phaser.Math.Clamp(px + minDist, WORLD_MARGIN, WORLD_W - WORLD_MARGIN), y: py };
+    return this.resolve(Phaser.Math.Clamp(px + minDist, WORLD_MARGIN, WORLD_W - WORLD_MARGIN), py, 24);
   }
 }

@@ -1,3 +1,4 @@
+import { CATALOG } from '../assets/registry';
 export interface BossData {
   stage: number;
   name: string;
@@ -20,7 +21,7 @@ export const BOSSES: BossData[] = [
     stageTitle: 'OUTLAW CANYON PASS',
     lore: 'Bandoleiros tomaram o desfiladeiro e impedem a passagem. Derrote Simon Greedwell e libere o caminho!',
     posterKey: 'boss_poster_1',
-    posterPath: 'assets/bosses/01_simon_greedwell.png',
+    posterPath: CATALOG.images.boss_poster_1,
   },
   {
     stage: 2,
@@ -31,7 +32,7 @@ export const BOSSES: BossData[] = [
     stageTitle: 'STEAM TRAIN AMBUSH',
     lore: 'O comboio expresso a vapor foi cercado por atiradores de elite. Derrube Hank Hatfield no topo dos vagões!',
     posterKey: 'boss_poster_2',
-    posterPath: 'assets/bosses/02_hawkeye_hank_hatfield.png',
+    posterPath: CATALOG.images.boss_poster_2,
   },
   {
     stage: 3,
@@ -42,7 +43,7 @@ export const BOSSES: BossData[] = [
     stageTitle: 'BURNING TOWN SUNSET',
     lore: 'A vila fronteiriça arde em chamas sob o ataque da cavalaria pesada. Enfrente Dark Horse e seu garanhão de guerra!',
     posterKey: 'boss_poster_3',
-    posterPath: 'assets/bosses/03_dark_horse.png',
+    posterPath: CATALOG.images.boss_poster_3,
   },
   {
     stage: 4,
@@ -53,7 +54,7 @@ export const BOSSES: BossData[] = [
     stageTitle: 'SALOON INFERNO',
     lore: 'O Saloon virou um campo de batalha repleto de barris de pólvora. Cuidado com as chuvas de dinamite dos irmãos Smith!',
     posterKey: 'boss_poster_4',
-    posterPath: 'assets/bosses/04_the_smith_brothers.png',
+    posterPath: CATALOG.images.boss_poster_4,
   },
   {
     stage: 5,
@@ -64,7 +65,7 @@ export const BOSSES: BossData[] = [
     stageTitle: 'CABOOSE SHOWDOWN',
     lore: 'O furgão final do trem corta a estepe a toda velocidade. Supere o escudo blindado e o chicote mortal de El Greco!',
     posterKey: 'boss_poster_5',
-    posterPath: 'assets/bosses/05_el_greco.png',
+    posterPath: CATALOG.images.boss_poster_5,
   },
   {
     stage: 6,
@@ -75,7 +76,7 @@ export const BOSSES: BossData[] = [
     stageTitle: 'SACRED MOUNTAIN TRAIL',
     lore: 'Entre penhascos rochosos e ventos cortantes, guerreiros nativos defendem a montanha sagrada. Sobreviva ao teste!',
     posterKey: 'boss_poster_6',
-    posterPath: 'assets/bosses/06_chief_wigwam.png',
+    posterPath: CATALOG.images.boss_poster_6,
   },
   {
     stage: 7,
@@ -86,7 +87,7 @@ export const BOSSES: BossData[] = [
     stageTitle: 'FORTIFIED HACIENDA',
     lore: 'A fazenda murada virou um ninho de metralhadoras e barricadas. Invada a fortaleza e silencie a Gatling de Paco Loco!',
     posterKey: 'boss_poster_7',
-    posterPath: 'assets/bosses/07_paco_loco.png',
+    posterPath: CATALOG.images.boss_poster_7,
   },
   {
     stage: 8,
@@ -97,7 +98,7 @@ export const BOSSES: BossData[] = [
     stageTitle: 'THE FINAL MANOR SHOWDOWN',
     lore: 'O barão do crime aguarda em sua opulenta mansão colonial. Este é o duelo final pela paz de toda a fronteira!',
     posterKey: 'boss_poster_8',
-    posterPath: 'assets/bosses/08_sir_richard_rose.png',
+    posterPath: CATALOG.images.boss_poster_8,
   },
 ];
 
