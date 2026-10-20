@@ -1,0 +1,16 @@
+{
+  "character_id": "1c70e35a-b0b6-4d47-9dab-baabf19244b1",
+  "directions": [
+    "east",
+    "north-east",
+    "north",
+    "north-west",
+    "west",
+    "south-west",
+    "south",
+    "south-east"
+  ],
+  "frames_per_direction": 4,
+  "south_override_group": "1f3330f6-8c24-4054-beb8-bfc4b211eea6",
+  "note": "Use corrected south animation in PixelLab; local walking-4-frames/south contains the corrected frames."
+}

@@ -14,3 +14,13 @@ Personagem jogador de SUNSET SURVIVORS, criado a partir de uma cópia da vista s
 - Status e respostas: `pixellab-billy-jobs.json`.
 
 Os jogadores consultados tinham vistas em oito direções, mas animações concluídas somente em cinco ou seis delas. Para Billy, foram solicitadas todas as oito. Nenhuma regra de combate foi alterada.
+
+## Resultado verificado
+
+Concluído: 8 vistas base e 8 caminhadas de 4 frames, total de 32 frames animados. Todos os 40 PNGs e a integridade do ZIP foram verificados. A falha temporária de nordeste por sobrecarga foi resolvida com reenvio apenas dessa direção no mesmo grupo.
+
+Download local: `public/assets/characters/pixellab/billy/billy.zip`. Ainda não integrado às cenas ou regras de combate do jogo.
+
+### Correção visual da direção sul
+
+O template original desenhou a caminhada sul de costas. Foi criada a animação `walking-south-corrected-4-frames` (grupo `1f3330f6-8c24-4054-beb8-bfc4b211eea6`) em modo v3, mantendo a frente e os dois revólveres. No PixelLab, selecionar essa animação para sul. No ZIP final `billy.zip`, os frames corrigidos já estão em `Idle/animations/walking-4-frames/south/`. O arquivo `animation-selection.json` registra essa seleção. Os arquivos `template-original.zip` e `pixellab-source.zip` preservam as saídas originais.

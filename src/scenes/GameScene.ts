@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { sounds } from '../audio/SoundManager';
-import { CharacterData } from '../data/characters';
+import { CharacterData, CHARACTERS } from '../data/characters';
 import { PASSIVES } from '../data/passives';
 import { WEAPONS, WeaponDef } from '../data/weapons';
 import { THEME } from '../ui/theme/tokens';
@@ -160,9 +160,24 @@ export class GameScene extends Phaser.Scene {
     super('GameScene');
   }
 
-  init(data: { character: CharacterData; stage?: number }) {
-    this.character = data.character;
-    this.stage = data.stage || 1;
+  init(data?: { character?: CharacterData; stage?: number }) {
+    this.character = data?.character || CHARACTERS.billy;
+    this.stage = data?.stage || 1;
+  }
+
+  preload() {
+    if (!this.textures.exists('hud_avatar_steve')) {
+      this.load.image('hud_avatar_steve', 'assets/ui/hud_avatar_steve.png');
+      this.load.image('hud_avatar_billy', 'assets/ui/hud_avatar_billy.png');
+      this.load.image('hud_avatar_bob', 'assets/ui/hud_avatar_bob.png');
+      this.load.image('hud_avatar_cormano', 'assets/ui/hud_avatar_cormano.png');
+    }
+    if (!this.textures.exists('hud_coin_icon')) {
+      this.load.image('hud_coin_icon', 'assets/ui/hud_coin_icon.png');
+    }
+    if (!this.textures.exists('hud_skull_icon')) {
+      this.load.image('hud_skull_icon', 'assets/ui/hud_skull_icon.png');
+    }
   }
 
   create() {
@@ -338,74 +353,87 @@ export class GameScene extends Phaser.Scene {
   private createHUD() {
     const { width } = this.scale;
 
-    // Top XP Bar Frame
+    // 1. Top XP Bar Frame (madeira escura no topo)
     const xpBg = this.add.graphics().setDepth(50).setScrollFactor(0);
-    xpBg.fillStyle(0x1a0f08, 0.9);
-    xpBg.fillRect(0, 0, width, 18);
-    xpBg.lineStyle(2, 0x8b5a2b, 1);
-    xpBg.strokeRect(0, 0, width, 18);
+    xpBg.fillStyle(0x1a0f08, 0.95);
+    xpBg.fillRect(0, 0, width, 14);
+    xpBg.lineStyle(1, 0x8b5a2b, 1);
+    xpBg.strokeRect(0, 0, width, 14);
 
     this.xpBarFill = this.add.graphics().setDepth(51).setScrollFactor(0);
     this.updateXpBar();
 
-    // Top Level Text
-    this.levelText = this.add.text(12, 2, 'LV. 01', {
-      fontFamily: THEME.typography.pixelFont,
-      fontSize: '11px',
+    // 2. LEFT: Hero Avatar Box com Moldura de Ouro e Rebites
+    const charId = this.character?.id || 'steve';
+    const avatarKey = this.textures.exists(`hud_avatar_${charId}`) ? `hud_avatar_${charId}` : 'hud_avatar_steve';
+
+    if (this.textures.exists(avatarKey)) {
+      this.add.image(68, 70, avatarKey)
+        .setDisplaySize(92, 98)
+        .setDepth(52)
+        .setScrollFactor(0);
+    } else {
+      // Fallback procedural
+      const portBg = this.add.graphics().setDepth(52).setScrollFactor(0);
+      portBg.fillStyle(0x23140a, 1);
+      portBg.fillRoundedRect(22, 21, 90, 90, 6);
+      portBg.lineStyle(3, 0xffc52a, 1);
+      portBg.strokeRoundedRect(22, 21, 90, 90, 6);
+    }
+
+    // "LV. 1" em amarelo arcade acima da barra
+    this.levelText = this.add.text(126, 28, `LV. ${this.level}`, {
+      fontFamily: '"Press Start 2P", monospace',
+      fontSize: '18px',
       color: '#ffe066',
-      stroke: '#000',
-      strokeThickness: 2,
+      stroke: '#000000',
+      strokeThickness: 4,
     }).setDepth(52).setScrollFactor(0);
 
-    // HUD Top Bar Info
-    const hudTopY = 32;
+    // Barra de Vida com Moldura de Madeira e Borda Dourada
+    const barW = 240;
+    const barH = 26;
+    const barX = 126;
+    const barY = 56;
 
-    // Player Health Heart & Bar
     const hpBg = this.add.graphics().setDepth(50).setScrollFactor(0);
-    hpBg.fillStyle(0x0a0503, 0.85);
-    hpBg.fillRoundedRect(16, hudTopY, 190, 24, 4);
-    hpBg.lineStyle(2, 0x452b14, 1);
-    hpBg.strokeRoundedRect(16, hudTopY, 190, 24, 4);
+    // Fundo escuro
+    hpBg.fillStyle(0x180b06, 1);
+    hpBg.fillRoundedRect(barX, barY, barW, barH, 4);
+    // Moldura dourada / pergaminho
+    hpBg.lineStyle(3, 0xf5d6a1, 1);
+    hpBg.strokeRoundedRect(barX, barY, barW, barH, 4);
 
     this.hpBarFill = this.add.graphics().setDepth(51).setScrollFactor(0);
-    this.updateHpBar();
 
-    this.hpText = this.add.text(26, hudTopY + 5, `HP ${this.hp}/${this.maxHp}`, {
-      fontFamily: THEME.typography.pixelFont,
-      fontSize: '10px',
+    // Texto de HP "100 / 100" em branco com contorno preto abaixo da barra
+    this.hpText = this.add.text(barX + 4, barY + barH + 6, `${Math.max(0, Math.round(this.hp))} / ${this.maxHp}`, {
+      fontFamily: '"Press Start 2P", monospace',
+      fontSize: '13px',
       color: '#ffffff',
-      stroke: '#000',
-      strokeThickness: 2,
+      stroke: '#000000',
+      strokeThickness: 3,
     }).setDepth(52).setScrollFactor(0);
 
-    // Timer (Center)
-    this.timeText = this.add.text(width / 2, hudTopY + 12, '00:00', {
-      fontFamily: THEME.typography.pixelFont,
-      fontSize: '16px',
+    this.updateHpBar();
+
+    // 3. CENTER: Timer (Madeira de Saloon & Tipografia Arcade)
+    const timerBg = this.add.graphics().setDepth(49).setScrollFactor(0);
+    timerBg.fillStyle(0x1a0d06, 0.85);
+    timerBg.fillRoundedRect(width / 2 - 70, 24, 140, 42, 6);
+    timerBg.lineStyle(2, 0x48240f, 1);
+    timerBg.strokeRoundedRect(width / 2 - 70, 24, 140, 42, 6);
+
+    this.timeText = this.add.text(width / 2, 45, '00:00', {
+      fontFamily: '"Press Start 2P", monospace',
+      fontSize: '18px',
       color: '#ffffff',
       stroke: '#8b0e0e',
       strokeThickness: 4,
     }).setOrigin(0.5).setDepth(50).setScrollFactor(0);
 
-    // Bounty $ & Kills (Right)
-    this.bountyText = this.add.text(width - 24, hudTopY + 2, '$00000', {
-      fontFamily: THEME.typography.pixelFont,
-      fontSize: '15px',
-      color: THEME.colors.gold.base,
-      stroke: '#000',
-      strokeThickness: 3,
-    }).setOrigin(1, 0).setDepth(50).setScrollFactor(0);
-
-    this.killsText = this.add.text(width - 24, hudTopY + 22, '☠ 000', {
-      fontFamily: THEME.typography.pixelFont,
-      fontSize: '11px',
-      color: '#ef4444',
-      stroke: '#000',
-      strokeThickness: 2,
-    }).setOrigin(1, 0).setDepth(50).setScrollFactor(0);
-
-    // Simon Greedwell Boss Bar Container (Hidden until boss spawns)
-    this.bossBarContainer = this.add.container(width / 2, 85).setDepth(55).setScrollFactor(0).setVisible(false);
+    // Simon Greedwell Boss Bar Container (Abaixo do Timer)
+    this.bossBarContainer = this.add.container(width / 2, 92).setDepth(55).setScrollFactor(0).setVisible(false);
 
     const bossBg = this.add.graphics();
     bossBg.fillStyle(0x1a0f08, 0.95);
@@ -425,21 +453,80 @@ export class GameScene extends Phaser.Scene {
       strokeThickness: 3,
     }).setOrigin(0.5);
     this.bossBarContainer.add(bossLabel);
+
+    // 4. RIGHT: Placa de Dinheiro (Moeda) e Caveira (Kills)
+    const plaqueW = 250;
+    const plaqueH = 78;
+    const plaqueX = width - plaqueW - 24;
+    const plaqueY = 24;
+
+    const statsBg = this.add.graphics().setDepth(50).setScrollFactor(0);
+    statsBg.fillStyle(0x1a0d06, 0.85);
+    statsBg.fillRoundedRect(plaqueX, plaqueY, plaqueW, plaqueH, 8);
+    statsBg.lineStyle(2, 0x48240f, 1);
+    statsBg.strokeRoundedRect(plaqueX, plaqueY, plaqueW, plaqueH, 8);
+
+    // Linha 1: Moeda / Gold ($000000)
+    if (this.textures.exists('hud_coin_icon')) {
+      this.add.image(plaqueX + 28, plaqueY + 22, 'hud_coin_icon')
+        .setDisplaySize(30, 30)
+        .setDepth(51)
+        .setScrollFactor(0);
+    }
+    const goldFormatted = `$${String(this.bounty).padStart(6, '0')}`;
+    this.bountyText = this.add.text(plaqueX + 54, plaqueY + 14, goldFormatted, {
+      fontFamily: '"Press Start 2P", monospace',
+      fontSize: '16px',
+      color: '#ffe066',
+      stroke: '#000000',
+      strokeThickness: 4,
+    }).setDepth(51).setScrollFactor(0);
+
+    // Linha 2: Caveira / Kills (0000)
+    if (this.textures.exists('hud_skull_icon')) {
+      this.add.image(plaqueX + 28, plaqueY + 56, 'hud_skull_icon')
+        .setDisplaySize(26, 28)
+        .setDepth(51)
+        .setScrollFactor(0);
+    }
+    const killsFormatted = String(this.kills).padStart(4, '0');
+    this.killsText = this.add.text(plaqueX + 54, plaqueY + 48, killsFormatted, {
+      fontFamily: '"Press Start 2P", monospace',
+      fontSize: '16px',
+      color: '#ffffff',
+      stroke: '#000000',
+      strokeThickness: 4,
+    }).setDepth(51).setScrollFactor(0);
   }
 
   private updateXpBar() {
     const { width } = this.scale;
-    const pct = Math.min(this.currentXp / this.xpToNextLevel, 1);
+    const pct = Math.min(this.currentXp / Math.max(1, this.xpToNextLevel), 1);
     this.xpBarFill.clear();
     this.xpBarFill.fillStyle(0x00f0ff, 1);
-    this.xpBarFill.fillRect(2, 2, (width - 4) * pct, 14);
+    this.xpBarFill.fillRect(1, 1, (width - 2) * pct, 12);
+    this.xpBarFill.fillStyle(0xafffff, 0.6);
+    this.xpBarFill.fillRect(1, 1, (width - 2) * pct, 3);
   }
 
   private updateHpBar() {
-    const pct = Math.max(0, Math.min(this.hp / this.maxHp, 1));
+    const barX = 126;
+    const barY = 56;
+    const barW = 240;
+    const barH = 26;
+
+    const hpPct = Phaser.Math.Clamp(this.hp / Math.max(1, this.maxHp), 0, 1);
+    const fillW = Math.max(0, (barW - 6) * hpPct);
     this.hpBarFill.clear();
-    this.hpBarFill.fillStyle(pct > 0.3 ? 0x22c55e : 0xef4444, 1);
-    this.hpBarFill.fillRoundedRect(18, 34, 186 * pct, 20, 3);
+    if (fillW > 0) {
+      this.hpBarFill.fillStyle(0xd91414, 1);
+      this.hpBarFill.fillRect(barX + 3, barY + 3, fillW, barH - 6);
+      this.hpBarFill.fillStyle(0xff6b6b, 0.6);
+      this.hpBarFill.fillRect(barX + 3, barY + 3, fillW, 4);
+    }
+    if (this.hpText) {
+      this.hpText.setText(`${Math.max(0, Math.round(this.hp))} / ${this.maxHp}`);
+    }
   }
 
   private updateBossBar() {
@@ -463,7 +550,6 @@ export class GameScene extends Phaser.Scene {
     // Health Regeneration from Whiskey
     if (this.hpRegen > 0 && this.hp < this.maxHp) {
       this.hp = Math.min(this.maxHp, this.hp + this.hpRegen);
-      this.hpText.setText(`HP ${Math.round(this.hp)}/${this.maxHp}`);
       this.updateHpBar();
     }
 
@@ -1193,7 +1279,6 @@ export class GameScene extends Phaser.Scene {
         sounds.playCoin();
         if (d.type === 'whiskey') {
           this.hp = Math.min(this.maxHp, this.hp + 30);
-          this.hpText.setText(`HP ${Math.round(this.hp)}/${this.maxHp}`);
           this.updateHpBar();
         } else {
           this.addXp(Math.round(d.val * this.xpBonus));
@@ -1208,7 +1293,7 @@ export class GameScene extends Phaser.Scene {
 
   private addBounty(amount: number) {
     this.bounty += amount;
-    this.bountyText.setText(`$${this.bounty.toLocaleString().padStart(5, '0')}`);
+    this.bountyText.setText(`$${String(this.bounty).padStart(6, '0')}`);
   }
 
   private addXp(amount: number) {
@@ -1217,7 +1302,7 @@ export class GameScene extends Phaser.Scene {
       this.currentXp -= this.xpToNextLevel;
       this.level++;
       this.xpToNextLevel = Math.round(this.xpToNextLevel * 1.45 + 15);
-      this.levelText.setText(`LV. ${this.level.toString().padStart(2, '0')}`);
+      this.levelText.setText(`LV. ${this.level}`);
       this.triggerLevelUp();
     }
     this.updateXpBar();
@@ -1262,7 +1347,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.kills++;
-    this.killsText.setText(`☠ ${this.kills.toString().padStart(3, '0')}`);
+    this.killsText.setText(String(this.kills).padStart(4, '0'));
     this.addBounty(enemy.bountyVal);
     this.gameEvents.emitEnemyKilled({ kind: enemy.type, x: enemy.sprite.x, y: enemy.sprite.y });
 
@@ -1337,7 +1422,6 @@ export class GameScene extends Phaser.Scene {
     const reduced = Math.max(1, amount - this.armor);
     this.hp -= reduced;
     this.gameEvents.emitPlayerDamaged(reduced);
-    this.hpText.setText(`HP ${Math.max(0, Math.round(this.hp))}/${this.maxHp}`);
     this.updateHpBar();
 
     // Red vignette flash
@@ -1506,7 +1590,6 @@ export class GameScene extends Phaser.Scene {
       if (eff.maxHpBonus) {
         this.maxHp += eff.maxHpBonus;
         this.hp += eff.maxHpBonus;
-        this.hpText.setText(`HP ${Math.round(this.hp)}/${this.maxHp}`);
         this.updateHpBar();
       }
     }

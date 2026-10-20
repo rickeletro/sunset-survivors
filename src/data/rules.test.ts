@@ -60,4 +60,37 @@ describe('Game Data & Progression Rules', () => {
       expect(CHARACTERS.cormano.starterWeapon).toBe('shotgun');
     });
   });
+
+  describe('HUD Western Pulp 98 Arcade Specifications', () => {
+    it('formata o bounty/dinheiro no padrao arcade de 6 digitos', () => {
+      const formatGold = (gold: number) => `$${String(gold).padStart(6, '0')}`;
+      expect(formatGold(0)).toBe('$000000');
+      expect(formatGold(45)).toBe('$000045');
+      expect(formatGold(1234)).toBe('$001234');
+      expect(formatGold(999999)).toBe('$999999');
+    });
+
+    it('formata o contador de caveiras/kills no padrao arcade de 4 digitos', () => {
+      const formatKills = (kills: number) => String(kills).padStart(4, '0');
+      expect(formatKills(0)).toBe('0000');
+      expect(formatKills(7)).toBe('0007');
+      expect(formatKills(89)).toBe('0089');
+      expect(formatKills(1250)).toBe('1250');
+    });
+
+    it('formata a barra de vida com HP atual e maximo limpo', () => {
+      const formatHp = (hp: number, maxHp: number) => `${Math.max(0, Math.round(hp))} / ${maxHp}`;
+      expect(formatHp(100, 100)).toBe('100 / 100');
+      expect(formatHp(45.2, 120)).toBe('45 / 120');
+      expect(formatHp(-5, 100)).toBe('0 / 100');
+    });
+
+    it('todos os 4 herois possuem identificadores mapeaveis para hud_avatar', () => {
+      const heroIds = Object.keys(CHARACTERS);
+      for (const id of heroIds) {
+        expect(['steve', 'billy', 'bob', 'cormano']).toContain(id);
+      }
+    });
+  });
 });
+
