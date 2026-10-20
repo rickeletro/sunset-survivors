@@ -70,3 +70,8 @@ Esta identidade combina:
    - Toda alteração ou correção de bug deve ser acompanhada da execução da suíte de testes (`npm test`) para garantir não-regressão e que nenhum bug novo surja.
 4. **Áudio Centralizado:** Sempre utilize a instância `sounds` de `src/audio/SoundManager.ts` para disparar efeitos sonoros e músicas.
 5. **Skills do Projeto:** Para procedimentos completos e templates de telas, consulte a skill `.agents/skills/western-pulp-arcade/SKILL.md`.
+6. **Git e Commits (Conventional Commits em Inglês):**
+   - Mensagens devem seguir o padrão: `feat:`, `fix:`, `refactor:`, `style:`, `test:`, `chore:`.
+   - Sempre em **Inglês** e no imperativo (ex: `feat: add saloon background to level up scene`).
+   - Pré-requisito obrigatório antes de qualquer commit: `npx tsc --noEmit` e `npm test` sem erros.
+   - Regras detalhadas em `.agents/rules/git-workflow.md`.

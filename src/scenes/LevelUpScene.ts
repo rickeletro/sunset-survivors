@@ -138,66 +138,61 @@ export class LevelUpScene extends Phaser.Scene {
   }
 
   // -------------------------------------------------------------
-  // BACKGROUND LAYER: Saloon Backdrop, Wooden Beams & Props
+  // BACKGROUND LAYER: Saloon_bkg.png (Western Saloon Interior)
   // -------------------------------------------------------------
   private createBackgroundLayer() {
-    // Backdrop Image
-    if (this.textures.exists('decor_backdrop')) {
-      const bg = this.add.image(0, 0, 'decor_backdrop').setDisplaySize(1536, 1024);
-      this.rootContainer.add(bg);
-    }
+    // 1. Saloon Interior Background (Saloon_bkg.png)
+    const bkgKey = this.textures.exists('saloon_bkg') ? 'saloon_bkg' : 'decor_backdrop';
+    const bg = this.add.image(0, 0, bkgKey).setDisplaySize(1536, 1024);
+    this.rootContainer.add(bg);
 
-    // Dark tint so background doesn't compete with the cards
+    // 2. Dark tint overlay suave para dar foco e legibilidade aos cards de upgrade
     const dimGfx = this.add.graphics();
-    dimGfx.fillStyle(0x120b08, 0.45);
+    dimGfx.fillStyle(0x120b08, 0.35);
     dimGfx.fillRect(-768, -512, 1536, 1024);
     this.rootContainer.add(dimGfx);
 
-    // Saloon Side Beams (Left & Right)
-    if (this.textures.exists('decor_side_beam')) {
-      const beamL = this.add.image(-708, 0, 'decor_side_beam').setDisplaySize(130, 1024);
-      const beamR = this.add.image(708, 0, 'decor_side_beam').setDisplaySize(130, 1024).setFlipX(true);
-      this.rootContainer.add([beamL, beamR]);
+    // 3. Efeito suave de luz âmbar pulsante nas lanternas originais do Saloon
+    if (!this.textures.exists('saloon_lantern_glow')) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 128;
+      canvas.height = 128;
+      const ctx = canvas.getContext('2d')!;
+      const grad = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+      grad.addColorStop(0, 'rgba(255, 235, 120, 0.85)');
+      grad.addColorStop(0.35, 'rgba(255, 170, 30, 0.45)');
+      grad.addColorStop(0.7, 'rgba(255, 100, 10, 0.15)');
+      grad.addColorStop(1, 'rgba(255, 80, 0, 0.0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 128, 128);
+      this.textures.addCanvas('saloon_lantern_glow', canvas);
     }
 
-    // Hanging Lanterns with Amber Light Flicker
-    if (this.textures.exists('decor_lantern')) {
-      const lanternL = this.add.image(-610, -250, 'decor_lantern').setScale(0.78);
-      const lanternR = this.add.image(610, -250, 'decor_lantern').setScale(0.78).setFlipX(true);
-      this.rootContainer.add([lanternL, lanternR]);
+    const lanterns = [
+      { x: -440, y: -255, scale: 1.8 }, // Lanterna principal esquerda
+      { x: 495, y: -270, scale: 1.8 },  // Lanterna principal direita
+      { x: -285, y: -160, scale: 1.1 }, // Lanterna secundária porta esquerda
+      { x: 265, y: -160, scale: 1.1 },  // Lanterna secundária porta direita
+    ];
+
+    lanterns.forEach((coord, i) => {
+      const glow = this.add.image(coord.x, coord.y, 'saloon_lantern_glow');
+      glow.setScale(coord.scale);
+      glow.setBlendMode(Phaser.BlendModes.ADD);
+      glow.setAlpha(0.65);
+      this.rootContainer.add(glow);
 
       this.tweens.add({
-        targets: [lanternL, lanternR],
-        alpha: { from: 0.82, to: 1.0 },
-        duration: 380,
+        targets: glow,
+        alpha: { from: 0.4, to: 0.85 },
+        scaleX: { from: coord.scale * 0.95, to: coord.scale * 1.08 },
+        scaleY: { from: coord.scale * 0.95, to: coord.scale * 1.08 },
+        duration: 220 + i * 80,
         yoyo: true,
         repeat: -1,
         ease: 'Sine.easeInOut',
       });
-    }
-
-    // Saloon Props on floor
-    if (this.textures.exists('decor_barrel')) {
-      const barrelL = this.add.image(-630, 340, 'decor_barrel').setScale(0.72);
-      const barrelR = this.add.image(630, 360, 'decor_barrel').setScale(0.65).setFlipX(true);
-      this.rootContainer.add([barrelL, barrelR]);
-    }
-
-    if (this.textures.exists('decor_rope')) {
-      const ropeL = this.add.image(-570, 380, 'decor_rope').setScale(0.55);
-      this.rootContainer.add(ropeL);
-    }
-
-    if (this.textures.exists('decor_crate')) {
-      const crateR = this.add.image(580, 330, 'decor_crate').setScale(0.65);
-      this.rootContainer.add(crateR);
-    }
-
-    // Cinematic Vignette overlay
-    if (this.textures.exists('decor_vignette')) {
-      const vignette = this.add.image(0, 0, 'decor_vignette').setDisplaySize(1536, 1024).setAlpha(0.65);
-      this.rootContainer.add(vignette);
-    }
+    });
   }
 
   // -------------------------------------------------------------

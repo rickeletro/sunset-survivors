@@ -12,12 +12,13 @@ export class TitleScene extends Phaser.Scene {
   private introTimeline?: Phaser.Time.TimerEvent;
 
   // Visual layers & objects
+  private bkgImage!: Phaser.GameObjects.Image;
   private logoImage!: Phaser.GameObjects.Image;
-  private heroSprites: Phaser.GameObjects.Image[] = [];
-  private heroShadows: Phaser.GameObjects.Graphics[] = [];
+  private playersGroupImage!: Phaser.GameObjects.Image;
+  private playersShadowGraphics!: Phaser.GameObjects.Graphics;
   private startBtnContainer!: Phaser.GameObjects.Container;
   private startBtnBorderGlow!: Phaser.GameObjects.Graphics;
-  private lanternGlows: Phaser.GameObjects.Graphics[] = [];
+  private lanternGlows: Phaser.GameObjects.Image[] = [];
   private sunGlowGraphics!: Phaser.GameObjects.Graphics;
   private dustEmitter?: Phaser.GameObjects.Particles.ParticleEmitter;
   private optionsModalContainer?: Phaser.GameObjects.Container;
@@ -28,14 +29,13 @@ export class TitleScene extends Phaser.Scene {
 
   preload() {
     // 1. Core Title & Intro Layer Assets (WESTERN PULP '98)
+    this.load.image('intro_bkg', 'assets/background/sunsetsurvivors_bkg.png');
+    this.load.image('intro_logo_new', 'assets/intro/Logo_Western_Sunset_Survivors.png');
+    this.load.image('intro_players_group', 'assets/intro/players.png');
     this.load.image('intro_sky', 'assets/intro/title_sky.png');
     this.load.image('intro_landscape', 'assets/intro/title_landscape.png');
     this.load.image('intro_frame', 'assets/intro/title_frame.png');
     this.load.image('intro_logo', 'assets/intro/title_logo.png');
-    this.load.image('intro_hero_steve', 'assets/intro/title_hero_steve.png');
-    this.load.image('intro_hero_billy', 'assets/intro/title_hero_billy.png');
-    this.load.image('intro_hero_bob', 'assets/intro/title_hero_bob.png');
-    this.load.image('intro_hero_cormano', 'assets/intro/title_hero_cormano.png');
     this.load.image('intro_btn_dark', 'assets/intro/btn_start_dark.png');
     this.load.image('intro_btn_glow', 'assets/intro/btn_start_glow.png');
 
@@ -79,6 +79,7 @@ export class TitleScene extends Phaser.Scene {
     this.load.image('card_magnet', 'assets/powerup/horseshoe_magnet.png');
 
     // 6. Saloon & Level Up Decor Assets
+    this.load.image('saloon_bkg', 'assets/background/Saloon_bkg.png');
     this.load.image('decor_backdrop', 'assets/decor/desert_saloon_backdrop.png');
     this.load.image('decor_vignette', 'assets/decor/cinematic_vignette.png');
     this.load.image('decor_side_beam', 'assets/decor/wooden_side_beam.png');
@@ -108,8 +109,6 @@ export class TitleScene extends Phaser.Scene {
 
   create() {
     this.isAdvancing = false;
-    this.heroSprites = [];
-    this.heroShadows = [];
     this.lanternGlows = [];
 
     // Generate procedural pixel textures for game
@@ -142,11 +141,9 @@ export class TitleScene extends Phaser.Scene {
     this.rootContainer = this.add.container(width / 2, height / 2);
     this.rootContainer.setScale(scale);
 
-    // 3. Assemble the 6 Layers of WESTERN PULP '98 Intro
-    this.createSkyAndSun();
-    this.createTownAndLandscape();
-    this.createSaloonFrame();
-    this.createHeroes();
+    // 3. Assemble the Layers of WESTERN PULP '98 Intro
+    this.createBackgroundAndAtmosphere();
+    this.createPlayersGroup();
     this.createLogotype();
     this.createStartButton();
     this.createAuxiliaryMenu();
@@ -172,30 +169,20 @@ export class TitleScene extends Phaser.Scene {
   }
 
   // -------------------------------------------------------------
-  // LAYER 1: FIERY SUNSET SKY & SUN
+  // LAYER 1: CINEMATIC WESTERN SUNSET BACKGROUND & LANTERNS
   // -------------------------------------------------------------
-  private createSkyAndSun() {
-    if (this.textures.exists('intro_sky')) {
-      const sky = this.add.image(0, -160, 'intro_sky').setDisplaySize(1536, 720);
-      this.rootContainer.add(sky);
+  private createBackgroundAndAtmosphere() {
+    // 1. Background image (sunsetsurvivors_bkg.png)
+    const bkgKey = this.textures.exists('intro_bkg') ? 'intro_bkg' : 'intro_landscape';
+    this.bkgImage = this.add.image(0, 0, bkgKey).setDisplaySize(1536, 1024);
+    this.rootContainer.add(this.bkgImage);
 
-      // Subtle horizontal cloud drift
-      this.tweens.add({
-        targets: sky,
-        x: 14,
-        duration: 8000,
-        yoyo: true,
-        repeat: -1,
-        ease: 'Sine.easeInOut',
-      });
-    }
-
-    // Blazing golden sun pulse glow centered on horizon
+    // 2. Sun Pulsating Radial Glow (Central Sunset Horizon x=0, y=10)
     this.sunGlowGraphics = this.add.graphics();
     this.sunGlowGraphics.fillStyle(0xffc52a, 0.22);
-    this.sunGlowGraphics.fillCircle(0, 10, 190);
+    this.sunGlowGraphics.fillCircle(0, 8, 180);
     this.sunGlowGraphics.fillStyle(0xff791c, 0.12);
-    this.sunGlowGraphics.fillCircle(0, 10, 270);
+    this.sunGlowGraphics.fillCircle(0, 8, 260);
     this.rootContainer.add(this.sunGlowGraphics);
 
     this.tweens.add({
@@ -208,37 +195,17 @@ export class TitleScene extends Phaser.Scene {
       repeat: -1,
       ease: 'Sine.easeInOut',
     });
-  }
 
-  // -------------------------------------------------------------
-  // LAYER 2: WESTERN TOWN, CANYON MESAS & GROUND
-  // -------------------------------------------------------------
-  private createTownAndLandscape() {
-    if (this.textures.exists('intro_landscape')) {
-      const landscape = this.add.image(0, 172, 'intro_landscape').setDisplaySize(1536, 680);
-      this.rootContainer.add(landscape);
-    }
-  }
-
-  // -------------------------------------------------------------
-  // LAYER 3: SALOON WOODEN ARCH & FOREGROUND PROPS
-  // -------------------------------------------------------------
-  private createSaloonFrame() {
-    if (this.textures.exists('intro_frame')) {
-      const frame = this.add.image(0, 0, 'intro_frame').setDisplaySize(1536, 1024);
-      this.rootContainer.add(frame);
-    }
-
-    // Generate smooth amber radial gradient texture for gas lanterns
+    // 3. Smooth amber radial gradient texture for gas lanterns
     if (!this.textures.exists('lantern_radial_glow')) {
       const canvas = document.createElement('canvas');
       canvas.width = 128;
       canvas.height = 128;
       const ctx = canvas.getContext('2d')!;
       const grad = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
-      grad.addColorStop(0, 'rgba(255, 235, 120, 0.85)');
-      grad.addColorStop(0.35, 'rgba(255, 170, 30, 0.45)');
-      grad.addColorStop(0.7, 'rgba(255, 100, 10, 0.15)');
+      grad.addColorStop(0, 'rgba(255, 235, 120, 0.90)');
+      grad.addColorStop(0.35, 'rgba(255, 170, 30, 0.50)');
+      grad.addColorStop(0.7, 'rgba(255, 100, 10, 0.18)');
       grad.addColorStop(1, 'rgba(255, 80, 0, 0.0)');
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, 128, 128);
@@ -246,10 +213,12 @@ export class TitleScene extends Phaser.Scene {
     }
 
     // Warm amber flickering halos on the saloon lanterns
+    // Em sunsetsurvivors_bkg (1536x1024):
+    // Lanterna esquerda: x = -685, y = -285
+    // Lanterna direita:  x = 680, y = -295
     const lanternCoords = [
-      { x: -680, y: -365, scale: 1.8 }, // Top left lantern
-      { x: 670, y: -365, scale: 1.8 },  // Top right lantern
-      { x: -680, y: -65, scale: 1.5 },   // Left post lantern
+      { x: -685, y: -285, scale: 2.1 },
+      { x: 680, y: -295, scale: 2.1 },
     ];
 
     lanternCoords.forEach((coord, i) => {
@@ -258,13 +227,14 @@ export class TitleScene extends Phaser.Scene {
       glow.setBlendMode(Phaser.BlendModes.ADD);
       glow.setAlpha(0.7);
       this.rootContainer.add(glow);
+      this.lanternGlows.push(glow);
 
       this.tweens.add({
         targets: glow,
-        alpha: { from: 0.45, to: 0.9 },
+        alpha: { from: 0.45, to: 0.95 },
         scaleX: { from: coord.scale * 0.95, to: coord.scale * 1.08 },
         scaleY: { from: coord.scale * 0.95, to: coord.scale * 1.08 },
-        duration: 180 + i * 70,
+        duration: 180 + i * 80,
         yoyo: true,
         repeat: -1,
         ease: 'Sine.easeInOut',
@@ -273,58 +243,58 @@ export class TitleScene extends Phaser.Scene {
   }
 
   // -------------------------------------------------------------
-  // LAYER 4: THE FOUR PROTAGONISTS (Steve, Billy, Bob, Cormano)
+  // LAYER 2: THE FOUR PROTAGONISTS GROUP (players.png)
+  // Steve (Rosa/Colts), Billy (Azul/Colts), Bob (Verde/Winchester), Cormano (Poncho/Shotgun)
   // -------------------------------------------------------------
-  private createHeroes() {
-    const heroesData = [
-      { key: 'steve', x: -342, y: 125, w: 245, h: 325 },
-      { key: 'billy', x: -105, y: 105, w: 270, h: 340 },
-      { key: 'bob', x: 136, y: 114, w: 260, h: 335 },
-      { key: 'cormano', x: 342, y: 128, w: 255, h: 328 },
-    ];
+  private createPlayersGroup() {
+    const playersKey = this.textures.exists('intro_players_group') ? 'intro_players_group' : 'characters_select';
+    
+    // Dimensões originais de players.png: 2172 x 724
+    // Redução de 50% => escala base de 0.5 (largura efetiva 1086px x 362px)
+    const baseScale = 0.5;
+    const targetY = 120;
+    const pH = 724 * baseScale; // 362px
 
-    heroesData.forEach((h, i) => {
-      // Boot shadow on desert soil
-      const shadow = this.add.graphics();
-      shadow.fillStyle(0x000000, 0.45);
-      shadow.fillEllipse(h.x, h.y + h.h / 2 - 10, h.w * 0.75, 24);
-      shadow.setAlpha(0);
-      this.rootContainer.add(shadow);
-      this.heroShadows.push(shadow);
+    // Sombra suave sob as botas no solo do deserto
+    this.playersShadowGraphics = this.add.graphics();
+    this.playersShadowGraphics.fillStyle(0x000000, 0.55);
+    this.playersShadowGraphics.fillEllipse(-330, targetY + pH / 2 - 12, 180, 26);
+    this.playersShadowGraphics.fillEllipse(-115, targetY + pH / 2 - 12, 190, 26);
+    this.playersShadowGraphics.fillEllipse(115, targetY + pH / 2 - 12, 190, 26);
+    this.playersShadowGraphics.fillEllipse(335, targetY + pH / 2 - 12, 190, 26);
+    this.playersShadowGraphics.setAlpha(0);
+    this.rootContainer.add(this.playersShadowGraphics);
 
-      // Hero Illustrated Sprite
-      const textureKey = `intro_hero_${h.key}`;
-      const sprite = this.add.image(h.x, h.y, textureKey);
-      sprite.setDisplaySize(h.w, h.h);
-      sprite.setAlpha(0);
-      this.rootContainer.add(sprite);
-      this.heroSprites.push(sprite);
+    this.playersGroupImage = this.add.image(0, targetY, playersKey);
+    this.playersGroupImage.setScale(baseScale);
+    this.playersGroupImage.setAlpha(0);
+    this.rootContainer.add(this.playersGroupImage);
 
-      // Idle breathing / ready sway tween
-      this.tweens.add({
-        targets: sprite,
-        y: h.y - 4,
-        duration: 1200 + i * 140,
-        yoyo: true,
-        repeat: -1,
-        ease: 'Sine.easeInOut',
-      });
+    // Idle breathing / ready sway suave dos pistoleiros mantendo a escala
+    this.tweens.add({
+      targets: this.playersGroupImage,
+      y: targetY - 3,
+      duration: 1600,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
     });
   }
 
   // -------------------------------------------------------------
-  // LAYER 5: SUNSET SURVIVORS MAIN LOGO WITH STEER SKULL
+  // LAYER 3: SUNSET SURVIVORS MAIN LOGO WITH STEER SKULL
   // -------------------------------------------------------------
   private createLogotype() {
-    const logoW = 1180;
-    const logoH = 370;
+    const logoKey = this.textures.exists('intro_logo_new') ? 'intro_logo_new' : 'intro_logo';
+    // Dimensões reduzidas em 30% a pedido do usuário (largura 952px, altura 317px)
+    // Proporção 3:1 de Logo_Western_Sunset_Survivors.png
+    const logoW = 952;
+    const logoH = 317;
 
-    if (this.textures.exists('intro_logo')) {
-      this.logoImage = this.add.image(0, -600, 'intro_logo');
-      this.logoImage.setDisplaySize(logoW, logoH);
-      this.logoImage.setAlpha(0);
-      this.rootContainer.add(this.logoImage);
-    }
+    this.logoImage = this.add.image(0, -600, logoKey);
+    this.logoImage.setDisplaySize(logoW, logoH);
+    this.logoImage.setAlpha(0);
+    this.rootContainer.add(this.logoImage);
   }
 
   // -------------------------------------------------------------
@@ -707,7 +677,7 @@ export class TitleScene extends Phaser.Scene {
       this.logoImage.setAlpha(1);
       this.tweens.add({
         targets: this.logoImage,
-        y: -275,
+        y: -290,
         duration: 650,
         ease: 'Back.easeOut',
         onComplete: () => {
@@ -717,26 +687,22 @@ export class TitleScene extends Phaser.Scene {
       });
     });
 
-    // 1.2 - 2.2s: The four heroes appear in sequence
-    const delays = [1200, 1450, 1700, 1950];
-    this.heroSprites.forEach((sprite, i) => {
-      this.time.delayedCall(delays[i], () => {
-        if (this.isAdvancing) return;
-        const shadow = this.heroShadows[i];
-        shadow.setAlpha(0.45);
-        this.tweens.add({
-          targets: sprite,
-          alpha: 1,
-          scaleX: { from: 1.15, to: 1.0 },
-          scaleY: { from: 1.15, to: 1.0 },
-          duration: 250,
-          ease: 'Power2',
-        });
+    // 1.2 - 1.9s: The four heroes band steps forward into the sunset
+    this.time.delayedCall(1200, () => {
+      if (this.isAdvancing) return;
+      this.playersShadowGraphics.setAlpha(0.55);
+      this.tweens.add({
+        targets: this.playersGroupImage,
+        alpha: 1,
+        scaleX: { from: 0.54, to: 0.5 },
+        scaleY: { from: 0.54, to: 0.5 },
+        duration: 450,
+        ease: 'Power2.easeOut',
       });
     });
 
-    // 2.2 - 3.0s: Lanterns fully flare & PRESS START button bounces into view
-    this.time.delayedCall(2200, () => {
+    // 2.0 - 2.8s: PRESS START button bounces into view
+    this.time.delayedCall(2000, () => {
       if (this.isAdvancing) return;
       this.startBtnContainer.setAlpha(1);
       this.tweens.add({
@@ -823,10 +789,14 @@ export class TitleScene extends Phaser.Scene {
 
     // Immediately snap visual elements in case intro sequence was running
     if (this.logoImage) {
-      this.logoImage.setAlpha(1).setY(-275);
+      this.logoImage.setAlpha(1).setY(-290);
     }
-    this.heroSprites.forEach((s) => s.setAlpha(1));
-    this.heroShadows.forEach((s) => s.setAlpha(0.45));
+    if (this.playersGroupImage) {
+      this.playersGroupImage.setAlpha(1);
+    }
+    if (this.playersShadowGraphics) {
+      this.playersShadowGraphics.setAlpha(0.55);
+    }
     if (this.startBtnContainer) {
       this.startBtnContainer.setAlpha(1).setY(285);
     }
@@ -845,16 +815,16 @@ export class TitleScene extends Phaser.Scene {
     // 4. Clarão arcade dourado & transição para a história / seleção
     this.cameras.main.flash(200, 255, 235, 170);
 
-    // Muzzle flash on heroes
-    this.heroSprites.forEach((hero) => {
+    // Muzzle flash on players group
+    if (this.playersGroupImage) {
       this.tweens.add({
-        targets: hero,
-        scaleX: 1.06,
-        scaleY: 1.06,
+        targets: this.playersGroupImage,
+        scaleX: 0.515,
+        scaleY: 0.515,
         duration: 90,
         yoyo: true,
       });
-    });
+    }
 
     this.cameras.main.fade(550, 0, 0, 0);
     this.time.delayedCall(600, () => {
