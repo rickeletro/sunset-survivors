@@ -12,12 +12,14 @@ import { StageClearScene } from './scenes/StageClearScene';
 import { StageIntroScene } from './scenes/StageIntroScene';
 import { StatsScene } from './scenes/StatsScene';
 import { StoryScene } from './scenes/StoryScene';
+import { DifficultyScene } from './scenes/DifficultyScene';
 import { TitleScene } from './scenes/TitleScene';
 import { UnlockablesScene } from './scenes/UnlockablesScene';
 import { WantedScene } from './scenes/WantedScene';
 
 const allScenes: (typeof Phaser.Scene)[] = [
   TitleScene,
+  DifficultyScene,
   StoryScene,
   CharacterSelectScene,
   StageIntroScene,
@@ -40,6 +42,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const sceneParam = urlParams.get('scene');
 
 const sceneMap: Record<string, typeof Phaser.Scene> = {
+  difficulty: DifficultyScene,
   stageintro: StageIntroScene,
   wanted: WantedScene,
   select: CharacterSelectScene,

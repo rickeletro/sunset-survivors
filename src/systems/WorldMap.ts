@@ -29,7 +29,7 @@ interface Obstacle {
   glow?: Phaser.GameObjects.Image;
 }
 
-const KINDS: Record<Kind, { r: number; w: number; h: number }> = {
+export const WORLD_PROPS: Record<Kind, { r: number; w: number; h: number }> = {
   wagon: { r: 34, w: 100, h: 88 }, barrel: { r: 14, w: 36, h: 44 }, crate: { r: 17, w: 44, h: 42 },
   ruin: { r: 29, w: 76, h: 70 }, table: { r: 25, w: 66, h: 52 }, pine: { r: 12, w: 50, h: 78 },
   tent: { r: 27, w: 76, h: 56 }, barricade: { r: 28, w: 82, h: 48 }, palm: { r: 12, w: 72, h: 84 },
@@ -65,38 +65,8 @@ export class WorldMap {
     private safeRadius = 260,
     private stage: StageConfig = getStage(1),
   ) {
-    this.makeTextures();
     this.groundTexture = createStageScenery(scene, stage);
     this.landmarks = new StageLandmarks(scene, stage.theme);
-  }
-
-  private makeTextures() {
-    const g = this.scene.make.graphics({ x: 0, y: 0 }, false);
-    const tex = (key: string, w: number, h: number, draw: () => void) => {
-      if (this.scene.textures.exists(key)) return;
-      g.clear();
-      draw();
-      g.generateTexture(key, w, h);
-    };
-    const OUT = 0x120b08;
-
-    tex('wm_rock', 36, 28, () => {
-      g.fillStyle(OUT, 1).fillRoundedRect(0, 6, 36, 22, 6).fillRoundedRect(8, 0, 20, 12, 4);
-      g.fillStyle(0x603719, 1).fillRoundedRect(2, 8, 32, 18, 5).fillRoundedRect(10, 2, 16, 10, 3);
-      g.fillStyle(0x8a5a2b, 1).fillRect(8, 6, 10, 3).fillRect(6, 12, 6, 3);
-      g.fillStyle(0x572449, 1).fillRect(4, 22, 28, 4);
-    });
-    tex('wm_cactus', 24, 44, () => {
-      g.fillStyle(OUT, 1).fillRect(8, 0, 10, 44).fillRect(0, 12, 10, 8).fillRect(0, 12, 6, 16).fillRect(16, 8, 8, 8).fillRect(18, 8, 6, 20);
-      g.fillStyle(0x2f6b2a, 1).fillRect(10, 2, 6, 40).fillRect(2, 14, 8, 4).fillRect(2, 14, 4, 12).fillRect(16, 10, 6, 4).fillRect(18, 10, 4, 16);
-      g.fillStyle(0x4f9a3f, 1).fillRect(11, 4, 2, 34);
-    });
-    tex('wm_deadtree', 36, 52, () => {
-      g.fillStyle(OUT, 1).fillRect(14, 14, 10, 38).fillRect(4, 8, 12, 6).fillRect(2, 0, 6, 12).fillRect(22, 18, 12, 6).fillRect(30, 8, 6, 14);
-      g.fillStyle(0x603719, 1).fillRect(16, 16, 6, 34).fillRect(6, 10, 10, 2).fillRect(4, 2, 2, 10).fillRect(22, 20, 10, 2).fillRect(32, 10, 2, 12);
-      g.fillStyle(0x321b10, 1).fillRect(20, 16, 2, 34);
-    });
-    g.destroy();
   }
 
   private key(cx: number, cy: number) {
@@ -122,8 +92,8 @@ export class WorldMap {
         const railY = 4000 + Math.round((y - 4000) / 640) * 640;
         if (Math.abs(y - railY) < 90) continue; // Keep the telegraphed rail corridors navigable.
       }
-      if (this.landmarks.reserved(x, y, KINDS[kind].r)) continue;
-      list.push({ x, y, r: KINDS[kind].r, kind });
+      if (this.landmarks.reserved(x, y, WORLD_PROPS[kind].r)) continue;
+      list.push({ x, y, r: WORLD_PROPS[kind].r, kind });
     }
     this.chunks.set(k, list);
     return list;

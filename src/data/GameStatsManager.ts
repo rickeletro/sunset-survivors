@@ -1,5 +1,7 @@
+import type { DifficultyId } from './difficulty';
 export interface GameRunStats {
   runId?: string;
+  difficulty?: DifficultyId;
   score: number;
   kills: number;
   gold: number;

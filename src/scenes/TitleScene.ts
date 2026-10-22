@@ -1,6 +1,7 @@
 import { CATALOG, preloadHeroSheets, preloadImages } from '../assets/registry';
 import { createMenuRoot } from '../ui/layout/menuLayout';
 import Phaser from 'phaser';
+import { difficultyProfile, difficultySettings } from '../data/difficulty';
 import { sounds } from '../audio/SoundManager';
 import { THEME } from '../ui/theme/tokens';
 import { SpriteGenerator } from '../utils/SpriteGenerator';
@@ -645,13 +646,14 @@ export class TitleScene extends Phaser.Scene {
 
     const items = [
       { text: '⚙ MENU [M]', onClick: () => this.openOptionsMenuModal() },
+      { text: 'DIFFICULTY [D]', onClick: () => this.openDifficulty() },
       { text: '📖 CONTROLS [H]', onClick: () => this.openControls() },
       { text: '📊 STATS [S]', onClick: () => this.openStats() },
       { text: '🏆 UNLOCKS [U]', onClick: () => this.openUnlockables() },
     ];
 
-    // 4 botões distribuídos simetricamente: -360, -120, 120, 360
-    const positionsX = [-360, -120, 120, 360];
+    // Five compact actions, centered below PRESS START.
+    const positionsX = [-480, -240, 0, 240, 480];
 
     items.forEach((item, idx) => {
       const btn = new WesternButton(this, {
@@ -668,6 +670,16 @@ export class TitleScene extends Phaser.Scene {
     });
 
     this.rootContainer.add(auxContainer);
+    this.rootContainer.add(this.add.text(0, 460, `MODO: ${difficultyProfile(difficultySettings.get()).label}  •  [D] ALTERAR`, {
+      fontFamily: THEME.typography.pixelFont, fontSize: '12px', color: '#ffc52a', stroke: '#120b08', strokeThickness: 3,
+    }).setOrigin(0.5));
+  }
+
+  private openDifficulty() {
+    if (this.isAdvancing || this.optionsModalContainer) return;
+    sounds.playRevolver();
+    this.cameras.main.flash(70, 255, 197, 42, false);
+    this.scene.start('DifficultyScene');
   }
 
   private openControls() {
@@ -700,6 +712,7 @@ export class TitleScene extends Phaser.Scene {
     this.input.keyboard?.on('keydown-ENTER', () => this.advanceToGame());
 
     // Auxiliary screen shortcuts
+    this.input.keyboard?.on('keydown-D', () => this.openDifficulty());
     this.input.keyboard?.on('keydown-M', () => this.openOptionsMenuModal());
     this.input.keyboard?.on('keydown-H', () => this.openControls());
     this.input.keyboard?.on('keydown-S', () => this.openStats());
@@ -752,7 +765,7 @@ export class TitleScene extends Phaser.Scene {
     this.cameras.main.fade(550, 0, 0, 0);
     this.time.delayedCall(600, () => {
 
-      this.scene.start('CharacterSelectScene');
+      this.scene.start('CharacterSelectScene', { difficulty: difficultySettings.get() });
     });
   }
 

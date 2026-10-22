@@ -76,15 +76,15 @@ export function bindPulpKeys(scene: Phaser.Scene, bindings: Record<string, () =>
   for (const [key, callback] of Object.entries(bindings)) keyboard.on(`keydown-${key}`, callback);
   scene.events.once('shutdown', () => { for (const [key, callback] of Object.entries(bindings)) keyboard.off(`keydown-${key}`, callback); });
 }
-export function bindPulpMenu(scene: Phaser.Scene, buttons: readonly WesternButton[], horizontal = false): void {
-  let selected = 0;
+export function bindPulpMenu(scene: Phaser.Scene, buttons: readonly WesternButton[], horizontal = false, initialIndex = 0): void {
+  let selected = initialIndex;
   const focus = (next: number) => {
     selected = (next + buttons.length) % buttons.length;
     buttons.forEach((button, i) => button.setFocused(i === selected));
   };
   if (!buttons.length) return;
   buttons.forEach((button, i) => button.on('pointerover', () => focus(i)));
-  focus(0);
+  focus(initialIndex);
   bindPulpKeys(scene, {
     [horizontal ? 'LEFT' : 'UP']: () => focus(selected - 1),
     [horizontal ? 'RIGHT' : 'DOWN']: () => focus(selected + 1),

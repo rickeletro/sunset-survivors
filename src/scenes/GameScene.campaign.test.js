@@ -8,7 +8,7 @@ vi.mock('phaser', () => ({ default: {
   Math: { Clamp: (v, min, max) => Math.max(min, Math.min(max, v)) },
 } }));
 vi.mock('../audio/SoundManager', () => ({ sounds: {
-  playBossWarning: vi.fn(), playBossDefeatedScream: vi.fn(), playRevolver: vi.fn(), playRifle: vi.fn(),
+  playRicochet: vi.fn(), playExplosion: vi.fn(), playBossWarning: vi.fn(), playBossDefeatedScream: vi.fn(), playRevolver: vi.fn(), playRifle: vi.fn(),
 } }));
 
 function sprite(x = 0, y = 0) {
@@ -115,4 +115,41 @@ it('pays the final boss cash once before victory and removes it from the unreach
   expect(game.addBounty).toHaveBeenCalledExactlyOnceWith(250);
   expect(game.drops[0]).toMatchObject({ type: 'badge', val: 300, bounty: 0 });
   expect(game.victory).toHaveBeenCalledTimes(1);
+});
+
+it.each(['easy', 'normal', 'hardcore'])('uses the %s boss HP preset exactly once for every stage/member', mode => {
+  const factor = { easy: 0.75, normal: 1, hardcore: 1.15 }[mode];
+  for (let stage = 1; stage <= 8; stage++) {
+    const game = bossHarness(stage); game.difficulty = mode; game.spawnStageBoss();
+    for (const member of game.bossMembers) {
+      expect(member.hp).toBe(Math.round(getBossCombat(stage).hp * factor));
+      expect(member.damage).toBe(getBossCombat(stage).damage);
+      expect(member.throwCooldown).toBeGreaterThanOrEqual(1800);
+    }
+  }
+});
+
+it('doubles boss projectile, area and TNT damage at their source without affecting regular TNT', () => {
+  for (let stage = 2; stage <= 8; stage++) {
+    const game = bossHarness(stage);
+    Object.assign(game, { fireHostileBullet: vi.fn(), startCharge: vi.fn(), enemyThrowDynamite: vi.fn(),
+      encounters: { warn: vi.fn() }, showBanner: vi.fn(), runSpawnOrders: vi.fn(), time: { now: 1000, delayedCall: (_ms, fn) => fn() } });
+    game.stageBossAttack({ sprite: sprite(3900, 4000), hp: 1000, maxHp: 1000, attackCount: 1 });
+    const bulletDamage = { 2: 40, 3: 40, 6: 50, 7: 36, 8: 50 }[stage];
+    if (bulletDamage) for (const call of game.fireHostileBullet.mock.calls) expect(call[3]).toBe(bulletDamage);
+    if (stage === 4) for (const call of game.enemyThrowDynamite.mock.calls) expect(call[4]).toBe(50);
+    if (stage === 5) expect(game.encounters.warn.mock.calls[0][3]).toBe(60);
+    if (stage === 6) expect(game.encounters.warn.mock.calls[0][3]).toBe(50);
+  }
+  const game = bossHarness(1), barrage = vi.fn(); game.getProjectileSystem = () => ({ simonBarrage: barrage });
+  game.bossRevolverBarrage(10, 20); expect(barrage).toHaveBeenCalledExactlyOnceWith(10, 20, 36);
+});
+
+it.each([[undefined, 25], [50, 50]])('keeps normal TNT at 25 and executes explicit boss TNT damage once (%s)', (amount, expected) => {
+  const game = bossHarness(4), graphics = {};
+  for (const method of ['setDepth', 'lineStyle', 'strokeCircle', 'fillStyle', 'fillCircle', 'destroy']) graphics[method] = () => graphics;
+  game.add.graphics = () => graphics; game.damagePlayer = vi.fn();
+  game.enemyThrowDynamite(3900, 4000, 0, 0, amount);
+  game.tweens.add.mock.calls[0][0].onComplete();
+  expect(game.damagePlayer).toHaveBeenCalledExactlyOnceWith(expected);
 });

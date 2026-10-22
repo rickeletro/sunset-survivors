@@ -1,3 +1,4 @@
+import { normalizeDifficulty, difficultySettings, type DifficultyId } from '../data/difficulty';
 import { preloadImages } from '../assets/registry';
 import { createMenuRoot } from '../ui/layout/menuLayout';
 import Phaser from 'phaser';
@@ -9,6 +10,7 @@ import { THEME } from '../ui/theme/tokens';
 export class WantedScene extends Phaser.Scene {
   private character!: CharacterData;
   private stage: number = 1;
+  private difficulty: DifficultyId = 'normal';
   private bossData!: BossData;
   private rootContainer!: Phaser.GameObjects.Container;
   private isAdvancing: boolean = false;
@@ -17,8 +19,9 @@ export class WantedScene extends Phaser.Scene {
     super('WantedScene');
   }
 
-  init(data: { character?: CharacterData; stage?: number }) {
+  init(data: { character?: CharacterData; stage?: number; difficulty?: DifficultyId }) {
     this.character = data?.character || CHARACTERS.billy;
+    this.difficulty = normalizeDifficulty(data?.difficulty ?? difficultySettings.get());
     const urlParams = new URLSearchParams(window.location.search);
     const stageQuery = urlParams.get('stage');
     this.stage = data?.stage || (stageQuery ? parseInt(stageQuery, 10) : 1);
@@ -390,6 +393,7 @@ export class WantedScene extends Phaser.Scene {
       this.scene.start('GameScene', {
         character: this.character,
         stage: this.stage,
+        difficulty: this.difficulty,
       });
     });
   }

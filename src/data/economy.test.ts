@@ -6,7 +6,7 @@ import { BOSS_COMBAT } from './bossCombat';
 
 describe('seven-minute progression budget', () => {
   it('keeps the first two upgrades accessible and increasingly spaces out later levels', () => {
-    expect([1, 2, 3, 4, 5, 10, 20].map(xpForLevel)).toEqual([50, 80, 160, 221, 294, 839, 2829]);
+    expect([1, 2, 3, 4, 5, 10, 20].map(xpForLevel)).toEqual([50, 80, 160, 221, 294, 863, 8013]);
     for (let rank = 3; rank <= 100; rank++) {
       expect(xpForLevel(rank)).toBeGreaterThan(xpForLevel(rank - 1));
       if (rank >= 4) expect(xpForLevel(rank + 1) - xpForLevel(rank)).toBeGreaterThan(xpForLevel(rank) - xpForLevel(rank - 1));

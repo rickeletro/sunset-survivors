@@ -1,8 +1,10 @@
 import { readFileSync } from 'node:fs';
 import { inflateSync } from 'node:zlib';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { SCENERY, sceneryKey } from '../data/scenery';
 import { CATALOG } from './registry';
+import { WORLD_PROPS } from '../systems/WorldMap';
+vi.mock('phaser', () => ({ default: {} }));
 
 // Decode native RGBA PNG scanlines to catch an opaque background despite a valid alpha channel.
 function rgbaPng(file) {
@@ -63,6 +65,19 @@ describe('composed menu illustrations', () => {
 });
 
 describe('Western Pulp arena props', () => {
+  it.each(Object.entries(WORLD_PROPS))('%s replaces the prototype at its original native size', (kind, spec) => {
+    const { width, height, rgba } = rgbaPng(readFileSync(new URL(`../../public/${CATALOG.images[`wm_${kind}`]}`, import.meta.url)));
+    expect([width, height]).toEqual([spec.w, spec.h]);
+    let clear = 0, visible = 0;
+    for (let i = 3; i < rgba.length; i += 4) { if (rgba[i] === 0) clear++; else visible++; }
+    expect(clear).toBeGreaterThan(width * height * 0.1);
+    expect(visible).toBeGreaterThan(width * height * 0.1);
+    for (const pixel of [0, width - 1, width * (height - 1), width * height - 1]) expect(rgba[pixel * 4 + 3]).toBe(0);
+  });
+  it.each(['steve', 'billy', 'bob', 'cormano'])('%s portrait uses the same square canvas without distortion', hero => {
+    const { width, height } = rgbaPng(readFileSync(new URL(`../../public/${CATALOG.images[`hud_avatar_${hero}`]}`, import.meta.url)));
+    expect([width, height]).toEqual([84, 84]);
+  });
   it.each([['wm_wagon', 100, 88], ['decor_skull', 40, 28], ['decor_sagebrush', 36, 34], ['saloon_cancan', 1200, 760]])(
     '%s has a transparent padded silhouette at its intended native game size', (key, w, h) => {
       const { width, height, rgba } = rgbaPng(readFileSync(new URL(`../../public/${CATALOG.images[key]}`, import.meta.url)));

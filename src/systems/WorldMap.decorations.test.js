@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { WorldMap } from './WorldMap';
+import { WorldMap, WORLD_PROPS } from './WorldMap';
 import { getStage } from '../data/stages';
 import { worldDecorations } from '../data/worldDecorations';
 vi.mock('phaser', () => ({ default: { BlendModes: { ADD: 1 }, Math: { Clamp: (x, min, max) => Math.max(min, Math.min(max, x)) } } }));
@@ -11,6 +11,22 @@ function fixture() {
 }
 
 describe('sparse canyon decoration', () => {
+  it('preserves the original obstacle radii across all eight stage rosters', () => {
+    const radii = { wagon: 34, barrel: 14, crate: 17, ruin: 29, table: 25, pine: 12, tent: 27, barricade: 28, palm: 12, statue: 20, lantern: 6, rock: 14, cactus: 9, deadtree: 10 };
+    expect(Object.fromEntries(Object.entries(WORLD_PROPS).map(([kind, spec]) => [kind, spec.r]))).toEqual(radii);
+    for (let stage = 1; stage <= 8; stage++) {
+      const world = fixture(); world.stage = getStage(stage);
+      const seen = new Set();
+      for (let y = 1; y <= 6; y++) for (let x = 1; x <= 6; x++) {
+        for (const obstacle of world.getChunk(x, y)) {
+          seen.add(obstacle.kind);
+          expect(obstacle.r).toBe(radii[obstacle.kind]);
+          expect([...getStage(stage).props, 'lantern']).toContain(obstacle.kind);
+        }
+      }
+      for (const kind of [...getStage(stage).props, 'lantern']) expect(seen.has(kind)).toBe(true);
+    }
+  });
   it('is deterministic, sparse and never changes obstacle generation or collision results', () => {
     const a = fixture(), b = fixture();
     let count = 0;

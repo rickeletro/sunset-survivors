@@ -8,7 +8,7 @@ describe('single runtime asset catalog', () => {
     for (const [key, sequence] of Object.entries(CATALOG.sequences)) {
       for (const direction of sequence.directions) for (let i = 0; i < sequence.frames; i++) paths.add(framePath(key, direction, i));
     }
-    expect(paths.size).toBe(801);
+    expect(paths.size).toBe(813);
     for (const path of paths) expect(existsSync(new URL(`../../public/${path}`, import.meta.url)), path).toBe(true);
   });
   it('skips cached textures and fails clearly for a key absent from the catalog', () => {

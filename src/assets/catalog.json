@@ -8,7 +8,6 @@
     "boss_poster_6": "assets/bosses/06_chief_wigwam.png",
     "boss_poster_7": "assets/bosses/07_paco_loco.png",
     "boss_poster_8": "assets/bosses/08_sir_richard_rose.png",
-    "bottom_panel_clean": "assets/select_characters/bottom_panel_clean.png",
     "card_badge": "assets/powerup/sheriffs_star.png",
     "card_bandolier": "assets/powerup/ammo_bandolier.png",
     "card_dynamite": "assets/powerup/tnt_dynamite.png",
@@ -78,7 +77,20 @@
     "decor_skull": "assets/scenery/western-pulp/longhorn-skull.png",
     "decor_sagebrush": "assets/scenery/western-pulp/sagebrush.png",
     "scenery_frontier-saloon": "assets/scenery/pixellab/saloon.png",
-    "saloon_cancan": "assets/scenery/western-pulp/saloon-cancan.png"
+    "saloon_cancan": "assets/scenery/western-pulp/saloon-cancan.png",
+    "wm_rock": "assets/scenery/western-pulp/rock.png",
+    "wm_cactus": "assets/scenery/western-pulp/cactus.png",
+    "wm_deadtree": "assets/scenery/western-pulp/deadtree.png",
+    "wm_barrel": "assets/scenery/western-pulp/barrel.png",
+    "wm_crate": "assets/scenery/western-pulp/crate.png",
+    "wm_ruin": "assets/scenery/western-pulp/ruin.png",
+    "wm_table": "assets/scenery/western-pulp/table.png",
+    "wm_pine": "assets/scenery/western-pulp/pine.png",
+    "wm_tent": "assets/scenery/western-pulp/tent.png",
+    "wm_barricade": "assets/scenery/western-pulp/barricade.png",
+    "wm_palm": "assets/scenery/western-pulp/palm.png",
+    "wm_statue": "assets/scenery/western-pulp/statue.png",
+    "wm_lantern": "assets/scenery/western-pulp/lantern.png"
   },
   "sheets": {
     "hero_steve": {
@@ -357,7 +369,6 @@
     "intro_logo",
     "intro_btn_dark",
     "select_saloon_backdrop",
-    "bottom_panel_clean",
     "poster_steve",
     "poster_billy",
     "poster_bob",

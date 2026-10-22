@@ -32,9 +32,9 @@ export class HostileProjectiles {
       onComplete: () => bullet.destroy(),
     });
   }
-  simonBarrage(x: number, y: number): void {
+  simonBarrage(x: number, y: number, damage = 18): void {
     if (!this.hooks.active()) return;
     sounds.playRevolver();
-    for (let i = 0; i < 8; i++) this.fire(x, y, i * Math.PI / 4, 18, { range: 380, duration: 900, hitRadius: 22, tint: 0xef4444 });
+    for (let i = 0; i < 8; i++) this.fire(x, y, i * Math.PI / 4, damage, { range: 380, duration: 900, hitRadius: 22, tint: 0xef4444 });
   }
 }

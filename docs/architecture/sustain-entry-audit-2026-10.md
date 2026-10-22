@@ -1,5 +1,7 @@
 # Recuperação e entrada animada no saloon — 21/10/2026
 
+> Atualização de progressão, chefes e modos: [difficulty-playtest-audit-2026-10.md](difficulty-playtest-audit-2026-10.md). Este documento registra a rodada anterior.
+
 Esta rodada preserva a curva de XP aprovada (50/80/160 e crescimento posterior), os valores de XP/dinheiro, armas, HP/dano/velocidade dos inimigos, escala visual, hitboxes, Cormano, carroças e música.
 
 ## Diagnóstico e ajuste de recuperação

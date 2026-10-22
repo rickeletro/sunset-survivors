@@ -14,7 +14,8 @@
     "music:import": "node scripts/import-stage-music.mjs",
     "music:prompts": "node scripts/import-stage-music.mjs --prompts",
     "balance:audit": "node scripts/audit-balance.mjs",
-    "sustain:audit": "node scripts/audit-sustain.mjs"
+    "sustain:audit": "node scripts/audit-sustain.mjs",
+    "balance:telemetry": "node scripts/audit-telemetry.mjs"
   },
   "dependencies": {
     "phaser": "^3.88.2"

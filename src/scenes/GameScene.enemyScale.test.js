@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { GameScene } from './GameScene';
+import { enemyHealth } from '../data/difficulty';
 import { ENEMY_DEFS } from '../data/enemies';
 import { SpritePool } from '../systems/SpritePool';
 import { playEnemyMovement } from '../systems/PixellabCombat';
@@ -32,7 +33,7 @@ describe('enemy visual size experiment', () => {
       const enemy = game.spawnEnemy(kind, 100, 200);
       expect(sprite.setScale).toHaveBeenLastCalledWith(def.scale * (animated ? 0.5 : 1) * 1.4);
       expect(game.worldMap.resolve).toHaveBeenLastCalledWith(100, 200, def.radius);
-      expect(enemy).toMatchObject({ type: kind, hp: def.baseHp + 10 * def.hpPerSecond,
+      expect(enemy).toMatchObject({ type: kind, hp: enemyHealth(def, 10),
         speed: def.speed, damage: def.damage, xpVal: def.xp, bountyVal: def.bounty });
       if (animated) {
         const calls = sprite.setScale.mock.calls.length;

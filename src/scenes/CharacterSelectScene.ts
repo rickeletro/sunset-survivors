@@ -1,12 +1,18 @@
-import { preloadImages } from '../assets/registry';
+import { normalizeDifficulty, difficultySettings, type DifficultyId } from '../data/difficulty';
+import { preloadHeroSheets, preloadImages } from '../assets/registry';
 import { createMenuRoot } from '../ui/layout/menuLayout';
 import Phaser from 'phaser';
 import { sounds } from '../audio/SoundManager';
 import { CHARACTERS } from '../data/characters';
 import { THEME } from '../ui/theme/tokens';
 
+// Selection-only firing poses; avoid cycling through back-facing travel frames.
+const PREVIEW_FRAMES = { steve: [0, 1, 3, 4], billy: [0, 2, 3, 5], bob: [4, 5, 6, 7], cormano: [0, 1, 2, 3] };
+
 export class CharacterSelectScene extends Phaser.Scene {
   private selectedIndex: number = 0;
+  private difficulty: DifficultyId = 'normal';
+  init(data?: { difficulty?: DifficultyId }) { this.difficulty = normalizeDifficulty(data?.difficulty ?? difficultySettings.get()); }
   private readonly characterKeys: Array<'steve' | 'billy' | 'bob' | 'cormano'> = [
     'steve',
     'billy',
@@ -26,6 +32,7 @@ export class CharacterSelectScene extends Phaser.Scene {
 
   // Bottom Details Panel Objects
   private infoNameTitle!: Phaser.GameObjects.Text;
+  private infoSubtitle!: Phaser.GameObjects.Text;
   private infoWeaponVal!: Phaser.GameObjects.Text;
   private infoTraitVal!: Phaser.GameObjects.Text;
   private infoQuote!: Phaser.GameObjects.Text;
@@ -41,13 +48,12 @@ export class CharacterSelectScene extends Phaser.Scene {
   }
 
   preload() {
+    preloadHeroSheets(this);
     // Safety check: ensure all select assets are loaded if scene launched standalone
     if (!this.textures.exists('select_saloon_backdrop')) {
       preloadImages(this, ['select_saloon_backdrop']);
     }
-    if (!this.textures.exists('bottom_panel_clean')) {
-      preloadImages(this, ['bottom_panel_clean']);
-    }
+    preloadImages(this, ['decor_title_parchment', 'ui_btn_idle']);
     if (!this.textures.exists('poster_steve')) {
       preloadImages(this, ['poster_steve']);
     }
@@ -75,6 +81,11 @@ export class CharacterSelectScene extends Phaser.Scene {
     this.tagContainers = [];
     this.tagGraphics = [];
     this.tagTexts = [];
+    for (const hero of this.characterKeys) {
+      if (this.textures.exists(`hero_${hero}`) && !this.anims.exists(`select_preview_${hero}`)) {
+        this.anims.create({ key: `select_preview_${hero}`, frames: PREVIEW_FRAMES[hero].map(frame => ({ key: `hero_${hero}`, frame })), frameRate: 6, repeat: -1 });
+      }
+    }
 
     // 1. Dark letterbox screen background
     const bg = this.add.graphics();
@@ -254,87 +265,56 @@ export class CharacterSelectScene extends Phaser.Scene {
     // Panel container centered at (0, panelY)
     const panelContainer = this.add.container(0, panelY);
 
-    // Saloon Wood & Parchment Background Image
-    if (this.textures.exists('bottom_panel_clean')) {
-      const panelImg = this.add.image(0, 0, 'bottom_panel_clean').setDisplaySize(panelW, panelH);
-      panelContainer.add(panelImg);
-    } else {
-      // Fallback styled parchment panel
-      const fallbackGfx = this.add.graphics();
-      fallbackGfx.fillStyle(0x1a0f08, 0.95);
-      fallbackGfx.fillRoundedRect(-panelW / 2, -panelH / 2, panelW, panelH, 10);
-      fallbackGfx.lineStyle(4, 0x8b5a2b, 1);
-      fallbackGfx.strokeRoundedRect(-panelW / 2, -panelH / 2, panelW, panelH, 10);
-      panelContainer.add(fallbackGfx);
-    }
+    // A quiet parchment surface keeps every word independent from the artwork.
+    panelContainer.add(this.add.nineslice(0, 0, 'decor_title_parchment', undefined, panelW, panelH, 36, 36, 36, 36));
+    const readingSurface = this.add.graphics();
+    readingSurface.fillStyle(0xf2d49a).fillRect(-647, -109, 1294, 218);
+    panelContainer.add(readingSurface);
+    const rule = this.add.graphics();
+    rule.lineStyle(2, 0xa51e16, 0.55).lineBetween(-635, -46, 130, -46);
+    panelContainer.add(rule);
 
-    // 1. Character Name & Title Header (Rye / Western Woodcut Font)
-    this.infoNameTitle = this.add.text(-635, -80, 'STEVE — THE QUICKDRAW GAMBLER', {
-      fontFamily: THEME.typography.westernFont,
-      fontSize: '32px',
-      color: '#b91c1c',
-      stroke: '#3b0b0b',
-      strokeThickness: 2,
-      shadow: { offsetX: 1, offsetY: 2, color: 'rgba(0,0,0,0.5)', blur: 2, fill: true },
+    this.infoNameTitle = this.add.text(-635, -98, '', {
+      fontFamily: THEME.typography.westernFont, fontSize: '34px', color: '#a51e16',
+    });
+    this.infoSubtitle = this.add.text(-485, -89, '', {
+      fontFamily: THEME.typography.westernFont, fontSize: '22px', color: '#120b08',
     });
     panelContainer.add(this.infoNameTitle);
+    panelContainer.add(this.infoSubtitle);
 
-    // 2. Starter Weapon Row
-    const weaponLabel = this.add.text(-635, -28, '★ STARTER WEAPON:', {
-      fontFamily: '"Roboto Slab", serif',
-      fontSize: '18px',
-      fontStyle: 'bold',
-      color: '#8b1e15',
-    });
-    panelContainer.add(weaponLabel);
-
-    this.infoWeaponVal = this.add.text(-425, -28, '', {
-      fontFamily: '"Roboto Slab", serif',
-      fontSize: '18px',
-      fontStyle: 'bold',
-      color: '#21120b',
+    const labelStyle = {
+      fontFamily: THEME.typography.narrativeFont, fontSize: '18px', fontStyle: 'bold', color: '#a51e16',
+    };
+    panelContainer.add(this.add.text(-635, -29, 'STARTER WEAPON', labelStyle));
+    panelContainer.add(this.add.text(-635, 13, 'SPECIAL TRAIT', labelStyle));
+    const valueStyle = {
+      fontFamily: THEME.typography.narrativeFont, fontSize: '21px', fontStyle: 'bold', color: '#120b08',
+      wordWrap: { width: 550, useAdvancedWrap: true }, lineSpacing: 3,
+    };
+    this.infoWeaponVal = this.add.text(-435, -31, '', valueStyle);
+    this.infoTraitVal = this.add.text(-435, 11, '', valueStyle);
+    this.infoQuote = this.add.text(-635, 78, '', {
+      fontFamily: THEME.typography.narrativeFont, fontSize: '22px', fontStyle: 'italic', color: '#321b10',
+      wordWrap: { width: 770, useAdvancedWrap: true },
     });
     panelContainer.add(this.infoWeaponVal);
-
-    // 3. Special Trait Row
-    const traitLabel = this.add.text(-635, 12, '★ SPECIAL TRAIT:', {
-      fontFamily: '"Roboto Slab", serif',
-      fontSize: '18px',
-      fontStyle: 'bold',
-      color: '#8b1e15',
-    });
-    panelContainer.add(traitLabel);
-
-    this.infoTraitVal = this.add.text(-450, 12, '', {
-      fontFamily: '"Roboto Slab", serif',
-      fontSize: '17px',
-      fontStyle: 'bold',
-      color: '#21120b',
-    });
     panelContainer.add(this.infoTraitVal);
-
-    // 4. Quote Row (Rich Vintage Italic)
-    this.infoQuote = this.add.text(-635, 52, '', {
-      fontFamily: THEME.typography.westernFont,
-      fontSize: '22px',
-      fontStyle: 'italic',
-      color: '#702d12',
-    });
     panelContainer.add(this.infoQuote);
 
     // 5. Hero Boot Shadow
     const shadowGfx = this.add.graphics();
     shadowGfx.fillStyle(0x000000, 0.4);
-    shadowGfx.fillEllipse(220, 82, 100, 22);
+    shadowGfx.fillEllipse(265, 94, 110, 16);
     panelContainer.add(shadowGfx);
 
     // 6. Live 32-bit Animated Neo Geo Hero Sprite
     const initialKey = this.textures.exists('hero_steve') ? 'hero_steve' : 'player_steve';
-    this.heroPreviewSprite = this.add.sprite(220, 10, initialKey, 0);
-    this.heroPreviewSprite.setScale(1.48);
+    this.heroPreviewSprite = this.add.sprite(265, 90, initialKey, 0);
+    this.heroPreviewSprite.setOrigin(0.5, 1).setScale(1.35);
     this.cameras.main.setRoundPixels(true);
-    if (this.anims.exists('steve_run')) {
-      this.heroPreviewSprite.play('steve_run');
+    if (this.anims.exists('select_preview_steve')) {
+      this.heroPreviewSprite.play('select_preview_steve');
     }
     panelContainer.add(this.heroPreviewSprite);
 
@@ -348,6 +328,16 @@ export class CharacterSelectScene extends Phaser.Scene {
     const btnCenterY = 0;
     const btnW = 270;
     const btnH = 120;
+
+    panelContainer.add(this.add.nineslice(btnCenterX, 0, 'ui_btn_idle', undefined, btnW + 16, 152, 14, 14, 14, 14));
+    const rideLabel = this.add.text(btnCenterX, -8, 'PRESS ENTER\nTO RIDE OUT!', {
+      fontFamily: THEME.typography.westernFont, fontSize: '25px', color: '#ffc52a',
+      align: 'center', lineSpacing: 9, stroke: '#120b08', strokeThickness: 2,
+    }).setOrigin(0.5);
+    panelContainer.add(rideLabel);
+    panelContainer.add(this.add.text(btnCenterX, 52, '★', {
+      fontFamily: THEME.typography.narrativeFont, fontSize: '30px', color: '#ffc52a',
+    }).setOrigin(0.5));
 
     // Glowing border overlay for arcade attraction
     this.rideOutGlow = this.add.graphics();
@@ -386,21 +376,27 @@ export class CharacterSelectScene extends Phaser.Scene {
   // CONTROLS SETUP (Keyboard, Mouse)
   // -------------------------------------------------------------
   private setupControls() {
+    // Remove only this scene's handlers when it exits, including interrupted visits.
+    const bindings: Array<[string, () => void]> = [];
+    const on = (event: string, action: () => void) => {
+      this.input.keyboard?.on(event, action); bindings.push([event, action]);
+    };
+    this.events.once('shutdown', () => bindings.forEach(([event, action]) => this.input.keyboard?.off(event, action)));
     // Arrow navigation
-    this.input.keyboard?.on('keydown-LEFT', () => this.moveSelection(-1));
-    this.input.keyboard?.on('keydown-A', () => this.moveSelection(-1));
-    this.input.keyboard?.on('keydown-RIGHT', () => this.moveSelection(1));
-    this.input.keyboard?.on('keydown-D', () => this.moveSelection(1));
+    on('keydown-LEFT', () => this.moveSelection(-1));
+    on('keydown-A', () => this.moveSelection(-1));
+    on('keydown-RIGHT', () => this.moveSelection(1));
+    on('keydown-D', () => this.moveSelection(1));
 
     // Direct number selection (1: Steve, 2: Billy, 3: Bob, 4: Cormano)
-    this.input.keyboard?.on('keydown-ONE', () => this.selectIndex(0, true));
-    this.input.keyboard?.on('keydown-TWO', () => this.selectIndex(1, true));
-    this.input.keyboard?.on('keydown-THREE', () => this.selectIndex(2, true));
-    this.input.keyboard?.on('keydown-FOUR', () => this.selectIndex(3, true));
+    on('keydown-ONE', () => this.selectIndex(0, true));
+    on('keydown-TWO', () => this.selectIndex(1, true));
+    on('keydown-THREE', () => this.selectIndex(2, true));
+    on('keydown-FOUR', () => this.selectIndex(3, true));
 
     // Confirmation keys
-    this.input.keyboard?.on('keydown-ENTER', () => this.confirmSelection());
-    this.input.keyboard?.on('keydown-SPACE', () => this.confirmSelection());
+    on('keydown-ENTER', () => this.confirmSelection());
+    on('keydown-SPACE', () => this.confirmSelection());
   }
 
   private moveSelection(dir: number) {
@@ -510,24 +506,26 @@ export class CharacterSelectScene extends Phaser.Scene {
     const selectedChar = CHARACTERS[charKey];
 
     // Character title with primary color accent
-    this.infoNameTitle.setText(`${selectedChar.name} — ${selectedChar.title}`);
+    this.infoNameTitle.setText(selectedChar.name);
+    this.infoSubtitle.setText(`— ${selectedChar.title}`);
+    this.infoSubtitle.setX(this.infoNameTitle.x + this.infoNameTitle.width + 18);
     this.infoWeaponVal.setText(selectedChar.subtitle);
     this.infoTraitVal.setText(selectedChar.specialBonus);
     this.infoQuote.setText(selectedChar.quote);
 
     // Update live 32-bit animated hero sprite
     const textureKey = this.textures.exists(`hero_${charKey}`) ? `hero_${charKey}` : `player_${charKey}`;
-    this.heroPreviewSprite.setTexture(textureKey, 0);
-    if (this.anims.exists(`${charKey}_run`)) {
-      this.heroPreviewSprite.play(`${charKey}_run`);
+    this.heroPreviewSprite.setTexture(textureKey, PREVIEW_FRAMES[charKey][0]);
+    if (this.anims.exists(`select_preview_${charKey}`)) {
+      this.heroPreviewSprite.play(`select_preview_${charKey}`);
     }
 
     // Flash muzzle burst effect on gun change
     this.heroMuzzleFlash.clear();
     this.heroMuzzleFlash.fillStyle(0xfff066, 0.9);
-    this.heroMuzzleFlash.fillCircle(270, 0, 10);
+    this.heroMuzzleFlash.fillCircle(330, 7, 10);
     this.heroMuzzleFlash.fillStyle(0xff4400, 0.6);
-    this.heroMuzzleFlash.fillCircle(270, 0, 16);
+    this.heroMuzzleFlash.fillCircle(330, 7, 16);
 
     this.tweens.add({
       targets: this.heroMuzzleFlash,
@@ -574,7 +572,7 @@ export class CharacterSelectScene extends Phaser.Scene {
     // Hero sprite shooting recoil
     this.tweens.add({
       targets: this.heroPreviewSprite,
-      x: 230,
+      x: 273,
       duration: 80,
       yoyo: true,
       repeat: 3,
@@ -590,7 +588,7 @@ export class CharacterSelectScene extends Phaser.Scene {
     this.cameras.main.fade(520, 0, 0, 0);
     this.time.delayedCall(560, () => {
 
-      this.scene.start('WantedScene', { character: selectedChar, stage: 1 });
+      this.scene.start('WantedScene', { character: selectedChar, stage: 1, difficulty: this.difficulty });
     });
   }
 

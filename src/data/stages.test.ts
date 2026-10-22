@@ -42,7 +42,7 @@ describe('eight-stage survival campaign', () => {
     }
   });
   it('requires both Smith brothers and raises boss HP while preserving their attacks', () => {
-    expect(getBossCombat(1)).toMatchObject({ hp: 22000, speed: 105, damage: 28, cooldown: 1800 });
+    expect(getBossCombat(1)).toMatchObject({ hp: 44000, speed: 105, damage: 56, cooldown: 1800 });
     expect(getBossCombat(4).slugs).toHaveLength(2);
     const brothers = [{ hp: -20, maxHp: 4000, dead: true }, { hp: 2000, maxHp: 4000 }];
     expect(remainingBossHp(brothers)).toEqual({ hp: 2000, maxHp: 8000 });

@@ -19,6 +19,7 @@ import { sounds } from '../audio/SoundManager';
 import { CharacterData, CHARACTERS } from '../data/characters';
 import { PASSIVES } from '../data/passives';
 import { WEAPONS, WeaponDef } from '../data/weapons';
+import { bossHealth, difficultyProfile, difficultySettings, enemyHealth, incomingDamage, normalizeDifficulty, type DifficultyId } from '../data/difficulty';
 import { THEME } from '../ui/theme/tokens';
 import { UpgradeChoice } from './LevelUpScene';
 import { getBossForStage } from '../data/bosses';
@@ -47,7 +48,7 @@ import { SpatialHash } from '../systems/SpatialHash';
 import { SpritePool } from '../systems/SpritePool';
 import { ENEMY_DEFS, ENEMY_VISUAL_SCALE, EnemyKind } from '../data/enemies';
 import { getStage, isBossDue, stagePhase, StageConfig } from '../data/stages';
-import { bossRageMultiplier, getBossCombat, remainingBossHp } from '../data/bossCombat';
+import { bossAttackDamage, bossRageMultiplier, getBossCombat, remainingBossHp } from '../data/bossCombat';
 import { mergeLoot, takeLootPacket } from '../systems/LootBudget';
 import { StageEncounters } from '../systems/StageEncounters';
 import { bossSpriteTexture, enemySpriteTexture, playBossMovement, playEnemyMovement, preloadCombatSprites } from '../systems/PixellabCombat';
@@ -56,6 +57,10 @@ import { getEligibleEvolution, WEAPON_EVOLUTIONS } from '../data/evolutions';
 export class GameScene extends Phaser.Scene {
   private character!: CharacterData;
   private stage: number = 1;
+  private difficulty: DifficultyId = 'normal';
+  private rawXpEarned = 0;
+  private totalXpEarned = 0;
+  private totalDamageTaken = 0;
   private stageConfig!: StageConfig;
   private encounters!: StageEncounters;
   private stageStatus!: Phaser.GameObjects.Text;
@@ -145,10 +150,11 @@ export class GameScene extends Phaser.Scene {
     super('GameScene');
   }
 
-  init(data?: { character?: CharacterData; stage?: number }) {
+  init(data?: { character?: CharacterData; stage?: number; difficulty?: DifficultyId }) {
     this.character = data?.character || CHARACTERS.billy;
     this.stage = Math.max(1, Math.min(8, data?.stage || 1));
     this.stageConfig = getStage(this.stage);
+    this.difficulty = normalizeDifficulty(data?.difficulty ?? difficultySettings.get());
   }
 
   preload() {
@@ -158,7 +164,7 @@ export class GameScene extends Phaser.Scene {
     if (saloonDoors(this.stageConfig.theme).length) {
       preloadImages(this, ['saloon_bkg', 'intro_bkg', 'decor_lantern', 'decor_spark', 'saloon_cancan']);
     }
-    if (this.stageConfig.props.includes('wagon')) preloadImages(this, ['wm_wagon']);
+    preloadImages(this, [...this.stageConfig.props, 'lantern'].map(kind => `wm_${kind}`));
     if (this.stageConfig.theme === 'canyon') preloadImages(this, WORLD_DECORATION_KEYS);
     preloadCombatSprites(this, this.stage);
     if (this.stage === 1 && !hasGreedwellSprites(this)) preloadGreedwell(this);
@@ -199,6 +205,7 @@ export class GameScene extends Phaser.Scene {
     this.bounty = 0;
     this.level = 1;
     this.currentXp = 0;
+    this.rawXpEarned = 0; this.totalXpEarned = 0; this.totalDamageTaken = 0;
     this.xpToNextLevel = xpForLevel(1);
 
     // Apply Character Starting Stats
@@ -273,7 +280,7 @@ export class GameScene extends Phaser.Scene {
         this.hp = Math.min(this.maxHp, this.hp + 20);
         this.updateHpBar();
         sounds.playCoin();
-        this.addXp(Math.round((80 + this.stage * 30) * this.xpBonus));
+        this.awardXp(80 + this.stage * 30);
       },
       banner: (message, color) => this.showBanner(message, color),
       contested: (x, y) => this.enemies.some(e => !e.dead && Math.hypot(e.sprite.x - x, e.sprite.y - y) < 100),
@@ -296,6 +303,7 @@ export class GameScene extends Phaser.Scene {
         this.scene.launch('PauseScene', {
           character: this.character,
           stage: this.stage,
+          difficulty: this.difficulty, audit: this.balanceSnapshot(),
         });
       });
     }
@@ -506,6 +514,7 @@ export class GameScene extends Phaser.Scene {
     this.bossBarContainer.setVisible(true);
 
     const combat = getBossCombat(this.stage);
+    const hp = bossHealth(combat.hp, this.difficulty);
     for (const [index, slug] of combat.slugs.entries()) {
       const point = this.worldMap.spawnPointAround(this.player.x, this.player.y, 480, 560);
       const position = this.worldMap.resolve(point.x, point.y + index * 100, 24);
@@ -514,9 +523,9 @@ export class GameScene extends Phaser.Scene {
       const texture = this.stage === 1 ? (legacy ? greedwellFirstFrame('run_east') : 'boss_greedwell') : bossSpriteTexture(this, slug);
       const sprite = this.add.sprite(position.x, position.y, texture).setScale(legacy ? GREEDWELL_SCALE : this.stage === 1 ? 1.2 : 1.25).setDepth(15);
       const enemy: Enemy = {
-        sprite, type: 'boss', hp: combat.hp, maxHp: combat.hp,
+        sprite, type: 'boss', hp, maxHp: hp,
         speed: combat.speed, damage: combat.damage, xpVal: 300, bountyVal: 200 + this.stage * 50,
-        throwCooldown: 1200 + index * 600, usesPixellab: legacy, animLock: 0,
+        throwCooldown: 1800 + index * 600, usesPixellab: legacy, animLock: 0,
         bossSlug: this.stage === 1 ? undefined : slug,
       };
       this.bossMembers.push(enemy);
@@ -562,7 +571,7 @@ export class GameScene extends Phaser.Scene {
   private spawnEnemy(kind: EnemyKind, x: number, y: number) {
     if (this.enemies.length >= 240) return;
     const def = ENEMY_DEFS[kind];
-    const hp = def.baseHp + this.gameTimeSeconds * def.hpPerSecond;
+    const hp = enemyHealth(def, this.gameTimeSeconds, this.difficulty);
     const combatTexture = enemySpriteTexture(this, kind);
     const frameScale = combatTexture ? 64 / this.textures.get(combatTexture).getSourceImage().width : 1;
     const sprite = this.enemyPool.acquire(x, y, combatTexture ?? def.texture, def.scale * frameScale * ENEMY_VISUAL_SCALE);
@@ -592,7 +601,7 @@ export class GameScene extends Phaser.Scene {
     const remaining = Math.max(0, this.stageConfig.duration - this.gameTimeSeconds);
     const clock = `${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2, '0')}`;
     const labels = { arrival: 'CHEGADA', pressure: 'CERCO', surge: 'HORDA', respite: 'RESPIRO', 'last-stand': 'RESISTA', boss: 'PROCURADO' };
-    this.stageStatus.setText(`FASE ${this.stage} • ${labels[stagePhase(this.stageConfig, this.gameTimeSeconds)]} • ${this.bossSpawned ? 'DERROTE O BOSS' : `BOSS EM ${clock}`}`);
+    this.stageStatus.setText(`${difficultyProfile(this.difficulty).label} • FASE ${this.stage} • ${labels[stagePhase(this.stageConfig, this.gameTimeSeconds)]} • ${this.bossSpawned ? 'DERROTE O BOSS' : `BOSS EM ${clock}`}`);
     this.objectiveStatus.setText(this.encounters.objectiveHint());
   }
 
@@ -648,36 +657,36 @@ export class GameScene extends Phaser.Scene {
     switch (profile.attack) {
       case 'quickdraw':
         sounds.playRevolver();
-        for (const offset of [-0.16, 0, 0.16]) this.fireHostileBullet(x, y, angle + offset, 20, 780);
+        for (const offset of [-0.16, 0, 0.16]) this.fireHostileBullet(x, y, angle + offset, bossAttackDamage(20), 780);
         break;
       case 'charge':
         this.startCharge(e, dx, dy);
-        this.fireHostileBullet(x, y, angle, 20, 800);
+        this.fireHostileBullet(x, y, angle, bossAttackDamage(20), 800);
         break;
       case 'dynamite':
-        for (const offset of [-100, 0, 100]) this.enemyThrowDynamite(x, y, offset, (e.attackCount % 2 ? 1 : -1) * 70);
+        for (const offset of [-100, 0, 100]) this.enemyThrowDynamite(x, y, offset, (e.attackCount % 2 ? 1 : -1) * 70, bossAttackDamage(25));
         break;
       case 'whip':
         e.vulnerableUntil = this.combatNow + 1300;
-        this.encounters.warn({ x: x + Math.cos(angle) * 100, y: y + Math.sin(angle) * 100, radius: 145 }, 1000, 350, 30);
+        this.encounters.warn({ x: x + Math.cos(angle) * 100, y: y + Math.sin(angle) * 100, radius: 145 }, 1000, 350, bossAttackDamage(30));
         this.showBanner('CHICOTE! ATAQUE QUANDO O ESCUDO BAIXAR', '#ffc52a');
         break;
       case 'axes':
-        for (const offset of [-0.45, 0, 0.45]) this.fireHostileBullet(x, y, angle + offset, 25, 620, true);
-        this.encounters.warn({ x, y, radius: 100 }, 850, 450, 25);
+        for (const offset of [-0.45, 0, 0.45]) this.fireHostileBullet(x, y, angle + offset, bossAttackDamage(25), 620, true);
+        this.encounters.warn({ x, y, radius: 100 }, 850, 450, bossAttackDamage(25));
         break;
       case 'gatling':
         this.showBanner('GATLING — A MIRA VAI TRAVAR!', '#ff791c');
         this.encounters.warn({ x: this.player.x, y: this.player.y, radius: 50 }, 1000, 100, 0);
         for (let i = 0; i < 10; i++) this.time.delayedCall(1000 + i * 90, () => {
-          if (!e.dead && !this.isGameOver && !this.bossDefeated) { sounds.playRevolver(); this.fireHostileBullet(e.sprite.x, e.sprite.y, angle + (i - 4.5) * 0.075, 18, 850); }
+          if (!e.dead && !this.isGameOver && !this.bossDefeated) { sounds.playRevolver(); this.fireHostileBullet(e.sprite.x, e.sprite.y, angle + (i - 4.5) * 0.075, bossAttackDamage(18), 850); }
         });
         break;
       case 'rifle':
         sounds.playRifle();
-        for (const offset of [-0.1, 0, 0.1]) this.fireHostileBullet(x, y, angle + offset, 25, 900);
+        for (const offset of [-0.1, 0, 0.1]) this.fireHostileBullet(x, y, angle + offset, bossAttackDamage(25), 900);
         if (bossRageMultiplier(e.hp, e.maxHp) < 1) {
-          for (let i = 0; i < 10; i++) this.fireHostileBullet(x, y, i * Math.PI / 5 + e.attackCount * 0.2, 18, 600);
+          for (let i = 0; i < 10; i++) this.fireHostileBullet(x, y, i * Math.PI / 5 + e.attackCount * 0.2, bossAttackDamage(18), 600);
         }
         if (e.attackCount % 5 === 0) this.runSpawnOrders([{ kind: 'rifle_guard', count: 4, pattern: 'ring' }]);
         break;
@@ -1296,7 +1305,7 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  private enemyThrowDynamite(x: number, y: number, offsetX = 0, offsetY = 0) {
+  private enemyThrowDynamite(x: number, y: number, offsetX = 0, offsetY = 0, damage = 25) {
     sounds.playRicochet();
     const tnt = this.add.sprite(x, y, 'proj_dynamite').setDepth(8);
     const targetX = Phaser.Math.Clamp(this.player.x + offsetX, 48, WORLD_W - 48);
@@ -1325,14 +1334,14 @@ export class GameScene extends Phaser.Scene {
           onComplete: () => blast.destroy(),
         });
         if (Math.hypot(this.player.x - targetX, this.player.y - targetY) < 65) {
-          this.damagePlayer(25);
+          this.damagePlayer(damage);
         }
       },
     });
   }
 
   private bossRevolverBarrage(bx: number, by: number): void {
-    this.getProjectileSystem().simonBarrage(bx, by);
+    this.getProjectileSystem().simonBarrage(bx, by, bossAttackDamage(18));
   }
 
   // 5. Fire Zones (Molotov)
@@ -1383,7 +1392,7 @@ export class GameScene extends Phaser.Scene {
           this.updateHpBar();
         }
         if (packet.val > 0) this.onboarding?.collectedXp();
-        this.addXp(Math.round(packet.val * this.xpBonus));
+        this.awardXp(packet.val);
         this.addBounty(packet.bounty);
 
         if (exhausted) { d.sprite.destroy(); this.drops.splice(i, 1); }
@@ -1407,6 +1416,20 @@ export class GameScene extends Phaser.Scene {
       this.triggerLevelUp();
     }
     this.updateXpBar();
+  }
+
+  private awardXp(raw: number): void {
+    const amount = Math.round(raw * this.xpBonus);
+    this.rawXpEarned = (this.rawXpEarned ?? 0) + raw;
+    this.totalXpEarned = (this.totalXpEarned ?? 0) + amount;
+    this.addXp(amount);
+  }
+
+  private balanceSnapshot() {
+    return { mode: normalizeDifficulty(this.difficulty), seconds: this.gameTimeSeconds, kills: this.kills,
+      level: this.level, rawXp: this.rawXpEarned, earnedXp: this.totalXpEarned,
+      badge: this.activePassives.get('badge') ?? 0, damageTaken: this.totalDamageTaken,
+      bossSeconds: this.bossSpawned ? Math.max(0, this.gameTimeSeconds - this.stageConfig.duration) : 0 };
   }
 
   // Damage Handlers with Critical Hit Calculation
@@ -1531,8 +1554,9 @@ export class GameScene extends Phaser.Scene {
       onComplete: () => this.player.setAlpha(1),
     });
 
-    const reduced = Math.max(1, amount - this.armor);
+    const reduced = incomingDamage(amount, this.armor, this.difficulty);
     this.hp -= reduced;
+    this.totalDamageTaken = (this.totalDamageTaken ?? 0) + reduced;
     this.gameEvents.emitPlayerDamaged(reduced);
     this.updateHpBar();
 
@@ -1743,6 +1767,7 @@ export class GameScene extends Phaser.Scene {
         runId: this.runId, bonus, hpPct: this.hp / this.maxHp,
         character: this.character,
         stage: this.stage,
+        difficulty: this.difficulty,
         timeSurvivedSeconds: this.gameTimeSeconds,
         kills: this.kills,
         bounty: this.bounty,
@@ -1764,6 +1789,7 @@ export class GameScene extends Phaser.Scene {
         runId: this.runId,
         character: this.character,
         stage: this.stage,
+        difficulty: this.difficulty,
         timeSurvivedSeconds: this.gameTimeSeconds,
         kills: this.kills,
         bounty: this.bounty,

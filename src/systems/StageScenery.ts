@@ -20,48 +20,7 @@ export function createStageScenery(scene: Phaser.Scene, stage: StageConfig): str
       for (let i = 0; i < 34; i++) rect(i % 3 ? DARK : 0xf2d49a, (i * 19 + stage.id * 5) % 62, (i * 37) % 62, 2, 1);
     }
   });
-  texture('wm_crate', 44, 42, () => {
-    rect(OUT, 1, 6, 42, 35); rect(WOOD, 3, 8, 38, 31);
-    for (let x = 6; x < 40; x += 9) rect(DARK, x, 9, 2, 28);
-    rect(0xa36b31, 4, 9, 36, 4); rect(0xa36b31, 4, 32, 36, 4);
-    for (let i = 0; i < 5; i++) rect(GOLD, 5 + i * 7, 12 + i * 4, 3, 3);
-  });
-  texture('wm_barrel', 36, 44, () => {
-    rect(OUT, 4, 2, 28, 40); rect(WOOD, 6, 4, 24, 36); rect(0xa36b31, 10, 4, 5, 35);
-    rect(0x88817a, 4, 10, 28, 5); rect(0x88817a, 4, 29, 28, 5); rect(OUT, 7, 3, 22, 3);
-  });
-  // wm_wagon is preloaded from the asset catalog; no geometric prototype fallback.
-  texture('wm_ruin', 76, 70, () => {
-    rect(OUT, 3, 11, 70, 54); rect(0x46261b, 6, 14, 64, 48);
-    for (let x = 8; x < 70; x += 14) rect(DARK, x, 16, 4, 45);
-    rect(OUT, 28, 30, 22, 35); rect(0xff791c, 7, 10, 8, 12); rect(0xe52b20, 50, 4, 9, 16);
-  });
-  texture('wm_table', 66, 52, () => {
-    rect(OUT, 8, 15, 51, 35); rect(DARK, 12, 25, 7, 26); rect(DARK, 48, 25, 7, 26); rect(WOOD, 3, 10, 60, 24); rect(0xa36b31, 5, 12, 56, 3);
-    rect(0xf2d49a, 19, 14, 8, 10); rect(GOLD, 36, 19, 7, 4);
-  });
-  texture('wm_pine', 50, 78, () => {
-    rect(DARK, 22, 36, 9, 40);
-    for (let i = 0; i < 4; i++) { const w = 14 + i * 10; rect(OUT, 25 - w / 2, 4 + i * 14, w, 19); rect(0x344c38, 27 - w / 2, 6 + i * 14, w - 4, 14); }
-  });
-  texture('wm_tent', 76, 56, () => {
-    g.fillStyle(OUT).fillTriangle(0, 54, 37, 0, 76, 54);
-    g.fillStyle(0xc29b5e).fillTriangle(4, 51, 37, 5, 72, 51);
-    g.fillStyle(DARK).fillTriangle(27, 51, 37, 19, 48, 51); rect(0xa51e16, 18, 32, 11, 4);
-  });
-  texture('wm_barricade', 82, 48, () => {
-    rect(OUT, 0, 13, 82, 24); rect(WOOD, 2, 15, 78, 20); rect(DARK, 9, 3, 9, 44); rect(DARK, 64, 3, 9, 44); rect(GOLD, 11, 19, 4, 4); rect(GOLD, 66, 19, 4, 4);
-  });
-  texture('wm_palm', 72, 84, () => {
-    rect(OUT, 32, 19, 12, 64); rect(WOOD, 35, 22, 6, 59);
-    for (let i = 0; i < 5; i++) { g.lineStyle(7, 0x304a27); g.lineBetween(38, 21, 5 + i * 15, 6 + Math.abs(i - 2) * 11); }
-  });
-  texture('wm_statue', 54, 80, () => {
-    rect(OUT, 2, 63, 50, 16); rect(0x827d80, 5, 65, 44, 12); rect(0x605a63, 14, 36, 27, 28); rect(0x999194, 18, 15, 19, 30); rect(0xb4a8a0, 21, 3, 13, 15); rect(GOLD, 16, 35, 24, 3);
-  });
-  texture('wm_lantern', 24, 64, () => {
-    rect(OUT, 10, 1, 5, 62); rect(WOOD, 12, 3, 2, 59); rect(OUT, 2, 9, 18, 25); rect(GOLD, 5, 12, 12, 19); rect(0xff791c, 7, 22, 8, 7);
-  });
+  // Arena props are independent preloaded pixel-art cutouts. No prototype rectangles.
   texture('wm_glow', 96, 96, () => {
     for (let r = 47; r >= 3; r -= 3) g.fillStyle(0xffa32a, 0.012).fillCircle(48, 48, r);
   });

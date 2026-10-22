@@ -85,3 +85,10 @@ it('ignores duplicate or stale level-up callbacks rather than granting free upgr
   expect(g.activeWeapons.get('revolver')).toBe(2);
   expect(g.scene.resume).toHaveBeenCalledTimes(1);
 });
+
+it('uses the badge total once at each rank rather than compounding previous bonuses', () => {
+  const g = fixture();
+  for (const expected of [1.2, 1.4, 1.65, 1.9, 2.2]) {
+    g.applyUpgrade({ type: 'passive', id: 'badge' }); expect(g.xpBonus).toBe(expected);
+  }
+});

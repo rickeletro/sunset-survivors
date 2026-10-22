@@ -1,5 +1,7 @@
 # Auditoria de progressão e bônus de saloon — 21/10/2026
 
+> Atualização de progressão, chefes e modos: [difficulty-playtest-audit-2026-10.md](difficulty-playtest-audit-2026-10.md). Este documento registra a rodada anterior.
+
 > Histórico da rodada inicial. A curva de XP segue válida; recuperação e entrada foram refinadas posteriormente em [sustain-entry-audit-2026-10.md](sustain-entry-audit-2026-10.md).
 
 ## Resultado

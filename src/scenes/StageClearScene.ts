@@ -1,3 +1,4 @@
+import { normalizeDifficulty, difficultySettings, difficultyProfile, type DifficultyId } from '../data/difficulty';
 import { preloadHeroSheets } from '../assets/registry';
 import { preloadPulp, pulpBackdrop, pulpHeading, pulpText, pulpButton, pulpWood, pulpStats, bindPulpMenu } from '../ui/layout/pulpSceneKit';
 import { createMenuRoot } from '../ui/layout/menuLayout';
@@ -12,6 +13,7 @@ export interface StageClearData {
   hpPct?: number;
   character: CharacterData;
   stage: number;
+  difficulty?: DifficultyId;
   timeSurvivedSeconds: number;
   kills: number;
   bounty: number;
@@ -32,6 +34,7 @@ export class StageClearScene extends Phaser.Scene {
       runId: data?.runId, bonus: data?.bonus ?? 0, hpPct: data?.hpPct ?? 1,
       character: data?.character || CHARACTERS.billy,
       stage: data?.stage || 1,
+      difficulty: normalizeDifficulty(data?.difficulty ?? difficultySettings.get()),
       timeSurvivedSeconds: data?.timeSurvivedSeconds || 222,
       kills: data?.kills || 284,
       bounty: data?.bounty || 1350,
@@ -53,6 +56,7 @@ export class StageClearScene extends Phaser.Scene {
         gold: this.dataReceived.bounty,
         timeSurvivedSeconds: this.dataReceived.timeSurvivedSeconds,
         stage: this.dataReceived.stage,
+        difficulty: this.dataReceived.difficulty,
         stagesCleared: this.dataReceived.stage,
         level: this.dataReceived.level,
         characterId: this.dataReceived.character.id,
@@ -69,7 +73,7 @@ export class StageClearScene extends Phaser.Scene {
     this.rootContainer = createMenuRoot(this);
     pulpBackdrop(this, this.rootContainer, false);
     pulpHeading(this, this.rootContainer, '★ STAGE CLEAR! ★', -350, 1360, 112);
-    pulpText(this, this.rootContainer, 0, -242, `STAGE ${this.dataReceived.stage} LIBERATED • OUTLAW DEFEATED`, 25);
+    pulpText(this, this.rootContainer, 0, -242, `STAGE ${this.dataReceived.stage} • ${difficultyProfile(this.dataReceived.difficulty).label} • OUTLAW DEFEATED`, 25);
     const hero = this.add.sprite(-480, 120, `hero_${this.dataReceived.character.id}`, 0).setScale(2.7).setTint(0x120b08);
     this.rootContainer.add(hero);
     const report = pulpWood(this, this.rootContainer, 215, 55, 940, 420);
@@ -103,6 +107,7 @@ export class StageClearScene extends Phaser.Scene {
       this.scene.start('GameCompleteScene', {
         character: this.dataReceived.character,
         stage: this.dataReceived.stage,
+        difficulty: this.dataReceived.difficulty,
         kills: this.dataReceived.kills,
         bounty: this.dataReceived.bounty,
         timeSurvivedSeconds: this.dataReceived.timeSurvivedSeconds,
@@ -112,6 +117,7 @@ export class StageClearScene extends Phaser.Scene {
       this.scene.start('WantedScene', {
         character: this.dataReceived.character,
         stage: this.dataReceived.stage + 1,
+        difficulty: this.dataReceived.difficulty,
       });
     }
   }

@@ -47,3 +47,30 @@ describe('recovery, damage and loot integration', () => {
     g.saloonOpen = true; g.time.now += 300000; g.onSecondTick(); expect(g.hp).toBe(51);
   });
 });
+
+it.each([['easy', 33], ['normal', 53], ['hardcore', 61]])('applies %s incoming damage once after the doubled boss source', (mode, damage) => {
+  const { g } = fixture(); g.hp = 150; g.maxHp = 150; g.difficulty = mode;
+  g.damagePlayer(56); expect(g.hp).toBe(150 - damage); expect(g.totalDamageTaken).toBe(damage);
+});
+
+it.each(['easy', 'normal', 'hardcore'])('keeps XP and currency identical in %s and records the multiplier once', mode => {
+  const { g, sprite } = fixture(); g.difficulty = mode; g.xpBonus = 2.2;
+  g.drops = [{ type: 'gold', sprite, val: 10, bounty: 1 }]; g.updateDrops(0);
+  expect(g.addXp).toHaveBeenCalledExactlyOnceWith(22); expect(g.rawXpEarned).toBe(10); expect(g.totalXpEarned).toBe(22);
+  expect(g.addBounty).toHaveBeenCalledExactlyOnceWith(1);
+});
+
+it('conserves 750 original reward packets through the sprite budget and applies max badge once', async () => {
+  const { mergeLoot } = await import('../systems/LootBudget');
+  const { g } = fixture(); g.xpBonus = 2.2;
+  for (let i = 0; i < 750; i++) {
+    if (!mergeLoot(g.drops, { type: 'gold', x: 0, y: 0, val: 10, bounty: 1 })) {
+      g.drops.push({ type: 'gold', val: 10, bounty: 1, sprite: { x: 0, y: 0, destroy: vi.fn() } });
+    }
+  }
+  expect(g.drops).toHaveLength(700);
+  while (g.drops.length) g.updateDrops(0);
+  expect(g.rawXpEarned).toBe(7500); expect(g.totalXpEarned).toBe(16500);
+  expect(g.addXp).toHaveBeenCalledTimes(750);
+  expect(g.addBounty.mock.calls.reduce((sum, c) => sum + c[0], 0)).toBe(750);
+});
