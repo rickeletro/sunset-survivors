@@ -1764,7 +1764,8 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.flash(250, 255, 235, 170);
     this.cameras.main.fade(750, 0, 0, 0);
     this.time.delayedCall(800, () => {
-      this.scene.start('StageClearScene', {
+      this.scene.start('WantedScene', {
+        mode: 'captured',
         runId: this.runId, bonus, hpPct: this.hp / this.maxHp,
         character: this.character,
         stage: this.stage,
