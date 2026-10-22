@@ -65,7 +65,7 @@ describe('composed menu illustrations', () => {
 });
 
 describe('Western Pulp arena props', () => {
-  it.each(Object.entries(WORLD_PROPS))('%s replaces the prototype at its original native size', (kind, spec) => {
+  it.each(Object.entries(WORLD_PROPS))('%s matches its declared world-scale canvas', (kind, spec) => {
     const { width, height, rgba } = rgbaPng(readFileSync(new URL(`../../public/${CATALOG.images[`wm_${kind}`]}`, import.meta.url)));
     expect([width, height]).toEqual([spec.w, spec.h]);
     let clear = 0, visible = 0;

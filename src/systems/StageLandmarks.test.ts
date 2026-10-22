@@ -9,6 +9,7 @@ function harness() {
   const image = (x: number, y: number, key: string) => {
     const obj: any = { x, y, key, destroyed: false, alpha: 1, depth: 0 };
     for (const method of ['setOrigin', 'setBlendMode']) obj[method] = () => obj;
+    obj.setScale = (scale: number) => { obj.scale = scale; return obj; };
     obj.setDepth = (depth: number) => { obj.depth = depth; return obj; };
     obj.setAlpha = (alpha: number) => { obj.alpha = alpha; return obj; };
     obj.destroy = vi.fn(() => { obj.destroyed = true; });
@@ -55,6 +56,22 @@ describe('streamed PixelLab scenery', () => {
     scenery.destroy(); // Repeated teardown is safe.
     expect(h.objects.every(o => o.destroyed)).toBe(true);
     expect(h.objects.every(o => o.destroy.mock.calls.length === 1)).toBe(true);
+  });
+  it.each(['canyon', 'railroad', 'burning-town', 'saloon', 'caboose', 'mountain', 'hacienda', 'manor'] as const)('%s attaches tall poles only to building facades', theme => {
+    const h = harness(), scenery = new StageLandmarks(h.scene, theme);
+    scenery.update(4000, 4000, 0);
+    const poles = h.objects.filter(o => o.key === 'wm_lantern');
+    if (theme === 'caboose') expect(poles).toHaveLength(0);
+    else expect(poles.length).toBeGreaterThan(0);
+    for (const pole of poles) {
+      const facade = scenery.placements.find(p => pole.x === p.x + SCENERY[p.kind].width / 2 + 28 && pole.y === p.y - 20)!;
+      expect(facade).toBeTruthy();
+      expect(['house', 'saloon', 'sheriff', 'general-store', 'frontier-saloon', 'hacienda', 'manor', 'rail-station']).toContain(facade.kind);
+      expect(192 * pole.scale).toBeCloseTo(SCENERY[facade.kind].height);
+      expect(pole.depth).toBe(worldDepth(pole.y));
+    }
+    scenery.update(80, 80, 1000);
+    expect(poles.every(o => o.destroyed)).toBe(true);
   });
   it('reserves ground footprints and safely resolves objective and actor spawns', () => {
     const h = harness();

@@ -31,12 +31,12 @@ interface Obstacle {
 
 export const WORLD_PROPS: Record<Kind, { r: number; w: number; h: number }> = {
   wagon: { r: 34, w: 100, h: 88 }, barrel: { r: 14, w: 36, h: 44 }, crate: { r: 17, w: 44, h: 42 },
-  ruin: { r: 29, w: 76, h: 70 }, table: { r: 25, w: 66, h: 52 }, pine: { r: 12, w: 50, h: 78 },
-  tent: { r: 27, w: 76, h: 56 }, barricade: { r: 28, w: 82, h: 48 }, palm: { r: 12, w: 72, h: 84 },
-  statue: { r: 20, w: 54, h: 80 }, lantern: { r: 6, w: 24, h: 64 },
+  ruin: { r: 29, w: 114, h: 105 }, table: { r: 25, w: 66, h: 52 }, pine: { r: 12, w: 100, h: 156 },
+  tent: { r: 27, w: 114, h: 84 }, barricade: { r: 28, w: 82, h: 48 }, palm: { r: 12, w: 144, h: 168 },
+  statue: { r: 20, w: 81, h: 120 }, lantern: { r: 6, w: 72, h: 192 },
   rock: { r: 14, w: 36, h: 28 },
-  cactus: { r: 9, w: 24, h: 44 },
-  deadtree: { r: 10, w: 36, h: 52 },
+  cactus: { r: 9, w: 72, h: 132 },
+  deadtree: { r: 10, w: 72, h: 104 },
 };
 
 /** PRNG pequeno e determinístico (mulberry32). */
@@ -86,6 +86,8 @@ export class WorldMap {
       const kind = kinds[Math.floor(rand() * kinds.length)];
       const x = cx * CHUNK + 40 + rand() * (CHUNK - 80);
       const y = cy * CHUNK + 40 + rand() * (CHUNK - 80);
+      // Consume the old random slot without replacing it: other obstacle positions stay stable.
+      if (kind === 'lantern') continue;
       if (x < WORLD_MARGIN || y < WORLD_MARGIN || x > WORLD_W - WORLD_MARGIN || y > WORLD_H - WORLD_MARGIN) continue;
       if (Math.hypot(x - this.safeX, y - this.safeY) < this.safeRadius) continue;
       if (['railroad', 'caboose'].includes(this.stage.theme)) {
@@ -129,12 +131,9 @@ export class WorldMap {
           if (!o.sprite) {
             o.sprite = this.scene.add
               .image(o.x, o.y, `wm_${o.kind}`)
-              .setOrigin(0.5, 0.88)
+              .setOrigin(0.5, WORLD_PROPS[o.kind].h >= 100 ? 0.98 : 0.88)
               .setDepth(3 + o.y / WORLD_H);
           }
-        }
-        for (const o of this.getChunk(cx, cy)) {
-          if (o.kind === 'lantern' && !o.glow) o.glow = this.scene.add.image(o.x, o.y - 35, 'wm_glow').setBlendMode(Phaser.BlendModes.ADD).setAlpha(0.65).setDepth(6);
         }
         for (const d of this.getDecorationChunk(cx, cy)) {
           d.sprite = this.scene.add.image(d.x, d.y, `decor_${d.kind}`).setOrigin(0.5, 0.88).setDepth(1);

@@ -1,5 +1,14 @@
 # Polimento visual — Western Pulp '98
 
+## Revisão de escala após playtest
+
+O relato mostrou que preservar os canvases dos protótipos havia reduzido demais os novos desenhos. Os assets grandes foram reexportados das gerações de alta resolução, sem esticar o PNG pequeno: cacto 72 × 132, poste 72 × 192, pinheiro 100 × 156, palmeira 144 × 168, árvore seca 72 × 104, ruína 114 × 105, tenda 114 × 84 e estátua 81 × 120. Barris, caixas e objetos de chão mantêm sua escala. Os raios de colisão dos obstáculos restantes continuam iguais.
+
+Postes saíram do sorteio de obstáculos. Os slots antigos continuam consumindo os mesmos números aleatórios e ficam vazios, preservando os demais objetos. Há agora um poste decorativo ao lado de cada fachada adequada, afastado da porta, com escala proporcional à construção (192–256 px). Não são colocados junto a vagões, poços, carroças ou no deserto. O mapa de vagões sem casas não recebe postes. As luzes são aditivas, acompanham o streaming da construção e são destruídas com ela; o poste fica translúcido quando encobre o personagem. Não acrescenta colisão invisível às entradas.
+
+A composição `docs/qa/arena-scale-comparison.png` mostra os assets na escala do mundo ao lado de Steve. O restante deste documento registra a entrega inicial, anterior a esta revisão de tamanho.
+
+
 Foram substituídos os protótipos geométricos dos objetos por 13 recortes de pixel art: cacto, pedra, árvore seca, barril, caixa, ruína, mesa, pinheiro, tenda, barricada, palmeira, estátua e poste com lanterna. A carroça e os landmarks aprovados foram preservados. Os rosters das oito fases carregam as novas imagens pelo catálogo; não há fundo de cenário achatado nem sorteio adicional que altere o mapa.
 
 Os PNGs estão em `public/assets/scenery/western-pulp/`. Mantêm os tamanhos nativos e o pivô dos obstáculos anteriores. Posição, quantidade, seed, raio de colisão, caminhos, exclusões de trilhos e entrada no saloon continuam iguais. O halo da lanterna permanece uma camada aditiva independente.

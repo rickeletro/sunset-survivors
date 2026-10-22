@@ -24,7 +24,8 @@ describe('sparse canyon decoration', () => {
           expect([...getStage(stage).props, 'lantern']).toContain(obstacle.kind);
         }
       }
-      for (const kind of [...getStage(stage).props, 'lantern']) expect(seen.has(kind)).toBe(true);
+      for (const kind of getStage(stage).props) expect(seen.has(kind)).toBe(true);
+      expect(seen.has('lantern')).toBe(false);
     }
   });
   it('is deterministic, sparse and never changes obstacle generation or collision results', () => {
