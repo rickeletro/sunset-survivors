@@ -27,7 +27,7 @@ describe('campaign economy integration', () => {
   it('applies the stated total health bonus rather than accumulating every rank bonus', () => {
     const g = fixture();
     for (let i = 0; i < 5; i++) g.applyUpgrade({ type: 'passive', id: 'whiskey' });
-    expect(g.maxHp).toBe(160); expect(g.hp).toBe(160); expect(g.hpRegen).toBe(2);
+    expect(g.maxHp).toBe(160); expect(g.hp).toBe(160); expect(g.hpRegen).toBe(1);
     for (let i = 0; i < 5; i++) g.applyUpgrade({ type: 'passive', id: 'bandolier' });
     expect(650 / g.fireRateMultiplier).toBeCloseTo(650 * 0.52 / 1.25);
   });

@@ -1,5 +1,7 @@
 # Auditoria de progressão e bônus de saloon — 21/10/2026
 
+> Histórico da rodada inicial. A curva de XP segue válida; recuperação e entrada foram refinadas posteriormente em [sustain-entry-audit-2026-10.md](sustain-entry-audit-2026-10.md).
+
 ## Resultado
 
 A curva de XP ficou mais lenta, mantendo recompensas de inimigos, armas, personagens, spawns e chefes. Cada fase continua durando 420 segundos antes do chefe e reiniciando a build, como na arquitetura existente. O saloon é opcional, pausa o combate e oferece um único brinde por tentativa de fase. Escala dos inimigos, colisões aprovadas, Cormano e carroças foram preservados.

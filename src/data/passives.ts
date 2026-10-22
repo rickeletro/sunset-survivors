@@ -51,11 +51,11 @@ export const PASSIVES: Record<string, PassiveDef> = {
     name: 'Frontier Whiskey',
     icon: 'whiskey',
     levels: [
-      { level: 1, description: 'Regenerates +0.25 HP per second', effect: { hpRegen: 0.25 } },
-      { level: 2, description: 'Regenerates +0.5 HP per second', effect: { hpRegen: 0.5 } },
-      { level: 3, description: 'Regenerates +1 HP per second & +20 Max HP', effect: { hpRegen: 1, maxHpBonus: 20 } },
-      { level: 4, description: 'Regenerates +1.5 HP per second & +40 Max HP', effect: { hpRegen: 1.5, maxHpBonus: 40 } },
-      { level: 5, description: 'Regenerates +2 HP per second & +60 Max HP', effect: { hpRegen: 2, maxHpBonus: 60 } },
+      { level: 1, description: 'After 4s without damage: regenerate 0.15 HP/s', effect: { hpRegen: 0.15 } },
+      { level: 2, description: 'After 4s without damage: regenerate 0.3 HP/s', effect: { hpRegen: 0.3 } },
+      { level: 3, description: 'After 4s without damage: 0.5 HP/s & +20 Max HP', effect: { hpRegen: 0.5, maxHpBonus: 20 } },
+      { level: 4, description: 'After 4s without damage: 0.75 HP/s & +40 Max HP', effect: { hpRegen: 0.75, maxHpBonus: 40 } },
+      { level: 5, description: 'After 4s without damage: 1 HP/s & +60 Max HP', effect: { hpRegen: 1, maxHpBonus: 60 } },
     ],
   },
 

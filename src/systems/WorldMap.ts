@@ -3,6 +3,7 @@ import { getStage, StageConfig } from '../data/stages';
 import { createStageScenery } from './StageScenery';
 import { StageLandmarks } from './StageLandmarks';
 import { worldDecorations, WorldDecoration } from '../data/worldDecorations';
+import { buildingPath, type PortalPoint } from './BuildingPath';
 
 /**
  * Mundo grande e contínuo dividido em chunks.
@@ -191,6 +192,27 @@ export class WorldMap {
 
   chaseTarget(x: number, y: number, targetX: number, targetY: number, radius: number): { x: number; y: number } {
     return this.landmarks.chaseTarget(x, y, targetX, targetY, radius);
+  }
+
+  /** Exact swept-circle checks for short cinematic approaches. Physics radii stay unchanged. */
+  entrySegmentClear(a: PortalPoint, b: PortalPoint, radius = 10): boolean {
+    if ([a, b].some(p => p.x < WORLD_MARGIN || p.y < WORLD_MARGIN || p.x > WORLD_W - WORLD_MARGIN || p.y > WORLD_H - WORLD_MARGIN)) return false;
+    if (!this.landmarks.entrySegmentClear(a, b, radius)) return false;
+    const vx = b.x - a.x, vy = b.y - a.y, length2 = vx * vx + vy * vy;
+    for (let cy = Math.floor((Math.min(a.y, b.y) - radius - 34) / CHUNK); cy <= Math.floor((Math.max(a.y, b.y) + radius + 34) / CHUNK); cy++) {
+      for (let cx = Math.floor((Math.min(a.x, b.x) - radius - 34) / CHUNK); cx <= Math.floor((Math.max(a.x, b.x) + radius + 34) / CHUNK); cx++) {
+        if (cx < 0 || cy < 0 || cx * CHUNK >= WORLD_W || cy * CHUNK >= WORLD_H) continue;
+        for (const o of this.getChunk(cx, cy)) {
+          const t = length2 ? Math.max(0, Math.min(1, ((o.x - a.x) * vx + (o.y - a.y) * vy) / length2)) : 0;
+          if (Math.hypot(a.x + vx * t - o.x, a.y + vy * t - o.y) < o.r + radius) return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  buildingPath(from: PortalPoint, to: PortalPoint): PortalPoint[] | undefined {
+    return buildingPath(from, to, (a, b) => this.entrySegmentClear(a, b, 10));
   }
 
   /** Empurra um círculo para fora dos obstáculos próximos e limita ao mundo. */

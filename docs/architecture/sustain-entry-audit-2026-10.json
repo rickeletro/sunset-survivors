@@ -1,0 +1,181 @@
+{
+  "assumptions": {
+    "durationSeconds": 420,
+    "hero": "Cormano",
+    "baseHp": 150,
+    "banditDamageAfterArmor": 9,
+    "seeds": "1000..1199",
+    "killsPerSecond": "0.7 → 3 linearly",
+    "collectionFraction": 0.8,
+    "pickupDelaySeconds": 4,
+    "caveats": "Scripted avoidable hits; not a combat bot. Whiskey ranks, when present, start at t=0. No supplies or max-HP rank-up healing."
+  },
+  "rows": [
+    {
+      "hitsPerMinute": 3,
+      "whiskeyRankFromStart": 0,
+      "rules": "previous",
+      "survivePercent": 100,
+      "meanHp90": 145,
+      "meanHpEnd": 141,
+      "meanEffectiveHealing": 180
+    },
+    {
+      "hitsPerMinute": 3,
+      "whiskeyRankFromStart": 0,
+      "rules": "revised",
+      "survivePercent": 100,
+      "meanHp90": 125,
+      "meanHpEnd": 95,
+      "meanEffectiveHealing": 134
+    },
+    {
+      "hitsPerMinute": 3,
+      "whiskeyRankFromStart": 3,
+      "rules": "previous",
+      "survivePercent": 100,
+      "meanHp90": 170,
+      "meanHpEnd": 162,
+      "meanEffectiveHealing": 181
+    },
+    {
+      "hitsPerMinute": 3,
+      "whiskeyRankFromStart": 3,
+      "rules": "revised",
+      "survivePercent": 100,
+      "meanHp90": 164,
+      "meanHpEnd": 160,
+      "meanEffectiveHealing": 179
+    },
+    {
+      "hitsPerMinute": 3,
+      "whiskeyRankFromStart": 5,
+      "rules": "previous",
+      "survivePercent": 100,
+      "meanHp90": 210,
+      "meanHpEnd": 203,
+      "meanEffectiveHealing": 182
+    },
+    {
+      "hitsPerMinute": 3,
+      "whiskeyRankFromStart": 5,
+      "rules": "revised",
+      "survivePercent": 100,
+      "meanHp90": 208,
+      "meanHpEnd": 201,
+      "meanEffectiveHealing": 180
+    },
+    {
+      "hitsPerMinute": 6,
+      "whiskeyRankFromStart": 0,
+      "rules": "previous",
+      "survivePercent": 100,
+      "meanHp90": 131,
+      "meanHpEnd": 139,
+      "meanEffectiveHealing": 367
+    },
+    {
+      "hitsPerMinute": 6,
+      "whiskeyRankFromStart": 0,
+      "rules": "revised",
+      "survivePercent": 0.5,
+      "meanHp90": 83,
+      "meanHpEnd": 0,
+      "meanEffectiveHealing": 57
+    },
+    {
+      "hitsPerMinute": 6,
+      "whiskeyRankFromStart": 3,
+      "rules": "previous",
+      "survivePercent": 100,
+      "meanHp90": 162,
+      "meanHpEnd": 162,
+      "meanEffectiveHealing": 370
+    },
+    {
+      "hitsPerMinute": 6,
+      "whiskeyRankFromStart": 3,
+      "rules": "revised",
+      "survivePercent": 86.5,
+      "meanHp90": 126,
+      "meanHpEnd": 57,
+      "meanEffectiveHealing": 258
+    },
+    {
+      "hitsPerMinute": 6,
+      "whiskeyRankFromStart": 5,
+      "rules": "previous",
+      "survivePercent": 100,
+      "meanHp90": 203,
+      "meanHpEnd": 203,
+      "meanEffectiveHealing": 371
+    },
+    {
+      "hitsPerMinute": 6,
+      "whiskeyRankFromStart": 5,
+      "rules": "revised",
+      "survivePercent": 100,
+      "meanHp90": 187,
+      "meanHpEnd": 188,
+      "meanEffectiveHealing": 356
+    },
+    {
+      "hitsPerMinute": 12,
+      "whiskeyRankFromStart": 0,
+      "rules": "previous",
+      "survivePercent": 93.5,
+      "meanHp90": 101,
+      "meanHpEnd": 126,
+      "meanEffectiveHealing": 698
+    },
+    {
+      "hitsPerMinute": 12,
+      "whiskeyRankFromStart": 0,
+      "rules": "revised",
+      "survivePercent": 0,
+      "meanHp90": 54,
+      "meanHpEnd": 0,
+      "meanEffectiveHealing": 15
+    },
+    {
+      "hitsPerMinute": 12,
+      "whiskeyRankFromStart": 3,
+      "rules": "previous",
+      "survivePercent": 100,
+      "meanHp90": 152,
+      "meanHpEnd": 159,
+      "meanEffectiveHealing": 745
+    },
+    {
+      "hitsPerMinute": 12,
+      "whiskeyRankFromStart": 3,
+      "rules": "revised",
+      "survivePercent": 0,
+      "meanHp90": 31,
+      "meanHpEnd": 0,
+      "meanEffectiveHealing": 31
+    },
+    {
+      "hitsPerMinute": 12,
+      "whiskeyRankFromStart": 5,
+      "rules": "previous",
+      "survivePercent": 100,
+      "meanHp90": 203,
+      "meanHpEnd": 203,
+      "meanEffectiveHealing": 749
+    },
+    {
+      "hitsPerMinute": 12,
+      "whiskeyRankFromStart": 5,
+      "rules": "revised",
+      "survivePercent": 0,
+      "meanHp90": 80,
+      "meanHpEnd": 0,
+      "meanEffectiveHealing": 60
+    }
+  ],
+  "saloon": {
+    "meanEffectiveHealAt90Before": 5.295,
+    "meanEffectiveHealAt90After": 22.875
+  }
+}

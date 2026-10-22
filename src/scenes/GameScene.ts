@@ -5,7 +5,11 @@ import { FirstRunTutorial, tutorialProgress } from '../systems/FirstRunTutorial'
 import { FirstRunTutorialView } from '../ui/hud/FirstRunTutorialView';
 import { sceneryForStage, sceneryKey, worldDepth } from '../data/scenery';
 import { WORLD_DECORATION_KEYS } from '../data/worldDecorations';
-import { SaloonVisit, saloonDoors } from '../data/saloon';
+import { SaloonVisit, saloonDoors, SALOON_ENTRY_RADIUS, type SaloonDoor } from '../data/saloon';
+import { BuildingPortalView } from '../ui/BuildingPortalView';
+import type { BuildingTransitionData } from './BuildingTransitionScene';
+import { samplePath, pathLength, type PortalPoint } from '../systems/BuildingPath';
+import { canRegenerate, HEAL_DROP_CHANCE, HEAL_DROP_HP, PLAYER_HIT_GRACE_MS } from '../data/sustain';
 import { HostileProjectiles } from '../systems/HostileProjectiles';
 import type { Projectile, Enemy, Drop, FireZone } from '../game/entities';
 import { CombatHUD } from '../ui/hud/CombatHUD';
@@ -56,9 +60,11 @@ export class GameScene extends Phaser.Scene {
   private encounters!: StageEncounters;
   private stageStatus!: Phaser.GameObjects.Text;
   private saloonVisit?: SaloonVisit;
-  private saloonPrompt?: Phaser.GameObjects.Text;
+  private saloonViews: { door: SaloonDoor; view: BuildingPortalView }[] = [];
+  private saloonRestore?: () => void;
   private saloonOpen = false;
   private combatElapsedMs = 0;
+  private lastDamageAt = -Infinity;
   private get combatNow(): number { return this.combatElapsedMs ?? this.time.now; }
   private objectiveStatus!: Phaser.GameObjects.Text;
   private bossMembers: Enemy[] = [];
@@ -148,6 +154,10 @@ export class GameScene extends Phaser.Scene {
   preload() {
     preloadImages(this, ['decor_title_parchment']);
     preloadImages(this, sceneryForStage(this.stageConfig.theme).map(sceneryKey));
+    // The black doorway cut must not reveal the street while the interior loads.
+    if (saloonDoors(this.stageConfig.theme).length) {
+      preloadImages(this, ['saloon_bkg', 'intro_bkg', 'decor_lantern', 'decor_spark', 'saloon_cancan']);
+    }
     if (this.stageConfig.props.includes('wagon')) preloadImages(this, ['wm_wagon']);
     if (this.stageConfig.theme === 'canyon') preloadImages(this, WORLD_DECORATION_KEYS);
     preloadCombatSprites(this, this.stage);
@@ -181,6 +191,7 @@ export class GameScene extends Phaser.Scene {
     this.fireZones = [];
     this.gameTimeSeconds = 0;
     this.combatElapsedMs = 0;
+    this.lastDamageAt = -Infinity;
     this.saloonOpen = false;
     this.choosingUpgrade = false;
     this.runId = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
@@ -435,7 +446,7 @@ export class GameScene extends Phaser.Scene {
     this.timeText.setText(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
 
     // Health Regeneration from Whiskey
-    if (this.hpRegen > 0 && this.hp < this.maxHp) {
+    if (this.hpRegen > 0 && this.hp < this.maxHp && canRegenerate(this.combatNow, this.lastDamageAt)) {
       this.hp = Math.min(this.maxHp, this.hp + this.hpRegen);
       this.updateHpBar();
     }
@@ -717,60 +728,94 @@ export class GameScene extends Phaser.Scene {
 
   private createSaloonInteraction(): void {
     this.saloonVisit = new SaloonVisit(saloonDoors(this.stageConfig.theme));
-    if (!this.saloonVisit.doors.length) return;
-    for (const door of this.saloonVisit.doors) {
-      this.add.text(door.x, door.y - 25, 'SALOON', { fontFamily: THEME.typography.pixelFont,
-        fontSize: '10px', color: '#ffc52a', stroke: '#120b08', strokeThickness: 4 }).setOrigin(0.5).setDepth(18);
-    }
-    this.saloonPrompt = this.add.text(this.scale.width / 2, this.scale.height - 96,
-      '[E] ENTRAR NO SALOON\nOU TOQUE • BONUS OPCIONAL', { fontFamily: THEME.typography.pixelFont,
-        fontSize: '14px', color: '#f2d49a', backgroundColor: '#321b10', padding: { x: 18, y: 16 },
-        align: 'center', lineSpacing: 8 }).setOrigin(0.5).setScrollFactor(0).setDepth(91).setVisible(false).setInteractive({ useHandCursor: true });
-    this.saloonPrompt.on('pointerdown', (_p: unknown, _x: unknown, _y: unknown, event: Phaser.Types.Input.EventData) => {
-      event.stopPropagation(); this.openSaloon();
-    });
+    this.saloonViews = this.saloonVisit.doors.flatMap(door => door.portal ? [{ door,
+      view: new BuildingPortalView(this, door.portal, 'SALOON', () => this.openSaloon(door)) }] : []);
     const enter = () => this.openSaloon();
-    const resize = () => this.saloonPrompt?.setPosition(this.scale.width / 2, this.scale.height - 96);
     this.input.keyboard?.on('keydown-E', enter);
-    this.scale.on('resize', resize);
-    this.events.once('shutdown', () => { this.input.keyboard?.off('keydown-E', enter); this.scale.off('resize', resize); });
+    this.events.once('shutdown', () => {
+      this.input.keyboard?.off('keydown-E', enter);
+      this.saloonVisit = undefined; // Invalidate transition callbacks before stopping child scenes.
+      this.saloonOpen = false;
+      this.saloonRestore?.(); this.saloonRestore = undefined;
+      this.saloonViews.forEach(({ view }) => view.destroy()); this.saloonViews = [];
+      this.scene.stop('BuildingTransitionScene'); this.scene.stop('SaloonScene');
+    });
   }
 
   private updateSaloonPrompt(): void {
-    this.saloonPrompt?.setVisible(!!this.saloonVisit?.nearby(this.player.x, this.player.y, this.saloonBlocked()));
+    const blocked = this.saloonBlocked(), used = !!this.saloonVisit?.used;
+    this.saloonViews?.forEach(({ door, view }) => {
+      const distance = Math.hypot(door.x - this.player.x, door.y - this.player.y);
+      view.update(distance, !blocked && !used && distance <= SALOON_ENTRY_RADIUS, used, this.combatNow, blocked);
+    });
   }
 
-  private openSaloon(): void {
-    const visit = this.saloonVisit;
-    if (!visit?.enter(this.player.x, this.player.y, this.saloonBlocked())) return;
+  private applyPortalPose(p: PortalPoint, dx: number, dy: number): void {
+    this.player.x = p.x; this.player.y = p.y;
+    if (this.usePixellab) {
+      const choice = pickDirection(this.character.id, dx, dy);
+      this.facingDir = choice.dir;
+      this.player.setFlipX(choice.flipX).setTexture(pixellabIdleFrame(this.character.id, choice.dir));
+    } else this.player.setFlipX(dx < 0);
+  }
+
+  private openSaloon(requested?: SaloonDoor): void {
+    const visit = this.saloonVisit, blocked = this.saloonBlocked();
+    const door = requested ?? visit?.nearby(this.player.x, this.player.y, blocked);
+    if (!visit || blocked || visit.used || !door?.portal || !visit.doors.includes(door) ||
+      Math.hypot(door.x - this.player.x, door.y - this.player.y) > SALOON_ENTRY_RADIUS) return;
+    const portal = door.portal;
+    const path = this.worldMap.buildingPath(this.player, portal.threshold);
+    if (!path) { sounds.playRicochet(); return; } // No free safety/consumed visit when the door is unreachable.
+    const returnPath = this.worldMap.buildingPath(portal.threshold, door) ?? [...path].reverse();
+    if (!visit.enter(this.player.x, this.player.y, blocked, door)) return;
     this.saloonOpen = true;
-    // ScenePlugin.pause is queued until the next manager frame. Freeze clocks now
-    // so no timer/tween can land an attack in that transition frame.
-    const clockPaused = this.time.paused;
-    const tweensPaused = this.tweens.paused;
-    this.time.paused = true;
-    this.tweens.paused = true;
-    this.saloonPrompt?.setVisible(false);
-    sounds.playReload();
-    this.cameras.main.flash(80, 255, 197, 42, false);
+    const clockPaused = this.time.paused, tweensPaused = this.tweens.paused;
+    const visible = this.player.visible;
+    this.saloonRestore = () => { this.time.paused = clockPaused; this.tweens.paused = tweensPaused; this.player.visible = visible; };
+    // Freeze immediately, including the queued-pause transition frame.
+    this.time.paused = true; this.tweens.paused = true;
+    this.player.anims?.stop(); this.player.visible = false;
+    this.updateSaloonPrompt();
     this.scene.pause('GameScene');
-    this.scene.launch('SaloonScene', { onLeave: (accept: boolean) => {
-      if (this.saloonVisit !== visit || !this.saloonOpen || this.isGameOver) return;
-      const reward = visit.leave(accept);
+    let phase: 'enter' | 'inside' | 'exit' | 'done' = 'enter';
+    const current = () => this.saloonVisit === visit && this.saloonOpen && !this.isGameOver;
+    const restore = (reward?: ReturnType<SaloonVisit['leave']>) => {
+      if (!current() || phase === 'done') return;
+      phase = 'done';
       if (reward) {
         this.hp = Math.min(this.maxHp, this.hp + Math.round(this.maxHp * reward.healthFraction));
-        this.updateHpBar();
-        this.addBounty(reward.bounty);
-        sounds.playCoin();
+        this.updateHpBar(); this.addBounty(reward.bounty); sounds.playCoin();
       }
-      // Resume in place with one ordinary hit-window of grace, no teleport/reset.
-      this.invulnUntil = Math.max(this.invulnUntil, this.combatNow + 600);
+      this.invulnUntil = Math.max(this.invulnUntil, this.combatNow + PLAYER_HIT_GRACE_MS);
+      this.saloonRestore?.(); this.saloonRestore = undefined;
       this.saloonOpen = false;
-      this.time.paused = clockPaused;
-      this.tweens.paused = tweensPaused;
-      this.scene.stop('SaloonScene');
       this.scene.resume('GameScene');
-    } });
+    };
+    const transition = (mode: 'enter' | 'exit', route: PortalPoint[], complete: () => void, cancel: () => void) => {
+      const data: BuildingTransitionData = { mode, path: route, portal,
+        camera: { scrollX: this.cameras.main.scrollX, scrollY: this.cameras.main.scrollY, zoom: this.cameras.main.zoom },
+        actor: { texture: this.player.texture.key, frame: this.player.frame.name, scaleX: this.player.scaleX,
+          scaleY: this.player.scaleY, hero: this.character.id, pixellab: this.usePixellab },
+        onPosition: (p, dx, dy) => { if (current() && phase === mode) this.applyPortalPose(p, dx, dy); },
+        onComplete: () => {
+          if (!current() || phase !== mode) return;
+          const end = samplePath(route, pathLength(route)); this.applyPortalPose(end, end.dx, end.dy); complete();
+        },
+        onCancel: () => { if (current() && phase === mode) cancel(); },
+      };
+      this.scene.launch('BuildingTransitionScene', data);
+    };
+    transition('enter', path, () => {
+      phase = 'inside';
+      this.scene.launch('SaloonScene', { onLeave: (accept: boolean) => {
+        if (!current() || phase !== 'inside') return;
+        phase = 'exit';
+        const reward = visit.leave(accept);
+        this.scene.stop('SaloonScene');
+        transition('exit', returnPath, () => restore(reward), () => restore(reward));
+      } });
+    }, () => { visit.leave(false); restore(); });
   }
 
   // 1. Player Movement & Facing Direction
@@ -1334,7 +1379,7 @@ export class GameScene extends Phaser.Scene {
         sounds.playCoin();
         const { packet, exhausted } = takeLootPacket(d);
         if (d.type === 'whiskey') {
-          this.hp = Math.min(this.maxHp, this.hp + 30);
+          this.hp = Math.min(this.maxHp, this.hp + HEAL_DROP_HP);
           this.updateHpBar();
         }
         if (packet.val > 0) this.onboarding?.collectedXp();
@@ -1420,10 +1465,10 @@ export class GameScene extends Phaser.Scene {
     if (enemy.type === 'boss' || enemy.type === 'elite') {
       dropType = 'badge';
       texture = 'drop_badge';
-    } else if (dropRand < 0.08) {
+    } else if (dropRand < HEAL_DROP_CHANCE) {
       dropType = 'whiskey';
       texture = 'drop_whiskey';
-    } else if (dropRand < 0.28) {
+    } else if (dropRand < HEAL_DROP_CHANCE + 0.2) {
       dropType = 'badge';
       texture = 'drop_badge';
     }
@@ -1475,7 +1520,8 @@ export class GameScene extends Phaser.Scene {
     if (this.isGameOver || this.bossDefeated || this.saloonOpen || this.choosingUpgrade || amount <= 0 || this.onboarding?.blocking) return;
     // Temporary invulnerability after taking a hit
     if (this.combatNow < this.invulnUntil) return;
-    this.invulnUntil = this.combatNow + 600;
+    this.invulnUntil = this.combatNow + PLAYER_HIT_GRACE_MS;
+    this.lastDamageAt = this.combatNow;
     this.tweens.add({
       targets: this.player,
       alpha: 0.35,

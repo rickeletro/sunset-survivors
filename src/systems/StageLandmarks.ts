@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
-import { sceneryChaseTarget } from './SceneryNavigation';
+import { sceneryChaseTarget, entersFootprint } from './SceneryNavigation';
+import type { PortalPoint } from './BuildingPath';
 import type { StageTheme } from '../data/stages';
 import { footprint, overlapsFootprint, resolveFootprint, SCENERY, sceneryKey, stageLandmarks, worldDepth, type Footprint, type Landmark } from '../data/scenery';
 
@@ -31,6 +32,10 @@ export class StageLandmarks {
   }
   reserved(x: number, y: number, radius: number): boolean {
     return this.placements.some(prop => overlapsFootprint(footprint(prop), x, y, radius + 35));
+  }
+  entrySegmentClear(a: PortalPoint, b: PortalPoint, radius: number): boolean {
+    return !this.boxes.some(box => entersFootprint({ ...box,
+      halfWidth: box.halfWidth + radius, halfHeight: box.halfHeight + radius }, a, b));
   }
   resolve(x: number, y: number, radius: number): { x: number; y: number } {
     for (const prop of this.placements) {
