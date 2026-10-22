@@ -107,3 +107,12 @@ describe('campaign scene integration without rendering', () => {
   });
 
 });
+
+it('pays the final boss cash once before victory and removes it from the unreachable drop', () => {
+  const game = bossHarness(1); game.spawnStageBoss();
+  const boss = game.bossMembers[0];
+  game.killEnemy(boss); game.killEnemy(boss);
+  expect(game.addBounty).toHaveBeenCalledExactlyOnceWith(250);
+  expect(game.drops[0]).toMatchObject({ type: 'badge', val: 300, bounty: 0 });
+  expect(game.victory).toHaveBeenCalledTimes(1);
+});

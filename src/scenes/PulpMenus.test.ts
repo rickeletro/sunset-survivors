@@ -28,10 +28,12 @@ const { Node } = vi.hoisted(() => {
   }
   return { Node };
 });
-vi.mock('phaser', () => ({ default: { Scene: class {}, GameObjects: { Container: Node } } }));
+vi.mock('phaser', () => ({ default: { Scene: class {}, BlendModes: { ADD: 1 }, GameObjects: { Container: Node } } }));
 vi.mock('../audio/SoundManager', () => ({ sounds: { playRevolver: vi.fn(), playIntroMusic: vi.fn(), stopBGM: vi.fn(), playHit: vi.fn(), playGunReload: vi.fn(), playGameplayMusic: vi.fn(), playLevelUp: vi.fn() } }));
 vi.mock('../data/GameStatsManager', () => ({ statsManager: { recordRun: vi.fn(), calculateRank: () => 'A', getStats: () => ({ totalScore: 100, totalKills: 20, playTimeSeconds: 120, stagesCleared: 1, unlockedBosses: [1] }) } }));
+import { sounds } from '../audio/SoundManager';
 import { PauseScene } from './PauseScene';
+import { SaloonScene } from './SaloonScene';
 import { GameOverScene } from './GameOverScene';
 import { GameCompleteScene } from './GameCompleteScene';
 import { StageClearScene } from './StageClearScene';
@@ -67,7 +69,7 @@ function setup(Scene: any, data: any = {}) {
 
 beforeEach(() => vi.clearAllMocks());
 describe('composed Western Pulp menus without browser gameplay or screenshots', () => {
-  it.each([PauseScene, GameOverScene, StageClearScene, GameCompleteScene, ControlsScene, UnlockablesScene].map(Scene => ({ Scene, name: Scene.name })))('$name preloads its own assets and keeps action buttons within the reference canvas', ({ Scene }) => {
+  it.each([PauseScene, SaloonScene, GameOverScene, StageClearScene, GameCompleteScene, ControlsScene, UnlockablesScene].map(Scene => ({ Scene, name: Scene.name })))('$name preloads its own assets and keeps action buttons within the reference canvas', ({ Scene }) => {
     const h = setup(Scene); h.scene.preload(); h.scene.create();
     expect(h.scene.load.image.mock.calls.some((call: string[]) => call[0] === 'saloon_bkg')).toBe(true);
     expect(h.buttons().length).toBeGreaterThan(0);
@@ -152,5 +154,22 @@ describe('live in-world tutorial presentation', () => {
     expect(view.root.active).toBe(false);
     expect(h.scene.input.keyboard.listeners.get('keydown-T')).toHaveLength(0);
     expect(h.scene.scale.listeners.get('resize')).toHaveLength(0);
+  });
+});
+
+describe('optional saloon interior controls', () => {
+  it('accepts once with keyboard, supports declining with Escape, and never changes music', () => {
+    const leave = vi.fn();
+    const h = setup(SaloonScene, { onLeave: leave }); h.scene.create();
+    h.scene.input.keyboard.emit('keydown-ENTER');
+    h.scene.input.keyboard.emit('keydown-ENTER'); h.scene.input.keyboard.emit('keydown-ESC');
+    expect(leave).toHaveBeenCalledExactlyOnceWith(true);
+    expect(sounds.playIntroMusic).not.toHaveBeenCalled();
+    expect(sounds.playGameplayMusic).not.toHaveBeenCalled();
+    expect(sounds.stopBGM).not.toHaveBeenCalled();
+    const exit = vi.fn(); h.scene.init({ onLeave: exit });
+    h.scene.input.keyboard.emit('keydown-ESC'); expect(exit).toHaveBeenCalledExactlyOnceWith(false);
+    h.scene.events.emit('shutdown');
+    for (const handlers of h.scene.input.keyboard.listeners.values()) expect(handlers).toHaveLength(0);
   });
 });

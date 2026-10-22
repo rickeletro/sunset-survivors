@@ -1,0 +1,176 @@
+{
+  "knife_bandit": {
+    "footOffset": 32.0,
+    "frames": {
+      "south": [
+        {"width": 92, "height": 92, "bounds": [30, 15, 60, 78]},
+        {"width": 92, "height": 92, "bounds": [18, 15, 59, 76]},
+        {"width": 92, "height": 92, "bounds": [26, 18, 61, 78]},
+        {"width": 92, "height": 92, "bounds": [28, 19, 61, 78]}
+      ],
+      "east": [
+        {"width": 100, "height": 100, "bounds": [38, 19, 69, 85]},
+        {"width": 100, "height": 100, "bounds": [38, 19, 74, 85]},
+        {"width": 100, "height": 100, "bounds": [24, 21, 74, 85]},
+        {"width": 100, "height": 100, "bounds": [35, 22, 75, 85]}
+      ],
+      "north": [
+        {"width": 96, "height": 96, "bounds": [33, 16, 69, 81]},
+        {"width": 96, "height": 96, "bounds": [35, 14, 61, 79]},
+        {"width": 96, "height": 96, "bounds": [33, 15, 61, 76]},
+        {"width": 96, "height": 96, "bounds": [35, 18, 66, 77]}
+      ],
+      "west": [
+        {"width": 100, "height": 100, "bounds": [33, 18, 61, 85]},
+        {"width": 100, "height": 100, "bounds": [20, 16, 63, 84]},
+        {"width": 100, "height": 100, "bounds": [26, 17, 66, 84]},
+        {"width": 100, "height": 100, "bounds": [28, 19, 65, 85]}
+      ]
+    }
+  },
+  "knife_scout": {
+    "footOffset": 32.0,
+    "frames": {
+      "south": [
+        {"width": 92, "height": 92, "bounds": [33, 17, 59, 78]},
+        {"width": 92, "height": 92, "bounds": [33, 18, 60, 78]},
+        {"width": 92, "height": 92, "bounds": [32, 18, 59, 78]},
+        {"width": 92, "height": 92, "bounds": [32, 18, 59, 78]}
+      ],
+      "east": [
+        {"width": 100, "height": 100, "bounds": [37, 21, 66, 85]},
+        {"width": 100, "height": 100, "bounds": [33, 22, 64, 85]},
+        {"width": 100, "height": 100, "bounds": [29, 19, 66, 85]},
+        {"width": 100, "height": 100, "bounds": [29, 21, 67, 85]}
+      ],
+      "north": [
+        {"width": 96, "height": 96, "bounds": [36, 15, 61, 80]},
+        {"width": 96, "height": 96, "bounds": [26, 16, 58, 81]},
+        {"width": 96, "height": 96, "bounds": [30, 16, 59, 81]},
+        {"width": 96, "height": 96, "bounds": [32, 17, 60, 82]}
+      ],
+      "west": [
+        {"width": 100, "height": 100, "bounds": [36, 19, 65, 85]},
+        {"width": 100, "height": 100, "bounds": [35, 21, 66, 85]},
+        {"width": 100, "height": 100, "bounds": [40, 19, 60, 85]},
+        {"width": 100, "height": 100, "bounds": [37, 20, 64, 84]}
+      ]
+    }
+  },
+  "coyote": {
+    "footOffset": 16.0,
+    "frames": {
+      "south": [
+        {"width": 100, "height": 100, "bounds": [40, 17, 60, 66]},
+        {"width": 100, "height": 100, "bounds": [40, 19, 60, 72]},
+        {"width": 100, "height": 100, "bounds": [40, 18, 60, 79]},
+        {"width": 100, "height": 100, "bounds": [40, 14, 60, 79]}
+      ],
+      "east": [
+        {"width": 116, "height": 116, "bounds": [16, 31, 82, 78]},
+        {"width": 116, "height": 116, "bounds": [16, 33, 82, 81]},
+        {"width": 116, "height": 116, "bounds": [12, 31, 83, 81]},
+        {"width": 116, "height": 116, "bounds": [14, 33, 83, 81]}
+      ],
+      "north": [
+        {"width": 96, "height": 96, "bounds": [38, 14, 58, 79]},
+        {"width": 96, "height": 96, "bounds": [38, 13, 58, 79]},
+        {"width": 96, "height": 96, "bounds": [38, 14, 58, 78]},
+        {"width": 96, "height": 96, "bounds": [38, 16, 58, 79]}
+      ],
+      "west": [
+        {"width": 120, "height": 120, "bounds": [36, 34, 103, 81]},
+        {"width": 120, "height": 120, "bounds": [36, 35, 103, 81]},
+        {"width": 120, "height": 120, "bounds": [36, 33, 103, 81]},
+        {"width": 120, "height": 120, "bounds": [36, 34, 103, 81]}
+      ]
+    }
+  },
+  "dynamiter": {
+    "footOffset": 33.0,
+    "frames": {
+      "south": [
+        {"width": 96, "height": 96, "bounds": [35, 17, 62, 81]},
+        {"width": 96, "height": 96, "bounds": [35, 17, 62, 81]},
+        {"width": 96, "height": 96, "bounds": [35, 16, 62, 81]},
+        {"width": 96, "height": 96, "bounds": [35, 15, 62, 81]}
+      ],
+      "east": [
+        {"width": 104, "height": 104, "bounds": [31, 22, 68, 88]},
+        {"width": 104, "height": 104, "bounds": [20, 23, 68, 88]},
+        {"width": 104, "height": 104, "bounds": [18, 19, 90, 88]},
+        {"width": 104, "height": 104, "bounds": [22, 22, 83, 88]}
+      ],
+      "north": [
+        {"width": 96, "height": 96, "bounds": [35, 14, 67, 81]},
+        {"width": 96, "height": 96, "bounds": [35, 13, 66, 80]},
+        {"width": 96, "height": 96, "bounds": [29, 13, 67, 77]},
+        {"width": 96, "height": 96, "bounds": [30, 15, 62, 83]}
+      ],
+      "west": [
+        {"width": 104, "height": 104, "bounds": [37, 20, 85, 88]},
+        {"width": 104, "height": 104, "bounds": [32, 15, 87, 88]},
+        {"width": 104, "height": 104, "bounds": [36, 13, 85, 87]},
+        {"width": 104, "height": 104, "bounds": [32, 22, 82, 87]}
+      ]
+    }
+  },
+  "longhorn": {
+    "footOffset": 26.0,
+    "frames": {
+      "south": [
+        {"width": 92, "height": 92, "bounds": [31, 19, 61, 72]},
+        {"width": 92, "height": 92, "bounds": [31, 20, 61, 69]},
+        {"width": 92, "height": 92, "bounds": [31, 20, 61, 72]},
+        {"width": 92, "height": 92, "bounds": [31, 21, 61, 72]}
+      ],
+      "east": [
+        {"width": 104, "height": 104, "bounds": [16, 26, 82, 76]},
+        {"width": 104, "height": 104, "bounds": [18, 25, 83, 76]},
+        {"width": 104, "height": 104, "bounds": [16, 25, 84, 76]},
+        {"width": 104, "height": 104, "bounds": [13, 28, 84, 76]}
+      ],
+      "north": [
+        {"width": 96, "height": 96, "bounds": [35, 14, 61, 79]},
+        {"width": 96, "height": 96, "bounds": [35, 14, 61, 76]},
+        {"width": 96, "height": 96, "bounds": [35, 17, 61, 79]},
+        {"width": 96, "height": 96, "bounds": [35, 17, 61, 79]}
+      ],
+      "west": [
+        {"width": 104, "height": 104, "bounds": [22, 23, 88, 75]},
+        {"width": 104, "height": 104, "bounds": [21, 25, 91, 75]},
+        {"width": 104, "height": 104, "bounds": [20, 28, 93, 74]},
+        {"width": 104, "height": 104, "bounds": [19, 29, 90, 75]}
+      ]
+    }
+  },
+  "rifle_guard": {
+    "footOffset": 32.0,
+    "frames": {
+      "south": [
+        {"width": 100, "height": 100, "bounds": [36, 16, 63, 82]},
+        {"width": 100, "height": 100, "bounds": [35, 20, 61, 82]},
+        {"width": 100, "height": 100, "bounds": [34, 22, 77, 82]},
+        {"width": 100, "height": 100, "bounds": [34, 23, 76, 82]}
+      ],
+      "east": [
+        {"width": 100, "height": 100, "bounds": [32, 14, 65, 85]},
+        {"width": 100, "height": 100, "bounds": [33, 14, 66, 85]},
+        {"width": 100, "height": 100, "bounds": [30, 16, 65, 85]},
+        {"width": 100, "height": 100, "bounds": [28, 16, 64, 85]}
+      ],
+      "north": [
+        {"width": 104, "height": 104, "bounds": [35, 21, 66, 85]},
+        {"width": 104, "height": 104, "bounds": [36, 20, 66, 85]},
+        {"width": 104, "height": 104, "bounds": [37, 23, 64, 85]},
+        {"width": 104, "height": 104, "bounds": [37, 24, 64, 85]}
+      ],
+      "west": [
+        {"width": 100, "height": 100, "bounds": [37, 18, 63, 85]},
+        {"width": 100, "height": 100, "bounds": [28, 18, 73, 85]},
+        {"width": 100, "height": 100, "bounds": [20, 18, 73, 85]},
+        {"width": 100, "height": 100, "bounds": [17, 19, 65, 85]}
+      ]
+    }
+  }
+}

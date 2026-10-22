@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { getStage, StageConfig } from '../data/stages';
 import { createStageScenery } from './StageScenery';
 import { StageLandmarks } from './StageLandmarks';
+import { worldDecorations, WorldDecoration } from '../data/worldDecorations';
 
 /**
  * Mundo grande e contínuo dividido em chunks.
@@ -28,7 +29,7 @@ interface Obstacle {
 }
 
 const KINDS: Record<Kind, { r: number; w: number; h: number }> = {
-  wagon: { r: 34, w: 100, h: 72 }, barrel: { r: 14, w: 36, h: 44 }, crate: { r: 17, w: 44, h: 42 },
+  wagon: { r: 34, w: 100, h: 88 }, barrel: { r: 14, w: 36, h: 44 }, crate: { r: 17, w: 44, h: 42 },
   ruin: { r: 29, w: 76, h: 70 }, table: { r: 25, w: 66, h: 52 }, pine: { r: 12, w: 50, h: 78 },
   tent: { r: 27, w: 76, h: 56 }, barricade: { r: 28, w: 82, h: 48 }, palm: { r: 12, w: 72, h: 84 },
   statue: { r: 20, w: 54, h: 80 }, lantern: { r: 6, w: 24, h: 64 },
@@ -51,6 +52,7 @@ function rng(seed: number) {
 
 export class WorldMap {
   private chunks = new Map<string, Obstacle[]>();
+  private decorationChunks = new Map<string, (WorldDecoration & { sprite?: Phaser.GameObjects.Image })[]>();
   private active = new Set<string>();
   readonly groundTexture: string;
   private landmarks: StageLandmarks;
@@ -126,6 +128,19 @@ export class WorldMap {
     return list;
   }
 
+  private getDecorationChunk(cx: number, cy: number) {
+    const key = this.key(cx, cy);
+    let decorations = this.decorationChunks.get(key);
+    if (!decorations) {
+      decorations = worldDecorations(this.stage.theme, cx, cy).filter(d =>
+        Math.hypot(d.x - this.safeX, d.y - this.safeY) >= this.safeRadius &&
+        !this.landmarks.reserved(d.x, d.y, 24) &&
+        this.getChunk(cx, cy).every(o => Math.hypot(d.x - o.x, d.y - o.y) > o.r + 30));
+      this.decorationChunks.set(key, decorations);
+    }
+    return decorations;
+  }
+
   /** Cria/destrói sprites conforme a distância do jogador. */
   update(px: number, py: number) {
     this.landmarks.update(px, py, this.scene.time.now);
@@ -150,6 +165,9 @@ export class WorldMap {
         for (const o of this.getChunk(cx, cy)) {
           if (o.kind === 'lantern' && !o.glow) o.glow = this.scene.add.image(o.x, o.y - 35, 'wm_glow').setBlendMode(Phaser.BlendModes.ADD).setAlpha(0.65).setDepth(6);
         }
+        for (const d of this.getDecorationChunk(cx, cy)) {
+          d.sprite = this.scene.add.image(d.x, d.y, `decor_${d.kind}`).setOrigin(0.5, 0.88).setDepth(1);
+        }
         this.active.add(k);
       }
     }
@@ -162,6 +180,10 @@ export class WorldMap {
         o.glow = undefined;
         o.sprite?.destroy();
         o.sprite = undefined;
+      }
+      for (const d of this.getDecorationChunk(cx, cy)) {
+        d.sprite?.destroy();
+        d.sprite = undefined;
       }
       this.active.delete(k);
     }

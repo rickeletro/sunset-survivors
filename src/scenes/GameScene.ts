@@ -4,6 +4,8 @@ import { BUILD_LIMITS, cooldownMultiplier, stageClearBonus, xpForLevel } from '.
 import { FirstRunTutorial, tutorialProgress } from '../systems/FirstRunTutorial';
 import { FirstRunTutorialView } from '../ui/hud/FirstRunTutorialView';
 import { sceneryForStage, sceneryKey, worldDepth } from '../data/scenery';
+import { WORLD_DECORATION_KEYS } from '../data/worldDecorations';
+import { SaloonVisit, saloonDoors } from '../data/saloon';
 import { HostileProjectiles } from '../systems/HostileProjectiles';
 import type { Projectile, Enemy, Drop, FireZone } from '../game/entities';
 import { CombatHUD } from '../ui/hud/CombatHUD';
@@ -39,7 +41,7 @@ import { GameDirector, SpawnOrder } from '../systems/GameDirector';
 import { GameEvents, GameEventNames, SpecialWaveEvent } from '../systems/GameEvents';
 import { SpatialHash } from '../systems/SpatialHash';
 import { SpritePool } from '../systems/SpritePool';
-import { ENEMY_DEFS, EnemyKind } from '../data/enemies';
+import { ENEMY_DEFS, ENEMY_VISUAL_SCALE, EnemyKind } from '../data/enemies';
 import { getStage, isBossDue, stagePhase, StageConfig } from '../data/stages';
 import { bossRageMultiplier, getBossCombat, remainingBossHp } from '../data/bossCombat';
 import { mergeLoot, takeLootPacket } from '../systems/LootBudget';
@@ -53,6 +55,11 @@ export class GameScene extends Phaser.Scene {
   private stageConfig!: StageConfig;
   private encounters!: StageEncounters;
   private stageStatus!: Phaser.GameObjects.Text;
+  private saloonVisit?: SaloonVisit;
+  private saloonPrompt?: Phaser.GameObjects.Text;
+  private saloonOpen = false;
+  private combatElapsedMs = 0;
+  private get combatNow(): number { return this.combatElapsedMs ?? this.time.now; }
   private objectiveStatus!: Phaser.GameObjects.Text;
   private bossMembers: Enemy[] = [];
   private bossDefeated = false;
@@ -141,6 +148,8 @@ export class GameScene extends Phaser.Scene {
   preload() {
     preloadImages(this, ['decor_title_parchment']);
     preloadImages(this, sceneryForStage(this.stageConfig.theme).map(sceneryKey));
+    if (this.stageConfig.props.includes('wagon')) preloadImages(this, ['wm_wagon']);
+    if (this.stageConfig.theme === 'canyon') preloadImages(this, WORLD_DECORATION_KEYS);
     preloadCombatSprites(this, this.stage);
     if (this.stage === 1 && !hasGreedwellSprites(this)) preloadGreedwell(this);
     if (!this.textures.exists('hud_avatar_steve')) {
@@ -171,6 +180,8 @@ export class GameScene extends Phaser.Scene {
     this.drops = [];
     this.fireZones = [];
     this.gameTimeSeconds = 0;
+    this.combatElapsedMs = 0;
+    this.saloonOpen = false;
     this.choosingUpgrade = false;
     this.runId = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
     this.kills = 0;
@@ -267,14 +278,9 @@ export class GameScene extends Phaser.Scene {
       this.cursors = this.input.keyboard.createCursorKeys();
       this.keysWASD = this.input.keyboard.addKeys('W,A,S,D') as { [key: string]: Phaser.Input.Keyboard.Key };
 
-      // Press 'L' to trigger Level Up Bounty cards test
-      this.input.keyboard.on('keydown-L', () => {
-        this.triggerLevelUp();
-      });
-
       // ESC key to Pause
       this.input.keyboard.on('keydown-ESC', () => {
-        if (this.isGameOver || this.scene.isPaused('GameScene')) return;
+        if (this.isGameOver || this.choosingUpgrade || this.saloonOpen || this.scene.isPaused('GameScene')) return;
         this.scene.pause('GameScene');
         this.scene.launch('PauseScene', {
           character: this.character,
@@ -290,6 +296,7 @@ export class GameScene extends Phaser.Scene {
     // Create Arcade HUD
     this.createHUD();
     this.createOnboarding();
+    this.createSaloonInteraction();
 
     // Game Timer Loop (Seconds)
     this.time.addEvent({
@@ -419,7 +426,7 @@ export class GameScene extends Phaser.Scene {
 
   // 1 Second Game Tick
   private onSecondTick() {
-    if (this.isGameOver || this.bossDefeated || this.onboarding?.blocking) return;
+    if (this.isGameOver || this.bossDefeated || this.saloonOpen || this.choosingUpgrade || this.onboarding?.blocking) return;
     this.gameTimeSeconds++;
 
     // Format timer MM:SS
@@ -509,7 +516,7 @@ export class GameScene extends Phaser.Scene {
 
   // Wave Spawner
   private spawnWave() {
-    if (this.isGameOver || this.bossDefeated || this.onboarding?.blocking) return;
+    if (this.isGameOver || this.bossDefeated || this.saloonOpen || this.choosingUpgrade || this.onboarding?.blocking) return;
     this.runSpawnOrders(this.director.waveOrders(this.gameTimeSeconds, this.enemies.length));
   }
 
@@ -547,7 +554,7 @@ export class GameScene extends Phaser.Scene {
     const hp = def.baseHp + this.gameTimeSeconds * def.hpPerSecond;
     const combatTexture = enemySpriteTexture(this, kind);
     const frameScale = combatTexture ? 64 / this.textures.get(combatTexture).getSourceImage().width : 1;
-    const sprite = this.enemyPool.acquire(x, y, combatTexture ?? def.texture, def.scale * frameScale);
+    const sprite = this.enemyPool.acquire(x, y, combatTexture ?? def.texture, def.scale * frameScale * ENEMY_VISUAL_SCALE);
     const safe = this.worldMap.resolve(x, y, def.radius);
     sprite.setPosition(safe.x, safe.y);
     if (def.tint) sprite.setTint(def.tint);
@@ -640,7 +647,7 @@ export class GameScene extends Phaser.Scene {
         for (const offset of [-100, 0, 100]) this.enemyThrowDynamite(x, y, offset, (e.attackCount % 2 ? 1 : -1) * 70);
         break;
       case 'whip':
-        e.vulnerableUntil = this.time.now + 1300;
+        e.vulnerableUntil = this.combatNow + 1300;
         this.encounters.warn({ x: x + Math.cos(angle) * 100, y: y + Math.sin(angle) * 100, radius: 145 }, 1000, 350, 30);
         this.showBanner('CHICOTE! ATAQUE QUANDO O ESCUDO BAIXAR', '#ffc52a');
         break;
@@ -668,10 +675,12 @@ export class GameScene extends Phaser.Scene {
   }
 
   update(_time: number, delta: number) {
-    if (this.isGameOver || this.bossDefeated) return;
+    if (this.isGameOver || this.bossDefeated || this.saloonOpen) return;
+    this.combatElapsedMs = (this.combatElapsedMs ?? 0) + delta;
     if (!this.onboarding?.blocking && !this.choosingUpgrade && this.currentXp >= this.xpToNextLevel) { this.addXp(0); return; }
     const oldX = this.player.x, oldY = this.player.y;
     this.handlePlayerMovement(delta);
+    this.updateSaloonPrompt();
     const previousPhase = this.onboarding?.phase;
     this.onboarding?.tick(delta, Math.hypot(this.player.x - oldX, this.player.y - oldY));
     if (previousPhase === 'move' && this.onboarding?.phase === 'shoot') this.spawnPracticeBandit();
@@ -700,6 +709,68 @@ export class GameScene extends Phaser.Scene {
     if (this.choosingUpgrade) return;
     this.updateFireZones(delta);
     this.encounters.update(delta);
+  }
+
+  private saloonBlocked(): boolean {
+    return this.isGameOver || this.bossSpawned || this.bossDefeated || this.choosingUpgrade || this.saloonOpen || !!this.onboarding?.visible;
+  }
+
+  private createSaloonInteraction(): void {
+    this.saloonVisit = new SaloonVisit(saloonDoors(this.stageConfig.theme));
+    if (!this.saloonVisit.doors.length) return;
+    for (const door of this.saloonVisit.doors) {
+      this.add.text(door.x, door.y - 25, 'SALOON', { fontFamily: THEME.typography.pixelFont,
+        fontSize: '10px', color: '#ffc52a', stroke: '#120b08', strokeThickness: 4 }).setOrigin(0.5).setDepth(18);
+    }
+    this.saloonPrompt = this.add.text(this.scale.width / 2, this.scale.height - 96,
+      '[E] ENTRAR NO SALOON\nOU TOQUE • BONUS OPCIONAL', { fontFamily: THEME.typography.pixelFont,
+        fontSize: '14px', color: '#f2d49a', backgroundColor: '#321b10', padding: { x: 18, y: 16 },
+        align: 'center', lineSpacing: 8 }).setOrigin(0.5).setScrollFactor(0).setDepth(91).setVisible(false).setInteractive({ useHandCursor: true });
+    this.saloonPrompt.on('pointerdown', (_p: unknown, _x: unknown, _y: unknown, event: Phaser.Types.Input.EventData) => {
+      event.stopPropagation(); this.openSaloon();
+    });
+    const enter = () => this.openSaloon();
+    const resize = () => this.saloonPrompt?.setPosition(this.scale.width / 2, this.scale.height - 96);
+    this.input.keyboard?.on('keydown-E', enter);
+    this.scale.on('resize', resize);
+    this.events.once('shutdown', () => { this.input.keyboard?.off('keydown-E', enter); this.scale.off('resize', resize); });
+  }
+
+  private updateSaloonPrompt(): void {
+    this.saloonPrompt?.setVisible(!!this.saloonVisit?.nearby(this.player.x, this.player.y, this.saloonBlocked()));
+  }
+
+  private openSaloon(): void {
+    const visit = this.saloonVisit;
+    if (!visit?.enter(this.player.x, this.player.y, this.saloonBlocked())) return;
+    this.saloonOpen = true;
+    // ScenePlugin.pause is queued until the next manager frame. Freeze clocks now
+    // so no timer/tween can land an attack in that transition frame.
+    const clockPaused = this.time.paused;
+    const tweensPaused = this.tweens.paused;
+    this.time.paused = true;
+    this.tweens.paused = true;
+    this.saloonPrompt?.setVisible(false);
+    sounds.playReload();
+    this.cameras.main.flash(80, 255, 197, 42, false);
+    this.scene.pause('GameScene');
+    this.scene.launch('SaloonScene', { onLeave: (accept: boolean) => {
+      if (this.saloonVisit !== visit || !this.saloonOpen || this.isGameOver) return;
+      const reward = visit.leave(accept);
+      if (reward) {
+        this.hp = Math.min(this.maxHp, this.hp + Math.round(this.maxHp * reward.healthFraction));
+        this.updateHpBar();
+        this.addBounty(reward.bounty);
+        sounds.playCoin();
+      }
+      // Resume in place with one ordinary hit-window of grace, no teleport/reset.
+      this.invulnUntil = Math.max(this.invulnUntil, this.combatNow + 600);
+      this.saloonOpen = false;
+      this.time.paused = clockPaused;
+      this.tweens.paused = tweensPaused;
+      this.scene.stop('SaloonScene');
+      this.scene.resume('GameScene');
+    } });
   }
 
   // 1. Player Movement & Facing Direction
@@ -732,7 +803,7 @@ export class GameScene extends Phaser.Scene {
       this.player.y += ny * step;
 
       if (this.usePixellab) {
-        // 6-direction Pixellab walk cycle (SW mirrors SE, NE/NW use north)
+        // Use real directional views when present, otherwise the nearest available view.
         const choice = pickDirection(this.character.id, nx, ny);
         this.facingDir = choice.dir;
         this.player.setFlipX(choice.flipX);
@@ -779,8 +850,11 @@ export class GameScene extends Phaser.Scene {
 
       const effectiveCooldown = (lvlInfo.cooldownMs / this.fireRateMultiplier);
       if (curTimer >= effectiveCooldown) {
-        this.fireWeapon(def, lvlInfo);
-        this.weaponTimers.set(weaponId, 0);
+        // Preserve fractional cooldown instead of losing a frame at every volley.
+        // Limit catch-up after extreme stalls, never bank a burst across a pause.
+        const shots = Math.min(4, Math.floor(curTimer / effectiveCooldown));
+        for (let i = 0; i < shots; i++) this.fireWeapon(def, lvlInfo);
+        this.weaponTimers.set(weaponId, curTimer % effectiveCooldown);
       } else {
         this.weaponTimers.set(weaponId, curTimer);
       }
@@ -951,11 +1025,12 @@ export class GameScene extends Phaser.Scene {
       tickTimer: 0, graphics: this.add.graphics().setDepth(4) });
   }
 
-  private explodeDynamite(x: number, y: number, damage: number, isKeg = false) {
+  private explodeDynamite(x: number, y: number, damage: number, isKeg = false, alreadyScaled = false) {
     sounds.playExplosion();
     this.cameras.main.shake(isKeg ? 450 : 250, isKeg ? 0.016 : 0.008);
 
     const radius = (isKeg ? 150 : 90) * this.areaMultiplier;
+    const scaledDamage = alreadyScaled ? damage : Math.round(damage * this.damageMultiplier);
 
     // Shockwave animation
     const circle = this.add.graphics().setDepth(20);
@@ -980,7 +1055,7 @@ export class GameScene extends Phaser.Scene {
         x,
         y,
         radius: radius * 0.9,
-        damage: Math.round(damage * 0.4 * this.damageMultiplier),
+        damage: Math.round(scaledDamage * 0.4),
         life: 5000,
         tickTimer: 0,
         graphics: gfx,
@@ -991,7 +1066,7 @@ export class GameScene extends Phaser.Scene {
     this.enemies.slice().forEach((enemy) => {
       const dist = Math.hypot(enemy.sprite.x - x, enemy.sprite.y - y);
       if (dist <= radius) {
-        this.damageEnemy(enemy, Math.round(damage * this.damageMultiplier));
+        this.damageEnemy(enemy, scaledDamage);
       }
     });
   }
@@ -1032,7 +1107,7 @@ export class GameScene extends Phaser.Scene {
 
           // Explosão residual do Desperado Fury
           if (p.isExplosiveBullet) {
-            this.explodeDynamite(enemy.sprite.x, enemy.sprite.y, Math.round(p.damage * 0.5));
+            this.explodeDynamite(enemy.sprite.x, enemy.sprite.y, Math.round(p.damage * 0.5), false, true);
           }
 
           p.pierce--;
@@ -1292,7 +1367,7 @@ export class GameScene extends Phaser.Scene {
   // Damage Handlers with Critical Hit Calculation
   private damageEnemy(enemy: Enemy, dmg: number) {
     if (enemy.dead) return;
-    if (enemy.type === 'boss' && this.stage === 5 && this.time.now > (enemy.vulnerableUntil ?? 0)) dmg *= 0.45;
+    if (enemy.type === 'boss' && this.stage === 5 && this.combatNow > (enemy.vulnerableUntil ?? 0)) dmg *= 0.45;
 
     // Critical Hit Roll
     const isCrit = Math.random() < this.critChance;
@@ -1353,9 +1428,13 @@ export class GameScene extends Phaser.Scene {
       texture = 'drop_badge';
     }
 
-    if (!mergeLoot(this.drops, { type: dropType, x: enemy.sprite.x, y: enemy.sprite.y, val: enemy.xpVal, bounty: enemy.bountyVal })) {
+    // The final boss immediately starts stage clear: its cash drop cannot be collected.
+    // Pay boss bounties once on death and leave XP pickup behavior unchanged.
+    const lootBounty = enemy.type === 'boss' ? 0 : enemy.bountyVal;
+    if (enemy.type === 'boss') this.addBounty(enemy.bountyVal);
+    if (!mergeLoot(this.drops, { type: dropType, x: enemy.sprite.x, y: enemy.sprite.y, val: enemy.xpVal, bounty: lootBounty })) {
       const dropSprite = this.add.sprite(enemy.sprite.x, enemy.sprite.y, texture).setScale(1.3).setDepth(4);
-      this.drops.push({ sprite: dropSprite, type: dropType, val: enemy.xpVal, bounty: enemy.bountyVal });
+      this.drops.push({ sprite: dropSprite, type: dropType, val: enemy.xpVal, bounty: lootBounty });
     }
 
     // Boss death animation plays on a detached corpse sprite
@@ -1393,10 +1472,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   private damagePlayer(amount: number) {
-    if (this.isGameOver || this.bossDefeated || amount <= 0 || this.onboarding?.blocking) return;
+    if (this.isGameOver || this.bossDefeated || this.saloonOpen || this.choosingUpgrade || amount <= 0 || this.onboarding?.blocking) return;
     // Temporary invulnerability after taking a hit
-    if (this.time.now < this.invulnUntil) return;
-    this.invulnUntil = this.time.now + 600;
+    if (this.combatNow < this.invulnUntil) return;
+    this.invulnUntil = this.combatNow + 600;
     this.tweens.add({
       targets: this.player,
       alpha: 0.35,
@@ -1453,12 +1532,14 @@ export class GameScene extends Phaser.Scene {
 
   // Level Up Modal
   private triggerLevelUp() {
-    if (this.choosingUpgrade || this.isGameOver) return;
+    if (this.choosingUpgrade || this.isGameOver || this.saloonOpen) return;
     this.choosingUpgrade = true;
     this.scene.pause();
 
     // Pick 3 random eligible choices
     const choices = this.generateUpgradeChoices();
+    const runId = this.runId;
+    let resolved = false;
     this.scene.launch('LevelUpScene', {
       choices,
       character: this.character,
@@ -1468,6 +1549,8 @@ export class GameScene extends Phaser.Scene {
       gold: this.bounty,
       kills: this.kills,
       onSelect: (choice: UpgradeChoice) => {
+        if (resolved || this.isGameOver || this.runId !== runId) return;
+        resolved = true;
         this.applyUpgrade(choice);
         this.choosingUpgrade = false;
         this.scene.resume();

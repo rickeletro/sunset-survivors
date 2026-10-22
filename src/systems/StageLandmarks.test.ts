@@ -72,6 +72,6 @@ describe('streamed PixelLab scenery', () => {
   it('uses finite, bounded scenery depths below effects and the HUD', () => {
     expect(worldDepth(-100)).toBe(10);
     expect(worldDepth(9000)).toBe(15);
-    expect(Object.keys(SCENERY)).toHaveLength(16);
+    expect(Object.keys(SCENERY)).toHaveLength(17);
   });
 });

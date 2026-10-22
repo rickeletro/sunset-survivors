@@ -1,6 +1,9 @@
 /** Definições tipadas dos inimigos comuns. O boss continua em data/bosses. */
 export type EnemyKind = 'bandit' | 'snake' | 'dynamiter' | 'heavy' | 'elite' | 'knife_bandit' | 'knife_scout' | 'coyote' | 'longhorn' | 'rifle_guard';
 
+/** Visual-only readability experiment; collision radii and boss scales stay unchanged. */
+export const ENEMY_VISUAL_SCALE = 1.4;
+
 export interface EnemyDef {
   kind: EnemyKind;
   texture: string;

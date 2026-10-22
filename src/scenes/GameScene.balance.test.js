@@ -16,12 +16,12 @@ function fixture() {
 }
 describe('campaign economy integration', () => {
   it('queues large XP rewards one modal at a time without losing surplus XP', () => {
-    const g = fixture(); g.addXp(100);
+    const g = fixture(); g.addXp(125);
     expect(g.level).toBe(2); expect(g.currentXp).toBe(75); expect(g.scene.launch).toHaveBeenCalledTimes(1);
-    g.addXp(50); expect(g.level).toBe(2);
+    g.addXp(200); expect(g.level).toBe(2);
     const selected = () => g.scene.launch.mock.calls.at(-1)[1].onSelect({ type: 'reward', id: 'gold_purse' });
-    selected(); g.addXp(0); expect(g.level).toBe(3); expect(g.currentXp).toBe(85);
-    selected(); g.addXp(0); expect(g.level).toBe(4); expect(g.currentXp).toBe(15);
+    selected(); g.addXp(0); expect(g.level).toBe(3); expect(g.currentXp).toBe(195);
+    selected(); g.addXp(0); expect(g.level).toBe(4); expect(g.currentXp).toBe(35);
     selected(); g.addXp(0); expect(g.level).toBe(4); expect(g.bounty).toBe(75);
   });
   it('applies the stated total health bonus rather than accumulating every rank bonus', () => {
@@ -76,4 +76,12 @@ describe('throwable upgrades', () => {
     tween.onComplete(); expect(land).toHaveBeenCalledOnce();
     g.isGameOver = true; tween.onComplete(); expect(land).toHaveBeenCalledOnce();
   });
+});
+
+it('ignores duplicate or stale level-up callbacks rather than granting free upgrades', () => {
+  const g = fixture(); g.addXp(xpForLevel(1));
+  const select = g.scene.launch.mock.calls.at(-1)[1].onSelect;
+  select({ type: 'weapon', id: 'revolver' }); select({ type: 'weapon', id: 'revolver' });
+  expect(g.activeWeapons.get('revolver')).toBe(2);
+  expect(g.scene.resume).toHaveBeenCalledTimes(1);
 });

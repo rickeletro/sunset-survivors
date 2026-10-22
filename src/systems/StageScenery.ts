@@ -30,11 +30,7 @@ export function createStageScenery(scene: Phaser.Scene, stage: StageConfig): str
     rect(OUT, 4, 2, 28, 40); rect(WOOD, 6, 4, 24, 36); rect(0xa36b31, 10, 4, 5, 35);
     rect(0x88817a, 4, 10, 28, 5); rect(0x88817a, 4, 29, 28, 5); rect(OUT, 7, 3, 22, 3);
   });
-  texture('wm_wagon', 100, 72, () => {
-    for (const x of [6, 72]) { rect(OUT, x, 45, 22, 25); rect(WOOD, x + 3, 48, 16, 19); rect(GOLD, x + 9, 48, 3, 19); }
-    rect(OUT, 4, 13, 91, 44); rect(WOOD, 7, 16, 85, 37); rect(0xf2d49a, 10, 3, 76, 23); rect(0xceb074, 10, 21, 76, 8);
-    for (let x = 14; x < 86; x += 18) rect(DARK, x, 33, 3, 17);
-  });
+  // wm_wagon is preloaded from the asset catalog; no geometric prototype fallback.
   texture('wm_ruin', 76, 70, () => {
     rect(OUT, 3, 11, 70, 54); rect(0x46261b, 6, 14, 64, 48);
     for (let x = 8; x < 70; x += 14) rect(DARK, x, 16, 4, 45);

@@ -5,8 +5,8 @@ import { WEAPON_EVOLUTIONS } from './evolutions';
 import { BOSS_COMBAT } from './bossCombat';
 
 describe('seven-minute progression budget', () => {
-  it('keeps the first two upgrades fast and increasingly spaces out later levels', () => {
-    expect([1, 2, 3, 4, 5, 10, 20].map(xpForLevel)).toEqual([25, 40, 70, 98, 132, 392, 1362]);
+  it('keeps the first two upgrades accessible and increasingly spaces out later levels', () => {
+    expect([1, 2, 3, 4, 5, 10, 20].map(xpForLevel)).toEqual([50, 80, 160, 221, 294, 839, 2829]);
     for (let rank = 3; rank <= 100; rank++) {
       expect(xpForLevel(rank)).toBeGreaterThan(xpForLevel(rank - 1));
       if (rank >= 4) expect(xpForLevel(rank + 1) - xpForLevel(rank)).toBeGreaterThan(xpForLevel(rank) - xpForLevel(rank - 1));
@@ -15,11 +15,11 @@ describe('seven-minute progression budget', () => {
   });
   it('requires the full growing cost for every upgrade while preserving leftover XP', () => {
     function levelAfter(xp: number) { let level = 1; while (xp >= xpForLevel(level)) xp -= xpForLevel(level++); return { level, xp }; }
-    expect(levelAfter(24)).toEqual({ level: 1, xp: 24 });
-    expect(levelAfter(25)).toEqual({ level: 2, xp: 0 });
-    expect(levelAfter(65)).toEqual({ level: 3, xp: 0 });
-    expect(levelAfter(134)).toEqual({ level: 3, xp: 69 });
-    expect(levelAfter(135)).toEqual({ level: 4, xp: 0 });
+    expect(levelAfter(49)).toEqual({ level: 1, xp: 49 });
+    expect(levelAfter(50)).toEqual({ level: 2, xp: 0 });
+    expect(levelAfter(130)).toEqual({ level: 3, xp: 0 });
+    expect(levelAfter(289)).toEqual({ level: 3, xp: 159 });
+    expect(levelAfter(290)).toEqual({ level: 4, xp: 0 });
     expect(levelAfter(1000).level).toBeLessThan(10);
     expect(levelAfter(5000).level).toBeLessThan(20);
   });

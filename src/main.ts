@@ -6,6 +6,7 @@ import { GameOverScene } from './scenes/GameOverScene';
 import { GameScene } from './scenes/GameScene';
 import { LevelUpScene } from './scenes/LevelUpScene';
 import { PauseScene } from './scenes/PauseScene';
+import { SaloonScene } from './scenes/SaloonScene';
 import { StageClearScene } from './scenes/StageClearScene';
 import { StageIntroScene } from './scenes/StageIntroScene';
 import { StatsScene } from './scenes/StatsScene';
@@ -23,6 +24,7 @@ const allScenes: (typeof Phaser.Scene)[] = [
   GameScene,
   LevelUpScene,
   PauseScene,
+  SaloonScene,
   StageClearScene,
   GameOverScene,
   GameCompleteScene,
