@@ -11,7 +11,7 @@ const { Node } = vi.hoisted(() => {
     once(event: string, fn: (...args: any[]) => void) { this.on(event, fn); this.listeners.get(event)!.at(-1)!.once = true; return this; }
     off(event: string, fn: (...args: any[]) => void) { this.listeners.set(event, (this.listeners.get(event) ?? []).filter(item => item.fn !== fn)); return this; }
     emit(event: string, ...args: any[]) { for (const item of [...this.listeners.get(event) ?? []]) { if (item.once) this.off(event, item.fn); item.fn.apply(item.context, args); } return this; }
-    add(node: any) { this.list.push(node); node.parentContainer = this; return this; }
+    add(node: any) { for (const item of Array.isArray(node) ? node : [node]) { this.list.push(item); item.parentContainer = this; } return this; }
     removeAll(destroy = false) { if (destroy) this.list.forEach(node => node.destroy()); this.list = []; return this; }
     destroy() { this.active = false; this.removeAll(true); this.listeners.clear(); }
     setPosition(x: number, y: number) { this.x = x; this.y = y; return this; }
@@ -20,6 +20,11 @@ const { Node } = vi.hoisted(() => {
     setText(text: string) { this.text = text; return this; }
     setScrollFactor() { return this; } setFontFamily() { return this; }
     setFontSize(size: number) { this.fontSize = size; return this; }
+    setX(x: number) { this.x = x; return this; }
+    setDisplaySize(width: number, height: number) { this.width = width; this.height = height; return this; }
+    setTexture(key: string) { (this as any).key = key; return this; }
+    play(key: string) { (this as any).animation = key; return this; }
+    bringToTop(node: Node) { this.list = this.list.filter(n => n !== node); this.list.push(node); return this; }
     setY(y: number) { this.y = y; return this; }
     setVisible(visible: boolean) { this.visible = visible; return this; }
     setOrigin() { return this; } setAlpha() { return this; } setBlendMode() { return this; }
@@ -28,10 +33,20 @@ const { Node } = vi.hoisted(() => {
   }
   return { Node };
 });
-vi.mock('phaser', () => ({ default: { Scene: class {}, GameObjects: { Container: Node } } }));
-vi.mock('../audio/SoundManager', () => ({ sounds: { playRevolver: vi.fn(), playIntroMusic: vi.fn(), stopBGM: vi.fn(), playHit: vi.fn(), playGunReload: vi.fn(), playGameplayMusic: vi.fn(), playLevelUp: vi.fn() } }));
-vi.mock('../data/GameStatsManager', () => ({ statsManager: { recordRun: vi.fn(), calculateRank: () => 'A', getStats: () => ({ totalScore: 100, totalKills: 20, playTimeSeconds: 120, stagesCleared: 1, unlockedBosses: [1] }) } }));
+vi.mock('phaser', () => ({ default: { Scene: class {}, BlendModes: { ADD: 1 }, GameObjects: { Container: Node } } }));
+vi.mock('../audio/SoundManager', () => ({ sounds: { playRevolver: vi.fn(), playIntroMusic: vi.fn(), stopBGM: vi.fn(), playHit: vi.fn(), playGunReload: vi.fn(), playGameplayMusic: vi.fn(), playLevelUp: vi.fn(), playHeroVoice: vi.fn(), playRicochet: vi.fn() } }));
+vi.mock('../data/GameStatsManager', () => ({ statsManager: { recordRun: vi.fn(), calculateRank: () => 'A', getStats: () => ({ totalScore: 100, totalKills: 20, goldCollected: 500, deaths: 2, bestStreak: 3, playTimeSeconds: 120, stagesCleared: 1, unlockedBosses: [1] }) } }));
+import { sounds } from '../audio/SoundManager';
+import { difficultySettings } from '../data/difficulty';
+import { CharacterSelectScene } from './CharacterSelectScene';
+import { CombatHUD } from '../ui/hud/CombatHUD';
+import { CHARACTERS } from '../data/characters';
+import { StoryScene } from './StoryScene';
+import { LevelUpScene } from './LevelUpScene';
+import { StatsScene } from './StatsScene';
+import { DifficultyScene } from './DifficultyScene';
 import { PauseScene } from './PauseScene';
+import { SaloonScene } from './SaloonScene';
 import { GameOverScene } from './GameOverScene';
 import { GameCompleteScene } from './GameCompleteScene';
 import { StageClearScene } from './StageClearScene';
@@ -48,26 +63,28 @@ function setup(Scene: any, data: any = {}) {
   const graphics = () => new Proxy(node(), { get: (target, key: string, receiver) => key in target ? (target as any)[key] : () => receiver });
   Object.assign(scene, {
     add: {
-      container: node, graphics,
+      container: node, graphics, zone: (x: number, y: number, width: number, height: number) => Object.assign(node(x, y), { width, height }),
       existing: (n: any) => objects.push(n),
-      image: (x: number, y: number) => Object.assign(node(x, y), { width: 1536, height: 1024 }),
+      image: (x: number, y: number, key: string) => Object.assign(node(x, y), { key, width: 1536, height: 1024 }),
       sprite: (x: number, y: number) => Object.assign(node(x, y), { width: 128, height: 144 }),
-      nineslice: (x: number, y: number, _key: string, _frame: any, width: number, height: number) => Object.assign(node(x, y), { width, height }),
-      text: (x: number, y: number, text: string, style: any) => Object.assign(node(x, y), { text, width: Math.max(...text.split('\n').map((s: string) => s.length)) * parseFloat(style.fontSize) * 0.55, height: parseFloat(style.fontSize) }),
+      nineslice: (x: number, y: number, key: string, _frame: any, width: number, height: number) => Object.assign(node(x, y), { key, width, height }),
+      text: (x: number, y: number, text: string, style: any) => Object.assign(node(x, y), { text, style, width: Math.max(...text.split('\n').map((s: string) => s.length)) * parseFloat(style.fontSize) * 0.55, height: parseFloat(style.fontSize) }),
     },
-    cameras: { main: { setBackgroundColor: vi.fn(), flash: vi.fn() } },
+    cameras: { main: { setBackgroundColor: vi.fn(), flash: vi.fn(), fade: vi.fn(), fadeIn: vi.fn(), setRoundPixels: vi.fn() } },
     textures: { exists: () => false }, load: { image: vi.fn(), spritesheet: vi.fn() },
     scale: Object.assign(new Node(), { width: 1536, height: 1024 }), events: new Node(), input: { keyboard: new Node() },
-    tweens: { add: (config: any) => config.onComplete?.() },
+    time: { addEvent: () => ({ remove: vi.fn() }), delayedCall: (_delay: number, callback: () => void) => callback() },
+    anims: { exists: () => false },
+    tweens: { killTweensOf: vi.fn(), add: (config: any) => config.onComplete?.() },
     scene: { start: vi.fn(), stop: vi.fn(), resume: vi.fn(), pause: vi.fn(), launch: vi.fn() },
   });
   scene.init?.(data);
   return { scene, objects, buttons: () => objects.filter(o => o instanceof WesternButton && o.active), labels: () => objects.filter(o => o.active && o.text).map(o => o.text) };
 }
 
-beforeEach(() => vi.clearAllMocks());
+beforeEach(() => { vi.clearAllMocks(); difficultySettings.set('normal'); });
 describe('composed Western Pulp menus without browser gameplay or screenshots', () => {
-  it.each([PauseScene, GameOverScene, StageClearScene, GameCompleteScene, ControlsScene, UnlockablesScene].map(Scene => ({ Scene, name: Scene.name })))('$name preloads its own assets and keeps action buttons within the reference canvas', ({ Scene }) => {
+  it.each([PauseScene, DifficultyScene, SaloonScene, GameOverScene, StageClearScene, GameCompleteScene, ControlsScene, UnlockablesScene, StatsScene, StoryScene].map(Scene => ({ Scene, name: Scene.name })))('$name preloads its own assets and keeps action buttons within the reference canvas', ({ Scene }) => {
     const h = setup(Scene); h.scene.preload(); h.scene.create();
     expect(h.scene.load.image.mock.calls.some((call: string[]) => call[0] === 'saloon_bkg')).toBe(true);
     expect(h.buttons().length).toBeGreaterThan(0);
@@ -152,5 +169,130 @@ describe('live in-world tutorial presentation', () => {
     expect(view.root.active).toBe(false);
     expect(h.scene.input.keyboard.listeners.get('keydown-T')).toHaveLength(0);
     expect(h.scene.scale.listeners.get('resize')).toHaveLength(0);
+  });
+});
+
+describe('optional saloon interior controls', () => {
+  it('accepts once with keyboard, supports declining with Escape, and never changes music', () => {
+    const leave = vi.fn();
+    const h = setup(SaloonScene, { onLeave: leave }); h.scene.create();
+    h.scene.input.keyboard.emit('keydown-ENTER');
+    h.scene.input.keyboard.emit('keydown-ENTER'); h.scene.input.keyboard.emit('keydown-ESC');
+    expect(leave).toHaveBeenCalledExactlyOnceWith(true);
+    expect(sounds.playIntroMusic).not.toHaveBeenCalled();
+    expect(sounds.playGameplayMusic).not.toHaveBeenCalled();
+    expect(sounds.stopBGM).not.toHaveBeenCalled();
+    const exit = vi.fn(); h.scene.init({ onLeave: exit });
+    h.scene.input.keyboard.emit('keydown-ESC'); expect(exit).toHaveBeenCalledExactlyOnceWith(false);
+    h.scene.events.emit('shutdown');
+    for (const handlers of h.scene.input.keyboard.listeners.values()) expect(handlers).toHaveLength(0);
+  });
+});
+
+describe('difficulty choice and campaign continuity', () => {
+  it('starts focus on Normal, persists the chosen mode and keeps Escape non-destructive', () => {
+    const h = setup(DifficultyScene); h.scene.create();
+    h.scene.input.keyboard.emit('keydown-RIGHT'); h.scene.input.keyboard.emit('keydown-ENTER');
+    expect(difficultySettings.get()).toBe('hardcore'); expect(h.scene.scene.start).toHaveBeenCalledWith('TitleScene');
+    const e = setup(DifficultyScene); e.scene.create(); e.scene.input.keyboard.emit('keydown-ESC');
+    expect(difficultySettings.get()).toBe('hardcore');
+  });
+  it('keeps the active run mode through next stage, pause restart and death retry despite changed menu preference', () => {
+    const clear = setup(StageClearScene, { stage: 1, difficulty: 'hardcore', level: 36 }); clear.scene.create();
+    difficultySettings.set('easy'); clear.scene.input.keyboard.emit('keydown-ENTER');
+    const next = clear.scene.scene.start.mock.calls.at(-1);
+    expect(next[0]).toBe('WantedScene'); expect(next[1]).toMatchObject({ stage: 2, difficulty: 'hardcore' });
+    expect(Object.keys(next[1]).sort()).toEqual(['character', 'difficulty', 'stage']);
+    const pause = setup(PauseScene, { stage: 2, difficulty: 'hardcore' }); pause.scene.restartStage();
+    expect(pause.scene.scene.start).toHaveBeenCalledWith('WantedScene', expect.objectContaining({ difficulty: 'hardcore', stage: 2 }));
+    const dead = setup(GameOverScene, { stage: 2, difficulty: 'hardcore' }); dead.scene.retry();
+    expect(dead.scene.scene.start).toHaveBeenCalledWith('WantedScene', expect.objectContaining({ difficulty: 'hardcore', stage: 2 }));
+  });
+});
+
+
+describe('character selection readability and consistent HUD portraits', () => {
+  it('uses selection-only firing poses without Billy or Bob back-facing frames', () => {
+    const h = setup(CharacterSelectScene), animations = new Map();
+    h.scene.textures.exists = () => true;
+    h.scene.anims = { exists: (key: string) => animations.has(key), create: (config: any) => animations.set(config.key, config) };
+    h.scene.create();
+    for (const [i, hero] of Object.keys(CHARACTERS).entries()) {
+      h.scene.selectIndex(i, false);
+      expect(h.scene.heroPreviewSprite.animation).toBe(`select_preview_${hero}`);
+      const frames = animations.get(`select_preview_${hero}`).frames.map((frame: any) => frame.frame);
+      const backFrames = hero === 'billy' ? [1, 4, 6, 8] : hero === 'bob' ? [0, 1] : [];
+      expect(frames.some((frame: number) => backFrames.includes(frame))).toBe(false);
+      expect(frames.length).toBeGreaterThan(1);
+    }
+  });
+  it('keeps details as live text on clean parchment for all four heroes and releases keyboard bindings', () => {
+    const h = setup(CharacterSelectScene); h.scene.create();
+    for (const [i, character] of Object.values(CHARACTERS).entries()) {
+      h.scene.selectIndex(i, false);
+      expect(h.scene.infoNameTitle.text).toBe(character.name);
+      expect(h.scene.infoSubtitle.text).toBe(`— ${character.title}`);
+      expect(h.scene.infoWeaponVal.text).toBe(character.subtitle);
+      expect(h.scene.infoTraitVal.text).toBe(character.specialBonus);
+      expect(h.scene.infoQuote.text).toBe(character.quote);
+      expect(h.scene.infoTraitVal.style.wordWrap.width).toBeLessThanOrEqual(550);
+      for (const text of [h.scene.infoWeaponVal, h.scene.infoTraitVal, h.scene.infoQuote]) {
+        expect(parseFloat(text.style.fontSize)).toBeGreaterThanOrEqual(21);
+        expect(text.style.strokeThickness ?? 0).toBe(0);
+      }
+      expect(h.scene.infoSubtitle.x).toBeGreaterThan(h.scene.infoNameTitle.x + h.scene.infoNameTitle.width);
+      expect(h.scene.infoTraitVal.x + 550).toBeLessThan(h.scene.heroPreviewSprite.x - 100);
+    }
+    expect(h.objects.some(o => o.key === 'bottom_panel_clean')).toBe(false);
+    h.scene.events.emit('shutdown');
+    for (const handlers of h.scene.input.keyboard.listeners.values()) expect(handlers).toHaveLength(0);
+  });
+  it.each(Object.keys(CHARACTERS))('%s uses the same undistorted portrait size and location', characterId => {
+    const h = setup(PauseScene); h.scene.textures.exists = () => true;
+    const hud = new CombatHUD(h.scene, { characterId, hp: 100, maxHp: 150, currentXp: 20, xpToNextLevel: 50, level: 3, bounty: 100, kills: 50 }, 'Simon');
+    const avatar = h.objects.find(o => o.key === `hud_avatar_${characterId}`)!;
+    expect([avatar.parentContainer.x, avatar.parentContainer.y, avatar.width, avatar.height]).toEqual([68, 70, 84, 84]);
+    hud.setHealth(47, 150);
+    expect(h.labels()).toContain('47 / 150');
+    expect(parseFloat((hud.stageStatus as any).style.fontSize)).toBeGreaterThanOrEqual(12);
+  });
+});
+
+
+describe('production UI composition regressions', () => {
+  it('does not recreate stacked interactive tabs in career statistics', () => {
+    const h = setup(StatsScene); h.scene.create();
+    for (let i = 0; i < 30; i++) { h.scene.currentTab = i % 2 ? 'weapons' : 'overview'; h.scene.createTabs(); h.scene.renderCurrentTab(); }
+    expect(h.buttons()).toHaveLength(5);
+    h.scene.events.emit('shutdown');
+    for (const handlers of h.scene.input.keyboard.listeners.values()) expect(handlers).toHaveLength(0);
+    h.scene.init({ fromScene: 'StageClearScene', prevData: { stage: 3 } });
+    h.scene.init(); expect(h.scene.fromScene).toBe('TitleScene'); expect(h.scene.prevData).toBeUndefined();
+  });
+  it('builds selection from a clean landscape and separate material panels', () => {
+    const h = setup(CharacterSelectScene); h.scene.create();
+    expect(h.objects.some(o => o.key === 'intro_bkg')).toBe(true);
+    expect(h.objects.filter(o => o.key === 'ui_pulp_paper').length).toBe(2);
+    expect(h.objects.some(o => o.key === 'select_saloon_backdrop' || o.key === 'bottom_panel_clean')).toBe(false);
+    expect(h.labels()).toContain('SELECT YOUR PLAYER');
+  });
+});
+
+
+describe('story and upgrade UI lifecycle', () => {
+  it('completes text before advancing, prevents duplicate skips and releases story controls', () => {
+    const h = setup(StoryScene); h.scene.create();
+    h.scene.input.keyboard.emit('keydown-ENTER');
+    expect(h.scene.bodyText.text).toBe(h.scene.fullText); expect(h.scene.currentSlide).toBe(0);
+    h.scene.input.keyboard.emit('keydown-ENTER'); expect(h.scene.currentSlide).toBe(1);
+    h.scene.input.keyboard.emit('keydown-ESC'); h.scene.input.keyboard.emit('keydown-ESC');
+    expect(h.scene.scene.start).toHaveBeenCalledExactlyOnceWith('CharacterSelectScene');
+    h.scene.events.emit('shutdown');
+    expect(h.scene.input.keyboard.listeners.get('keydown-ENTER')).toHaveLength(0);
+  });
+  it('does not accumulate upgrade keyboard handlers after reopening the modal', () => {
+    const h = setup(LevelUpScene, { choices: [], onSelect: vi.fn() });
+    for (let i = 0; i < 20; i++) { h.scene.setupControls(); expect(h.scene.input.keyboard.listeners.get('keydown')).toHaveLength(1); h.scene.events.emit('shutdown'); }
+    expect(h.scene.input.keyboard.listeners.get('keydown')).toHaveLength(0);
   });
 });

@@ -1,3 +1,4 @@
+import { heroPortrait } from '../components/HeroPortrait';
 import type Phaser from 'phaser';
 import { THEME } from '../theme/tokens';
 
@@ -31,23 +32,7 @@ export class CombatHUD {
     this.xpBarFill = this.scene.add.graphics().setDepth(51).setScrollFactor(0);
     this.updateXpBar();
 
-    // 2. LEFT: Hero Avatar Box com Moldura de Ouro e Rebites
-    const charId = this.state.characterId;
-    const avatarKey = this.scene.textures.exists(`hud_avatar_${charId}`) ? `hud_avatar_${charId}` : 'hud_avatar_steve';
-
-    if (this.scene.textures.exists(avatarKey)) {
-      this.scene.add.image(68, 70, avatarKey)
-        .setDisplaySize(92, 98)
-        .setDepth(52)
-        .setScrollFactor(0);
-    } else {
-      // Fallback procedural
-      const portBg = this.scene.add.graphics().setDepth(52).setScrollFactor(0);
-      portBg.fillStyle(0x23140a, 1);
-      portBg.fillRoundedRect(22, 21, 90, 90, 6);
-      portBg.lineStyle(3, 0xffc52a, 1);
-      portBg.strokeRoundedRect(22, 21, 90, 90, 6);
-    }
+    heroPortrait(this.scene, 68, 70, this.state.characterId).setDepth(52).setScrollFactor(0);
 
     // "LV. 1" em amarelo arcade acima da barra
     this.levelText = this.scene.add.text(126, 28, `LV. ${this.state.level}`, {
@@ -122,10 +107,10 @@ export class CombatHUD {
     }).setOrigin(0.5);
     this.bossBarContainer.add(bossLabel);
     this.stageStatus = this.scene.add.text(width / 2, 120, '', {
-      fontFamily: THEME.typography.pixelFont, fontSize: '10px', color: '#ffc52a', stroke: '#120b08', strokeThickness: 4,
+      fontFamily: THEME.typography.pixelFont, fontSize: '12px', color: '#ffc52a', stroke: '#120b08', strokeThickness: 4,
     }).setOrigin(0.5).setScrollFactor(0).setDepth(55);
     this.objectiveStatus = this.scene.add.text(width / 2, 140, '', {
-      fontFamily: THEME.typography.pixelFont, fontSize: '9px', color: '#f2d49a', stroke: '#120b08', strokeThickness: 3,
+      fontFamily: THEME.typography.pixelFont, fontSize: '11px', color: '#f2d49a', stroke: '#120b08', strokeThickness: 3,
     }).setOrigin(0.5).setScrollFactor(0).setDepth(55);
 
     // 4. RIGHT: Placa de Dinheiro (Moeda) e Caveira (Kills)
@@ -177,9 +162,9 @@ export class CombatHUD {
     const { width } = this.scene.scale;
     const pct = Math.min(this.state.currentXp / Math.max(1, this.state.xpToNextLevel), 1);
     this.xpBarFill.clear();
-    this.xpBarFill.fillStyle(0x00f0ff, 1);
+    this.xpBarFill.fillStyle(0xffc52a, 1);
     this.xpBarFill.fillRect(1, 1, (width - 2) * pct, 12);
-    this.xpBarFill.fillStyle(0xafffff, 0.6);
+    this.xpBarFill.fillStyle(0xf2d49a, 0.8);
     this.xpBarFill.fillRect(1, 1, (width - 2) * pct, 3);
   }
 

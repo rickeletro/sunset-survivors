@@ -15,6 +15,7 @@ export class SpritePool {
     const s = this.group.get(x, y, texture) as Phaser.GameObjects.Sprite;
     s.setActive(true).setVisible(true);
     s.anims?.stop();
+    s.setOrigin(0.5); // A recycled custom pivot must not leak into a fallback texture.
     s.setTexture(texture);
     s.setPosition(x, y);
     s.setScale(scale).setAlpha(1).setRotation(0).setFlipX(false).clearTint().setDepth(this.depth);

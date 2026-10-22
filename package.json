@@ -10,7 +10,12 @@
     "test": "vitest run",
     "assets:check": "node scripts/audit-assets.mjs --check",
     "assets:audit": "node scripts/audit-assets.mjs --list",
-    "check": "tsc --noEmit && npm test && npm run assets:check"
+    "check": "tsc --noEmit && npm test && npm run assets:check",
+    "music:import": "node scripts/import-stage-music.mjs",
+    "music:prompts": "node scripts/import-stage-music.mjs --prompts",
+    "balance:audit": "node scripts/audit-balance.mjs",
+    "sustain:audit": "node scripts/audit-sustain.mjs",
+    "balance:telemetry": "node scripts/audit-telemetry.mjs"
   },
   "dependencies": {
     "phaser": "^3.88.2"

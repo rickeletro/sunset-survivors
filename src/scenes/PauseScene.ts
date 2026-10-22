@@ -1,3 +1,4 @@
+import { normalizeDifficulty, difficultySettings, difficultyProfile, type DifficultyId } from '../data/difficulty';
 import { preloadImages } from '../assets/registry';
 import { preloadPulp, pulpBackdrop, pulpHeading, pulpText, pulpButton, bindPulpMenu, bindPulpKeys } from '../ui/layout/pulpSceneKit';
 import { createMenuRoot } from '../ui/layout/menuLayout';
@@ -8,11 +9,15 @@ import { CharacterData, CHARACTERS } from '../data/characters';
 export interface PauseSceneData {
   character: CharacterData;
   stage: number;
+  difficulty?: DifficultyId;
+  audit?: { seconds: number; kills: number; level: number; rawXp: number; earnedXp: number; badge: number; damageTaken: number; bossSeconds?: number };
 }
 
 export class PauseScene extends Phaser.Scene {
+  private audit?: PauseSceneData['audit'];
   private character!: CharacterData;
   private stage: number = 1;
+  private difficulty: DifficultyId = 'normal';
   private rootContainer!: Phaser.GameObjects.Container;
 
   constructor() {
@@ -22,6 +27,8 @@ export class PauseScene extends Phaser.Scene {
   init(data?: Partial<PauseSceneData>) {
     this.character = data?.character || CHARACTERS.billy;
     this.stage = data?.stage || 1;
+    this.difficulty = normalizeDifficulty(data?.difficulty ?? difficultySettings.get());
+    this.audit = data?.audit;
   }
 
   preload() { preloadPulp(this); preloadImages(this, ['menu_desk']); }
@@ -33,7 +40,7 @@ export class PauseScene extends Phaser.Scene {
     art.setScale(Math.min(740 / art.width, 680 / art.height));
     this.rootContainer.add(art);
     pulpHeading(this, this.rootContainer, 'PAUSED', -365, 1180, 86, true);
-    pulpText(this, this.rootContainer, 0, -265, `STAGE ${this.stage}  /  ${this.character.name}`, 23);
+    pulpText(this, this.rootContainer, 0, -265, `STAGE ${this.stage}  /  ${this.character.name}  /  ${difficultyProfile(this.difficulty).label}`, 23);
     const buttons = [
       pulpButton(this, this.rootContainer, 330, -135, 'CONTINUE', () => this.resumeGame(), 580, true),
       pulpButton(this, this.rootContainer, 330, -25, 'HOW TO PLAY', () => this.openControls(), 580),
@@ -41,6 +48,8 @@ export class PauseScene extends Phaser.Scene {
       pulpButton(this, this.rootContainer, 330, 195, 'RETURN TO TITLE', () => this.returnToTitle(), 580),
     ];
     bindPulpMenu(this, buttons);
+    if (this.audit) pulpText(this, this.rootContainer, 0, 320,
+      `ABATES ${this.audit.kills} • XP BASE ${this.audit.rawXp} • XP GANHO ${this.audit.earnedXp}\nBADGE ${this.audit.badge}/5 • DANO SOFRIDO ${Math.round(this.audit.damageTaken)} • CHEFE ${this.audit.bossSeconds ?? 0}s}`, 19);
     pulpText(this, this.rootContainer, 180, 405, '[↑ ↓] SELECT     [ENTER] CONFIRM     [ESC] RESUME', 22);
     bindPulpKeys(this, { ESC: () => this.resumeGame() });
   }
@@ -65,6 +74,7 @@ export class PauseScene extends Phaser.Scene {
     this.scene.start('WantedScene', {
       character: this.character,
       stage: this.stage,
+      difficulty: this.difficulty,
     });
   }
 

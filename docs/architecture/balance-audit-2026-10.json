@@ -1,0 +1,443 @@
+{
+  "assumptions": {
+    "durationSeconds": 420,
+    "spawnIntervalMs": 850,
+    "pickupDelaySeconds": 4,
+    "objectives": "two completed after 8 seconds; optimistic",
+    "combat": "not simulated; identical hypothetical kill streams isolate XP curve"
+  },
+  "stages": [
+    {
+      "stage": 1,
+      "profile": "cautious",
+      "kills": 399,
+      "pickups": 259,
+      "xp": 4050,
+      "bountyBeforeStageClearAndBoss": 1274,
+      "levelBefore": 14,
+      "levelAfter": 11,
+      "firstUpgradeSeconds": [
+        16.1,
+        22.9
+      ],
+      "thirdUpgradeSeconds": [
+        51.6,
+        91.5
+      ]
+    },
+    {
+      "stage": 1,
+      "profile": "steady",
+      "kills": 777,
+      "pickups": 621,
+      "xp": 8184,
+      "bountyBeforeStageClearAndBoss": 1775,
+      "levelBefore": 19,
+      "levelAfter": 14,
+      "firstUpgradeSeconds": [
+        9.6,
+        13.7
+      ],
+      "thirdUpgradeSeconds": [
+        27.6,
+        49
+      ]
+    },
+    {
+      "stage": 1,
+      "profile": "fast",
+      "kills": 1260,
+      "pickups": 1196,
+      "xp": 14756,
+      "bountyBeforeStageClearAndBoss": 2583,
+      "levelBefore": 23,
+      "levelAfter": 18,
+      "firstUpgradeSeconds": [
+        8,
+        9.9
+      ],
+      "thirdUpgradeSeconds": [
+        18.1,
+        31.5
+      ]
+    },
+    {
+      "stage": 2,
+      "profile": "cautious",
+      "kills": 399,
+      "pickups": 259,
+      "xp": 4974,
+      "bountyBeforeStageClearAndBoss": 1558,
+      "levelBefore": 16,
+      "levelAfter": 12,
+      "firstUpgradeSeconds": [
+        16.1,
+        22.9
+      ],
+      "thirdUpgradeSeconds": [
+        51.6,
+        91.5
+      ]
+    },
+    {
+      "stage": 2,
+      "profile": "steady",
+      "kills": 777,
+      "pickups": 621,
+      "xp": 12048,
+      "bountyBeforeStageClearAndBoss": 2572,
+      "levelBefore": 22,
+      "levelAfter": 16,
+      "firstUpgradeSeconds": [
+        9.6,
+        13.7
+      ],
+      "thirdUpgradeSeconds": [
+        27.6,
+        49
+      ]
+    },
+    {
+      "stage": 2,
+      "profile": "fast",
+      "kills": 1260,
+      "pickups": 1196,
+      "xp": 22704,
+      "bountyBeforeStageClearAndBoss": 4059,
+      "levelBefore": 27,
+      "levelAfter": 21,
+      "firstUpgradeSeconds": [
+        8,
+        9.9
+      ],
+      "thirdUpgradeSeconds": [
+        18.1,
+        31.5
+      ]
+    },
+    {
+      "stage": 3,
+      "profile": "cautious",
+      "kills": 399,
+      "pickups": 259,
+      "xp": 4628,
+      "bountyBeforeStageClearAndBoss": 1684,
+      "levelBefore": 15,
+      "levelAfter": 11,
+      "firstUpgradeSeconds": [
+        16.1,
+        22.9
+      ],
+      "thirdUpgradeSeconds": [
+        51.6,
+        91.5
+      ]
+    },
+    {
+      "stage": 3,
+      "profile": "steady",
+      "kills": 777,
+      "pickups": 621,
+      "xp": 11050,
+      "bountyBeforeStageClearAndBoss": 2637,
+      "levelBefore": 21,
+      "levelAfter": 16,
+      "firstUpgradeSeconds": [
+        9.6,
+        13.7
+      ],
+      "thirdUpgradeSeconds": [
+        27.6,
+        49
+      ]
+    },
+    {
+      "stage": 3,
+      "profile": "fast",
+      "kills": 1260,
+      "pickups": 1196,
+      "xp": 20300,
+      "bountyBeforeStageClearAndBoss": 3934,
+      "levelBefore": 26,
+      "levelAfter": 20,
+      "firstUpgradeSeconds": [
+        8,
+        9.9
+      ],
+      "thirdUpgradeSeconds": [
+        18.1,
+        31.5
+      ]
+    },
+    {
+      "stage": 4,
+      "profile": "cautious",
+      "kills": 399,
+      "pickups": 259,
+      "xp": 4726,
+      "bountyBeforeStageClearAndBoss": 1851,
+      "levelBefore": 15,
+      "levelAfter": 11,
+      "firstUpgradeSeconds": [
+        16.1,
+        22.9
+      ],
+      "thirdUpgradeSeconds": [
+        51.6,
+        91.5
+      ]
+    },
+    {
+      "stage": 4,
+      "profile": "steady",
+      "kills": 777,
+      "pickups": 621,
+      "xp": 11328,
+      "bountyBeforeStageClearAndBoss": 2859,
+      "levelBefore": 21,
+      "levelAfter": 16,
+      "firstUpgradeSeconds": [
+        9.6,
+        13.7
+      ],
+      "thirdUpgradeSeconds": [
+        27.6,
+        49
+      ]
+    },
+    {
+      "stage": 4,
+      "profile": "fast",
+      "kills": 1260,
+      "pickups": 1196,
+      "xp": 21372,
+      "bountyBeforeStageClearAndBoss": 4341,
+      "levelBefore": 26,
+      "levelAfter": 20,
+      "firstUpgradeSeconds": [
+        8,
+        9.9
+      ],
+      "thirdUpgradeSeconds": [
+        18.1,
+        31.5
+      ]
+    },
+    {
+      "stage": 5,
+      "profile": "cautious",
+      "kills": 396,
+      "pickups": 257,
+      "xp": 5102,
+      "bountyBeforeStageClearAndBoss": 2046,
+      "levelBefore": 16,
+      "levelAfter": 12,
+      "firstUpgradeSeconds": [
+        19.4,
+        26.1
+      ],
+      "thirdUpgradeSeconds": [
+        44.7,
+        75.8
+      ]
+    },
+    {
+      "stage": 5,
+      "profile": "steady",
+      "kills": 772,
+      "pickups": 617,
+      "xp": 12458,
+      "bountyBeforeStageClearAndBoss": 3137,
+      "levelBefore": 22,
+      "levelAfter": 17,
+      "firstUpgradeSeconds": [
+        15.1,
+        17.7
+      ],
+      "thirdUpgradeSeconds": [
+        27.7,
+        43.7
+      ]
+    },
+    {
+      "stage": 5,
+      "profile": "fast",
+      "kills": 1252,
+      "pickups": 1189,
+      "xp": 24658,
+      "bountyBeforeStageClearAndBoss": 4921,
+      "levelBefore": 28,
+      "levelAfter": 21,
+      "firstUpgradeSeconds": [
+        14.3,
+        16.1
+      ],
+      "thirdUpgradeSeconds": [
+        21.4,
+        31.3
+      ]
+    },
+    {
+      "stage": 6,
+      "profile": "cautious",
+      "kills": 399,
+      "pickups": 259,
+      "xp": 5488,
+      "bountyBeforeStageClearAndBoss": 2145,
+      "levelBefore": 16,
+      "levelAfter": 12,
+      "firstUpgradeSeconds": [
+        13.7,
+        16.1
+      ],
+      "thirdUpgradeSeconds": [
+        33.7,
+        60.9
+      ]
+    },
+    {
+      "stage": 6,
+      "profile": "steady",
+      "kills": 777,
+      "pickups": 621,
+      "xp": 12180,
+      "bountyBeforeStageClearAndBoss": 2976,
+      "levelBefore": 22,
+      "levelAfter": 16,
+      "firstUpgradeSeconds": [
+        8.3,
+        9.6
+      ],
+      "thirdUpgradeSeconds": [
+        17.6,
+        32.3
+      ]
+    },
+    {
+      "stage": 6,
+      "profile": "fast",
+      "kills": 1260,
+      "pickups": 1196,
+      "xp": 22628,
+      "bountyBeforeStageClearAndBoss": 4286,
+      "levelBefore": 27,
+      "levelAfter": 21,
+      "firstUpgradeSeconds": [
+        7,
+        8
+      ],
+      "thirdUpgradeSeconds": [
+        12.7,
+        20.7
+      ]
+    },
+    {
+      "stage": 7,
+      "profile": "cautious",
+      "kills": 396,
+      "pickups": 257,
+      "xp": 5670,
+      "bountyBeforeStageClearAndBoss": 2396,
+      "levelBefore": 16,
+      "levelAfter": 12,
+      "firstUpgradeSeconds": [
+        19.4,
+        26.1
+      ],
+      "thirdUpgradeSeconds": [
+        44.7,
+        77.5
+      ]
+    },
+    {
+      "stage": 7,
+      "profile": "steady",
+      "kills": 772,
+      "pickups": 617,
+      "xp": 14062,
+      "bountyBeforeStageClearAndBoss": 3638,
+      "levelBefore": 23,
+      "levelAfter": 17,
+      "firstUpgradeSeconds": [
+        15.1,
+        17.7
+      ],
+      "thirdUpgradeSeconds": [
+        27.7,
+        44.8
+      ]
+    },
+    {
+      "stage": 7,
+      "profile": "fast",
+      "kills": 1252,
+      "pickups": 1189,
+      "xp": 26910,
+      "bountyBeforeStageClearAndBoss": 5502,
+      "levelBefore": 29,
+      "levelAfter": 22,
+      "firstUpgradeSeconds": [
+        14.3,
+        16.1
+      ],
+      "thirdUpgradeSeconds": [
+        21.4,
+        32
+      ]
+    },
+    {
+      "stage": 8,
+      "profile": "cautious",
+      "kills": 399,
+      "pickups": 259,
+      "xp": 6872,
+      "bountyBeforeStageClearAndBoss": 2700,
+      "levelBefore": 18,
+      "levelAfter": 13,
+      "firstUpgradeSeconds": [
+        13.7,
+        16.1
+      ],
+      "thirdUpgradeSeconds": [
+        33.7,
+        60.9
+      ]
+    },
+    {
+      "stage": 8,
+      "profile": "steady",
+      "kills": 777,
+      "pickups": 621,
+      "xp": 16002,
+      "bountyBeforeStageClearAndBoss": 4045,
+      "levelBefore": 24,
+      "levelAfter": 18,
+      "firstUpgradeSeconds": [
+        8.3,
+        9.6
+      ],
+      "thirdUpgradeSeconds": [
+        17.6,
+        32.3
+      ]
+    },
+    {
+      "stage": 8,
+      "profile": "fast",
+      "kills": 1260,
+      "pickups": 1196,
+      "xp": 29276,
+      "bountyBeforeStageClearAndBoss": 5957,
+      "levelBefore": 29,
+      "levelAfter": 23,
+      "firstUpgradeSeconds": [
+        7,
+        8
+      ],
+      "thirdUpgradeSeconds": [
+        12.7,
+        20.7
+      ]
+    }
+  ]
+}

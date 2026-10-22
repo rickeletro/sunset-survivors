@@ -1,3 +1,4 @@
+import { pulpSurface } from '../components/PulpSurface';
 import type Phaser from 'phaser';
 import type { FirstRunTutorial } from '../../systems/FirstRunTutorial';
 import { THEME } from '../theme/tokens';
@@ -19,7 +20,7 @@ export class FirstRunTutorialView {
   private skipKey: () => void;
   constructor(private scene: Phaser.Scene, private model: FirstRunTutorial, skip: () => void) {
     this.root = scene.add.container(0, 0).setScrollFactor(0).setDepth(92);
-    const paper = scene.add.nineslice(0, 0, 'decor_title_parchment', undefined, 760, 210, 36, 36, 36, 36);
+    const paper = pulpSurface(scene, 0, 0, 760, 210, 'paper');
     this.root.add(paper);
     const label = (y: number, size: number, color: string, pixel = false) => {
       const text = scene.add.text(0, y, '', {

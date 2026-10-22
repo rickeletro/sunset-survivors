@@ -6,16 +6,20 @@ import { GameOverScene } from './scenes/GameOverScene';
 import { GameScene } from './scenes/GameScene';
 import { LevelUpScene } from './scenes/LevelUpScene';
 import { PauseScene } from './scenes/PauseScene';
+import { SaloonScene } from './scenes/SaloonScene';
+import { BuildingTransitionScene } from './scenes/BuildingTransitionScene';
 import { StageClearScene } from './scenes/StageClearScene';
 import { StageIntroScene } from './scenes/StageIntroScene';
 import { StatsScene } from './scenes/StatsScene';
 import { StoryScene } from './scenes/StoryScene';
+import { DifficultyScene } from './scenes/DifficultyScene';
 import { TitleScene } from './scenes/TitleScene';
 import { UnlockablesScene } from './scenes/UnlockablesScene';
 import { WantedScene } from './scenes/WantedScene';
 
 const allScenes: (typeof Phaser.Scene)[] = [
   TitleScene,
+  DifficultyScene,
   StoryScene,
   CharacterSelectScene,
   StageIntroScene,
@@ -23,6 +27,8 @@ const allScenes: (typeof Phaser.Scene)[] = [
   GameScene,
   LevelUpScene,
   PauseScene,
+  SaloonScene,
+  BuildingTransitionScene,
   StageClearScene,
   GameOverScene,
   GameCompleteScene,
@@ -36,6 +42,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const sceneParam = urlParams.get('scene');
 
 const sceneMap: Record<string, typeof Phaser.Scene> = {
+  difficulty: DifficultyScene,
   stageintro: StageIntroScene,
   wanted: WantedScene,
   select: CharacterSelectScene,
@@ -77,6 +84,8 @@ const config: Phaser.Types.Core.GameConfig = {
   scene: allScenes,
 };
 
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
+  // Canvas labels must be created after local fonts load.
+  await Promise.allSettled([document.fonts.load('24px Rye'), document.fonts.load('16px "Press Start 2P"'), document.fonts.load('700 24px "Roboto Slab"')]);
   new Phaser.Game(config);
 });

@@ -1,3 +1,4 @@
+import type { BulletAppearance } from '../data/weaponPresentation';
 import type Phaser from 'phaser';
 import type { EnemyKind } from '../data/enemies';
 import type { LootPacket } from '../systems/LootBudget';
@@ -10,9 +11,7 @@ export interface Projectile {
   pierce: number;
   hits: Set<Enemy>;
   life: number;
-  isLasso?: boolean;
-  angleOffset?: number;
-  radius?: number;
+  appearance?: BulletAppearance;
   isBouncingSniper?: boolean;
   bouncesLeft?: number;
   isExplosiveBullet?: boolean;
@@ -57,6 +56,7 @@ export interface Drop {
 }
 
 export interface FireZone {
+  rank?: number;
   x: number;
   y: number;
   radius: number;

@@ -27,7 +27,7 @@ export class ControlsScene extends Phaser.Scene {
     this.rootContainer = createMenuRoot(this);
     pulpBackdrop(this, this.rootContainer, true);
     pulpHeading(this, this.rootContainer, 'HOW TO PLAY', -390, 1180, 72, true);
-    const hero = this.add.sprite(-480, 5, 'hero_billy', 0).setScale(3.2);
+    const hero = this.add.sprite(-480, 5, 'hero_billy', 0).setScale(2.7);
     this.rootContainer.add(hero);
     pulpText(this, this.rootContainer, -480, 260, 'BILLY • THE GUNSLINGER', 23, '#ffc52a');
     const board = pulpWood(this, this.rootContainer, 220, -5, 860, 565);
@@ -35,9 +35,9 @@ export class ControlsScene extends Phaser.Scene {
     pulpText(this, board, -355, -205, 'MOVE', 31, '#f2d49a', 'left');
     const keycap = (x: number, y: number, text: string, width = 64) => {
       const key = this.add.graphics().fillStyle(0x120b08, 0.95).fillRect(x - width / 2, y - 26, width, 52);
-      key.lineStyle(3, 0x7fb5c4).strokeRect(x - width / 2, y - 26, width, 52);
+      key.lineStyle(3, 0xc49a55).strokeRect(x - width / 2, y - 26, width, 52);
       board.add(key);
-      const label = this.add.text(x, y, text, { fontFamily: THEME.typography.pixelFont, fontSize: '19px', color: '#b1dfeb' }).setOrigin(0.5);
+      const label = this.add.text(x, y, text, { fontFamily: THEME.typography.pixelFont, fontSize: '19px', color: '#ffc52a' }).setOrigin(0.5);
       board.add(label);
     };
     keycap(-20, -235, 'W'); keycap(-90, -175, 'A'); keycap(-20, -175, 'S'); keycap(50, -175, 'D');

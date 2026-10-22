@@ -20,3 +20,9 @@ export function createMenuRoot(scene: Phaser.Scene): Phaser.GameObjects.Containe
   scene.events.once('shutdown', () => scene.scale.off('resize', resize));
   return root;
 }
+
+/** Preserve artwork proportions while covering the entire canvas behind the menu root. */
+export function menuBackdropScale(viewWidth: number, viewHeight: number, imageWidth: number, imageHeight: number): number {
+  const fit = menuTransform(viewWidth, viewHeight).scale;
+  return Math.max(viewWidth / fit / Math.max(1, imageWidth), viewHeight / fit / Math.max(1, imageHeight));
+}

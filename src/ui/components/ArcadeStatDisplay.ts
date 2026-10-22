@@ -24,22 +24,22 @@ export class ArcadeStatDisplay extends Phaser.GameObjects.Container {
 
       // Label (left)
       const labelText = scene.add.text(0, rowY, item.label, {
-        fontFamily: THEME.typography.pixelFont,
-        fontSize: '12px',
-        color: item.color || '#f2d49a',
+        fontFamily: THEME.typography.narrativeFont,
+        fontSize: '23px',
+        color: item.color || '#321b10',
         stroke: '#000000',
-        strokeThickness: 2,
+        strokeThickness: 0,
       }).setOrigin(0, 0.5);
       this.add(labelText);
 
       // Value (right)
       const valStr = typeof item.value === 'number' ? item.value.toLocaleString() : item.value;
       const valText = scene.add.text(width, rowY, valStr, {
-        fontFamily: THEME.typography.pixelFont,
-        fontSize: '13px',
-        color: item.valueColor || '#ffc52a',
+        fontFamily: THEME.typography.narrativeFont,
+        fontSize: '24px',
+        color: '#a51e16',
         stroke: '#000000',
-        strokeThickness: 3,
+        strokeThickness: 0,
       }).setOrigin(1, 0.5);
       this.add(valText);
     });

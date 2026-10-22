@@ -1,0 +1,69 @@
+{
+  "fallback": "assets/audio/galloing_west.mp3",
+  "stages": [
+    {
+      "stage": 1,
+      "slug": "outlaw-canyon",
+      "title": "Galloping West",
+      "bpm": 128,
+      "file": "assets/audio/galloing_west.mp3",
+      "prompt": "Existing soundtrack: desert gallop, twang guitar and arcade drums. Original instrumental game music, 128 BPM, Western Pulp 98, late-1990s arcade energy with warm acoustic textures. No vocals, no spoken words, no sound effects, no references to existing melodies. 2–3 minutes, immediate rhythmic opening, steady energy for repeated combat, no long breakdown, clean loop-friendly ending. Leave space for gunshots in the mix."
+    },
+    {
+      "stage": 2,
+      "slug": "steam-train",
+      "title": "Frontier Pulse",
+      "bpm": 148,
+      "file": "assets/audio/Frontier Pulse.mp3",
+      "prompt": "Driving steam-train rhythm, locomotive percussion, twang electric guitar, harmonica stabs, galloping bass, D minor; tense fast railroad ambush. Original instrumental game music, 148 BPM, Western Pulp 98, late-1990s arcade energy with warm acoustic textures. No vocals, no spoken words, no sound effects, no references to existing melodies. 2–3 minutes, immediate rhythmic opening, steady energy for repeated combat, no long breakdown, clean loop-friendly ending. Leave space for gunshots in the mix."
+    },
+    {
+      "stage": 3,
+      "slug": "burning-town",
+      "title": "Embers over Redemption",
+      "bpm": 144,
+      "file": null,
+      "prompt": "Burning frontier town at sunset: urgent tremolo guitar, low brass, dry snare, gritty bass, ember-like marimba phrases; A minor, escalating danger. Original instrumental game music, 144 BPM, Western Pulp 98, late-1990s arcade energy with warm acoustic textures. No vocals, no spoken words, no sound effects, no references to existing melodies. 2–3 minutes, immediate rhythmic opening, steady energy for repeated combat, no long breakdown, clean loop-friendly ending. Leave space for gunshots in the mix."
+    },
+    {
+      "stage": 4,
+      "slug": "saloon",
+      "title": "Last Call Showdown",
+      "bpm": 154,
+      "file": null,
+      "prompt": "Raucous western saloon battle: tack piano and banjo riffs over driving rock drums, upright slap bass, short trumpet calls; playful but dangerous, E minor. Original instrumental game music, 154 BPM, Western Pulp 98, late-1990s arcade energy with warm acoustic textures. No vocals, no spoken words, no sound effects, no references to existing melodies. 2–3 minutes, immediate rhythmic opening, steady energy for repeated combat, no long breakdown, clean loop-friendly ending. Leave space for gunshots in the mix."
+    },
+    {
+      "stage": 5,
+      "slug": "caboose",
+      "title": "No Brakes to Midnight",
+      "bpm": 158,
+      "file": null,
+      "prompt": "Final train-car battle: clattering rail percussion, surf western guitar, pounding toms, harmonica ostinato; relentless forward motion, B minor. Original instrumental game music, 158 BPM, Western Pulp 98, late-1990s arcade energy with warm acoustic textures. No vocals, no spoken words, no sound effects, no references to existing melodies. 2–3 minutes, immediate rhythmic opening, steady energy for repeated combat, no long breakdown, clean loop-friendly ending. Leave space for gunshots in the mix."
+    },
+    {
+      "stage": 6,
+      "slug": "mountain",
+      "title": "Dusty Frontier",
+      "bpm": 132,
+      "file": "assets/audio/Dusty Frontier.mp3",
+      "prompt": "Wind-swept mountain pursuit: nylon-string guitar, breathy flute, deep toms, spacious bells and rock bass; suspense into determined heroic combat, G minor. Original instrumental game music, 132 BPM, Western Pulp 98, late-1990s arcade energy with warm acoustic textures. No vocals, no spoken words, no sound effects, no references to existing melodies. 2–3 minutes, immediate rhythmic opening, steady energy for repeated combat, no long breakdown, clean loop-friendly ending. Leave space for gunshots in the mix."
+    },
+    {
+      "stage": 7,
+      "slug": "hacienda",
+      "title": "Powder at the Hacienda",
+      "bpm": 150,
+      "file": null,
+      "prompt": "Fortified hacienda siege: punchy brass fanfares, acoustic guitar rasgueado, electric bass, crisp snare and toms, original western action melody; A minor. Original instrumental game music, 150 BPM, Western Pulp 98, late-1990s arcade energy with warm acoustic textures. No vocals, no spoken words, no sound effects, no references to existing melodies. 2–3 minutes, immediate rhythmic opening, steady energy for repeated combat, no long breakdown, clean loop-friendly ending. Leave space for gunshots in the mix."
+    },
+    {
+      "stage": 8,
+      "slug": "manor",
+      "title": "The Tyrant Falls at Sunset",
+      "bpm": 160,
+      "file": null,
+      "prompt": "Final Victorian frontier manor assault: dramatic organ, twang distorted guitar, orchestral brass, relentless drums, thunderous bass, heroic answer melody; D minor. Original instrumental game music, 160 BPM, Western Pulp 98, late-1990s arcade energy with warm acoustic textures. No vocals, no spoken words, no sound effects, no references to existing melodies. 2–3 minutes, immediate rhythmic opening, steady energy for repeated combat, no long breakdown, clean loop-friendly ending. Leave space for gunshots in the mix."
+    }
+  ]
+}

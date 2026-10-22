@@ -1,3 +1,4 @@
+import { normalizeDifficulty, difficultySettings, difficultyProfile, type DifficultyId } from '../data/difficulty';
 import { preloadImages } from '../assets/registry';
 import { preloadPulp, pulpBackdrop, pulpHeading, pulpText, pulpButton, pulpWood, pulpStats, bindPulpMenu, bindPulpKeys } from '../ui/layout/pulpSceneKit';
 import { createMenuRoot } from '../ui/layout/menuLayout';
@@ -7,6 +8,7 @@ import { CharacterData, CHARACTERS } from '../data/characters';
 import { statsManager } from '../data/GameStatsManager';
 
 export interface GameOverStats {
+  runId?: string;
   victory?: boolean;
   character: CharacterData;
   timeSurvivedSeconds: number;
@@ -14,6 +16,7 @@ export interface GameOverStats {
   bounty: number;
   level: number;
   stage?: number;
+  difficulty?: DifficultyId;
 }
 
 export class GameOverScene extends Phaser.Scene {
@@ -26,8 +29,10 @@ export class GameOverScene extends Phaser.Scene {
 
   init(data?: Partial<GameOverStats>) {
     this.stats = {
+      runId: data?.runId,
       character: data?.character || CHARACTERS.billy,
       stage: data?.stage || 1,
+      difficulty: normalizeDifficulty(data?.difficulty ?? difficultySettings.get()),
       timeSurvivedSeconds: data?.timeSurvivedSeconds || 145,
       kills: data?.kills || 92,
       bounty: data?.bounty || 450,
@@ -36,11 +41,13 @@ export class GameOverScene extends Phaser.Scene {
 
     statsManager.recordRun(
       {
+        runId: this.stats.runId,
         score: this.stats.bounty * 10 + this.stats.kills * 50,
         kills: this.stats.kills,
         gold: this.stats.bounty,
         timeSurvivedSeconds: this.stats.timeSurvivedSeconds,
         stage: this.stats.stage || 1,
+      difficulty: this.stats.difficulty,
         stagesCleared: 0,
         level: this.stats.level,
         characterId: this.stats.character.id,
@@ -66,7 +73,7 @@ export class GameOverScene extends Phaser.Scene {
     const seconds = Math.floor(this.stats.timeSurvivedSeconds % 60);
     pulpStats(this, report, [
       { label: 'GUNSLINGER', value: this.stats.character.name },
-      { label: 'STAGE / LEVEL', value: `${this.stats.stage} / ${this.stats.level}` },
+      { label: 'STAGE / LEVEL', value: `${this.stats.stage} / ${this.stats.level} • ${difficultyProfile(this.stats.difficulty).label}` },
       { label: 'SURVIVED', value: `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}` },
       { label: 'KILLS / GOLD', value: `${this.stats.kills} / $${this.stats.bounty.toLocaleString()}` },
     ], 550, -108, false, 64);
@@ -81,11 +88,12 @@ export class GameOverScene extends Phaser.Scene {
 
   private retry() {
     sounds.playGunReload();
-    sounds.playGameplayMusic();
+    sounds.playGameplayMusic(this.stats.stage || 1);
 
     this.scene.start('WantedScene', {
       character: this.stats.character,
       stage: this.stats.stage || 1,
+      difficulty: this.stats.difficulty,
     });
   }
 

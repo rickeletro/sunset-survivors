@@ -1,0 +1,36 @@
+{
+  "observations": "Only stage/time/level are human observations. Kills, raw XP, badge allocation and capacity are fitted explanatory assumptions, not measured playtest data.",
+  "assumptions": "Real seeded director, rewards, 850ms waves, four-second pickup lag, all loot collected, optional supply completions. Badge uses choices at levels 3/5/7/9/11. No combat/movement/build feedback simulation.",
+  "rows": [
+    {
+      "stage": 1,
+      "seconds": 360,
+      "userReportedLevel": 27,
+      "requiredXpForReport": 45094,
+      "fittedKills": 1792,
+      "fittedFinalKillsPerSecond": 9.16,
+      "fittedRawXp": 21088,
+      "fittedEarnedXp": 45119,
+      "badgeMaxAtSeconds": 101.4,
+      "sameStreamWithoutBadgeLevel": 20,
+      "revisedSameStreamLevel": 21,
+      "lateMedianChoiceGapBefore": 18.4,
+      "lateMedianChoiceGapAfter": 32.7
+    },
+    {
+      "stage": 2,
+      "seconds": 403,
+      "userReportedLevel": 36,
+      "requiredXpForReport": 103090,
+      "fittedKills": 2507,
+      "fittedFinalKillsPerSecond": 11.64,
+      "fittedRawXp": 47572,
+      "fittedEarnedXp": 103107,
+      "badgeMaxAtSeconds": 88.3,
+      "sameStreamWithoutBadgeLevel": 27,
+      "revisedSameStreamLevel": 25,
+      "lateMedianChoiceGapBefore": 16,
+      "lateMedianChoiceGapAfter": 33.7
+    }
+  ]
+}

@@ -4,7 +4,7 @@ import Phaser from 'phaser';
 /**
  * Heróis do Pixellab com direções disponíveis declaradas no catálogo de assets.
  * Direções ausentes usam os fallbacks legados; Billy possui as oito vistas reais.
- * Se uma direção não existir para um herói, há fallback (SE→E, N→S).
+ * Direções ausentes usam a vista disponível mais próxima, sem inverter norte em sul.
  *
  * Arquivos: public/assets/characters/pixellab/<hero>/Idle/animations/walking-4-frames/<dir>/frame_<000..003>.png
  * Ao baixar novas direções, registre-as em assets/catalog.json.
@@ -54,7 +54,7 @@ export interface DirChoice {
   flipX: boolean;
 }
 
-/** Converte o vetor de movimento (tela, y para baixo) em uma das 6 direções. */
+/** Selects an available view from the movement vector (screen Y points down). */
 export function pickDirection(hero: string, dx: number, dy: number): DirChoice {
   const has = (d: PixelDir) => (AVAILABLE_DIRS[hero] ?? []).includes(d);
   const right = dx >= 0;
@@ -65,7 +65,8 @@ export function pickDirection(hero: string, dx: number, dy: number): DirChoice {
     return has('west') ? { dir: 'west', flipX: false } : { dir: 'east', flipX: true };
   };
   const south = (): DirChoice => ({ dir: 'south', flipX: false });
-  const north = (): DirChoice => (has('north') ? { dir: 'north', flipX: false } : south());
+  // Prefer a real back view; never invert north to south when art is missing.
+  const north = (): DirChoice => (has('north') ? { dir: 'north', flipX: false } : side());
 
   if (theta < 25) return side();
   if (theta > 65) return dy < 0 ? north() : south();
@@ -74,6 +75,7 @@ export function pickDirection(hero: string, dx: number, dy: number): DirChoice {
     return has(diagonal) ? { dir: diagonal, flipX: false } : north();
   }
   if (!right && has('south-west')) return { dir: 'south-west', flipX: false };
+  if (hero === 'cormano' && !has('south-east')) return { dir: 'south', flipX: !right };
   return has('south-east') ? { dir: 'south-east', flipX: !right } : side(); // SE / SW
 }
 

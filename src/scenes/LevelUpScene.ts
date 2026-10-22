@@ -1,12 +1,16 @@
+import { heroPortrait } from '../ui/components/HeroPortrait';
+import { CATALOG, preloadImages, preloadHeroSheets } from '../assets/registry';
+import { preloadPulp, pulpText } from '../ui/layout/pulpSceneKit';
+import { pulpSurface } from '../ui/components/PulpSurface';
 import { THEME } from '../ui/theme/tokens';
-import { createMenuRoot } from '../ui/layout/menuLayout';
+import { createMenuRoot, menuBackdropScale } from '../ui/layout/menuLayout';
 import Phaser from 'phaser';
 import { sounds } from '../audio/SoundManager';
 import { CharacterData } from '../data/characters';
 import { WEAPONS } from '../data/weapons';
 
 export interface UpgradeChoice {
-  type: 'weapon' | 'passive' | 'evolution';
+  type: 'weapon' | 'passive' | 'evolution' | 'reward';
   id: string;
   name: string;
   icon: string;
@@ -34,7 +38,7 @@ const ITEM_LORE: Record<string, { tagline: string; typeLabel: string }> = {
   rifle: { tagline: 'One bullet.\nOne vulture.', typeLabel: 'Directional Piercing' },
   dynamite: { tagline: 'Short fuse.\nBig crater.', typeLabel: 'AOE Explosion' },
   molotov: { tagline: 'Hot spirits.\nBlazing ground.', typeLabel: 'Fire Barrier' },
-  lasso: { tagline: 'No outlaw\nescapes rope.', typeLabel: 'Whirling Orbit' },
+  lasso: { tagline: 'Crack the whip.\nClear both flanks.', typeLabel: 'Piercing Lash' },
   badge: { tagline: 'The law\nalways collects.', typeLabel: 'XP Bounty Buff' },
   spurs: { tagline: 'Faster than\ndesert wind.', typeLabel: 'Speed Agility' },
   whiskey: { tagline: 'Liquid grit.\nIron health.', typeLabel: 'Regeneration' },
@@ -96,6 +100,12 @@ export class LevelUpScene extends Phaser.Scene {
     this.buttonTexts = [];
   }
 
+  preload() {
+    preloadPulp(this); preloadHeroSheets(this);
+    preloadImages(this, ['hud_avatar_steve', 'hud_avatar_billy', 'hud_avatar_bob', 'hud_avatar_cormano', 'hud_coin_icon', 'hud_skull_icon', 'decor_chain', 'ui_btn_idle', 'ui_btn_selected', 'ui_card_selected_frame', 'ui_ribbon_new', 'ui_ribbon_upgrade']);
+    preloadImages(this, this.choices.map(choice => choice.type === 'reward' ? choice.id === 'gold_purse' ? 'card_badge' : 'card_whiskey' : `card_${choice.id}`).filter(key => key in CATALOG.images));
+  }
+
   create() {
     const { width, height } = this.scale;
     sounds.playLevelUp();
@@ -140,13 +150,14 @@ export class LevelUpScene extends Phaser.Scene {
   private createBackgroundLayer() {
     // 1. Saloon Interior Background (Saloon_bkg.png)
     const bkgKey = this.textures.exists('saloon_bkg') ? 'saloon_bkg' : 'decor_backdrop';
-    const bg = this.add.image(0, 0, bkgKey).setDisplaySize(1536, 1024);
+    const bg = this.add.image(0, 0, bkgKey);
+    bg.setScale(menuBackdropScale(this.scale.width, this.scale.height, bg.width, bg.height));
     this.rootContainer.add(bg);
 
     // 2. Dark tint overlay suave para dar foco e legibilidade aos cards de upgrade
     const dimGfx = this.add.graphics();
     dimGfx.fillStyle(0x120b08, 0.35);
-    dimGfx.fillRect(-768, -512, 1536, 1024);
+    dimGfx.fillRect(-1000, -512, 2000, 1024);
     this.rootContainer.add(dimGfx);
 
     // 3. Efeito suave de luz âmbar pulsante nas lanternas originais do Saloon
@@ -200,20 +211,7 @@ export class LevelUpScene extends Phaser.Scene {
 
     // --- LEFT: Hero Avatar Box com Moldura de Ouro e Rebites ---
     const charId = this.character?.id || 'steve';
-    const avatarKey = this.textures.exists(`hud_avatar_${charId}`) ? `hud_avatar_${charId}` : 'hud_avatar_steve';
-    
-    if (this.textures.exists(avatarKey)) {
-      const avatarImg = this.add.image(-635, 0, avatarKey).setDisplaySize(92, 98);
-      hudContainer.add(avatarImg);
-    } else {
-      // Fallback procedural
-      const portBg = this.add.graphics();
-      portBg.fillStyle(0x23140a, 1);
-      portBg.fillRoundedRect(-680, -45, 90, 90, 6);
-      portBg.lineStyle(3, 0xffc52a, 1);
-      portBg.strokeRoundedRect(-680, -45, 90, 90, 6);
-      hudContainer.add(portBg);
-    }
+    hudContainer.add(heroPortrait(this, -635, 0, charId));
 
     // "LV. 12" em amarelo arcade acima da barra
     const lvlText = this.add.text(-565, -38, `LV. ${this.playerLevel}`, {
@@ -316,60 +314,12 @@ export class LevelUpScene extends Phaser.Scene {
       headerContainer.add([chainL, chainR]);
     }
 
-    // Arched Title Parchment ("LEVEL UP!")
-    if (this.textures.exists('decor_title_parchment')) {
-      const titleParchment = this.add.image(0, -435, 'decor_title_parchment').setDisplaySize(630, 130);
-      headerContainer.add(titleParchment);
-    }
-
-    // Red Western Stars on left/right of LEVEL UP!
-    if (this.textures.exists('decor_star')) {
-      const starL = this.add.image(-210, -435, 'decor_star').setScale(0.4).setTint(0xa51e16);
-      const starR = this.add.image(210, -435, 'decor_star').setScale(0.4).setTint(0xa51e16);
-      headerContainer.add([starL, starR]);
-    }
-
-    // "LEVEL UP!" in Rye Woodcut Font
-    const titleText = this.add.text(0, -435, 'LEVEL UP!', {
-      fontFamily: THEME.typography.westernFont,
-      fontSize: '44px',
-      color: '#a51e16',
-      stroke: '#1e0d04',
-      strokeThickness: 6,
-      shadow: { offsetX: 3, offsetY: 3, color: '#120b08', blur: 0, fill: true },
+    headerContainer.add(pulpSurface(this, 0, -435, 630, 130, 'paper'));
+    const title = this.add.text(0, -435, 'LEVEL UP!', {
+      fontFamily: THEME.typography.westernFont, fontSize: '46px', color: '#a51e16',
     }).setOrigin(0.5);
-    headerContainer.add(titleText);
-
-    // Wood Title Board: "★ CHOOSE YOUR BOUNTY ★"
-    if (this.textures.exists('ui_wood_title')) {
-      const woodBoard = this.add.image(0, -368, 'ui_wood_title').setDisplaySize(530, 52);
-      headerContainer.add(woodBoard);
-    }
-
-    const bountyText = this.add.text(0, -369, '★ CHOOSE YOUR BOUNTY ★', {
-      fontFamily: THEME.typography.pixelFont,
-      fontSize: '13px',
-      color: '#fff7ed',
-      stroke: '#000000',
-      strokeThickness: 3,
-    }).setOrigin(0.5);
-    headerContainer.add(bountyText);
-
-    // Subtitle Wood Board: "Select an upgrade to strengthen your gunslinger"
-    if (this.textures.exists('decor_subtitle_board')) {
-      const subBoard = this.add.image(0, -320, 'decor_subtitle_board').setDisplaySize(520, 36);
-      headerContainer.add(subBoard);
-    }
-
-    const subText = this.add.text(0, -320, 'Select an upgrade to strengthen your gunslinger', {
-      fontFamily: '"Roboto Slab", serif',
-      fontSize: '14px',
-      fontStyle: 'bold',
-      color: '#fed7aa',
-      stroke: '#21140d',
-      strokeThickness: 2,
-    }).setOrigin(0.5);
-    headerContainer.add(subText);
+    headerContainer.add(title);
+    pulpText(this, headerContainer, 0, -330, 'CHOOSE YOUR BOUNTY', 26);
 
     this.rootContainer.add(headerContainer);
   }
@@ -395,7 +345,7 @@ export class LevelUpScene extends Phaser.Scene {
       cardContainer.add(shadow);
 
       // 2. Card Artwork Image from public/assets/cards/
-      const cardKey = `card_${choice.id}`;
+      const cardKey = choice.type === 'reward' ? choice.id === 'gold_purse' ? 'card_badge' : 'card_whiskey' : `card_${choice.id}`;
       if (this.textures.exists(cardKey)) {
         const cardImg = this.add.image(0, 0, cardKey).setDisplaySize(cardW, cardH);
         cardContainer.add(cardImg);
@@ -431,8 +381,8 @@ export class LevelUpScene extends Phaser.Scene {
 
         // Texto com a descrição do bônus oferecido (nítido, legível e com peso)
         const descText = this.add.text(0, plateY + 12, choice.description, {
-          fontFamily: '"Open Sans", "Roboto Slab", sans-serif',
-          fontSize: '13px',
+          fontFamily: THEME.typography.narrativeFont,
+          fontSize: '16px',
           fontStyle: 'bold',
           color: '#21130b',
           align: 'center',
@@ -544,47 +494,7 @@ export class LevelUpScene extends Phaser.Scene {
     // Painel posicionado em y=390 (centro inferior)
     const panelContainer = this.add.container(0, 390);
 
-    // 1. Prancha de Madeira Rústica Escura com Rebites de Aço nos 4 Cantos
-    // Dimensões: 1040px de largura x 180px de altura
-    const boardW = 1040;
-    const boardH = 180;
-    const boardX = 40; // Levemente deslocado para a direita para dar espaço ao herói na esquerda
-    const woodBoard = this.add.graphics();
-
-    // Sombra projetada
-    woodBoard.fillStyle(0x000000, 0.65);
-    woodBoard.fillRoundedRect(boardX - boardW / 2 + 6, -boardH / 2 + 8, boardW, boardH, 8);
-
-    // Madeira escura de saloon
-    woodBoard.fillStyle(0x24140b, 1);
-    woodBoard.fillRoundedRect(boardX - boardW / 2, -boardH / 2, boardW, boardH, 8);
-
-    // Textura/veios de madeira sutis
-    woodBoard.lineStyle(1, 0x180b06, 0.8);
-    for (let offset = -boardH / 2 + 20; offset < boardH / 2 - 10; offset += 30) {
-      woodBoard.lineBetween(boardX - boardW / 2 + 10, offset, boardX + boardW / 2 - 10, offset);
-    }
-
-    // Moldura entalhada
-    woodBoard.lineStyle(3, 0x422212, 1);
-    woodBoard.strokeRoundedRect(boardX - boardW / 2, -boardH / 2, boardW, boardH, 8);
-    woodBoard.lineStyle(1, 0x8b5a2b, 0.7);
-    woodBoard.strokeRoundedRect(boardX - boardW / 2 + 4, -boardH / 2 + 4, boardW - 8, boardH - 8, 6);
-
-    // 4 Parafusos / Rebites de Aço nos cantos
-    woodBoard.fillStyle(0xd1d5db, 1);
-    const rivets = [
-      { x: boardX - boardW / 2 + 14, y: -boardH / 2 + 14 },
-      { x: boardX + boardW / 2 - 14, y: -boardH / 2 + 14 },
-      { x: boardX - boardW / 2 + 14, y: boardH / 2 - 14 },
-      { x: boardX + boardW / 2 - 14, y: boardH / 2 - 14 },
-    ];
-    rivets.forEach((r) => {
-      woodBoard.fillCircle(r.x, r.y, 4);
-      woodBoard.lineStyle(1, 0x1f2937, 1);
-      woodBoard.strokeCircle(r.x, r.y, 4);
-    });
-    panelContainer.add(woodBoard);
+    panelContainer.add(pulpSurface(this, 40, 0, 1040, 180, 'wood'));
 
     // 2. HERÓI NA ESQUERDA: Posicionado do lado de fora/sobrepondo a borda esquerda da prancha
     const charId = this.character?.id || 'steve';
@@ -623,8 +533,8 @@ export class LevelUpScene extends Phaser.Scene {
 
     // 3. CENTRO: Nome do Item em Dourado Arcade
     this.detailTitleText = this.add.text(-440, -62, '', {
-      fontFamily: THEME.typography.pixelFont,
-      fontSize: '15px',
+      fontFamily: THEME.typography.westernFont,
+      fontSize: '26px',
       color: '#ffe066',
       stroke: '#000000',
       strokeThickness: 3,
@@ -633,38 +543,26 @@ export class LevelUpScene extends Phaser.Scene {
 
     // Tabela de Atributos com alinhamento pixel perfeito
     this.detailStatsText = this.add.text(-440, -32, '', {
-      fontFamily: THEME.typography.pixelFont,
-      fontSize: '10px',
-      color: '#fff7ed',
-      lineSpacing: 8,
+      fontFamily: THEME.typography.narrativeFont,
+      fontSize: '18px',
+      color: '#f2d49a',
+      lineSpacing: 4, wordWrap: { width: 620 },
     });
     panelContainer.add(this.detailStatsText);
 
-    // 4. DIREITA: Cartaz de Lore com Rebites e Ilustração da Arma
-    if (this.textures.exists('ref_lore_note')) {
-      const noteImg = this.add.image(410, 0, 'ref_lore_note').setDisplaySize(255, 135);
-      panelContainer.add(noteImg);
-    } else {
-      // Fallback estético
-      const noteGfx = this.add.graphics();
-      noteGfx.fillStyle(0xecd8b5, 1);
-      noteGfx.fillRoundedRect(280, -65, 260, 130, 4);
-      noteGfx.lineStyle(2, 0x8b5a2b, 1);
-      noteGfx.strokeRoundedRect(280, -65, 260, 130, 4);
-      panelContainer.add(noteGfx);
-    }
+    panelContainer.add(pulpSurface(this, 410, 0, 275, 150, 'paper'));
 
     // Texto de Lore e Estrela sobre o pergaminho
-    this.detailTaglineText = this.add.text(355, -20, 'Two guns.\nOne legend.', {
-      fontFamily: THEME.typography.pixelFont,
-      fontSize: '10px',
+    this.detailTaglineText = this.add.text(410, -20, 'Two guns.\nOne legend.', {
+      fontFamily: THEME.typography.narrativeFont,
+      fontSize: '22px',
       color: '#1a0d04',
       align: 'left',
       lineSpacing: 6,
     }).setOrigin(0.5);
     panelContainer.add(this.detailTaglineText);
 
-    const starIcon = this.add.text(355, 26, '★', {
+    const starIcon = this.add.text(410, 48, '★', {
       fontFamily: THEME.typography.pixelFont,
       fontSize: '14px',
       color: '#1a0d04',
@@ -734,12 +632,9 @@ export class LevelUpScene extends Phaser.Scene {
       const lvl = def ? def.levels[Math.min(choice.nextLevel - 1, def.levels.length - 1)] : null;
       if (lvl) {
         this.detailStatsText.setText([
-          `Type        : ${lore.typeLabel}`,
-          `Damage      : ${lvl.damage}`,
-          `Cooldown    : ${lvl.cooldownMs} ms`,
-          `Projectiles : ${lvl.projectileCount}`,
-          `Pierce      : ${lvl.pierce}`,
-          `Description : ${lvl.description}`,
+          `${lore.typeLabel} • DAMAGE ${lvl.damage} • COOLDOWN ${lvl.cooldownMs} ms`,
+          `PROJECTILES ${lvl.projectileCount} • PIERCE ${lvl.pierce}`,
+          lvl.description,
         ].join('\n'));
       } else {
         this.detailStatsText.setText(`Description : ${choice.description}`);
@@ -747,10 +642,8 @@ export class LevelUpScene extends Phaser.Scene {
     } else {
       // Passive buff
       this.detailStatsText.setText([
-        `Category    : Passive Bounty`,
-        `Type        : ${lore.typeLabel}`,
-        `Rank        : Level ${choice.nextLevel}`,
-        `Description : ${choice.description}`,
+        `${lore.typeLabel} • RANK ${choice.nextLevel}`,
+        choice.description,
       ].join('\n'));
     }
   }
@@ -759,7 +652,7 @@ export class LevelUpScene extends Phaser.Scene {
   // CONTROLS: 1, 2, 3, Arrows, A/D, Enter, Space
   // -------------------------------------------------------------
   private setupControls() {
-    this.input.keyboard?.on('keydown', (event: KeyboardEvent) => {
+    const handleKey = (event: KeyboardEvent) => {
       if (this.hasSelected) return;
 
       if (event.key === '1' && this.choices[0]) {
@@ -784,7 +677,9 @@ export class LevelUpScene extends Phaser.Scene {
           this.confirmUpgrade(this.choices[this.selectedIdx]);
         }
       }
-    });
+    };
+    this.input.keyboard?.on('keydown', handleKey);
+    this.events.once('shutdown', () => this.input.keyboard?.off('keydown', handleKey));
   }
 
   // -------------------------------------------------------------
@@ -814,7 +709,6 @@ export class LevelUpScene extends Phaser.Scene {
     flashGfx.fillRect(0, 0, this.scale.width, this.scale.height);
 
     this.time.delayedCall(220, () => {
-      this.input.keyboard?.removeAllListeners();
       flashGfx.destroy();
       this.onSelectCallback(choice);
       this.scene.stop();

@@ -18,6 +18,8 @@ export const SCENERY = {
   hacienda: { width: 256, height: 256, halfWidth: 106, halfHeight: 40, light: true },
   manor: { width: 256, height: 256, halfWidth: 106, halfHeight: 40, light: true },
   'supply-cart': { width: 128, height: 128, halfWidth: 40, halfHeight: 24, light: false },
+  // Replaces one canyon barn visually, preserving that barn's exact ground footprint.
+  'frontier-saloon': { width: 256, height: 256, halfWidth: 106, halfHeight: 35, light: true },
 } as const;
 export type SceneryKind = keyof typeof SCENERY;
 export interface Landmark { kind: SceneryKind; x: number; y: number; }
@@ -54,7 +56,8 @@ export function stageLandmarks(theme: StageTheme): Landmark[] {
       landmarks.push({ kind: 'hitching-post', x: cx - 650, y: cy + 180 });
       landmarks.push({ kind: 'well', x: cx + 650, y: cy + 180 });
       for (let i = 0; i < 6; i++) {
-        landmarks.push({ kind: kit[i % kit.length], x: cx + (i % 3 - 1) * 420, y: cy + (i < 3 ? -390 : 450) });
+        const kind = theme === 'canyon' && cx === 4000 && cy === 4000 && i === 0 ? 'frontier-saloon' : kit[i % kit.length];
+        landmarks.push({ kind, x: cx + (i % 3 - 1) * 420, y: cy + (i < 3 ? -390 : 450) });
       }
     }
   }

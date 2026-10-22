@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events';
 import { describe, expect, it, vi } from 'vitest';
-import { createMenuRoot, menuTransform } from './menuLayout';
+import { createMenuRoot, menuTransform, menuBackdropScale } from './menuLayout';
 
 describe('shared menu layout lifecycle', () => {
   it.each([[1536, 1024, 1], [768, 512, 0.5], [3072, 2048, 2], [1920, 1080, 1080 / 1024]])('fits %i×%i without stretching', (width, height, scale) => {
@@ -26,4 +26,12 @@ describe('shared menu layout lifecycle', () => {
       expect(events.listenerCount('shutdown')).toBe(0);
     }
   });
+});
+
+
+it.each([[1920, 1080], [1280, 720], [1536, 1024], [390, 844]])('covers a %i x %i canvas without distorting background art', (width, height) => {
+  const root = menuTransform(width, height).scale;
+  const scale = menuBackdropScale(width, height, 1672, 941);
+  expect(1672 * scale * root).toBeGreaterThanOrEqual(width - 0.001);
+  expect(941 * scale * root).toBeGreaterThanOrEqual(height - 0.001);
 });

@@ -29,10 +29,10 @@ function expectAssetsExist(images, root) {
 describe('Pixellab asset migration', () => {
   it('loads every existing hero frame from the character folders with unchanged texture keys', () => {
     const { scene, images, animations } = captureAssets(preloadPixellabHeroes);
-    expect(images.size).toBe(80);
+    expect(images.size).toBe(84);
     expectAssetsExist(images, 'characters');
     for (const hero of ['steve', 'bob', 'cormano', 'billy']) createPixellabAnims(scene, hero);
-    expect(animations).toHaveLength(20);
+    expect(animations).toHaveLength(21);
     for (const animation of animations) {
       expect(animation.frameRate).toBe(8);
       expect(animation.repeat).toBe(-1);
@@ -44,7 +44,7 @@ describe('Pixellab asset migration', () => {
     expect(pickDirection('billy', -1, 1)).toEqual({ dir: 'south-west', flipX: false });
     expect(pickDirection('steve', -1, 1)).toEqual({ dir: 'south-east', flipX: true });
     expect(pickDirection('bob', 0, -1)).toEqual({ dir: 'north', flipX: false });
-    expect(pickDirection('cormano', 0, -1)).toEqual({ dir: 'south', flipX: false });
+    expect(pickDirection('cormano', 0, -1)).toEqual({ dir: 'north', flipX: false });
   });
 
   it('loads Simon from the boss folder without changing combat animation timing', () => {

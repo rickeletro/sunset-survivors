@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { pulpSurface } from './PulpSurface';
 import { sounds } from '../../audio/SoundManager';
 import { BUTTON_STYLES, ButtonVariant } from '../theme/buttons';
 import { THEME } from '../theme/tokens';
@@ -16,6 +17,7 @@ export interface WesternButtonConfig {
 }
 
 export class WesternButton extends Phaser.GameObjects.Container {
+  private materialFace?: Phaser.GameObjects.NineSlice;
   private btnBg: Phaser.GameObjects.Graphics;
   private btnText: Phaser.GameObjects.Text;
   private btnWidth: number;
@@ -40,6 +42,8 @@ export class WesternButton extends Phaser.GameObjects.Container {
 
     // Background graphics
     this.btnBg = scene.add.graphics();
+    this.materialFace = scene.textures.exists('ui_pulp_wood') ? pulpSurface(scene, 0, 0, this.btnWidth, this.btnHeight, 'wood') : undefined;
+    if (this.materialFace) this.add(this.materialFace);
     this.add(this.btnBg);
 
     // Label text
@@ -69,6 +73,7 @@ export class WesternButton extends Phaser.GameObjects.Container {
 
   public setText(text: string) {
     this.btnText.setText(text);
+    this.drawButton();
   }
 
   private onPointerOver() {
@@ -140,10 +145,6 @@ export class WesternButton extends Phaser.GameObjects.Container {
     const halfW = w / 2;
     const halfH = h / 2;
 
-    // Drop shadow
-    this.btnBg.fillStyle(0x000000, 0.45);
-    this.btnBg.fillRoundedRect(-halfW + 4, -halfH + 4, w, h, 6);
-
     const focused = this.isHovered || this.focused;
     const variant = this.presentation === 'pulp'
       ? focused ? 'danger' : this.focusManaged ? 'wood' : this.variant
@@ -151,32 +152,17 @@ export class WesternButton extends Phaser.GameObjects.Container {
     const style = BUTTON_STYLES[variant][focused ? 'hover' : 'idle'];
     const { background: bgColor, border: strokeColor, text: textColor } = style;
 
-    // Main button face
-    this.btnBg.fillStyle(bgColor, 1);
-    this.btnBg.fillRoundedRect(-halfW, -halfH, w, h, 6);
-
-    if (this.presentation === 'pulp') {
-      for (let i = 0; i < 14; i++) {
-        this.btnBg.fillStyle(variant === 'wood' ? 0xb27939 : 0xff791c, 0.24);
-        this.btnBg.fillRect(-halfW + 18 + (i * 83) % (w - 100), -halfH + 9 + i * 11 % (h - 20), 35 + i % 4 * 14, 2);
+    if (this.materialFace) {
+      this.materialFace.setTint(this.isPressed ? 0xc49a55 : 0xffffff);
+      if (focused || this.variant === 'danger' && !this.focusManaged) {
+        this.btnBg.lineStyle(3, 0xffc52a).strokeRect(-halfW + 4, -halfH + 4, w - 8, h - 8);
       }
-      this.btnBg.lineStyle(3, 0x120b08).strokeRect(-halfW + 6, -halfH + 6, w - 12, h - 12);
+    } else {
+      this.btnBg.fillStyle(bgColor).fillRect(-halfW, -halfH, w, h);
+      this.btnBg.lineStyle(2, strokeColor).strokeRect(-halfW, -halfH, w, h);
     }
-
-    // Border
-    const borderWidth = this.isHovered ? 3 : 2;
-    this.btnBg.lineStyle(borderWidth, strokeColor, 1);
-    this.btnBg.strokeRoundedRect(-halfW, -halfH, w, h, 6);
-
-    // Brass studs on corners
-    this.btnBg.fillStyle(0xffc52a, 0.85);
-    const pad = 8;
-    this.btnBg.fillCircle(-halfW + pad, -halfH + pad, 2.5);
-    this.btnBg.fillCircle(halfW - pad, -halfH + pad, 2.5);
-    this.btnBg.fillCircle(-halfW + pad, halfH - pad, 2.5);
-    this.btnBg.fillCircle(halfW - pad, halfH - pad, 2.5);
-
-    this.btnText.setColor(textColor);
+    this.btnText.setColor(this.materialFace ? focused ? '#ffc52a' : '#f2d49a' : textColor);
+    this.btnText.setScale(1);
     if (this.btnText.width > w - 52) this.btnText.setScale((w - 52) / this.btnText.width);
   }
 }
