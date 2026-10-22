@@ -84,6 +84,8 @@ const config: Phaser.Types.Core.GameConfig = {
   scene: allScenes,
 };
 
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
+  // Canvas labels must be created after local fonts load.
+  await Promise.allSettled([document.fonts.load('24px Rye'), document.fonts.load('16px "Press Start 2P"'), document.fonts.load('700 24px "Roboto Slab"')]);
   new Phaser.Game(config);
 });

@@ -1,3 +1,5 @@
+import { preloadPulp, pulpBackdrop, bindPulpKeys } from '../ui/layout/pulpSceneKit';
+import { preloadHeroSheets } from '../assets/registry';
 import { createMenuRoot } from '../ui/layout/menuLayout';
 import Phaser from 'phaser';
 import { sounds } from '../audio/SoundManager';
@@ -18,6 +20,7 @@ export class StatsScene extends Phaser.Scene {
   private prevData?: unknown;
   private rootContainer!: Phaser.GameObjects.Container;
   private currentTab: 'overview' | 'weapons' | 'enemies' | 'stages' = 'overview';
+  private tabStrip?: Phaser.GameObjects.Container;
   private contentPanel!: Phaser.GameObjects.Container;
 
   constructor() {
@@ -25,11 +28,11 @@ export class StatsScene extends Phaser.Scene {
   }
 
   init(data?: StatsSceneData) {
-    if (data?.fromScene) {
-      this.fromScene = data.fromScene;
-      this.prevData = data.prevData;
-    }
+    this.fromScene = data?.fromScene ?? 'TitleScene';
+    this.prevData = data?.prevData;
   }
+
+  preload() { preloadPulp(this); preloadHeroSheets(this); }
 
   create() {
     const { width, height } = this.scale;
@@ -41,6 +44,9 @@ export class StatsScene extends Phaser.Scene {
 
     // Root Container
     this.rootContainer = createMenuRoot(this);
+
+    pulpBackdrop(this, this.rootContainer, true);
+    this.tabStrip = undefined;
 
     // Saloon Wood Wall Backdrop
     const wall = new WesternPanel(this, {
@@ -76,19 +82,21 @@ export class StatsScene extends Phaser.Scene {
       x: 0,
       y: 310,
       width: 240,
-      height: 52,
-      text: '◀ BACK (ESC)',
+      height: 64,
+      text: 'BACK [ESC]', presentation: 'pulp', fontSize: '24px',
       variant: 'gold',
       onClick: () => this.goBack(),
     });
     this.rootContainer.add(backBtn);
 
-    this.input.keyboard?.once('keydown-ESC', () => this.goBack());
+    bindPulpKeys(this, { ESC: () => this.goBack() });
 
   }
 
   private createTabs() {
+    this.tabStrip?.destroy();
     const tabsContainer = this.add.container(0, -220);
+    this.tabStrip = tabsContainer;
     const tabs: Array<{ id: 'overview' | 'weapons' | 'enemies' | 'stages'; label: string }> = [
       { id: 'overview', label: 'OVERVIEW' },
       { id: 'weapons', label: 'WEAPONS' },
@@ -104,10 +112,10 @@ export class StatsScene extends Phaser.Scene {
         x: posX,
         y: 0,
         width: 210,
-        height: 44,
+        height: 60,
         text: tab.label,
         variant: isActive ? 'danger' : 'wood',
-        fontSize: '11px',
+        fontSize: '21px', presentation: 'pulp',
         onClick: () => {
           this.currentTab = tab.id;
           this.createTabs();
@@ -163,7 +171,7 @@ export class StatsScene extends Phaser.Scene {
       this.contentPanel.add(rightFrame);
 
       if (this.textures.exists('hero_billy')) {
-        const sprite = this.add.sprite(360, 0, 'hero_billy', 0).setScale(3.2);
+        const sprite = this.add.sprite(360, 0, 'hero_billy', 0).setScale(2.25);
         this.contentPanel.add(sprite);
       }
 
@@ -206,9 +214,10 @@ export class StatsScene extends Phaser.Scene {
       }
 
       const infoText = this.add.text(0, 0, text, {
-        fontFamily: THEME.typography.pixelFont,
-        fontSize: '12px',
+        fontFamily: THEME.typography.narrativeFont,
+        fontSize: '22px',
         color: '#2b1d0c',
+        wordWrap: { width: 940 },
         align: 'center',
         lineSpacing: 10,
       }).setOrigin(0.5);

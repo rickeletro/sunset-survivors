@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { pulpSurface } from './PulpSurface';
 import { THEME } from '../theme/tokens';
 
 export interface WesternTitleConfig {
@@ -18,50 +19,31 @@ export class WesternTitle extends Phaser.GameObjects.Container {
     super(scene, config.x, config.y);
 
     const w = config.width || 620;
-    const h = config.height || (config.subtitle ? 74 : 58);
-    const halfW = w / 2;
-    const halfH = h / 2;
-
-    // Background plate
-    const plate = scene.add.graphics();
-    // Drop shadow
-    plate.fillStyle(0x000000, 0.6);
-    plate.fillRoundedRect(-halfW + 4, -halfH + 4, w, h, 8);
-
-    // Carved wood backing
-    plate.fillStyle(0x321b10, 0.95);
-    plate.fillRoundedRect(-halfW, -halfH, w, h, 8);
-    plate.lineStyle(3, 0xffc52a, 1);
-    plate.strokeRoundedRect(-halfW, -halfH, w, h, 8);
-
-    // Brass corner studs
-    plate.fillStyle(0xffc52a, 1);
-    [-halfW + 14, halfW - 14].forEach((x) => {
-      plate.fillCircle(x, -halfH + 14, 3.5);
-      plate.fillCircle(x, halfH - 14, 3.5);
-    });
-    this.add(plate);
+    const h = config.height || (config.subtitle ? 104 : 76);
+    this.add(pulpSurface(scene, 0, 0, w, h, 'wood'));
 
     // Main title
     const fontFam = config.useRye !== false ? THEME.typography.westernFont : THEME.typography.pixelFont;
-    const titleText = scene.add.text(0, config.subtitle ? -10 : 0, config.title, {
+    const titleText = scene.add.text(0, config.subtitle ? -18 : 0, config.title, {
       fontFamily: fontFam,
       fontSize: config.fontSize || (config.useRye !== false ? '26px' : '18px'),
       color: config.titleColor || '#ffc52a',
       stroke: '#000000',
       strokeThickness: 4,
     }).setOrigin(0.5);
+    if (titleText.width > w - 64) titleText.setScale((w - 64) / titleText.width);
     this.add(titleText);
 
     // Subtitle if provided
     if (config.subtitle) {
-      const subText = scene.add.text(0, 18, config.subtitle, {
+      const subText = scene.add.text(0, 25, config.subtitle, {
         fontFamily: THEME.typography.pixelFont,
-        fontSize: '10px',
+        fontSize: '12px',
         color: '#f2d49a',
         stroke: '#000000',
         strokeThickness: 2,
       }).setOrigin(0.5);
+      if (subText.width > w - 64) subText.setScale((w - 64) / subText.width);
       this.add(subText);
     }
 

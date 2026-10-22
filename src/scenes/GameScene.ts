@@ -1,3 +1,4 @@
+import { preloadSurfaces } from '../ui/components/PulpSurface';
 import { WeaponEffects } from '../systems/WeaponEffects';
 import { molotovFootprint } from '../data/weaponPresentation';
 import { BUILD_LIMITS, cooldownMultiplier, stageClearBonus, xpForLevel } from '../data/economy';
@@ -158,7 +159,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   preload() {
-    preloadImages(this, ['decor_title_parchment']);
+    preloadSurfaces(this);
     preloadImages(this, sceneryForStage(this.stageConfig.theme).map(sceneryKey));
     // The black doorway cut must not reveal the street while the interior loads.
     if (saloonDoors(this.stageConfig.theme).length) {

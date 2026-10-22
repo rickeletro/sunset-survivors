@@ -1,3 +1,4 @@
+import { heroPortrait } from '../components/HeroPortrait';
 import type Phaser from 'phaser';
 import { THEME } from '../theme/tokens';
 
@@ -31,25 +32,7 @@ export class CombatHUD {
     this.xpBarFill = this.scene.add.graphics().setDepth(51).setScrollFactor(0);
     this.updateXpBar();
 
-    // 2. LEFT: Hero Avatar Box com Moldura de Ouro e Rebites
-    const charId = this.state.characterId;
-    const avatarKey = this.scene.textures.exists(`hud_avatar_${charId}`) ? `hud_avatar_${charId}` : 'hud_avatar_steve';
-
-    // One independent brass frame for every hero; portraits contain no poster lettering.
-    const portraitFrame = this.scene.add.graphics().setDepth(51).setScrollFactor(0);
-    portraitFrame.fillStyle(0x120b08).fillRect(18, 20, 100, 100);
-    portraitFrame.fillStyle(0x603719).fillRect(20, 22, 96, 96);
-    portraitFrame.lineStyle(2, 0xffc52a).strokeRect(22, 24, 92, 92);
-    if (this.scene.textures.exists(avatarKey)) {
-      this.scene.add.image(68, 70, avatarKey)
-        .setDisplaySize(84, 84).setDepth(52).setScrollFactor(0);
-    }
-    const rivets = this.scene.add.graphics().setDepth(53).setScrollFactor(0);
-    for (const x of [23, 113]) for (const y of [25, 115]) {
-      rivets.fillStyle(0x120b08).fillRect(x - 3, y - 3, 6, 6);
-      rivets.fillStyle(0xc49a55).fillRect(x - 2, y - 2, 4, 4);
-      rivets.fillStyle(0xffc52a).fillRect(x - 2, y - 2, 2, 2);
-    }
+    heroPortrait(this.scene, 68, 70, this.state.characterId).setDepth(52).setScrollFactor(0);
 
     // "LV. 1" em amarelo arcade acima da barra
     this.levelText = this.scene.add.text(126, 28, `LV. ${this.state.level}`, {

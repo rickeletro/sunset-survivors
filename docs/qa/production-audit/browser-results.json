@@ -1,0 +1,21 @@
+{
+  "cases": [
+    "CharacterSelectScene",
+    "DifficultyScene",
+    "ControlsScene",
+    "StatsScene",
+    "StoryScene",
+    "PauseScene",
+    "SaloonScene",
+    "UnlockablesScene",
+    "GameOverScene",
+    "StageClearScene",
+    "GameCompleteScene",
+    "StageIntroScene",
+    "WantedScene",
+    "LevelUpScene",
+    "TitleScene"
+  ],
+  "stages": 8,
+  "errors": []
+}

@@ -1,5 +1,7 @@
+import { bindPulpKeys } from '../ui/layout/pulpSceneKit';
+import { pulpSurface } from '../ui/components/PulpSurface';
 import { CATALOG, preloadHeroSheets, preloadImages } from '../assets/registry';
-import { createMenuRoot } from '../ui/layout/menuLayout';
+import { createMenuRoot, menuBackdropScale } from '../ui/layout/menuLayout';
 import Phaser from 'phaser';
 import { difficultyProfile, difficultySettings } from '../data/difficulty';
 import { sounds } from '../audio/SoundManager';
@@ -37,6 +39,7 @@ export class TitleScene extends Phaser.Scene {
 
   create() {
     this.isAdvancing = false;
+    this.optionsModalContainer = undefined;
     this.lanternGlows = [];
 
     // Generate procedural pixel textures for game
@@ -98,7 +101,8 @@ export class TitleScene extends Phaser.Scene {
   private createBackgroundAndAtmosphere() {
     // 1. Background image (sunsetsurvivors_bkg.png)
     const bkgKey = this.textures.exists('intro_bkg') ? 'intro_bkg' : 'intro_landscape';
-    this.bkgImage = this.add.image(0, 0, bkgKey).setDisplaySize(1536, 1024);
+    this.bkgImage = this.add.image(0, 0, bkgKey);
+    this.bkgImage.setScale(menuBackdropScale(this.scale.width, this.scale.height, this.bkgImage.width, this.bkgImage.height));
     this.rootContainer.add(this.bkgImage);
 
     // 2. Sun Pulsating Radial Glow (Central Sunset Horizon x=0, y=10)
@@ -327,42 +331,17 @@ export class TitleScene extends Phaser.Scene {
     // Dark backdrop overlay bloqueando cliques atrás
     const overlay = this.add.graphics();
     overlay.fillStyle(0x000000, 0.75);
-    overlay.fillRect(-768, -512, 1536, 1024);
-    overlay.setInteractive(new Phaser.Geom.Rectangle(-768, -512, 1536, 1024), Phaser.Geom.Rectangle.Contains);
+    overlay.fillRect(-1000, -512, 2000, 1024);
+    overlay.setInteractive(new Phaser.Geom.Rectangle(-1000, -512, 2000, 1024), Phaser.Geom.Rectangle.Contains);
     modalContainer.add(overlay);
 
-    // Saloon Wood Modal Box
-    const boxW = 620;
     const boxH = 430;
-    const box = this.add.graphics();
-    // Drop shadow
-    box.fillStyle(0x000000, 0.6);
-    box.fillRoundedRect(-boxW / 2 + 8, -boxH / 2 + 10, boxW, boxH, 12);
-    // Outer wood border
-    box.fillStyle(0x321b10, 1);
-    box.fillRoundedRect(-boxW / 2, -boxH / 2, boxW, boxH, 12);
-    // Parchment inner fill
-    box.fillStyle(0xecd8b5, 1);
-    box.fillRoundedRect(-boxW / 2 + 6, -boxH / 2 + 6, boxW - 12, boxH - 12, 8);
-    // Inner xilogravura frame
-    box.lineStyle(2, 0x78350f, 0.85);
-    box.strokeRect(-boxW / 2 + 16, -boxH / 2 + 16, boxW - 32, boxH - 32);
-    modalContainer.add(box);
-
-    // Title Header Plaque
-    const titlePlaque = this.add.graphics();
-    titlePlaque.fillStyle(0xa51e16, 1);
-    titlePlaque.fillRoundedRect(-180, -boxH / 2 + 26, 360, 44, 6);
-    titlePlaque.lineStyle(2, 0xffc52a, 1);
-    titlePlaque.strokeRoundedRect(-180, -boxH / 2 + 26, 360, 44, 6);
-    modalContainer.add(titlePlaque);
-
+    modalContainer.add(pulpSurface(this, 0, 0, 620, boxH, 'paper'));
     const titleText = this.add.text(0, -boxH / 2 + 48, '★ AUDIO OPTIONS ★', {
       fontFamily: THEME.typography.westernFont,
       fontSize: '20px',
-      color: '#fff7ed',
-      stroke: '#000000',
-      strokeThickness: 2,
+      color: '#a51e16',
+      strokeThickness: 0,
     }).setOrigin(0.5);
     modalContainer.add(titleText);
 
@@ -380,7 +359,7 @@ export class TitleScene extends Phaser.Scene {
       const trackX = -30;
 
       // Label (left)
-      const label = this.add.text(-220, yPos, labelStr, {
+      const label = this.add.text(-220, yPos - 30, labelStr, {
         fontFamily: THEME.typography.pixelFont,
         fontSize: '11px',
         color: '#2b1408',
@@ -388,7 +367,7 @@ export class TitleScene extends Phaser.Scene {
       modalContainer.add(label);
 
       // Percentage text (right)
-      const pctText = this.add.text(210, yPos, `${Math.round(initialVal * 100)}%`, {
+      const pctText = this.add.text(210, yPos - 30, `${Math.round(initialVal * 100)}%`, {
         fontFamily: THEME.typography.pixelFont,
         fontSize: '11px',
         color: '#78350f',
@@ -458,31 +437,27 @@ export class TitleScene extends Phaser.Scene {
         updateFromPointer(p.x);
       });
 
-      this.input.on('pointermove', (p: Phaser.Input.Pointer) => {
-        if (isDragging) {
-          updateFromPointer(p.x);
-        }
-      });
-
-      this.input.on('pointerup', () => {
-        isDragging = false;
-      });
+      const move = (p: Phaser.Input.Pointer) => { if (isDragging) updateFromPointer(p.x); };
+      const release = () => { isDragging = false; };
+      this.input.on('pointermove', move);
+      this.input.on('pointerup', release);
+      modalContainer.once('destroy', () => { this.input.off('pointermove', move); this.input.off('pointerup', release); });
     };
 
     // 1. Music Slider (inicia a 75%)
-    createSlider(-55, '🎵 MUSIC', sounds.getMusicVolume(), (val) => {
+    createSlider(-55, 'MUSIC', sounds.getMusicVolume(), (val) => {
       sounds.setMusicVolume(val);
     });
 
     // 2. SFX Slider (inicia a 45%)
-    createSlider(35, '💥 SFX', sounds.getSfxVolume(), (val) => {
+    createSlider(35, 'SFX', sounds.getSfxVolume(), (val) => {
       sounds.setSfxVolume(val);
       sounds.playPistolShot();
     });
 
     // 3. Mute Toggle Button
     const isMuted = sounds.getIsMuted();
-    const muteBtn = this.add.text(0, 115, isMuted ? '🔇 AUDIO: MUTED' : '🔊 AUDIO: ACTIVE', {
+    const muteBtn = this.add.text(0, 115, isMuted ? 'AUDIO: MUTED' : 'AUDIO: ACTIVE', {
       fontFamily: THEME.typography.pixelFont,
       fontSize: '11px',
       color: isMuted ? '#ef4444' : '#166534',
@@ -492,13 +467,13 @@ export class TitleScene extends Phaser.Scene {
 
     muteBtn.on('pointerdown', () => {
       const nowMuted = sounds.toggleMute();
-      muteBtn.setText(nowMuted ? '🔇 AUDIO: MUTED' : '🔊 AUDIO: ACTIVE');
+      muteBtn.setText(nowMuted ? 'AUDIO: MUTED' : 'AUDIO: ACTIVE');
       muteBtn.setColor(nowMuted ? '#ef4444' : '#166534');
     });
     modalContainer.add(muteBtn);
 
     // 4. Close [ CONFIRMAR / VOLTAR ] Button
-    const closeBtn = this.add.text(0, 175, '✔ SALVAR E VOLTAR', {
+    const closeBtn = this.add.text(0, 175, 'SALVAR E VOLTAR', {
       fontFamily: THEME.typography.pixelFont,
       fontSize: '12px',
       color: '#ffffff',
@@ -645,11 +620,11 @@ export class TitleScene extends Phaser.Scene {
     const auxContainer = this.add.container(0, 420);
 
     const items = [
-      { text: '⚙ MENU [M]', onClick: () => this.openOptionsMenuModal() },
+      { text: 'AUDIO [M]', onClick: () => this.openOptionsMenuModal() },
       { text: 'DIFFICULTY [D]', onClick: () => this.openDifficulty() },
-      { text: '📖 CONTROLS [H]', onClick: () => this.openControls() },
-      { text: '📊 STATS [S]', onClick: () => this.openStats() },
-      { text: '🏆 UNLOCKS [U]', onClick: () => this.openUnlockables() },
+      { text: 'CONTROLS [H]', onClick: () => this.openControls() },
+      { text: 'STATS [S]', onClick: () => this.openStats() },
+      { text: 'UNLOCKS [U]', onClick: () => this.openUnlockables() },
     ];
 
     // Five compact actions, centered below PRESS START.
@@ -660,10 +635,11 @@ export class TitleScene extends Phaser.Scene {
         x: positionsX[idx],
         y: 0,
         width: 220,
-        height: 44,
+        height: 56,
+        presentation: 'pulp',
         text: item.text,
         variant: 'wood',
-        fontSize: '10px',
+        fontSize: '18px',
         onClick: item.onClick,
       });
       auxContainer.add(btn);
@@ -683,21 +659,21 @@ export class TitleScene extends Phaser.Scene {
   }
 
   private openControls() {
-    if (this.isAdvancing) return;
+    if (this.isAdvancing || this.optionsModalContainer) return;
     sounds.playRevolver();
 
     this.scene.start('ControlsScene', { fromScene: 'TitleScene' });
   }
 
   private openStats() {
-    if (this.isAdvancing) return;
+    if (this.isAdvancing || this.optionsModalContainer) return;
     sounds.playRevolver();
 
     this.scene.start('StatsScene', { fromScene: 'TitleScene' });
   }
 
   private openUnlockables() {
-    if (this.isAdvancing) return;
+    if (this.isAdvancing || this.optionsModalContainer) return;
     sounds.playRevolver();
 
     this.scene.start('UnlockablesScene');
@@ -707,20 +683,17 @@ export class TitleScene extends Phaser.Scene {
   // INPUT HANDLING & INSTANT SKIP
   // -------------------------------------------------------------
   private setupInputs() {
-    // Enter or Space key
-    this.input.keyboard?.on('keydown-SPACE', () => this.advanceToGame());
-    this.input.keyboard?.on('keydown-ENTER', () => this.advanceToGame());
-
-    // Auxiliary screen shortcuts
-    this.input.keyboard?.on('keydown-D', () => this.openDifficulty());
-    this.input.keyboard?.on('keydown-M', () => this.openOptionsMenuModal());
-    this.input.keyboard?.on('keydown-H', () => this.openControls());
-    this.input.keyboard?.on('keydown-S', () => this.openStats());
-    this.input.keyboard?.on('keydown-U', () => this.openUnlockables());
+    bindPulpKeys(this, {
+      SPACE: () => this.optionsModalContainer ? this.closeOptionsMenuModal() : this.advanceToGame(),
+      ENTER: () => this.optionsModalContainer ? this.closeOptionsMenuModal() : this.advanceToGame(),
+      ESC: () => this.closeOptionsMenuModal(),
+      D: () => this.openDifficulty(), M: () => this.openOptionsMenuModal(),
+      H: () => this.openControls(), S: () => this.openStats(), U: () => this.openUnlockables(),
+    });
   }
 
   private advanceToGame() {
-    if (this.isAdvancing) return;
+    if (this.isAdvancing || this.optionsModalContainer) return;
     this.isAdvancing = true;
 
     // Immediately snap visual elements in case intro sequence was running

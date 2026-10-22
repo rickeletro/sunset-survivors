@@ -115,5 +115,5 @@ it('preloads the interior before a doorway transition so entry does not wait on 
   const g = fixture(); g.stage = 1; g.stageConfig = getStage(1);
   g.textures = { exists: () => false }; g.load = { image: vi.fn() }; g.preload();
   const keys = new Set(g.load.image.mock.calls.map(c => c[0]));
-  for (const key of ['saloon_bkg', 'intro_bkg', 'decor_title_parchment', 'decor_lantern', 'decor_spark', 'saloon_cancan']) expect(keys.has(key)).toBe(true);
+  for (const key of ['saloon_bkg', 'intro_bkg', 'ui_pulp_paper', 'ui_pulp_wood', 'decor_lantern', 'decor_spark', 'saloon_cancan']) expect(keys.has(key)).toBe(true);
 });

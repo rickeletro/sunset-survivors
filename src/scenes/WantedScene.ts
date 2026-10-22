@@ -1,3 +1,4 @@
+import { preloadPulp, pulpBackdrop } from '../ui/layout/pulpSceneKit';
 import { normalizeDifficulty, difficultySettings, type DifficultyId } from '../data/difficulty';
 import { preloadImages } from '../assets/registry';
 import { createMenuRoot } from '../ui/layout/menuLayout';
@@ -29,6 +30,7 @@ export class WantedScene extends Phaser.Scene {
   }
 
   preload() {
+    preloadPulp(this);
     // Preload all 8 boss posters
     BOSSES.forEach((boss) => {
       this.load.image(boss.posterKey, boss.posterPath);
@@ -74,37 +76,7 @@ export class WantedScene extends Phaser.Scene {
   // LAYER 1: SALOON WOODEN WALL BACKDROP
   // -------------------------------------------------------------
   private createSaloonBackdrop() {
-    const wallGfx = this.add.graphics();
-
-    // Deep rich wood planks
-    wallGfx.fillStyle(0x23140a, 1);
-    wallGfx.fillRect(-768, -512, 1536, 1024);
-
-    // Planks lines & grain textures
-    wallGfx.lineStyle(3, 0x140a05, 0.9);
-    for (let y = -512; y <= 512; y += 48) {
-      wallGfx.lineBetween(-768, y, 768, y);
-    }
-
-    // Vertical seam offsets
-    wallGfx.lineStyle(2, 0x120804, 0.6);
-    for (let y = -512; y < 512; y += 96) {
-      for (let x = -700; x <= 700; x += 320) {
-        const jitterX = x + ((y / 96) % 2 === 0 ? 0 : 160);
-        wallGfx.lineBetween(jitterX, y, jitterX, y + 48);
-      }
-    }
-
-    // Heavy dark vignette edges
-    const vignette = this.add.graphics();
-    vignette.fillStyle(0x000000, 0.45);
-    vignette.fillRect(-768, -512, 180, 1024);
-    vignette.fillRect(588, -512, 180, 1024);
-    vignette.fillRect(-768, -512, 1536, 120);
-    vignette.fillRect(-768, 392, 1536, 120);
-
-    this.rootContainer.add(wallGfx);
-    this.rootContainer.add(vignette);
+    pulpBackdrop(this, this.rootContainer, true);
   }
 
   // -------------------------------------------------------------

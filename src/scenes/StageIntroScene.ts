@@ -1,3 +1,4 @@
+import { preloadPulp, pulpBackdrop } from '../ui/layout/pulpSceneKit';
 import { normalizeDifficulty, difficultySettings, type DifficultyId } from '../data/difficulty';
 import { preloadImages } from '../assets/registry';
 import { createMenuRoot } from '../ui/layout/menuLayout';
@@ -32,6 +33,7 @@ export class StageIntroScene extends Phaser.Scene {
   }
 
   preload() {
+    preloadPulp(this);
     if (!this.textures.exists('title_sky')) {
       preloadImages(this, ['title_sky']);
     }
@@ -52,6 +54,8 @@ export class StageIntroScene extends Phaser.Scene {
     // Reference Resolution Container (1536 x 1024)
 
     this.rootContainer = createMenuRoot(this);
+
+    pulpBackdrop(this, this.rootContainer, false);
 
     // 1. Layer: Sunset Canyon Landscape
     this.createLandscapeView();
@@ -91,12 +95,6 @@ export class StageIntroScene extends Phaser.Scene {
     });
     frameContainer.add(outerFrame);
 
-    // Masked Landscape Window
-    const maskGfx = this.add.graphics();
-    maskGfx.fillStyle(0xffffff, 1);
-    maskGfx.fillRoundedRect(-410, -200, 820, 400, 6);
-    frameContainer.add(maskGfx);
-
     // Landscape image if available, else procedural gradient
     const landscapeKey = this.textures.exists('intro_landscape')
       ? 'intro_landscape'
@@ -115,35 +113,6 @@ export class StageIntroScene extends Phaser.Scene {
       frameContainer.add(canyonGfx);
     }
 
-    // Mesa and silhouettes overlay
-    const silhouettes = this.add.graphics();
-    silhouettes.fillStyle(0x1a0a05, 0.85);
-    // Draw mesas in the distance
-    silhouettes.beginPath();
-    silhouettes.moveTo(-410, 160);
-    silhouettes.lineTo(-280, 80);
-    silhouettes.lineTo(-120, 80);
-    silhouettes.lineTo(-50, 140);
-    silhouettes.lineTo(100, 60);
-    silhouettes.lineTo(260, 60);
-    silhouettes.lineTo(320, 130);
-    silhouettes.lineTo(410, 110);
-    silhouettes.lineTo(410, 200);
-    silhouettes.lineTo(-410, 200);
-    silhouettes.closePath();
-    silhouettes.fillPath();
-
-    // Cactus & Rider silhouettes
-    silhouettes.fillStyle(0x0e0502, 1);
-    silhouettes.fillRect(-410, 170, 820, 30);
-    frameContainer.add(silhouettes);
-
-    // Sun disc
-    const sun = this.add.graphics();
-    sun.fillStyle(0xffd54f, 0.9);
-    sun.fillCircle(140, 10, 50);
-    frameContainer.addAt(sun, 1);
-
     this.rootContainer.add(frameContainer);
   }
 
@@ -161,8 +130,8 @@ export class StageIntroScene extends Phaser.Scene {
 
     // Lore Text
     const loreText = this.add.text(0, -32, this.bossData.lore, {
-      fontFamily: THEME.typography.pixelFont,
-      fontSize: '13px',
+      fontFamily: THEME.typography.narrativeFont,
+      fontSize: '20px',
       color: '#2b1d0c',
       align: 'center',
       wordWrap: { width: 780 },

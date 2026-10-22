@@ -10,14 +10,40 @@ export function createStageScenery(scene: Phaser.Scene, stage: StageConfig): str
   };
   const rect = (color: number, x: number, y: number, w: number, h: number) => { g.fillStyle(color).fillRect(x, y, w, h); };
   const OUT = 0x120b08, WOOD = 0x603719, DARK = 0x321b10, GOLD = 0xffc52a;
-  texture(`stage_ground_${stage.id}`, 64, 64, () => {
-    rect(stage.ground, 0, 0, 64, 64);
+  // Low-contrast, irregular material clusters avoid the old diagonal confetti grid.
+  const noise = (n: number) => {
+    let v = n ^ Math.imul(stage.id, 73856093);
+    v = Math.imul(v ^ v >>> 16, 0x7feb352d);
+    v = Math.imul(v ^ v >>> 15, 0x846ca68b);
+    return ((v ^ v >>> 16) >>> 0) / 4294967296;
+  };
+  texture(`stage_ground_${stage.id}`, 256, 256, () => {
+    rect(stage.ground, 0, 0, 256, 256);
     if (['saloon', 'caboose'].includes(stage.theme)) {
-      for (let y = 0; y < 64; y += 16) { rect(DARK, 0, y, 64, 2); rect(0x8a572c, 2, y + 3, 60, 1); rect(OUT, y * 3 % 64, y, 2, 16); }
+      for (let row = 0; row < 16; row++) {
+        const y = row * 16, seam = Math.floor(noise(row + 1) * 110);
+        rect(DARK, 0, y, 256, 1);
+        g.fillStyle(0xc49a55, 0.14).fillRect(0, y + 1, 256, 1);
+        for (let x = seam; x < 256; x += 128) { rect(DARK, x, y, 1, 16); rect(OUT, x + 3, y + 4, 1, 1); }
+        for (let i = 0; i < 4; i++) g.fillStyle(0x120b08, 0.12).fillRect(Math.floor(noise(row * 7 + i + 30) * 240), y + 4 + i * 2, 12 + Math.floor(noise(i + row + 50) * 30), 1);
+      }
     } else if (stage.theme === 'manor') {
-      for (let y = 0; y < 64; y += 16) for (let x = 0; x < 64; x += 16) { rect(0x40363f, x, y, 16, 2); rect(0x726269, x, y, 2, 16); }
+      for (let row = 0; row < 8; row++) for (let col = 0; col < 8; col++) {
+        const x = col * 32, y = row * 32;
+        g.fillStyle(noise(row * 8 + col) > 0.5 ? 0x120b08 : 0xf2d49a, 0.05).fillRect(x + 1, y + 1, 30, 30);
+        g.fillStyle(0x120b08, 0.36).fillRect(x, y, 32, 1).fillRect(x, y, 1, 32);
+        g.fillStyle(0xf2d49a, 0.12).fillRect(x + 1, y + 1, 30, 1);
+      }
     } else {
-      for (let i = 0; i < 34; i++) rect(i % 3 ? DARK : 0xf2d49a, (i * 19 + stage.id * 5) % 62, (i * 37) % 62, 2, 1);
+      for (let i = 0; i < 180; i++) {
+        const x = Math.floor(noise(i * 5 + 100) * 256), y = Math.floor(noise(i * 5 + 101) * 256);
+        const w = 2 + Math.floor(noise(i * 5 + 102) * 11), h = 1 + Math.floor(noise(i * 5 + 103) * 3);
+        g.fillStyle(i % 3 ? 0x321b10 : 0xf2d49a, i % 3 ? 0.07 : 0.10).fillRect(x, y, w, h);
+      }
+      for (let i = 0; i < 24; i++) {
+        const x = Math.floor(noise(i + 2000) * 254), y = Math.floor(noise(i + 3000) * 254);
+        g.fillStyle(0x120b08, 0.16).fillRect(x, y, 2, 1);
+      }
     }
   });
   // Arena props are independent preloaded pixel-art cutouts. No prototype rectangles.

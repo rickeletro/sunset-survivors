@@ -1,12 +1,23 @@
 ---
 name: western-pulp-arcade
 description: >-
-  Diretrizes, padrões técnicos, paletas e fluxo de trabalho para desenvolvimento de cenas, interfaces de usuário (UI), pixel art 32-bit e efeitos sonoros para SUNSET SURVIVORS no estilo WESTERN PULP '98 — Retro Western Pulp Arcade Art (Phaser 3 e TypeScript). Ative esta skill sempre que o usuário solicitar criação, refatoração, estilização ou revisão de telas (Title, Character Select, Level Up, Game Over, HUD), cartazes de procurado, cards de power-up, sprites de personagens ou integração de áudio.
+  Criação e integração de personagens, objetos de cenário, terrenos, interfaces e áudio de SUNSET SURVIVORS, com geração via PixelLab quando disponível e comparação obrigatória de proporções em pixel art 32-bit. Diretrizes para desenvolvimento de cenas e UI no estilo WESTERN PULP '98 — Retro Western Pulp Arcade Art (Phaser 3 e TypeScript). Ative esta skill sempre que o usuário solicitar criação, refatoração, estilização ou revisão de telas (Title, Character Select, Level Up, Game Over, HUD), cartazes de procurado, cards de power-up, sprites de personagens, decoração de fases, escala de assets ou integração de áudio.
 ---
 
 # Western Pulp '98 — Guia de Desenvolvimento de Telas e Assets
 
-Este guia estabelece o padrão arquitetural e estético obrigatório para todas as telas, interfaces e recursos de **SUNSET SURVIVORS**.
+Este guia estabelece o padrão arquitetural e estético para telas, personagens e cenários de **SUNSET SURVIVORS**. Trabalhe na pasta local e na branch atual indicadas pelo usuário; não crie worktrees/branches temporárias.
+
+## Fluxo para assets e proporções
+
+Ao criar ou substituir personagens, objetos, construções ou terrenos, leia [Geração e comparação de proporções](references/asset-workflow.md). A comparação é obrigatória antes da integração final de um asset com nova escala; não exige interromper o trabalho para pedir aprovação se o usuário já autorizou a alteração.
+
+- Verifique as ferramentas realmente disponíveis. Uma conexão PixelLab em outra IDE ou assets antigos na conta não comprovam acesso nesta sessão. Skill não instala nem autentica MCP.
+- Prefira PixelLab conectado para sprites/direções/tiles; consulte a documentação atual em vez de fixar nomes, preços ou limites de versões antigas. Se indisponível, informe e use uma alternativa autorizada e disponível; não invente chamadas nem credenciais.
+- Compare a silhueta visível, o personagem e uma construção na mesma escala do mundo. Canvas e margens transparentes não são o tamanho físico do objeto. Separe resolução da fonte, área visível, escala de renderização e colisão.
+- Use `scripts/compare_scale.py` para medir e compor uma prévia offline sem gameplay. Ele verifica proporções declaradas, não certifica estilo, perspectiva ou diversão.
+- Preserve identidade, paleta, pivôs e colisões existentes, salvo mudança autorizada. Correção de escala não autoriza recalibrar combate/economia. Não use uma troca de ferramenta como motivo para refazer assets aprovados.
+
 
 ---
 
@@ -55,7 +66,7 @@ Ao criar uma nova tela (ex: Seleção de Personagens, Level Up, Game Over, Hist�
 
 ## 4. Integração de Áudio (`SoundManager.ts`)
 
-Sempre utilize os métodos padronizados de [SoundManager.ts](file:///Users/ricardosouza/.gemini/antigravity-ide/scratch/sunset-survivors/src/audio/SoundManager.ts):
+Sempre utilize os métodos padronizados de `src/audio/SoundManager.ts`:
 
 ```typescript
 import { sounds } from '../audio/SoundManager';

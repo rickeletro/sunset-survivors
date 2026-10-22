@@ -1,3 +1,5 @@
+import { preloadPulp, pulpBackdrop, pulpHeading, pulpText } from '../ui/layout/pulpSceneKit';
+import { pulpSurface } from '../ui/components/PulpSurface';
 import { normalizeDifficulty, difficultySettings, type DifficultyId } from '../data/difficulty';
 import { preloadHeroSheets, preloadImages } from '../assets/registry';
 import { createMenuRoot } from '../ui/layout/menuLayout';
@@ -37,7 +39,6 @@ export class CharacterSelectScene extends Phaser.Scene {
   private infoTraitVal!: Phaser.GameObjects.Text;
   private infoQuote!: Phaser.GameObjects.Text;
   private heroPreviewSprite!: Phaser.GameObjects.Sprite;
-  private heroMuzzleFlash!: Phaser.GameObjects.Graphics;
   private rideOutGlow!: Phaser.GameObjects.Graphics;
   private rideOutTween?: Phaser.Tweens.Tween;
 
@@ -49,11 +50,7 @@ export class CharacterSelectScene extends Phaser.Scene {
 
   preload() {
     preloadHeroSheets(this);
-    // Safety check: ensure all select assets are loaded if scene launched standalone
-    if (!this.textures.exists('select_saloon_backdrop')) {
-      preloadImages(this, ['select_saloon_backdrop']);
-    }
-    preloadImages(this, ['decor_title_parchment', 'ui_btn_idle']);
+    preloadPulp(this);
     if (!this.textures.exists('poster_steve')) {
       preloadImages(this, ['poster_steve']);
     }
@@ -94,36 +91,11 @@ export class CharacterSelectScene extends Phaser.Scene {
 
     // 2. Reference Resolution Root Container (1536 x 1024)
 
-    const REF_W = THEME.layout.referenceWidth;
-    const REF_H = THEME.layout.referenceHeight;
     this.rootContainer = createMenuRoot(this);
 
-    // 3. Saloon Backdrop Artwork (Authentic 1880s Saloon Wall, Header & Lantern)
-    if (this.textures.exists('select_saloon_backdrop')) {
-      const backdrop = this.add.image(0, 0, 'select_saloon_backdrop').setDisplaySize(REF_W, REF_H);
-      this.rootContainer.add(backdrop);
-    } else {
-      // Fallback procedural wooden saloon wall
-      const wallGfx = this.add.graphics();
-      wallGfx.fillStyle(0x23140a, 1);
-      wallGfx.fillRect(-REF_W / 2, -REF_H / 2, REF_W, REF_H);
-      this.rootContainer.add(wallGfx);
-    }
-
-    // Subtle atmospheric amber flicker on the saloon hanging lantern (left corner)
-    const lanternGlow = this.add.graphics();
-    lanternGlow.fillStyle(0xffaa22, 0.12);
-    lanternGlow.fillCircle(-688, -360, 90);
-    this.rootContainer.add(lanternGlow);
-
-    this.tweens.add({
-      targets: lanternGlow,
-      alpha: 0.22,
-      duration: 350,
-      yoyo: true,
-      repeat: -1,
-      ease: 'Sine.easeInOut',
-    });
+    pulpBackdrop(this, this.rootContainer, false);
+    pulpHeading(this, this.rootContainer, 'SELECT YOUR PLAYER', -405, 1120, 58, true);
+    pulpText(this, this.rootContainer, 0, -305, '[← →] CHOOSE   •   [ENTER] RIDE OUT', 21);
 
     // 4. Create the 4 Wanted Poster Character Cards
     this.createCharacterCards();
@@ -163,12 +135,6 @@ export class CharacterSelectScene extends Phaser.Scene {
       const cx = cardXPositions[idx];
 
       const container = this.add.container(cx, cardBaseY);
-
-      // Card Drop Shadow
-      const shadow = this.add.graphics();
-      shadow.fillStyle(0x000000, 0.45);
-      shadow.fillEllipse(0, cardHeight / 2 + 10, cardWidth - 20, 26);
-      container.add(shadow);
 
       // Poster Image
       const posterKey = `poster_${key}`;
@@ -265,11 +231,7 @@ export class CharacterSelectScene extends Phaser.Scene {
     // Panel container centered at (0, panelY)
     const panelContainer = this.add.container(0, panelY);
 
-    // A quiet parchment surface keeps every word independent from the artwork.
-    panelContainer.add(this.add.nineslice(0, 0, 'decor_title_parchment', undefined, panelW, panelH, 36, 36, 36, 36));
-    const readingSurface = this.add.graphics();
-    readingSurface.fillStyle(0xf2d49a).fillRect(-647, -109, 1294, 218);
-    panelContainer.add(readingSurface);
+    panelContainer.add(pulpSurface(this, 0, 0, panelW, panelH, 'paper'));
     const rule = this.add.graphics();
     rule.lineStyle(2, 0xa51e16, 0.55).lineBetween(-635, -46, 130, -46);
     panelContainer.add(rule);
@@ -318,10 +280,6 @@ export class CharacterSelectScene extends Phaser.Scene {
     }
     panelContainer.add(this.heroPreviewSprite);
 
-    // Hero muzzle flare spark when shooting/selected
-    this.heroMuzzleFlash = this.add.graphics();
-    panelContainer.add(this.heroMuzzleFlash);
-
     // 7. Right Side "PRESS ENTER TO RIDE OUT!" Button
     // Positioned over the right button plaque
     const btnCenterX = 512;
@@ -329,7 +287,7 @@ export class CharacterSelectScene extends Phaser.Scene {
     const btnW = 270;
     const btnH = 120;
 
-    panelContainer.add(this.add.nineslice(btnCenterX, 0, 'ui_btn_idle', undefined, btnW + 16, 152, 14, 14, 14, 14));
+    panelContainer.add(pulpSurface(this, btnCenterX, 0, btnW + 16, 152, 'wood'));
     const rideLabel = this.add.text(btnCenterX, -8, 'PRESS ENTER\nTO RIDE OUT!', {
       fontFamily: THEME.typography.westernFont, fontSize: '25px', color: '#ffc52a',
       align: 'center', lineSpacing: 9, stroke: '#120b08', strokeThickness: 2,
@@ -520,23 +478,7 @@ export class CharacterSelectScene extends Phaser.Scene {
       this.heroPreviewSprite.play(`select_preview_${charKey}`);
     }
 
-    // Flash muzzle burst effect on gun change
-    this.heroMuzzleFlash.clear();
-    this.heroMuzzleFlash.fillStyle(0xfff066, 0.9);
-    this.heroMuzzleFlash.fillCircle(330, 7, 10);
-    this.heroMuzzleFlash.fillStyle(0xff4400, 0.6);
-    this.heroMuzzleFlash.fillCircle(330, 7, 16);
 
-    this.tweens.add({
-      targets: this.heroMuzzleFlash,
-      alpha: 0,
-      duration: 180,
-      ease: 'Power2',
-      onComplete: () => {
-        this.heroMuzzleFlash.clear();
-        this.heroMuzzleFlash.alpha = 1;
-      },
-    });
   }
 
   // -------------------------------------------------------------

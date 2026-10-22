@@ -1,0 +1,14 @@
+{
+  "alpha_threshold": 16,
+  "hero": {
+    "name": "Steve - gameplay",
+    "path": "public/assets/characters/pixellab/steve/Idle/animations/walking-4-frames/south/frame_000.png",
+    "scale": 0.5
+  },
+  "assets": [
+    {"name": "Cacto", "path": "public/assets/scenery/western-pulp/cactus.png", "scale": 1, "min_ratio": 1.4, "max_ratio": 2.2},
+    {"name": "Poste - casa", "path": "public/assets/scenery/western-pulp/lantern.png", "scale": 1, "min_ratio": 2, "max_ratio": 3.2},
+    {"name": "Casa", "path": "public/assets/scenery/pixellab/house.png", "scale": 1, "min_ratio": 1.5, "max_ratio": 3},
+    {"name": "Barril", "path": "public/assets/scenery/western-pulp/barrel.png", "scale": 1, "min_ratio": 0.35, "max_ratio": 0.8}
+  ]
+}

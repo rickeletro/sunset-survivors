@@ -24,9 +24,6 @@
     "decor_chain": "assets/decor/hanging_chain.png",
     "decor_lantern": "assets/decor/hanging_lantern.png",
     "decor_spark": "assets/decor/gold_spark.png",
-    "decor_star": "assets/decor/western_star.png",
-    "decor_subtitle_board": "assets/decor/subtitle_wood_board.png",
-    "decor_title_parchment": "assets/decor/hanging_title_parchment.png",
     "hud_avatar_billy": "assets/ui/hud_avatar_billy.png",
     "hud_avatar_bob": "assets/ui/hud_avatar_bob.png",
     "hud_avatar_cormano": "assets/ui/hud_avatar_cormano.png",
@@ -43,9 +40,7 @@
     "poster_bob": "assets/select_characters/poster_bob.png",
     "poster_cormano": "assets/select_characters/poster_cormano.png",
     "poster_steve": "assets/select_characters/poster_steve.png",
-    "ref_lore_note": "assets/ui/ref_lore_note_clean.png",
     "saloon_bkg": "assets/background/Saloon_bkg.png",
-    "select_saloon_backdrop": "assets/select_characters/select_saloon_backdrop.png",
     "title_landscape": "assets/intro/title_landscape.png",
     "title_sky": "assets/intro/title_sky.png",
     "ui_btn_idle": "assets/ui/button_idle.png",
@@ -53,7 +48,6 @@
     "ui_card_selected_frame": "assets/ui/selected_card_frame.png",
     "ui_ribbon_new": "assets/ui/ribbon_new.png",
     "ui_ribbon_upgrade": "assets/ui/ribbon_upgrade.png",
-    "ui_wood_title": "assets/ui/wood_title_board.png",
     "scenery_locomotive": "assets/scenery/pixellab/locomotive.png",
     "scenery_cargo-wagon": "assets/scenery/pixellab/cargo-wagon.png",
     "scenery_passenger-wagon": "assets/scenery/pixellab/passenger-wagon.png",
@@ -90,7 +84,9 @@
     "wm_barricade": "assets/scenery/western-pulp/barricade.png",
     "wm_palm": "assets/scenery/western-pulp/palm.png",
     "wm_statue": "assets/scenery/western-pulp/statue.png",
-    "wm_lantern": "assets/scenery/western-pulp/lantern.png"
+    "wm_lantern": "assets/scenery/western-pulp/lantern.png",
+    "ui_pulp_paper": "assets/ui/materials/paper.png",
+    "ui_pulp_wood": "assets/ui/materials/wood.png"
   },
   "sheets": {
     "hero_steve": {
@@ -368,7 +364,6 @@
     "intro_landscape",
     "intro_logo",
     "intro_btn_dark",
-    "select_saloon_backdrop",
     "poster_steve",
     "poster_billy",
     "poster_bob",
@@ -393,18 +388,15 @@
     "hud_avatar_cormano",
     "hud_coin_icon",
     "hud_skull_icon",
-    "ref_lore_note",
     "decor_backdrop",
     "decor_lantern",
     "decor_chain",
-    "decor_title_parchment",
-    "decor_subtitle_board",
-    "decor_star",
     "decor_spark",
-    "ui_wood_title",
     "ui_btn_idle",
     "ui_btn_selected",
     "ui_ribbon_new",
-    "ui_ribbon_upgrade"
+    "ui_ribbon_upgrade",
+    "ui_pulp_paper",
+    "ui_pulp_wood"
   ]
 }

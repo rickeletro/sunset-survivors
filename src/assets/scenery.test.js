@@ -108,3 +108,12 @@ describe('Cormano back-facing walk delivery', () => {
     expect(new Set(files).size).toBe(4);
   });
 });
+
+
+describe('modular UI materials', () => {
+  it.each(['ui_pulp_paper', 'ui_pulp_wood'])('%s has a solid quiet writing surface without a transparent center hole', key => {
+    const { width, height, rgba } = rgbaPng(readFileSync(new URL(`../../public/${CATALOG.images[key]}`, import.meta.url)));
+    expect([width, height]).toEqual([256, 256]);
+    for (let y = 40; y < 216; y += 8) for (let x = 40; x < 216; x += 8) expect(rgba[(y * width + x) * 4 + 3]).toBe(255);
+  });
+});
