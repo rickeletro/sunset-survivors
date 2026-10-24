@@ -1,3 +1,4 @@
+import { developerEnabled } from '../dev/access';
 import { bindPulpKeys } from '../ui/layout/pulpSceneKit';
 import { pulpSurface } from '../ui/components/PulpSurface';
 import { CATALOG, preloadHeroSheets, preloadImages } from '../assets/registry';
@@ -308,7 +309,7 @@ export class TitleScene extends Phaser.Scene {
     this.rootContainer.add(cr);
 
     // Bottom Copyright / Project info
-    const copyright = this.add.text(0, 484, 'TM © 2026 SUNSET SURVIVORS. A FAN GAME INSPIRED BY SUNSET RIDERS.', {
+    const copyright = this.add.text(developerEnabled() ? -180 : 0, 484, 'TM © 2026 SUNSET SURVIVORS. A FAN GAME INSPIRED BY SUNSET RIDERS.', {
       fontFamily: THEME.typography.pixelFont,
       fontSize: '10px',
       color: '#f2d49a',
@@ -473,7 +474,7 @@ export class TitleScene extends Phaser.Scene {
     modalContainer.add(muteBtn);
 
     // 4. Close [ CONFIRMAR / VOLTAR ] Button
-    const closeBtn = this.add.text(0, 175, 'SALVAR E VOLTAR', {
+    const closeBtn = this.add.text(0, 175, 'SAVE & RETURN', {
       fontFamily: THEME.typography.pixelFont,
       fontSize: '12px',
       color: '#ffffff',
@@ -646,9 +647,19 @@ export class TitleScene extends Phaser.Scene {
     });
 
     this.rootContainer.add(auxContainer);
-    this.rootContainer.add(this.add.text(0, 460, `MODO: ${difficultyProfile(difficultySettings.get()).label}  •  [D] ALTERAR`, {
+    if (developerEnabled()) this.rootContainer.add(new WesternButton(this, {
+      x: 510, y: 484, width: 330, height: 38, presentation: 'pulp', text: 'DEVELOPER [F2]',
+      variant: 'wood', fontSize: '18px', onClick: () => this.openDeveloper(),
+    }));
+    this.rootContainer.add(this.add.text(0, 460, `MODE: ${difficultyProfile(difficultySettings.get()).label}  •  [D] CHANGE`, {
       fontFamily: THEME.typography.pixelFont, fontSize: '12px', color: '#ffc52a', stroke: '#120b08', strokeThickness: 3,
     }).setOrigin(0.5));
+  }
+
+  private openDeveloper(): void {
+    if (!developerEnabled() || this.isAdvancing || this.optionsModalContainer) return;
+    this.isAdvancing = true; sounds.playRevolver(); this.cameras.main.flash(70, 255, 197, 42, false);
+    this.scene.start('DeveloperScene');
   }
 
   private openDifficulty() {
@@ -687,6 +698,7 @@ export class TitleScene extends Phaser.Scene {
       SPACE: () => this.optionsModalContainer ? this.closeOptionsMenuModal() : this.advanceToGame(),
       ENTER: () => this.optionsModalContainer ? this.closeOptionsMenuModal() : this.advanceToGame(),
       ESC: () => this.closeOptionsMenuModal(),
+      F2: () => this.openDeveloper(),
       D: () => this.openDifficulty(), M: () => this.openOptionsMenuModal(),
       H: () => this.openControls(), S: () => this.openStats(), U: () => this.openUnlockables(),
     });

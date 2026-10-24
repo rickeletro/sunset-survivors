@@ -1,3 +1,5 @@
+import { DeveloperScene } from './scenes/DeveloperScene';
+import { developerEnabled } from './dev/access';
 import Phaser from 'phaser';
 import { CharacterSelectScene } from './scenes/CharacterSelectScene';
 import { ControlsScene } from './scenes/ControlsScene';
@@ -19,6 +21,7 @@ import { WantedScene } from './scenes/WantedScene';
 
 const allScenes: (typeof Phaser.Scene)[] = [
   TitleScene,
+  ...(developerEnabled() ? [DeveloperScene] : []),
   DifficultyScene,
   StoryScene,
   CharacterSelectScene,
@@ -55,6 +58,8 @@ const sceneMap: Record<string, typeof Phaser.Scene> = {
   unlocks: UnlockablesScene,
   controls: ControlsScene,
 };
+
+if (developerEnabled()) sceneMap.developer = DeveloperScene;
 
 if (sceneParam && sceneMap[sceneParam]) {
   const target = sceneMap[sceneParam];

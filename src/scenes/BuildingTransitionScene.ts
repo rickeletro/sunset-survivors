@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import type { BuildingPortal } from '../data/buildingPortal';
-import { buildingMotion, BUILDING_FADE_MS } from '../systems/BuildingMotion';
+import { buildingMotion, buildingZoom, BUILDING_FADE_MS } from '../systems/BuildingMotion';
 import type { PortalPoint } from '../systems/BuildingPath';
 import { pickDirection, pixellabAnimKey } from '../systems/PixellabHeroes';
 import { worldDepth } from '../data/scenery';
@@ -12,6 +12,7 @@ export interface BuildingTransitionData {
   portal: BuildingPortal;
   camera: { scrollX: number; scrollY: number; zoom: number };
   actor: { texture: string; frame: string | number; scaleX: number; scaleY: number; hero: string; pixellab: boolean };
+  onZoom?: (zoom: number) => void;
   onPosition: (p: PortalPoint, dx: number, dy: number) => void;
   onComplete: () => void;
   onCancel: () => void;
@@ -34,7 +35,7 @@ export class BuildingTransitionScene extends Phaser.Scene {
     const d = this.config, f = d.portal.facade, aperture = d.portal.aperture;
     this.cameras.main.setScroll(d.camera.scrollX, d.camera.scrollY).setZoom(d.camera.zoom);
     // A copy of the existing facade correctly occludes the walking double behind it.
-    this.add.image(f.x, f.y, f.texture).setOrigin(0.5, 1).setDepth(worldDepth(f.y));
+    this.add.image(f.x, f.y, f.texture, '__BASE').setOrigin(0.5, 1).setScale(f.scale ?? 1).setDepth(worldDepth(f.y));
     this.glow = this.add.image(aperture.x, aperture.y, 'wm_glow').setBlendMode(Phaser.BlendModes.ADD).setDepth(20).setScale(1.2);
     this.doorway = this.add.graphics().fillStyle(0x120b08).setDepth(worldDepth(f.y) + 0.01);
     const texture = this.textures.get(f.texture);
@@ -45,6 +46,8 @@ export class BuildingTransitionScene extends Phaser.Scene {
       this.doorway.fillRect(x, y, cut.width, cut.height);
       this.leaves.push(this.add.image(x + (i ? cut.width : 0), y, f.texture, name).setOrigin(i ? 1 : 0, 0).setDepth(22));
     });
+    // Adding leaf frames changes Phaser's default frame; this texture is a facade, not an atlas.
+    texture.firstFrame = '__BASE';
     const first = d.path[0];
     this.actor = this.add.sprite(first.x, first.y, d.actor.texture, d.actor.frame);
     for (let i = 0; i < 10; i++) {
@@ -53,13 +56,15 @@ export class BuildingTransitionScene extends Phaser.Scene {
     }
     if (d.mode === 'exit') this.cameras.main.fadeIn(BUILDING_FADE_MS, 18, 11, 8);
     sounds.playReload();
-    this.events.once('shutdown', () => { if (!this.finished) { this.finished = true; d.onCancel(); } });
+    this.events.once('shutdown', () => { if (!this.finished) { this.finished = true; d.onZoom?.(d.camera.zoom); d.onCancel(); } });
     this.update(0, 0);
   }
   update(_time: number, delta: number): void {
     if (this.finished || !this.actor) return;
     this.age += delta;
     const d = this.config, frame = buildingMotion(d.path, d.portal.aperture, d.mode, this.age);
+    const zoom = d.camera.zoom * buildingZoom(this.age, frame.totalMs);
+    this.cameras.main.setZoom(zoom); d.onZoom?.(zoom);
     this.actor.setPosition(frame.visual.x, frame.visual.y).setAlpha(frame.alpha)
       .setScale(d.actor.scaleX * frame.scale, d.actor.scaleY * frame.scale).setDepth(worldDepth(frame.physical.y) + 0.02);
     if (d.actor.pixellab) {

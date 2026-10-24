@@ -1,9 +1,9 @@
 import type { EnemyDef } from './enemies';
 export type DifficultyId = 'easy' | 'normal' | 'hardcore';
 export const DIFFICULTIES = {
-  easy: { label: 'EASY', enemyHp: 0.85, bossHp: 0.75, incomingDamage: 0.65, description: 'Mais margem para aprender e explorar.' },
-  normal: { label: 'NORMAL', enemyHp: 1, bossHp: 1, incomingDamage: 1, description: 'A referencia: esquiva, build e escolhas.' },
-  hardcore: { label: 'HARDCORE', enemyHp: 1.15, bossHp: 1.15, incomingDamage: 1.15, description: 'Erros custam mais. Sem apagar progresso.' },
+  easy: { label: 'EASY', enemyHp: 0.85, bossHp: 0.75, incomingDamage: 0.65, description: 'More room to learn and explore.' },
+  normal: { label: 'NORMAL', enemyHp: 1, bossHp: 1, incomingDamage: 1, description: 'The frontier standard: dodge, build and choose.' },
+  hardcore: { label: 'HARDCORE', enemyHp: 1.15, bossHp: 1.15, incomingDamage: 1.15, description: 'Mistakes cost more. Your progress stays safe.' },
 } as const;
 export const DIFFICULTY_IDS = ['easy', 'normal', 'hardcore'] as const;
 export function normalizeDifficulty(value: unknown): DifficultyId {

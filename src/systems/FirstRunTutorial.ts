@@ -59,15 +59,15 @@ export class FirstRunTutorial {
   }
   private finish(): void { this.phase = 'ready'; this.age = 0; this.remember(); }
   get copy(): { title: string; body: string; keys: string; step: string } {
-    const move = this.mode === 'touch' ? 'Arraste o dedo no lado esquerdo.' : 'Use WASD ou as setas para andar. Não precisa clicar.';
-    if (this.phase === 'move') return { title: this.mode === 'touch' ? 'ANDE. A ARMA ATIRA SOZINHA!' : 'VOCÊ CORRE. O GATILHO É AUTOMÁTICO!', body: move, keys: this.mode === 'touch' ? 'ARRASTE PARA ANDAR' : 'W A S D   /   ↑ ← ↓ →', step: '1 / 2 • PRIMEIROS PASSOS' };
+    const move = this.mode === 'touch' ? 'Drag your finger on the left side.' : 'Use WASD or arrow keys to move. No clicking needed.';
+    if (this.phase === 'move') return { title: this.mode === 'touch' ? 'MOVE. YOUR GUN FIRES AUTOMATICALLY!' : 'YOU RUN. YOUR GUN FIRES AUTOMATICALLY!', body: move, keys: this.mode === 'touch' ? 'DRAG TO MOVE' : 'W A S D   /   ↑ ← ↓ →', step: '1 / 2 • FIRST STEPS' };
     if (this.phase === 'shoot') return {
-      title: this.hasFired ? 'VIU SÓ? SEM CLICAR!' : 'VEJA A ARMA ATIRAR!',
-      body: this.mode === 'touch' ? 'Mira e tiros são automáticos.' : 'Mira e tiros são automáticos. Este bandido é só de treino.',
-      keys: this.hasFired ? 'ANDE E DESVIE' : 'SEM TOCAR PARA ATIRAR', step: '2 / 2 • MIRA E TIROS AUTOMÁTICOS',
+      title: this.hasFired ? 'SEE? NO CLICKING!' : 'WATCH YOUR GUN FIRE!',
+      body: this.mode === 'touch' ? 'Aiming and firing are automatic.' : 'Aiming and firing are automatic. This outlaw is just for practice.',
+      keys: this.hasFired ? 'MOVE AND DODGE' : 'NO TAPPING TO FIRE', step: '2 / 2 • AUTOMATIC AIM AND FIRE',
     };
-    if (this.phase === 'loot') return { title: 'SAQUE DÁ MELHORIAS!', body: 'Junte XP e escolha melhorias ao subir de nível!', keys: 'MAIS XP = MAIS PODER', step: 'DICA DO XERIFE' };
-    if (this.phase === 'ready') return { title: 'AGORA É COM VOCÊ!', body: move, keys: 'ANDE • DESVIE', step: 'A FASE COMEÇOU!' };
-    return { title: this.mode === 'touch' ? 'ARRASTE. TIROS AUTOMÁTICOS.' : 'VOCÊ CORRE. A ARMA ATIRA SOZINHA.', body: move, keys: this.mode === 'touch' ? 'TIROS AUTOMÁTICOS' : 'MIRA AUTOMÁTICA • SEM CLICAR', step: 'BOA CAÇADA!' };
+    if (this.phase === 'loot') return { title: 'LOOT BRINGS UPGRADES!', body: 'Collect XP and choose upgrades when you level up!', keys: 'MORE XP = MORE POWER', step: 'SHERIFF’S TIP' };
+    if (this.phase === 'ready') return { title: 'YOUR TURN, PARTNER!', body: move, keys: 'MOVE • DODGE', step: 'THE STAGE HAS BEGUN!' };
+    return { title: this.mode === 'touch' ? 'DRAG. AUTOMATIC FIRE.' : 'YOU RUN. YOUR GUN FIRES AUTOMATICALLY.', body: move, keys: this.mode === 'touch' ? 'AUTOMATIC FIRE' : 'AUTO AIM • NO CLICKING', step: 'HAPPY HUNTING!' };
   }
 }

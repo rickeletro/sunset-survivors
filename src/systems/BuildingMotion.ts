@@ -32,3 +32,9 @@ export function buildingMotion(path: readonly PortalPoint[], aperture: PortalPoi
     fading: entering && elapsed >= walkMs + BUILDING_DOOR_MS,
     done: elapsed >= totalMs };
 }
+
+/** A subtle, reversible lens breath, used only while combat is frozen. */
+export function buildingZoom(elapsed: number, duration: number): number {
+  const progress = duration > 0 ? clamp(elapsed / duration) : 1;
+  return 1 + Math.sin(Math.PI * progress) * 0.10;
+}

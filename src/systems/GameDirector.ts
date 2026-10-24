@@ -45,7 +45,7 @@ export class GameDirector {
     if (t >= this.nextSpecialAt) {
       this.nextSpecialAt = t + (stagePhase(this.stage, t) === 'respite' ? 70 : 50);
       const ambush = this.specialIndex++ % 2 === 1;
-      this.events.emitSpecialWave({ label: ambush ? 'EMBOSCADA! ENCONTRE UMA BRECHA!' : `ONDA DA FRONTEIRA — ${this.stage.title}` });
+      this.events.emitSpecialWave({ label: ambush ? 'AMBUSH! FIND A GAP!' : `FRONTIER WAVE — ${this.stage.title}` });
       add(ambush ? 'knife_bandit' : this.stage.signature, 16 + Math.floor(t / 35), ambush ? 'encircle' : 'cluster');
     }
     if (t >= this.nextEliteAt && t < this.stage.duration) {

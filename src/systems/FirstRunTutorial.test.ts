@@ -26,14 +26,14 @@ describe('first gunslinger steps', () => {
   });
   it('gives returning players a short nonblocking reminder and no repeated XP lesson', () => {
     const remember = vi.fn(), tutorial = new FirstRunTutorial(true, 'touch', remember);
-    expect(tutorial.blocking).toBe(false); expect(tutorial.copy.body).toContain('Arraste');
+    expect(tutorial.blocking).toBe(false); expect(tutorial.copy.body).toContain('Drag');
     tutorial.tick(4500); tutorial.collectedXp();
     expect(tutorial.visible).toBe(false); expect(remember).not.toHaveBeenCalled();
   });
   it('changes hints for hybrid devices and ignores XP while practice is active', () => {
     const tutorial = new FirstRunTutorial(false, 'keyboard', vi.fn());
     expect(tutorial.copy.body).toContain('WASD');
-    tutorial.setInput('touch'); expect(tutorial.copy.body).toContain('dedo');
+    tutorial.setInput('touch'); expect(tutorial.copy.body).toContain('finger');
     tutorial.collectedXp(); expect(tutorial.phase).toBe('move');
     tutorial.setInput('keyboard'); expect(tutorial.copy.body).toContain('WASD');
     tutorial.tick(NaN, NaN); tutorial.tick(-50, -100); expect(tutorial.phase).toBe('move');

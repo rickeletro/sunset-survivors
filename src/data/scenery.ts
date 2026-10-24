@@ -22,6 +22,8 @@ export const SCENERY = {
   'frontier-saloon': { width: 256, height: 256, halfWidth: 106, halfHeight: 35, light: true },
 } as const;
 export type SceneryKind = keyof typeof SCENERY;
+/** Uniform render scale is independent of source resolution and ground collision. */
+export const sceneryScale = (kind: SceneryKind): number => kind === 'house' ? 1.45 : 1;
 export interface Landmark { kind: SceneryKind; x: number; y: number; }
 export interface Footprint { x: number; y: number; halfWidth: number; halfHeight: number; }
 // Reserve 10–15 for y-sorted world actors and tall scenery, below effects and HUD.
@@ -51,7 +53,11 @@ export function stageLandmarks(theme: StageTheme): Landmark[] {
       const y = 4000 + Math.round((cy - 4000) / 640) * 640 + 320;
       for (let i = 0; i < 3; i++) landmarks.push({ kind: kit[i], x: cx - 300 + i * 300, y });
       landmarks.push({ kind: 'water-tower', x: cx + 580, y: y + 180 });
-      if (theme === 'railroad') landmarks.push({ kind: 'rail-station', x: cx - 530, y: y + 180 });
+      if (theme === 'railroad') {
+        landmarks.push({ kind: 'rail-station', x: cx - 530, y: y + 180 });
+        landmarks.push({ kind: 'frontier-saloon', x: cx + 180, y: y + 180 });
+        landmarks.push({ kind: 'house', x: cx - 180, y: y + 180 });
+      }
     } else {
       landmarks.push({ kind: 'hitching-post', x: cx - 650, y: cy + 180 });
       landmarks.push({ kind: 'well', x: cx + 650, y: cy + 180 });

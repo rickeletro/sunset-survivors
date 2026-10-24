@@ -140,9 +140,9 @@ export class StageIntroScene extends Phaser.Scene {
     parchmentContainer.add(loreText);
     const stage = getStage(this.stage);
     parchmentContainer.add(this.add.text(0, 48,
-      `SOBREVIVA ${Math.floor(stage.duration / 60)}:${String(stage.duration % 60).padStart(2, '0')} + BOSS
+      `SURVIVE ${Math.floor(stage.duration / 60)}:${String(stage.duration % 60).padStart(2, '0')} + BOSS
 ${stage.hazardLabel}
-PROVISOES OPCIONAIS: LIMPE A AREA E SEGURE POR 8s`, {
+OPTIONAL SUPPLIES: CLEAR THE AREA AND HOLD FOR 8s`, {
         fontFamily: THEME.typography.pixelFont, fontSize: '10px', color: '#a51e16',
         align: 'center', lineSpacing: 8, wordWrap: { width: 800 },
       }).setOrigin(0.5));

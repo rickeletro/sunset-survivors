@@ -18,7 +18,7 @@ const { Node } = vi.hoisted(() => {
     setScale(x: number, y = x) { this.scaleX = x; this.scaleY = y; return this; }
     setSize(width: number, height: number) { this.width = width; this.height = height; return this; }
     setText(text: string) { this.text = text; return this; }
-    setScrollFactor() { return this; } setFontFamily() { return this; }
+    setResolution() { return this; } setScrollFactor() { return this; } setFontFamily() { return this; }
     setFontSize(size: number) { this.fontSize = size; return this; }
     setX(x: number) { this.x = x; return this; }
     setDisplaySize(width: number, height: number) { this.width = width; this.height = height; return this; }
@@ -34,7 +34,7 @@ const { Node } = vi.hoisted(() => {
   return { Node };
 });
 vi.mock('phaser', () => ({ default: { Scene: class {}, BlendModes: { ADD: 1 }, GameObjects: { Container: Node } } }));
-vi.mock('../audio/SoundManager', () => ({ sounds: { playRevolver: vi.fn(), playIntroMusic: vi.fn(), stopBGM: vi.fn(), playHit: vi.fn(), playGunReload: vi.fn(), playGameplayMusic: vi.fn(), playLevelUp: vi.fn(), playHeroVoice: vi.fn(), playRicochet: vi.fn() } }));
+vi.mock('../audio/SoundManager', () => ({ sounds: { playDealerGreeting: vi.fn(), stopFaroAudio: vi.fn(), playRevolver: vi.fn(), playIntroMusic: vi.fn(), stopBGM: vi.fn(), playHit: vi.fn(), playGunReload: vi.fn(), playGameplayMusic: vi.fn(), playLevelUp: vi.fn(), playHeroVoice: vi.fn(), playRicochet: vi.fn() } }));
 vi.mock('../data/GameStatsManager', () => ({ statsManager: { recordRun: vi.fn(), calculateRank: () => 'A', getStats: () => ({ totalScore: 100, totalKills: 20, goldCollected: 500, deaths: 2, bestStreak: 3, playTimeSeconds: 120, stagesCleared: 1, unlockedBosses: [1] }) } }));
 import { sounds } from '../audio/SoundManager';
 import { difficultySettings } from '../data/difficulty';
@@ -161,7 +161,7 @@ describe('live in-world tutorial presentation', () => {
     expect(view.skipButton.width).toBeGreaterThanOrEqual(44);
     expect(view.skipButton.height).toBeGreaterThanOrEqual(44);
     expect(view.skipButton.visible).toBe(true);
-    expect(view.skipLabel.text).toBe(width < 600 ? 'PULAR' : 'PULAR [T]');
+    expect(view.skipLabel.text).toBe(width < 600 ? 'SKIP' : 'SKIP [T]');
     h.scene.input.keyboard.emit('keydown-T'); expect(skip).toHaveBeenCalledTimes(1);
     model.skip(); view.update(4000, 4000, 0); expect(view.skipButton.visible).toBe(false);
     model.tick(3000); view.update(4000, 4000, 0); expect(view.root.visible).toBe(false);
@@ -295,4 +295,19 @@ describe('story and upgrade UI lifecycle', () => {
     for (let i = 0; i < 20; i++) { h.scene.setupControls(); expect(h.scene.input.keyboard.listeners.get('keydown')).toHaveLength(1); h.scene.events.emit('shutdown'); }
     expect(h.scene.input.keyboard.listeners.get('keydown')).toHaveLength(0);
   });
+});
+
+
+it.each([false, true])('always renders level and description, whether poster art is loaded: %s', loaded => {
+  const choice = { type: 'evolution', id: 'desperado_fury', name: 'Desperado Fury', icon: 'revolver', currentLevel: 0, nextLevel: 1, description: 'Six piercing shots explode at the end of their flight.' };
+  const h = setup(LevelUpScene, { choices: [choice], onSelect: vi.fn() });
+  h.scene.rootContainer = h.scene.add.container(0, 0);
+  h.scene.textures.exists = () => loaded;
+  h.scene.createPowerupCards();
+  expect(h.labels()).toContain(choice.description); expect(h.labels()).toContain('★ LV. 1 ★');
+  if (!loaded) expect(h.labels()).toContain(choice.name);
+  else {
+    const poster = h.objects.find(o => o.key === 'card_desperado_fury');
+    expect(poster.scaleX).toBe(poster.scaleY);
+  }
 });

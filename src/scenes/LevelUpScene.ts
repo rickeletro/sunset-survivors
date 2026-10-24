@@ -347,51 +347,9 @@ export class LevelUpScene extends Phaser.Scene {
       // 2. Card Artwork Image from public/assets/cards/
       const cardKey = choice.type === 'reward' ? choice.id === 'gold_purse' ? 'card_badge' : 'card_whiskey' : `card_${choice.id}`;
       if (this.textures.exists(cardKey)) {
-        const cardImg = this.add.image(0, 0, cardKey).setDisplaySize(cardW, cardH);
+        const cardImg = this.add.image(0, 0, cardKey);
+        cardImg.setScale(Math.min(cardW / cardImg.width, cardH / cardImg.height));
         cardContainer.add(cardImg);
-
-        // 3. Dynamic Aged Parchment Plate for Bonus Description (LV. 1 / New & Upgrades)
-        // Sobrepõe perfeitamente a área inferior do cartaz onde havia o 'LV. 1' original impresso no PNG
-        const plateW = cardW - 24; // 276px de largura
-        const plateH = 126;        // 126px cobrindo de y=95 até y=221
-        const plateY = cardH / 2 - plateH / 2 - 14; // Y = 158
-
-        const plateGfx = this.add.graphics();
-        // Cor de pergaminho envelhecido idêntica à do fundo do cartaz (#efbb77)
-        plateGfx.fillStyle(0xefbb77, 1);
-        plateGfx.fillRect(-plateW / 2, plateY - plateH / 2, plateW, plateH);
-        // Borda entalhada de madeira e linha interna de xilogravura
-        plateGfx.lineStyle(2, 0x3d2314, 1);
-        plateGfx.strokeRect(-plateW / 2, plateY - plateH / 2, plateW, plateH);
-        plateGfx.lineStyle(1, 0x8c531d, 0.7);
-        plateGfx.strokeRect(-plateW / 2 + 3, plateY - plateH / 2 + 3, plateW - 6, plateH - 6);
-        cardContainer.add(plateGfx);
-
-        // Level badge dinâmico: mostra o nível que o jogador obterá (ex: ★ LV. 1 ★ ou ★ LV. 2 ★)
-        const lvlBadge = this.add.text(0, plateY - 38, `★ LV. ${choice.nextLevel} ★`, {
-          fontFamily: THEME.typography.westernFont,
-          fontSize: '14px',
-          color: '#1a0d00',
-          stroke: '#78350f',
-          strokeThickness: 1,
-          backgroundColor: '#db9d58',
-          padding: { left: 10, right: 10, top: 2, bottom: 2 },
-        }).setOrigin(0.5);
-        cardContainer.add(lvlBadge);
-
-        // Texto com a descrição do bônus oferecido (nítido, legível e com peso)
-        const descText = this.add.text(0, plateY + 12, choice.description, {
-          fontFamily: THEME.typography.narrativeFont,
-          fontSize: '16px',
-          fontStyle: 'bold',
-          color: '#21130b',
-          align: 'center',
-          lineSpacing: 3,
-          wordWrap: { width: plateW - 24 },
-        }).setOrigin(0.5);
-        // Garante nitidez máxima no canvas escalado
-        descText.setResolution(2);
-        cardContainer.add(descText);
       } else {
         // Fallback procedural card
         const fallbackBg = this.add.graphics();
@@ -410,6 +368,49 @@ export class LevelUpScene extends Phaser.Scene {
         }).setOrigin(0.5);
         cardContainer.add(nameText);
       }
+
+      // 3. Dynamic Aged Parchment Plate for Bonus Description (LV. 1 / New & Upgrades)
+      // Sobrepõe perfeitamente a área inferior do cartaz onde havia o 'LV. 1' original impresso no PNG
+      const plateW = cardW - 24; // 276px de largura
+      const plateH = 126;        // 126px cobrindo de y=95 até y=221
+      const plateY = cardH / 2 - plateH / 2 - 14; // Y = 158
+
+      const plateGfx = this.add.graphics();
+      // Cor de pergaminho envelhecido idêntica à do fundo do cartaz (#efbb77)
+      plateGfx.fillStyle(0xefbb77, 1);
+      plateGfx.fillRect(-plateW / 2, plateY - plateH / 2, plateW, plateH);
+      // Borda entalhada de madeira e linha interna de xilogravura
+      plateGfx.lineStyle(2, 0x3d2314, 1);
+      plateGfx.strokeRect(-plateW / 2, plateY - plateH / 2, plateW, plateH);
+      plateGfx.lineStyle(1, 0x8c531d, 0.7);
+      plateGfx.strokeRect(-plateW / 2 + 3, plateY - plateH / 2 + 3, plateW - 6, plateH - 6);
+      cardContainer.add(plateGfx);
+
+      // Level badge dinâmico: mostra o nível que o jogador obterá (ex: ★ LV. 1 ★ ou ★ LV. 2 ★)
+      const lvlBadge = this.add.text(0, plateY - 38, `★ LV. ${choice.nextLevel} ★`, {
+        fontFamily: THEME.typography.westernFont,
+        fontSize: '14px',
+        color: '#1a0d00',
+        stroke: '#78350f',
+        strokeThickness: 1,
+        backgroundColor: '#db9d58',
+        padding: { left: 10, right: 10, top: 2, bottom: 2 },
+      }).setOrigin(0.5);
+      cardContainer.add(lvlBadge);
+
+      // Texto com a descrição do bônus oferecido (nítido, legível e com peso)
+      const descText = this.add.text(0, plateY + 12, choice.description, {
+        fontFamily: THEME.typography.narrativeFont,
+        fontSize: '16px',
+        fontStyle: 'bold',
+        color: '#21130b',
+        align: 'center',
+        lineSpacing: 3,
+        wordWrap: { width: plateW - 24 },
+      }).setOrigin(0.5);
+      // Garante nitidez máxima no canvas escalado
+      descText.setResolution(2);
+      cardContainer.add(descText);
 
       // 4. Pinned Top Ribbon (Ribbon New / Upgrade)
       const ribbonKey = isNew ? 'ui_ribbon_new' : 'ui_ribbon_upgrade';

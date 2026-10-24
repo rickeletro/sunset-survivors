@@ -1,0 +1,299 @@
+{
+  "provider": "PixelLab",
+  "object_name": "galinha_caipira",
+  "object_id": "275838e2-0b5d-4d9a-aa23-81e5ac46b7dc",
+  "animation": "walk",
+  "animation_group_id": "cb05982a-1c8b-4332-9dc4-ff6298534ede",
+  "render_scale": 1,
+  "generated_in_this_session": false,
+  "frames": [
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/east/frame_000.png",
+      "sha256": "389909480962d78efa942944bafcc1d10b78673bc4f437e82f64c5b463cda885"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/east/frame_001.png",
+      "sha256": "c0304c86a46ace6a84d333883e93e2cdb02dcd512f64733dd100098ddb4c2b53"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/east/frame_002.png",
+      "sha256": "632c013198ce5def24706d7e18d9fdb3c41ab3e37aeccbf9aac7649ff1a351fc"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/east/frame_003.png",
+      "sha256": "75a5939d34b7acc4138513dca354403cbc14b12eb325128132748a79477f76a1"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/east/frame_004.png",
+      "sha256": "a036b70f23880472fbe0666d8dcc55bd18776fe0385eccce4daf7b061ebb77b7"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/east/frame_005.png",
+      "sha256": "8464d855029e80f430f8a5645b793692b0abfd8373b68b719089a58d9cb25494"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/east/frame_006.png",
+      "sha256": "5ae3353929183971aa5763b111ade679d109db02e6986620f5eca84bc2bdef80"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/east/frame_007.png",
+      "sha256": "c152eca73444af7cb03750480a86ad581f46c75932aa1ff7343fc361900aff6c"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/east/frame_008.png",
+      "sha256": "17477c5ca82a53a6f9173ba346821f2ad893633e6fb61698e14f46d0206b490b"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/north/frame_000.png",
+      "sha256": "e7f166252ba5bb44c284ea2b3294f5f81ef4fb14960e04fd5abbe4d1877af6de"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/north/frame_001.png",
+      "sha256": "1bfe84b7edce02bb495d373e8a3c8e889aa3f3ce493feb200dc0ea100b3252c0"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/north/frame_002.png",
+      "sha256": "28d73e42c59fd6a4b3921830d72e461859bd955be6574966f693ea0d21b3d929"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/north/frame_003.png",
+      "sha256": "40d37959117f7849487bbced3d0e47c4ef1f1ff4c61a032baaa3ec23568141b3"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/north/frame_004.png",
+      "sha256": "68b161991c5f7a88a375f27bc773e44b2c3b05cec9390c5d621dec7d587627f6"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/north/frame_005.png",
+      "sha256": "87cd5a1767a91734421ebe23f71e3bd0f6c45b4bd5c8b2db94a0ddf91980e29e"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/north/frame_006.png",
+      "sha256": "cfd0fc9c6f59c809606ef084b7a5aceb9a0acf213f9977fda9509381370a45e7"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/north/frame_007.png",
+      "sha256": "64af477908111797bc69addbf4b43828bcaa025ebb05d3807ae37073e8162658"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/north/frame_008.png",
+      "sha256": "bdded9d2ec67af6de0bbbd77f6361b610aa78477a7db1546508e7d687cab1174"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/north-east/frame_000.png",
+      "sha256": "797bd68aa974ab339ebf474b7e6088913208ebed9e8e265cf9b5cb8c8cbe9287"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/north-east/frame_001.png",
+      "sha256": "62e62d9c3175cd200db07cdf9356dd3b688c01965b57fcdbdc661d37a064e72c"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/north-east/frame_002.png",
+      "sha256": "30470834d52c4b6a63106891c23466af39e9d8fd45947cff3ed1e4a9f675007f"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/north-east/frame_003.png",
+      "sha256": "e96faeb89e67ce378e3025506ea6d3ad93a43e638be6fe7bc0a806008a9da57f"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/north-east/frame_004.png",
+      "sha256": "65645be6e11fd22e721683ca1fc93070b7977c137310e28bec648230a0906a84"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/north-east/frame_005.png",
+      "sha256": "498520d552ec7ec245cb06f7484ef7ce3cde1ff4b0647ff5c2aee350c7bf0c76"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/north-east/frame_006.png",
+      "sha256": "721fdcaeed2b3a6a5d8da88aaa23e4714e47cb8ed8a560db6e6a1e2791858888"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/north-east/frame_007.png",
+      "sha256": "8bf082787d9348ca7da4d94c93479079dfae654c81b5d1088971ea0245379feb"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/north-east/frame_008.png",
+      "sha256": "faf02bbf2652746013c7de48cb775e908b1e581ffc9a61831fa4654282f8613a"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/north-west/frame_000.png",
+      "sha256": "5f47a905da17e53b2aea6c53a459a334848278f02f301b7526e16aef10a3f640"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/north-west/frame_001.png",
+      "sha256": "3a7f80693d5096122df681a5aad0f438c6126b651f25a31a278a4f97d4dba732"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/north-west/frame_002.png",
+      "sha256": "038fc3016f0966e7aed99a9fed49d2beb5fc5e6e2b502b47e349582a6eafa88b"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/north-west/frame_003.png",
+      "sha256": "4406a81d85e25a5947c2e459e54061a2cb77e6a89ecaf153738b2856228a7db4"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/north-west/frame_004.png",
+      "sha256": "29df3c860484f5e7af4f0aee2ba24cfe13f4fbc1be732ca8ef7a80b4170df3c0"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/north-west/frame_005.png",
+      "sha256": "3e831686a72c06fe2e158c76130423b366349a5c4c4534485a105d050afc56f5"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/north-west/frame_006.png",
+      "sha256": "1cae29b6bbfa0d86d256ba9ee335c9307b363645f53b817bb7c68c12ca323e8c"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/north-west/frame_007.png",
+      "sha256": "f37fa125cefac30655ec33fded295ccb814f73584a5a4cad902416df1559666f"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/north-west/frame_008.png",
+      "sha256": "36e9f5abd7def53ebbac76dca53603e51808c0f95d5eaa30d50843d107237b09"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/south/frame_000.png",
+      "sha256": "266bebfb4b1c3dbf53e4d6f24485584ba14e7ba54ce62ddad589a59ff5f5e7a7"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/south/frame_001.png",
+      "sha256": "80a8f7d8391d5e4b7daec23ee2dfe29bf5f5172d472db9d735f50c3d70c8ba1d"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/south/frame_002.png",
+      "sha256": "15699d39360617f160b58044935d3d38b8528c9be833cd4a65e01cfb18ab7045"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/south/frame_003.png",
+      "sha256": "fb6e8527fe9b46dab95e725dfd562d2b8be616f8492026d575c9f35142f7c739"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/south/frame_004.png",
+      "sha256": "c4172527ebf1fe623e3edbcd84b732356eee13fa5bbaf84394309b75dc3f65c7"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/south/frame_005.png",
+      "sha256": "b6da645d2b59e78bc3e2b0d1a68d0ab5d81458a19d6e497b3cc80002fc9728e5"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/south/frame_006.png",
+      "sha256": "882b03e7c82397603397ce9e751c49e16baaea2c33a731438ae84a3abb8a827e"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/south/frame_007.png",
+      "sha256": "e4b8f369624232d01bd4a71ac3e96b03b3e861ffe2e0cb62f642d25404bc71fa"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/south/frame_008.png",
+      "sha256": "da85820fb35253ef0fbe12ada558535db626760d5b6418ea78cb2add13d47f74"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/south-east/frame_000.png",
+      "sha256": "9a85dcb7b3706d528328cf42ef3836e4099af03a28452957f2ee5d946e24fb9f"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/south-east/frame_001.png",
+      "sha256": "d9d6051f379cc6b99a34cbe3a3d786932c1799ccf68008ac4277df7cb86041b0"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/south-east/frame_002.png",
+      "sha256": "48fe00faa435449f656bedfbca1ab4d471b1fa430993803c1e113b710bc1150b"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/south-east/frame_003.png",
+      "sha256": "43a8fd5a631525a0a027f8815ac8069f8503c4126b2d5d28c66d1460b8e5a9f2"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/south-east/frame_004.png",
+      "sha256": "17f2eda77d663a5f77a289e87c1a5d15a973acb6d398fb982966b256d0ee58bc"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/south-east/frame_005.png",
+      "sha256": "0ebc43b05bd998669ad059ea8280060ef9dc9b7a9d3017332f1a9f47b6d6f285"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/south-east/frame_006.png",
+      "sha256": "cbc088eb2d3dc041a7df0aefc9a84d3b976d314c37d01628a213ed8607cd725e"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/south-east/frame_007.png",
+      "sha256": "0a268df6a4c5fddf3260843ba58ccd67c575f5053e89892c0c746ddb0e7e2aa8"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/south-east/frame_008.png",
+      "sha256": "3b1d6534c51ff5a5bff48edd720b8293436de0bc5304a2672ab5eaac8cfb49d1"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/south-west/frame_000.png",
+      "sha256": "33ea4b02b2e9344a34215d714f7afe3e8c8f95df0da8df408eeeb16064d4ce75"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/south-west/frame_001.png",
+      "sha256": "b079d971ef63ea43e644ddf5c462694b6a1c3c65a40b84b85f786a6634ca5eb5"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/south-west/frame_002.png",
+      "sha256": "572208cf3f5c893379a11c1e695c6249d2d64a7ceccda9095301abda30c85096"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/south-west/frame_003.png",
+      "sha256": "258cbdf382b7accca5bae8481e543c1e23c3439f29ae15f49a8f3596bf220b0b"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/south-west/frame_004.png",
+      "sha256": "16514a4c426e7f3ed3739fa7ce99ea178949c9559d67882a4953834b988dbd29"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/south-west/frame_005.png",
+      "sha256": "26390589a5fafd1e5b0cd07f448047e538120877d80140bf4d9b7570ea2c2fb0"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/south-west/frame_006.png",
+      "sha256": "6b3111825be10a30c31147d4f9a20d097b92b782dddaebaead16dfa8a5521fcb"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/south-west/frame_007.png",
+      "sha256": "a17250ffbe71601dad81929415d204608515eb06b7f6c19949f5802349d80ce4"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/south-west/frame_008.png",
+      "sha256": "fca1c19ee9734d36d2c0378da648c0159ba18bf6863b5be5f540832ab95bec08"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/west/frame_000.png",
+      "sha256": "cdc83708ce11229dcbba4f1d4dfc2e4250f5ae93f2fff328ea3a43e2e1f6bbb4"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/west/frame_001.png",
+      "sha256": "3a8c2c8593241fbdd0e790ef03cc6669d7004dad3c2b2c4d81e335dd3e933f6e"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/west/frame_002.png",
+      "sha256": "5d61eff2e5c8eef63751ba43050da8cf514fdda91b3a53b02109d69e7d549d20"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/west/frame_003.png",
+      "sha256": "2c62c5d88c4a336dc5d9fca3765fda68b943f51b159e5b09504abb7fe851045a"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/west/frame_004.png",
+      "sha256": "943f1ce809227dfd15ced1d9cb8e72635426de40c74765e8aac168ee6cf03203"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/west/frame_005.png",
+      "sha256": "5a15ee232060c79df257d68a0592cfce1bb037c5e8e514f298206eb76b661b05"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/west/frame_006.png",
+      "sha256": "ad705bb7b8909c0ccf1fb471ba599b7aabaf0e3cc5d03d929796457112c91055"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/west/frame_007.png",
+      "sha256": "ac787a37097ee3606fc39d248703470cd0b528cc2819ae11963e0f1e9f2fe2fd"
+    },
+    {
+      "path": "public/assets/wildlife/pixellab/chicken/walk/west/frame_008.png",
+      "sha256": "3f2c8e0157bc0e56bbc0d317ef0b10ac02ba94dbdc395025adc91f823ec95044"
+    }
+  ]
+}

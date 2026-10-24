@@ -1,10 +1,11 @@
+import { createRequire } from 'node:module';
 import { EventEmitter } from 'node:events';
 import { describe, expect, it, vi } from 'vitest';
 import { BuildingTransitionScene } from './BuildingTransitionScene';
 import { saloonDoors } from '../data/saloon';
 vi.mock('phaser', () => ({ default: { Scene: class {}, BlendModes: { ADD: 1 } } }));
 vi.mock('../audio/SoundManager', () => ({ sounds: { playReload: vi.fn() } }));
-function fixture(mode = 'enter') {
+function fixture(mode = 'enter', sourceTexture) {
   const scene = new BuildingTransitionScene(), objects = [];
   const node = (x = 0, y = 0) => {
     const n = { x, y, alpha: 1, scaleX: 1, scaleY: 1 };
@@ -15,14 +16,14 @@ function fixture(mode = 'enter') {
   };
   const camera = {};
   for (const method of ['setScroll', 'setZoom', 'fadeIn', 'fadeOut']) camera[method] = vi.fn(() => camera);
-  const texture = { has: () => false, add: vi.fn() };
+  const texture = sourceTexture ?? { has: () => false, add: vi.fn() };
   Object.assign(scene, { textures: { get: () => texture }, add: { image: node, sprite: node, graphics: () => node() }, cameras: { main: camera },
     scene: { stop: vi.fn() }, events: new EventEmitter() });
   const portal = saloonDoors('canyon')[0].portal;
   const path = mode === 'enter' ? [{ x: 3700, y: 3690 }, portal.threshold] : [portal.threshold, { x: 3580, y: 3668 }];
   const data = { mode, path, portal, camera: { scrollX: 2650, scrollY: 3120, zoom: 1.4 },
     actor: { hero: 'cormano', pixellab: true, texture: 'pl_cormano_south_0', frame: 0, scaleX: 0.5, scaleY: 0.5 },
-    onPosition: vi.fn(), onComplete: vi.fn(), onCancel: vi.fn() };
+    onZoom: vi.fn(), onPosition: vi.fn(), onComplete: vi.fn(), onCancel: vi.fn() };
   scene.init(data); scene.create(); return { scene, data, camera, objects, texture };
 }
 describe('layered building transition without browser gameplay', () => {
@@ -49,4 +50,29 @@ it('extracts the animated door leaves from the approved facade pixels', () => {
   expect(texture.add).toHaveBeenCalledWith(expect.any(String), 0, 132, 177, 14, 34);
   expect(texture.add).toHaveBeenCalledWith(expect.any(String), 0, 146, 173, 14, 34);
   expect(scene.leaves).toHaveLength(2);
+});
+
+it('breathes the camera only during the frozen transition and restores its lens on cancel', () => {
+  const { scene, data, camera } = fixture();
+  scene.update(0, 200);
+  const zoom = data.onZoom.mock.calls.at(-1)[0];
+  expect(zoom).toBeGreaterThan(1.4);
+  expect(zoom).toBeLessThanOrEqual(1.4 * 1.10);
+  expect(camera.setZoom).toHaveBeenLastCalledWith(zoom);
+  scene.events.emit('shutdown');
+  expect(data.onZoom).toHaveBeenLastCalledWith(1.4);
+});
+
+it('preserves the full 256px facade after door extraction using the real Phaser texture implementation', () => {
+  const require = createRequire(import.meta.url), Texture = require('phaser/src/textures/Texture.js');
+  const texture = Object.assign(Object.create(Texture.prototype), {
+    source: [{ width: 256, height: 256, resolution: 1 }], frames: {}, firstFrame: '__BASE', frameTotal: 0,
+  });
+  texture.add('__BASE', 0, 0, 0, 256, 256);
+  fixture('enter', texture);
+  expect(texture.firstFrame).toBe('__BASE');
+  expect(texture.get().width).toBe(256); expect(texture.get().height).toBe(256);
+  expect(texture.get('portal-leaf-0-132-177-14-34').width).toBe(14);
+  fixture('exit', texture);
+  expect(texture.get().width).toBe(256);
 });

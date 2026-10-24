@@ -15,7 +15,7 @@ export const WEAPON_EVOLUTIONS: WeaponEvolution[] = [
     evolvedWeaponId: 'desperado_fury',
     name: 'Desperado Fury',
     icon: 'revolver',
-    description: 'EVOLUÇÃO: Saraivada contínua de 6 tiros perfurantes que explodem ao final do trajeto!'
+    description: 'EVOLUTION: Six piercing shots explode at the end of their flight!'
   },
   {
     baseWeaponId: 'shotgun',
@@ -23,7 +23,7 @@ export const WEAPON_EVOLUTIONS: WeaponEvolution[] = [
     evolvedWeaponId: 'blunderbuss_doom',
     name: 'Doom Blunderbuss',
     icon: 'shotgun',
-    description: 'EVOLUÇÃO: Disparo frontal maciço de 12 estilhaços incendiários com repulsão avassaladora!'
+    description: 'EVOLUTION: Twelve incendiary pellets with devastating knockback!'
   },
   {
     baseWeaponId: 'rifle',
@@ -31,7 +31,7 @@ export const WEAPON_EVOLUTIONS: WeaponEvolution[] = [
     evolvedWeaponId: 'golden_repeater',
     name: 'Golden Marshal',
     icon: 'rifle',
-    description: 'EVOLUÇÃO: Triplo disparo de sniper de perfuração infinita que ricocheteia nos limites de tela!'
+    description: 'EVOLUTION: Three unlimited-piercing sniper shots ricochet off the screen edges!'
   },
   {
     baseWeaponId: 'dynamite',
@@ -39,7 +39,7 @@ export const WEAPON_EVOLUTIONS: WeaponEvolution[] = [
     evolvedWeaponId: 'hellfire_keg',
     name: 'Hellfire Keg',
     icon: 'dynamite',
-    description: 'EVOLUÇÃO: Barris explosivos que deixam um lago de fogo gigante após a detonação!'
+    description: 'EVOLUTION: Explosive barrels leave a vast pool of fire!'
   },
   {
     baseWeaponId: 'lasso',
@@ -47,7 +47,7 @@ export const WEAPON_EVOLUTIONS: WeaponEvolution[] = [
     evolvedWeaponId: 'cyclone_whip',
     name: 'Cyclone Whip',
     icon: 'lasso',
-    description: 'EVOLUÇÃO: 4 chicotes dourados varrem os dois flancos com alcance extremo!'
+    description: 'EVOLUTION: Four golden whips sweep both flanks with extreme reach!'
   }
 ];
 

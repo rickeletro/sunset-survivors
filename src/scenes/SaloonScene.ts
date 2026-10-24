@@ -1,24 +1,39 @@
+import { FaroTableView } from '../ui/FaroTableView';
+import type { FaroTable } from '../data/faro';
+import type { UpgradeChoice } from './LevelUpScene';
 import Phaser from 'phaser';
-import { preloadImages } from '../assets/registry';
+import { CATALOG, preloadImages } from '../assets/registry';
 import { createMenuRoot } from '../ui/layout/menuLayout';
 import { bindPulpKeys, bindPulpMenu, preloadPulp, pulpBackdrop, pulpButton, pulpHeading, pulpPaper, pulpText, pulpWood } from '../ui/layout/pulpSceneKit';
 import { SALOON_REWARD } from '../data/saloon';
 import { sounds } from '../audio/SoundManager';
 
-export interface SaloonSceneData { onLeave: (accept: boolean) => void; }
+export interface SaloonSceneData { faro?: boolean; hospitality?: boolean; table?: FaroTable; prize?: UpgradeChoice; onLeave: (accept: boolean) => void; }
 
 /** Separate interior, illustration, footlights and interactive UI; gameplay scene stays paused. */
 export class SaloonScene extends Phaser.Scene {
   private onLeave!: SaloonSceneData['onLeave'];
   private finished = false;
+  private faro = false;
+  private table?: FaroTable;
+  private prize?: UpgradeChoice;
+  private hospitality = false;
   constructor() { super('SaloonScene'); }
-  init(data: SaloonSceneData) { this.onLeave = data.onLeave; this.finished = false; }
-  preload() { preloadPulp(this); preloadImages(this, ['saloon_cancan']); }
+  init(data: SaloonSceneData) { this.table = data.table; this.prize = data.prize; this.hospitality = !!data.hospitality; this.faro = !!data.faro && !this.hospitality; this.onLeave = data.onLeave; this.finished = false; }
+  preload() { preloadPulp(this); preloadImages(this, ['saloon_cancan', 'faro_dealer']);
+    const key = this.prize?.type === 'reward' ? 'card_badge' : `card_${this.prize?.id}`;
+    if (key in CATALOG.images) preloadImages(this, [key]); }
   create() {
     const root = createMenuRoot(this);
     pulpBackdrop(this, root, true);
-    pulpHeading(this, root, 'FRONTIER SALOON', -390, 1260, 76, true);
-    pulpText(this, root, 0, -280, 'UM RESPIRO ENTRE TIROTEIOS', 26);
+    if (!this.hospitality) sounds.playDealerGreeting();
+    this.events.once('shutdown', () => sounds.stopFaroAudio());
+    if (this.faro && this.table && this.prize) {
+      new FaroTableView(this, root, this.table, this.prize, () => this.finish(true));
+      return;
+    }
+    pulpHeading(this, root, this.hospitality ? 'HOSPITALITY HOUSE' : 'FRONTIER SALOON', -390, 1260, 76, true);
+    pulpText(this, root, 0, -280, this.hospitality ? 'GOOD COMPANY TO HELP YOU CATCH YOUR BREATH' : 'A BREATHER BETWEEN GUNFIGHTS', 26);
     pulpWood(this, root, 0, 194, 1160, 64);
     const dancers = this.add.image(0, 180, 'saloon_cancan').setOrigin(0.5, 1);
     dancers.setScale(Math.min(1040 / dancers.width, 420 / dancers.height));
@@ -31,13 +46,13 @@ export class SaloonScene extends Phaser.Scene {
       this.tweens.add({ targets: light, alpha: 0.45, duration: 1100, yoyo: true, repeat: -1 });
     }
     pulpPaper(this, root, 0, 280, 1120, 96);
-    pulpText(this, root, 0, 264, `BRINDE: RESTAURA ${SALOON_REWARD.healthFraction * 100}% DA VIDA  +$${SALOON_REWARD.bounty}`, 30, '#a51e16');
-    pulpText(this, root, 0, 302, 'UMA VISITA POR FASE • OPCIONAL • COMBATE PAUSADO', 21, '#120b08');
+    pulpText(this, root, 0, 264, this.hospitality ? 'WELCOME: +20 XP • RESTORE 12% HEALTH' : `ON THE HOUSE: RESTORE ${SALOON_REWARD.healthFraction * 100}% HEALTH  +$${SALOON_REWARD.bounty}`, 30, '#a51e16');
+    pulpText(this, root, 0, 302, 'ONE VISIT PER DOOR • OPTIONAL • COMBAT PAUSED', 21, '#120b08');
     bindPulpMenu(this, [
-      pulpButton(this, root, -270, 390, 'BRINDE E VOLTAR', () => this.finish(true), 510, true),
-      pulpButton(this, root, 270, 390, 'SAIR SEM BONUS', () => this.finish(false), 510),
+      pulpButton(this, root, -270, 390, this.hospitality ? 'REST & RETURN' : 'ACCEPT & RETURN', () => this.finish(true), 510, true),
+      pulpButton(this, root, 270, 390, 'LEAVE WITHOUT BONUS', () => this.finish(false), 510),
     ], true);
-    pulpText(this, root, 0, 465, '[← →] ESCOLHER   [ENTER] CONFIRMAR   [ESC] SAIR', 22);
+    pulpText(this, root, 0, 465, '[← →] SELECT   [ENTER] CONFIRM   [ESC] LEAVE', 22);
     bindPulpKeys(this, { ESC: () => this.finish(false) });
     // Existing game music continues; this scene never starts or switches a track.
   }

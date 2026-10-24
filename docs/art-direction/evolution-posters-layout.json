@@ -1,0 +1,86 @@
+[
+  {
+    "id": "reference",
+    "source": [
+      352,
+      512
+    ],
+    "scale": 0.8522727272727273,
+    "display": [
+      300,
+      436
+    ],
+    "description_lines": 1,
+    "description_fits_plate": true
+  },
+  {
+    "id": "desperado_fury",
+    "source": [
+      1024,
+      1536
+    ],
+    "scale": 0.29296875,
+    "display": [
+      300,
+      450
+    ],
+    "description_lines": 2,
+    "description_fits_plate": true
+  },
+  {
+    "id": "blunderbuss_doom",
+    "source": [
+      1024,
+      1536
+    ],
+    "scale": 0.29296875,
+    "display": [
+      300,
+      450
+    ],
+    "description_lines": 3,
+    "description_fits_plate": true
+  },
+  {
+    "id": "golden_repeater",
+    "source": [
+      1024,
+      1536
+    ],
+    "scale": 0.29296875,
+    "display": [
+      300,
+      450
+    ],
+    "description_lines": 3,
+    "description_fits_plate": true
+  },
+  {
+    "id": "hellfire_keg",
+    "source": [
+      1024,
+      1536
+    ],
+    "scale": 0.29296875,
+    "display": [
+      300,
+      450
+    ],
+    "description_lines": 2,
+    "description_fits_plate": true
+  },
+  {
+    "id": "cyclone_whip",
+    "source": [
+      1024,
+      1536
+    ],
+    "scale": 0.29296875,
+    "display": [
+      300,
+      450
+    ],
+    "description_lines": 3,
+    "description_fits_plate": true
+  }
+]

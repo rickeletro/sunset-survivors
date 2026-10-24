@@ -51,3 +51,23 @@ describe('SoundManager - Western Pulp 98 Audio', () => {
     expect(sounds.getSfxVolume()).toBeCloseTo(0.45, 2);
   });
 });
+
+it('routes recorded Faro audio through shared volume/mute, reuses clips and stops on exit', async () => {
+  const { vi } = await import('vitest');
+  const clips: { src: string; volume: number; muted: boolean; currentTime: number; play: ReturnType<typeof vi.fn>; pause: ReturnType<typeof vi.fn> }[] = [];
+  vi.stubGlobal('Audio', class {
+    volume = 1; muted = false; currentTime = 0;
+    play = vi.fn(() => Promise.resolve()); pause = vi.fn();
+    constructor(public src: string) { clips.push(this); }
+  });
+  try {
+    sounds.playDealerGreeting(); sounds.playCards(); sounds.playShuffle(); sounds.playCards();
+    expect(clips.map(c => c.src)).toEqual(['assets/audio/voices/dealer.mp3', 'assets/audio/sfx/cards.mp3', 'assets/audio/sfx/shuffling-deck-of-cards.mp3']);
+    expect(clips[1].play).toHaveBeenCalledTimes(2);
+    sounds.setSfxVolume(.3); expect(clips.every(c => c.volume === .3)).toBe(true);
+    sounds.toggleMute(); expect(clips.every(c => c.muted)).toBe(true);
+    sounds.playCards(); expect(clips[1].play).toHaveBeenCalledTimes(2);
+    sounds.toggleMute(); sounds.stopFaroAudio();
+    expect(clips.every(c => c.pause.mock.calls.length === 1 && c.currentTime === 0)).toBe(true);
+  } finally { sounds.setSfxVolume(.45); vi.unstubAllGlobals(); }
+});

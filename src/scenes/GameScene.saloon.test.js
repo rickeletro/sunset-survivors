@@ -16,12 +16,13 @@ function fixture() {
   const player = { x: door.x, y: door.y, visible: true, texture: { key: 'pl_cormano_south_0' }, frame: { name: '__BASE' },
     scaleX: 0.5, scaleY: 0.5, anims: { stop: vi.fn() } };
   player.setFlipX = vi.fn(() => player); player.setTexture = vi.fn(() => player);
-  Object.assign(g, { saloonVisit: new SaloonVisit([door]), saloonViews: [],
+  Object.assign(g, { stageConfig: getStage(1), saloonVisit: new SaloonVisit([door]), saloonViews: [],
     player, character: CHARACTERS.cormano, usePixellab: true, facingDir: 'south', hp: 50, maxHp: 150, bounty: 0, currentXp: 0,
     combatElapsedMs: 1000, invulnUntil: 0, time: { now: 1000, paused: false }, tweens: { paused: false }, gameTimeSeconds: 30,
     worldMap: { buildingPath: vi.fn((a, b) => [{ x: a.x, y: a.y }, { x: b.x, y: b.y }]) },
     activeWeapons: new Map([['shotgun', 3]]), weaponTimers: new Map([['shotgun', 300]]),
     enemies: [{ hp: 100, chargeRemaining: 500 }], projectiles: [{ life: 100 }], fireZones: [{ life: 500 }], drops: [{ val: 10 }],
+    generateUpgradeChoices: vi.fn(() => [{ type: 'weapon', id: 'shotgun', name: 'Shotgun', icon: 'shotgun', currentLevel: 3, nextLevel: 4, description: 'Upgrade shotgun' }]),
     updateHpBar: vi.fn(), bountyText: { setText: vi.fn() },
     cameras: { main: { scrollX: 2700, scrollY: 3100, zoom: 1.25 } },
     scene: { launch: vi.fn(), pause: vi.fn(), resume: vi.fn(), stop: vi.fn() } });
@@ -116,4 +117,94 @@ it('preloads the interior before a doorway transition so entry does not wait on 
   g.textures = { exists: () => false }; g.load = { image: vi.fn() }; g.preload();
   const keys = new Set(g.load.image.mock.calls.map(c => c[0]));
   for (const key of ['saloon_bkg', 'intro_bkg', 'ui_pulp_paper', 'ui_pulp_wood', 'decor_lantern', 'decor_spark', 'saloon_cancan']) expect(keys.has(key)).toBe(true);
+});
+
+it('restores the camera and grants railroad XP once after returning to the street', () => {
+  const g = fixture(), doors = saloonDoors('railroad');
+  g.bounty = 100; g.stageConfig = getStage(2); g.player.x = doors[0].x; g.player.y = doors[0].y;
+  g.saloonVisit = new SaloonVisit(doors, { healthFraction: 0.2, bounty: 35, xp: 40 }, true);
+  g.awardXp = vi.fn();
+  g.openSaloon(); const entry = data(g, 'BuildingTransitionScene');
+  entry.onZoom(1.28); expect(g.cameras.main.zoom).toBe(1.28);
+  entry.onComplete(); expect(g.awardXp).not.toHaveBeenCalled();
+  expect(data(g, 'SaloonScene').faro).toBe(true);
+  data(g, 'SaloonScene').onLeave(true); const exit = data(g, 'BuildingTransitionScene');
+  exit.onComplete(); exit.onComplete();
+  expect(g.cameras.main.zoom).toBe(1.25);
+  expect(g.awardXp).toHaveBeenCalledExactlyOnceWith(40);
+  expect(g.bounty).toBe(135);
+  expect(g.saloonVisit.wasUsed(doors[0])).toBe(true);
+  expect(g.saloonVisit.wasUsed(doors[1])).toBe(false);
+});
+
+function faroFixture() {
+  const g = fixture(), doors = saloonDoors('railroad');
+  g.bounty = 100; g.stageConfig = getStage(2); g.player.x = doors[0].x; g.player.y = doors[0].y;
+  g.saloonVisit = new SaloonVisit(doors, { healthFraction: 0.2, bounty: 0 }, true, true);
+  return g;
+}
+it('grants the actual arsenal item and Faro winnings once only after returning outside', () => {
+  const g = faroFixture(); g.bounty = 100;
+  const leave = enterInterior(g), interior = data(g, 'SaloonScene');
+  interior.table.cards = [{ rank: 2, suit: 0 }, { rank: 7, suit: 1 }];
+  expect(interior.prize.id).toBe('shotgun');
+  interior.table.placeBet(7, 'player', 10); interior.table.deal();
+  expect(g.bounty).toBe(100); expect(g.activeWeapons.get('shotgun')).toBe(3);
+  leave(true); leave(true);
+  const exit = data(g, 'BuildingTransitionScene'); exit.onComplete(); exit.onComplete();
+  expect(g.bounty).toBe(110); expect(g.activeWeapons.get('shotgun')).toBe(5);
+  expect(g.weaponTimers.get('shotgun')).toBe(300);
+  expect(g.saloonVisit.wasUsed(g.saloonVisit.doors[0])).toBe(true);
+});
+it('settles a paid loss even if leaving without the complimentary heal', () => {
+  const g = faroFixture(); g.bounty = 100;
+  const leave = enterInterior(g), table = data(g, 'SaloonScene').table;
+  table.cards = [{ rank: 7, suit: 0 }, { rank: 2, suit: 1 }];
+  table.placeBet(7, 'player', 20); table.deal();
+  leave(false); expect(g.bounty).toBe(100);
+  data(g, 'BuildingTransitionScene').onComplete();
+  expect(g.bounty).toBe(80); expect(g.hp).toBe(50); expect(g.activeWeapons.get('shotgun')).toBe(3);
+});
+
+it('configures railroad visits for playable Faro instead of the old fixed cash/XP courtesy', () => {
+  const g = fixture(); g.stageConfig = getStage(2);
+  g.input = { keyboard: new EventEmitter() }; g.events = new EventEmitter();
+  g.createSaloonInteraction();
+  const visit = g.saloonVisit, door = visit.doors[0];
+  expect(visit.enter(door.x, door.y, false, door)).toBe(true);
+  expect(visit.leave(true)).toEqual({ healthFraction: 0.2, bounty: 0 });
+});
+
+it('does not consume a Faro visit before the player can afford the smallest coin', () => {
+  const g = faroFixture(); g.bounty = 1; g.showBanner = vi.fn(); g.openSaloon();
+  expect(g.scene.launch).not.toHaveBeenCalled(); expect(g.saloonVisit.used).toBe(false);
+  expect(g.showBanner).toHaveBeenCalledWith('FARO: COLLECT AT LEAST $2 IN BOUNTY TO PLAY', '#ffc52a');
+});
+
+it('allows returning to Faro after a paid loss and locks only after the displayed capped prize is won', () => {
+  const g = faroFixture();
+  const lose = enterInterior(g); let table = data(g, 'SaloonScene').table;
+  expect(data(g, 'SaloonScene').prize.nextLevel).toBe(5);
+  table.cards = [{ rank: 7, suit: 0 }, { rank: 2, suit: 0 }]; table.placeBet(7, 'player', 10); table.deal();
+  lose(true); data(g, 'BuildingTransitionScene').onComplete();
+  expect(g.bounty).toBe(90); expect(g.hp).toBe(80); expect(g.saloonVisit.wasUsed(g.saloonVisit.doors[0])).toBe(false);
+  const win = enterInterior(g); table = data(g, 'SaloonScene').table;
+  table.cards = [{ rank: 2, suit: 0 }, { rank: 7, suit: 0 }]; table.placeBet(7, 'player', 10); table.deal();
+  win(true); data(g, 'BuildingTransitionScene').onComplete();
+  expect(g.bounty).toBe(100); expect(g.hp).toBe(80); expect(g.activeWeapons.get('shotgun')).toBe(5);
+  expect(g.saloonVisit.wasUsed(g.saloonVisit.doors[0])).toBe(true);
+});
+
+it('applies all passive upgrade steps through the existing effects and respects level five', () => {
+  const g = faroFixture(); g.activePassives = new Map([['badge', 1]]);
+  g.generateUpgradeChoices.mockReturnValue([{ type: 'passive', id: 'badge', name: 'Sheriff Star', icon: 'badge', currentLevel: 1, nextLevel: 2, description: '' }]);
+  const leave = enterInterior(g), table = data(g, 'SaloonScene').table;
+  table.cards = [{ rank: 2, suit: 0 }, { rank: 7, suit: 0 }]; table.placeBet(7, 'player', 10); table.deal();
+  leave(true); const exit = data(g, 'BuildingTransitionScene'); exit.onComplete(); exit.onComplete();
+  expect(g.activePassives.get('badge')).toBe(5); expect(g.xpBonus).toBe(2.2); expect(g.bounty).toBe(110);
+});
+it('does not offer cash as a substitute when no weapon or upgrade can improve', () => {
+  const g = faroFixture(); g.showBanner = vi.fn();
+  g.generateUpgradeChoices.mockReturnValue([{ type: 'reward', id: 'gold_purse', name: 'Cash', currentLevel: 0, nextLevel: 1, description: '' }]);
+  g.openSaloon(); expect(g.scene.launch).not.toHaveBeenCalled(); expect(g.saloonVisit.used).toBe(false);
 });

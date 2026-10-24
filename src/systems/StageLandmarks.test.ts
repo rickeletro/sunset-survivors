@@ -1,15 +1,17 @@
 import { describe, expect, it, vi } from 'vitest';
 import { StageLandmarks } from './StageLandmarks';
-import { SCENERY, footprint, overlapsFootprint, sceneryKey, worldDepth } from '../data/scenery';
+import { SCENERY, sceneryScale, footprint, overlapsFootprint, sceneryKey, worldDepth } from '../data/scenery';
+vi.stubGlobal('document', { createElement: () => ({ getContext: () => ({ canvas: {}, drawImage: vi.fn(), getImageData: () => ({ data: new Uint8ClampedArray(16 * 16 * 4).fill(255) }) }) }) });
 vi.mock('phaser', () => ({ default: { BlendModes: { ADD: 1 } } }));
 
 function harness() {
   const objects: any[] = [];
   let shutdown: () => void = () => {};
-  const image = (x: number, y: number, key: string) => {
-    const obj: any = { x, y, key, destroyed: false, alpha: 1, depth: 0 };
-    for (const method of ['setOrigin', 'setBlendMode']) obj[method] = () => obj;
-    obj.setScale = (scale: number) => { obj.scale = scale; return obj; };
+  const image = (x: number, y: number, key: string, requestedFrame?: string) => {
+    const obj: any = { x, y, key, requestedFrame, texture: { key }, originX: 0.5, originY: 1, scaleX: 1, scaleY: 1, flipX: false,
+      frame: { realWidth: 16, realHeight: 16, cutWidth: 16, cutHeight: 16, cutX: 0, cutY: 0, x: 0, y: 0, source: { image: {} } }, destroyed: false, alpha: 1, depth: 0 };
+    for (const method of ['setOrigin', 'setBlendMode', 'setPosition', 'setVisible', 'clear', 'fillStyle', 'fillEllipse', 'fillPoints']) obj[method] = () => obj;
+    obj.setScale = (scale: number) => { obj.scale = scale; obj.scaleX = obj.scaleY = scale; return obj; };
     obj.setDepth = (depth: number) => { obj.depth = depth; return obj; };
     obj.setAlpha = (alpha: number) => { obj.alpha = alpha; return obj; };
     obj.destroy = vi.fn(() => { obj.destroyed = true; });
@@ -17,7 +19,7 @@ function harness() {
   };
   const scene: any = {
     textures: { exists: () => true }, events: { once: (_event: string, fn: () => void) => { shutdown = fn; } },
-    add: { image, tileSprite: (x: number, y: number, _w: number, _h: number, key: string) => image(x, y, key), particles: image },
+    add: { image, graphics: () => image(0, 0, 'shadow-graphic'), tileSprite: (x: number, y: number, _w: number, _h: number, key: string) => image(x, y, key), particles: image },
   };
   return { scene, objects, shutdown: () => shutdown() };
 }
@@ -32,6 +34,7 @@ describe('streamed PixelLab scenery', () => {
     scenery.update(prop.x, prop.y - 100, 1000);
     expect(h.objects).toHaveLength(count);
     const facade = h.objects.find(o => o.key === sceneryKey(prop.kind) && o.x === prop.x && o.y === prop.y);
+    expect(facade.requestedFrame).toBe('__BASE');
     expect(facade.alpha).toBe(0.55);
     expect(facade.depth).toBeGreaterThan(worldDepth(prop.y - 100));
     expect(facade.depth).toBeLessThan(worldDepth(prop.y + 100));
@@ -57,17 +60,17 @@ describe('streamed PixelLab scenery', () => {
     expect(h.objects.every(o => o.destroyed)).toBe(true);
     expect(h.objects.every(o => o.destroy.mock.calls.length === 1)).toBe(true);
   });
-  it.each(['canyon', 'railroad', 'burning-town', 'saloon', 'caboose', 'mountain', 'hacienda', 'manor'] as const)('%s attaches tall poles only to building facades', theme => {
+  it.each(['canyon', 'railroad', 'burning-town', 'saloon', 'caboose', 'mountain', 'hacienda', 'manor'] as const)('%s attaches hero-height poles only to building facades', theme => {
     const h = harness(), scenery = new StageLandmarks(h.scene, theme);
     scenery.update(4000, 4000, 0);
     const poles = h.objects.filter(o => o.key === 'wm_lantern');
     if (theme === 'caboose') expect(poles).toHaveLength(0);
     else expect(poles.length).toBeGreaterThan(0);
     for (const pole of poles) {
-      const facade = scenery.placements.find(p => pole.x === p.x + SCENERY[p.kind].width / 2 + 28 && pole.y === p.y - 20)!;
+      const facade = scenery.placements.find(p => pole.x === p.x + SCENERY[p.kind].width * sceneryScale(p.kind) / 2 + 28 && pole.y === p.y - 20)!;
       expect(facade).toBeTruthy();
       expect(['house', 'saloon', 'sheriff', 'general-store', 'frontier-saloon', 'hacienda', 'manor', 'rail-station']).toContain(facade.kind);
-      expect(192 * pole.scale).toBeCloseTo(SCENERY[facade.kind].height);
+      expect(188 * pole.scale).toBeCloseTo(68.5);
       expect(pole.depth).toBe(worldDepth(pole.y));
     }
     scenery.update(80, 80, 1000);
