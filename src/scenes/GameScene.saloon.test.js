@@ -208,3 +208,34 @@ it('does not offer cash as a substitute when no weapon or upgrade can improve', 
   g.generateUpgradeChoices.mockReturnValue([{ type: 'reward', id: 'gold_purse', name: 'Cash', currentLevel: 0, nextLevel: 1, description: '' }]);
   g.openSaloon(); expect(g.scene.launch).not.toHaveBeenCalled(); expect(g.saloonVisit.used).toBe(false);
 });
+
+it('offers a separate gallery in stage three and pays its result once after returning, preserving Faro', () => {
+  const g = fixture(), doors = saloonDoors('burning-town'), door = doors.find(d => d.activity === 'gallery');
+  g.stageConfig = getStage(3); g.player.x = door.x; g.player.y = door.y;
+  g.saloonVisit = new SaloonVisit(doors, undefined, true); g.awardXp = vi.fn();
+  enterInterior(g); const interior = data(g, 'SaloonScene');
+  expect(interior.gallery).toBe(true); expect(interior.faro).toBe(false);
+  interior.onGalleryLeave({ bounty: 12, xp: 20 }); interior.onGalleryLeave({ bounty: 12, xp: 20 });
+  expect(g.bounty).toBe(0); const exit = data(g, 'BuildingTransitionScene'); exit.onComplete(); exit.onComplete();
+  expect(g.bounty).toBe(12); expect(g.awardXp).toHaveBeenCalledExactlyOnceWith(20); expect(g.hp).toBe(50);
+  expect(saloonDoors('railroad').filter(d => d.activity === 'gallery')).toHaveLength(1);
+});
+
+it.each([1, 2, 3, 4, 5, 6, 7, 8])('passes the actual stage %s into its dedicated gallery and blocks repeated free rounds', stage => {
+  const g = fixture(), config = getStage(stage), doors = saloonDoors(config.theme), door = doors.find(d => d.activity === 'gallery');
+  g.stageConfig = config; g.stage = stage; g.player.x = door.x; g.player.y = door.y; g.bounty = 0;
+  g.saloonVisit = new SaloonVisit(doors, stage === 2 ? { healthFraction: .2, bounty: 0 } : undefined, true, stage === 2);
+  const leave = enterInterior(g), interior = data(g, 'SaloonScene');
+  expect(interior.gallery).toBe(true); expect(interior.galleryStage).toBe(stage); expect(interior.faro).toBe(false);
+  expect(interior.table).toBeUndefined(); expect(g.generateUpgradeChoices).not.toHaveBeenCalled();
+  interior.onGalleryLeave({ bounty: 0, xp: 0 }); data(g, 'BuildingTransitionScene').onComplete();
+  expect(g.saloonVisit.wasUsed(door)).toBe(true); expect(g.hp).toBe(50); expect(g.bounty).toBe(0);
+  expect(typeof leave).toBe('function');
+  const calls = g.scene.launch.mock.calls.length; g.openSaloon(door); expect(g.scene.launch.mock.calls.length).toBe(calls);
+});
+
+it('updates compass activity availability without a footer direction label', () => {
+  const g=fixture(); g.frontierCompass={update:vi.fn()}; g.updateSaloonPrompt();
+  expect(g.frontierCompass.update).toHaveBeenCalledWith(g.saloonVisit,g.player.x,g.player.y,g.combatNow,false);
+  g.saloonOpen=true; g.updateSaloonPrompt(); expect(g.frontierCompass.update.mock.calls.at(-1).at(-1)).toBe(true);
+});

@@ -1,4 +1,4 @@
-import { preloadHeroSheets } from '../assets/registry';
+import { preloadImages, preloadHeroSheets } from '../assets/registry';
 import { preloadPulp, pulpBackdrop, pulpHeading, pulpText, pulpButton, pulpPaper, pulpWood, bindPulpMenu, bindPulpKeys } from '../ui/layout/pulpSceneKit';
 import { createMenuRoot } from '../ui/layout/menuLayout';
 import Phaser from 'phaser';
@@ -21,15 +21,16 @@ export class ControlsScene extends Phaser.Scene {
     this.fromScene = data?.fromScene ?? 'TitleScene';
   }
 
-  preload() { preloadPulp(this); preloadHeroSheets(this); }
+  preload() { preloadPulp(this); preloadHeroSheets(this); preloadImages(this, ['poster_billy']); }
 
   create() {
     this.rootContainer = createMenuRoot(this);
     pulpBackdrop(this, this.rootContainer, true);
     pulpHeading(this, this.rootContainer, 'HOW TO PLAY', -390, 1180, 72, true);
-    const hero = this.add.sprite(-480, 5, 'hero_billy', 0).setScale(2.7);
+    const hero = this.add.image(-480, -30, 'poster_billy');
+    hero.setScale(Math.min(390 / hero.width, 560 / hero.height));
     this.rootContainer.add(hero);
-    pulpText(this, this.rootContainer, -480, 260, 'BILLY • THE GUNSLINGER', 23, '#ffc52a');
+    pulpText(this, this.rootContainer, -480, 270, 'BILLY • THE GUNSLINGER', 23, '#ffc52a');
     const board = pulpWood(this, this.rootContainer, 220, -5, 860, 565);
     for (const y of [-135, 0, 135]) board.add(this.add.graphics().fillStyle(0x8b5a2b, 0.5).fillRect(-390, y, 780, 3));
     pulpText(this, board, -355, -205, 'MOVE', 31, '#f2d49a', 'left');
@@ -58,9 +59,9 @@ export class ControlsScene extends Phaser.Scene {
   private goBack() {
     sounds.playRevolver();
 
-    if (this.fromScene === 'PauseScene') {
+    if (this.fromScene === 'PauseScene' || this.fromScene === 'MenuScene') {
       this.scene.stop('ControlsScene');
-      this.scene.resume('PauseScene');
+      this.scene.resume(this.fromScene);
     } else {
       this.scene.start('TitleScene');
     }

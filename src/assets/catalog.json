@@ -92,7 +92,8 @@
     "card_blunderbuss_doom": "assets/powerup/evolutions/blunderbuss_doom.png",
     "card_golden_repeater": "assets/powerup/evolutions/golden_repeater.png",
     "card_hellfire_keg": "assets/powerup/evolutions/hellfire_keg.png",
-    "card_cyclone_whip": "assets/powerup/evolutions/cyclone_whip.png"
+    "card_cyclone_whip": "assets/powerup/evolutions/cyclone_whip.png",
+    "scenery_gallery-saloon": "assets/scenery/pixellab/saloon.png"
   },
   "sheets": {
     "hero_steve": {

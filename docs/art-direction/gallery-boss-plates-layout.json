@@ -1,0 +1,178 @@
+[
+  {
+    "boss": 1,
+    "source": [
+      377,
+      503
+    ],
+    "crop": [
+      20,
+      120,
+      335,
+      256
+    ],
+    "uniform_scale": 0.4417910447761194,
+    "portrait_display": [
+      148,
+      113
+    ],
+    "outer_plate": [
+      176,
+      192
+    ]
+  },
+  {
+    "boss": 2,
+    "source": [
+      374,
+      503
+    ],
+    "crop": [
+      20,
+      120,
+      332,
+      256
+    ],
+    "uniform_scale": 0.4457831325301205,
+    "portrait_display": [
+      148,
+      114
+    ],
+    "outer_plate": [
+      176,
+      192
+    ]
+  },
+  {
+    "boss": 3,
+    "source": [
+      368,
+      503
+    ],
+    "crop": [
+      20,
+      120,
+      327,
+      256
+    ],
+    "uniform_scale": 0.4525993883792049,
+    "portrait_display": [
+      148,
+      116
+    ],
+    "outer_plate": [
+      176,
+      192
+    ]
+  },
+  {
+    "boss": 4,
+    "source": [
+      365,
+      503
+    ],
+    "crop": [
+      20,
+      120,
+      324,
+      256
+    ],
+    "uniform_scale": 0.4567901234567901,
+    "portrait_display": [
+      148,
+      117
+    ],
+    "outer_plate": [
+      176,
+      192
+    ]
+  },
+  {
+    "boss": 5,
+    "source": [
+      377,
+      489
+    ],
+    "crop": [
+      20,
+      117,
+      335,
+      249
+    ],
+    "uniform_scale": 0.4417910447761194,
+    "portrait_display": [
+      148,
+      110
+    ],
+    "outer_plate": [
+      176,
+      192
+    ]
+  },
+  {
+    "boss": 6,
+    "source": [
+      374,
+      489
+    ],
+    "crop": [
+      20,
+      117,
+      332,
+      249
+    ],
+    "uniform_scale": 0.4457831325301205,
+    "portrait_display": [
+      148,
+      111
+    ],
+    "outer_plate": [
+      176,
+      192
+    ]
+  },
+  {
+    "boss": 7,
+    "source": [
+      368,
+      489
+    ],
+    "crop": [
+      20,
+      117,
+      327,
+      249
+    ],
+    "uniform_scale": 0.4525993883792049,
+    "portrait_display": [
+      148,
+      113
+    ],
+    "outer_plate": [
+      176,
+      192
+    ]
+  },
+  {
+    "boss": 8,
+    "source": [
+      365,
+      489
+    ],
+    "crop": [
+      20,
+      117,
+      324,
+      249
+    ],
+    "uniform_scale": 0.4567901234567901,
+    "portrait_display": [
+      148,
+      114
+    ],
+    "outer_plate": [
+      176,
+      192
+    ]
+  }
+]

@@ -9,9 +9,9 @@ describe('explicit difficulty and active-time threat', () => {
   it('persists a valid choice, defaults safely and survives unavailable storage', () => {
     const values = new Map<string, string>();
     const storage = () => ({ getItem: (k: string) => values.get(k) ?? null, setItem: (k: string, v: string) => { values.set(k, v); } });
-    const a = new DifficultySettings(storage); expect(a.get()).toBe('normal'); a.set('hardcore');
+    const a = new DifficultySettings(storage); expect(a.get()).toBe('hardcore'); a.set('hardcore');
     expect(new DifficultySettings(storage).get()).toBe('hardcore'); a.set('erase-save'); expect(a.get()).toBe('normal');
-    const offline = new DifficultySettings(() => { throw Error('blocked'); }); offline.set('easy'); expect(offline.get()).toBe('easy');
+    const offline = new DifficultySettings(() => { throw Error('blocked'); }); expect(offline.get()).toBe('hardcore'); offline.set('easy'); expect(offline.get()).toBe('easy');
   });
   it('ramps smoothly, caps the entire spawn HP budget at 7 minutes, and retains mode ordering', () => {
     expect([0, 60, 120, 180, 240, 300, 360, 420].map(t => enemyHealth(ENEMY_DEFS.bandit, t))).toEqual([30, 67, 112, 163, 222, 288, 361, 442]);
@@ -61,4 +61,12 @@ describe('reported high-throughput playtest regression', () => {
     expect(xpForLevel(20)).toBe(8013); expect(xpForLevel(20)).toBeGreaterThan(reportedRunCost(20) * 2);
     for (let level = 8; level < 80; level++) expect(xpForLevel(level + 1)).toBeGreaterThan(xpForLevel(level));
   });
+});
+
+
+it('starts old installations on Hardcore once and remembers subsequent explicit choices', () => {
+  const values = new Map([['sunset_difficulty_v1', 'easy']]);
+  const storage = () => ({ getItem: (key: string) => values.get(key) ?? null, setItem: (key: string,value: string) => { values.set(key,value); } });
+  const settings = new DifficultySettings(storage); expect(settings.get()).toBe('hardcore');
+  settings.set('easy'); expect(new DifficultySettings(storage).get()).toBe('easy');
 });

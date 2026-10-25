@@ -1,5 +1,5 @@
 import { preloadPulp, pulpBackdrop, bindPulpKeys } from '../ui/layout/pulpSceneKit';
-import { preloadHeroSheets } from '../assets/registry';
+import { preloadImages, preloadHeroSheets } from '../assets/registry';
 import { createMenuRoot } from '../ui/layout/menuLayout';
 import Phaser from 'phaser';
 import { sounds } from '../audio/SoundManager';
@@ -32,7 +32,7 @@ export class StatsScene extends Phaser.Scene {
     this.prevData = data?.prevData;
   }
 
-  preload() { preloadPulp(this); preloadHeroSheets(this); }
+  preload() { preloadPulp(this); preloadHeroSheets(this); preloadImages(this, ['poster_billy']); }
 
   create() {
     const { width, height } = this.scale;
@@ -161,26 +161,10 @@ export class StatsScene extends Phaser.Scene {
       this.contentPanel.add(statsDisplay);
 
       // Right Gunslinger Showcase
-      const rightFrame = new WesternPanel(this, {
-        x: 360,
-        y: 0,
-        width: 320,
-        height: 420,
-        variant: 'wood',
-      });
-      this.contentPanel.add(rightFrame);
+      const portrait = this.add.image(360, -10, 'poster_billy');
+      portrait.setScale(Math.min(330 / portrait.width, 400 / portrait.height));
+      this.contentPanel.add(portrait);
 
-      if (this.textures.exists('hero_billy')) {
-        const sprite = this.add.sprite(360, 0, 'hero_billy', 0).setScale(2.25);
-        this.contentPanel.add(sprite);
-      }
-
-      const showcaseLabel = this.add.text(360, 160, '★ BILLY ★', {
-        fontFamily: THEME.typography.pixelFont,
-        fontSize: '12px',
-        color: '#ffc52a',
-      }).setOrigin(0.5);
-      this.contentPanel.add(showcaseLabel);
     } else {
       // Weapons / Enemies / Stages Sub-view
       const parchment = new WesternPanel(this, {
@@ -228,7 +212,9 @@ export class StatsScene extends Phaser.Scene {
   private goBack() {
     sounds.playRevolver();
 
-    if (this.fromScene === 'StageClearScene' && this.prevData) {
+    if (this.fromScene === 'MenuScene') {
+      this.scene.stop('StatsScene'); this.scene.resume('MenuScene');
+    } else if (this.fromScene === 'StageClearScene' && this.prevData) {
       this.scene.start('StageClearScene', this.prevData);
     } else {
       this.scene.start('TitleScene');

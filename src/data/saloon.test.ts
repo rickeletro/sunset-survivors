@@ -7,7 +7,7 @@ describe('optional stage-limited saloon visit', () => {
     const saloon = stageLandmarks('canyon').find(p => p.kind === 'frontier-saloon')!;
     expect(saloonDoors('canyon')[0]).toMatchObject({ x: 3580, y: 3668 });
     expect(footprint(saloon)).toEqual(footprint({ ...saloon, kind: 'barn' }));
-    expect(saloonDoors('railroad')).toHaveLength(10);
+    expect(saloonDoors('railroad')).toHaveLength(11);
     expect(saloonDoors('saloon').length).toBeGreaterThan(0);
   });
   it('requires explicit entry within range, unblocked, and consumes one use across all doors', () => {
@@ -80,4 +80,26 @@ it('keeps Faro available through repeat visits until the door prize is won, with
 it('does not consume a repeatable Faro doorway on cancelled entry or declined exit', () => {
   const door = { x: 0, y: 0 }, visit = new SaloonVisit([door], undefined, true, true);
   visit.enter(0, 0, false); visit.leave(false); expect(visit.used).toBe(false); expect(visit.enter(0, 0, false)).toBe(true);
+});
+
+it('offers a dedicated gallery in every theme without replacing ordinary saloons or hospitality', async () => {
+  const { STAGES } = await import('./stages');
+  for (const stage of STAGES) {
+    const doors = saloonDoors(stage.theme), galleries = doors.filter(d => d.activity === 'gallery');
+    expect(galleries).toHaveLength(1); expect(galleries[0].portal?.facade.texture).toBe('scenery_gallery-saloon');
+    const guide = (await import('./saloon')).buildingDirections(new SaloonVisit(doors, undefined, true), 4000, 4000, stage.id);
+    expect(guide).toContain('TARGETS');
+  }
+  const rail = saloonDoors('railroad');
+  expect(rail.filter(d => d.activity === 'saloon')).toHaveLength(5);
+  expect(rail.find(d => d.activity === 'gallery')?.portal?.id).not.toBe(rail.find(d => d.activity === 'saloon')?.portal?.id);
+});
+it('consumes the gallery once even when Faro doors allow unlimited paid retries', () => {
+  const doors = saloonDoors('railroad'), gallery = doors.find(d => d.activity === 'gallery')!;
+  const visit = new SaloonVisit(doors, { healthFraction: .2, bounty: 0 }, true, true);
+  expect(visit.enter(gallery.x, gallery.y, false, gallery)).toBe(true); visit.leave(false);
+  expect(visit.wasUsed(gallery)).toBe(true); expect(visit.enter(gallery.x, gallery.y, false, gallery)).toBe(false);
+  const faro = doors.find(d => d.activity === 'saloon')!;
+  expect(visit.enter(faro.x, faro.y, false, faro)).toBe(true); visit.leave(false);
+  expect(visit.wasUsed(faro)).toBe(false); expect(visit.enter(faro.x, faro.y, false, faro)).toBe(true);
 });

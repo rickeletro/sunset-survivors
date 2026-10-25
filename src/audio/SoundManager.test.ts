@@ -71,3 +71,18 @@ it('routes recorded Faro audio through shared volume/mute, reuses clips and stop
     expect(clips.every(c => c.pause.mock.calls.length === 1 && c.currentTime === 0)).toBe(true);
   } finally { sounds.setSfxVolume(.45); vi.unstubAllGlobals(); }
 });
+
+it('replays the hospitality greeting on entry, respects volume/mute and stops it on exit', async () => {
+  const { vi } = await import('vitest');
+  const play=vi.fn(() => Promise.resolve()), pause=vi.fn();
+  const clip={src:'',volume:1,muted:false,currentTime:0,play,pause};
+  vi.stubGlobal('Audio',class { constructor(src:string) { clip.src=src; return clip; } });
+  try {
+    sounds.playHospitalityGreeting();
+    expect(clip.src).toBe('assets/audio/voices/hospitality_vices.mp3');
+    sounds.setSfxVolume(.25); expect(clip.volume).toBe(.25);
+    clip.currentTime=10; sounds.playHospitalityGreeting(); expect(clip.currentTime).toBe(0); expect(play).toHaveBeenCalledTimes(2);
+    sounds.toggleMute(); sounds.playHospitalityGreeting(); expect(play).toHaveBeenCalledTimes(2); expect(clip.muted).toBe(true);
+    sounds.toggleMute(); sounds.stopFaroAudio(); expect(pause).toHaveBeenCalledOnce();
+  } finally { sounds.setSfxVolume(.45); vi.unstubAllGlobals(); }
+});

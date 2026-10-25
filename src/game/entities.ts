@@ -18,6 +18,8 @@ export interface Projectile {
 }
 
 export interface Enemy {
+  fleeGoal?: { x: number; y: number };
+  escapeAt?: number;
   sprite: Phaser.GameObjects.Sprite;
   type: EnemyKind | 'boss';
   training?: boolean;

@@ -6,6 +6,9 @@ import { DIFFICULTIES, DIFFICULTY_IDS, difficultySettings, type DifficultyId } f
 
 export class DifficultyScene extends Phaser.Scene {
   private leaving = false;
+  private fromScene = 'TitleScene';
+  private duringRun = false;
+  init(data?: { fromScene?: string; duringRun?: boolean }) { this.fromScene = data?.fromScene ?? 'TitleScene'; this.duringRun = !!data?.duringRun; }
   constructor() { super('DifficultyScene'); }
   preload() { preloadPulp(this); }
   create() {
@@ -13,7 +16,7 @@ export class DifficultyScene extends Phaser.Scene {
     const root = createMenuRoot(this);
     pulpBackdrop(this, root, true);
     pulpHeading(this, root, 'CHOOSE YOUR CHALLENGE', -380, 1320, 80, true);
-    pulpText(this, root, 0, -265, 'NORMAL IS THE STANDARD • SAME CAMPAIGN IN ALL THREE MODES', 24);
+    pulpText(this, root, 0, -265, 'HARDCORE BY DEFAULT • SAME CAMPAIGN IN ALL THREE MODES', 24);
     const buttons = DIFFICULTY_IDS.map((mode, i) => {
       const p = DIFFICULTIES[mode], x = (i - 1) * 470;
       pulpWood(this, root, x, -20, 430, 430);
@@ -22,7 +25,7 @@ export class DifficultyScene extends Phaser.Scene {
         ? 'Dodge, build\nand choose wisely.' : 'Mistakes cost more.\nYour progress stays safe.';
       pulpText(this, root, x, -85, description, 25).setFontFamily(THEME.typography.narrativeFont);
       pulpText(this, root, x, 15, `ENEMY HP: ${Math.round(p.enemyHp * 100)}%\nBOSS HP: ${Math.round(p.bossHp * 100)}%\nDAMAGE TAKEN: ${Math.round(p.incomingDamage * 100)}%`, 22);
-      return pulpButton(this, root, x, 170, `PLAY ${p.label}`, () => this.choose(mode), 420, mode === difficultySettings.get());
+      return pulpButton(this, root, x, 170, `SELECT ${p.label}`, () => this.choose(mode), 420, mode === difficultySettings.get());
     });
     bindPulpMenu(this, buttons, true, DIFFICULTY_IDS.indexOf(difficultySettings.get()));
     pulpText(this, root, 0, 285, 'SAME XP, LOOT, HEALING, SPEED AND HITBOXES IN EVERY MODE', 23);
@@ -33,7 +36,16 @@ export class DifficultyScene extends Phaser.Scene {
   private choose(mode?: DifficultyId) {
     if (this.leaving) return;
     this.leaving = true;
-    if (mode) difficultySettings.set(mode);
-    this.scene.start('TitleScene');
+    if (mode) {
+      difficultySettings.set(mode);
+      if (this.duringRun) {
+        const game = this.scene.get('GameScene') as Phaser.Scene & { setRunDifficulty(mode: DifficultyId): void };
+        game.setRunDifficulty(mode);
+        const pause = this.scene.get('PauseScene') as Phaser.Scene & { setRunDifficulty(mode: DifficultyId): void };
+        pause.setRunDifficulty(mode);
+      }
+    }
+    if (this.fromScene === 'MenuScene') { this.scene.stop('DifficultyScene'); this.scene.resume('MenuScene'); }
+    else this.scene.start('TitleScene');
   }
 }

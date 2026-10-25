@@ -1,3 +1,4 @@
+import { galleryProfile } from '../data/shootingGallery';
 import Phaser from 'phaser';
 import { developerEnabled } from '../dev/access';
 import { developerSelection, type DeveloperSelection } from '../dev/selection';
@@ -81,7 +82,8 @@ export class DeveloperScene extends Phaser.Scene {
     this.weapon.setText(hero.subtitle);
     this.portrait?.destroy(); this.portrait = heroPortrait(this, 510, -157, hero.id); this.root.add(this.portrait);
     const stage = STAGES[this.selection.stage - 1];
-    this.description.setText(`STAGE ${stage.id}: ${stage.title}\n${stage.id === 2 ? 'FARO SALOON • HOSPITALITY • EXPRESS TRAIN' : stage.objective}`);
+    const gallery = galleryProfile(stage.id);
+    this.description.setText(`STAGE ${stage.id}: ${stage.title}\n${stage.id === 2 ? 'FARO • ' : ''}${gallery.name.toUpperCase()} • ${gallery.targets} TARGETS`);
   }
   private launchTest(): void {
     if (this.leaving || !developerEnabled()) return;

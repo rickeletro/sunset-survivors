@@ -537,9 +537,10 @@ class SoundManager {
   }
 
   private faroAudio = new Map<string, HTMLAudioElement>();
-  private playFaroClip(key: 'cards' | 'shuffle' | 'dealer'): void {
+  private playFaroClip(key: 'cards' | 'shuffle' | 'dealer' | 'hospitality'): void {
     if (this.isMuted) return;
     const paths = {
+      hospitality: 'assets/audio/voices/hospitality_vices.mp3',
       cards: 'assets/audio/sfx/cards.mp3', shuffle: 'assets/audio/sfx/shuffling-deck-of-cards.mp3', dealer: 'assets/audio/voices/dealer.mp3',
     };
     try {
@@ -552,6 +553,7 @@ class SoundManager {
   public playCards(): void { this.playFaroClip('cards'); }
   public playShuffle(): void { this.playFaroClip('shuffle'); }
   public playDealerGreeting(): void { this.playFaroClip('dealer'); }
+  public playHospitalityGreeting(): void { this.playFaroClip('hospitality'); }
   public stopFaroAudio(): void {
     for (const clip of this.faroAudio.values()) { clip.pause(); clip.currentTime = 0; }
   }

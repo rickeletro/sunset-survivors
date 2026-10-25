@@ -64,12 +64,12 @@ describe('streamed PixelLab scenery', () => {
     const h = harness(), scenery = new StageLandmarks(h.scene, theme);
     scenery.update(4000, 4000, 0);
     const poles = h.objects.filter(o => o.key === 'wm_lantern');
-    if (theme === 'caboose') expect(poles).toHaveLength(0);
+    if (theme === 'caboose') expect(poles).toHaveLength(1);
     else expect(poles.length).toBeGreaterThan(0);
     for (const pole of poles) {
       const facade = scenery.placements.find(p => pole.x === p.x + SCENERY[p.kind].width * sceneryScale(p.kind) / 2 + 28 && pole.y === p.y - 20)!;
       expect(facade).toBeTruthy();
-      expect(['house', 'saloon', 'sheriff', 'general-store', 'frontier-saloon', 'hacienda', 'manor', 'rail-station']).toContain(facade.kind);
+      expect(['house', 'saloon', 'sheriff', 'general-store', 'frontier-saloon', 'gallery-saloon', 'hacienda', 'manor', 'rail-station']).toContain(facade.kind);
       expect(188 * pole.scale).toBeCloseTo(68.5);
       expect(pole.depth).toBe(worldDepth(pole.y));
     }
@@ -92,6 +92,6 @@ describe('streamed PixelLab scenery', () => {
   it('uses finite, bounded scenery depths below effects and the HUD', () => {
     expect(worldDepth(-100)).toBe(10);
     expect(worldDepth(9000)).toBe(15);
-    expect(Object.keys(SCENERY)).toHaveLength(17);
+    expect(Object.keys(SCENERY)).toHaveLength(18);
   });
 });

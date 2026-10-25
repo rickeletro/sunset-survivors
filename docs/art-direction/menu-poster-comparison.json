@@ -1,0 +1,98 @@
+[
+  {
+    "key": "poster_billy",
+    "source": [
+      330,
+      512
+    ],
+    "box": [
+      390,
+      560
+    ],
+    "render": [
+      361,
+      560
+    ],
+    "scale": 1.09375
+  },
+  {
+    "key": "poster_billy",
+    "source": [
+      330,
+      512
+    ],
+    "box": [
+      330,
+      400
+    ],
+    "render": [
+      258,
+      400
+    ],
+    "scale": 0.78125
+  },
+  {
+    "key": "poster_steve",
+    "source": [
+      330,
+      512
+    ],
+    "box": [
+      300,
+      260
+    ],
+    "render": [
+      168,
+      260
+    ],
+    "scale": 0.5078125
+  },
+  {
+    "key": "poster_billy",
+    "source": [
+      330,
+      512
+    ],
+    "box": [
+      300,
+      260
+    ],
+    "render": [
+      168,
+      260
+    ],
+    "scale": 0.5078125
+  },
+  {
+    "key": "poster_bob",
+    "source": [
+      330,
+      512
+    ],
+    "box": [
+      300,
+      260
+    ],
+    "render": [
+      168,
+      260
+    ],
+    "scale": 0.5078125
+  },
+  {
+    "key": "poster_cormano",
+    "source": [
+      330,
+      512
+    ],
+    "box": [
+      300,
+      260
+    ],
+    "render": [
+      168,
+      260
+    ],
+    "scale": 0.5078125
+  }
+]

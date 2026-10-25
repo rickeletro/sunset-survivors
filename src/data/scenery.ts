@@ -2,6 +2,7 @@ import type { StageTheme } from './stages';
 
 /** Native pixels are retained; integer scales keep scenery crisp. Footprints describe ground contact. */
 export const SCENERY = {
+  'gallery-saloon': { width: 256, height: 256, halfWidth: 106, halfHeight: 40, light: true },
   'rail-station': { width: 256, height: 192, halfWidth: 106, halfHeight: 32, light: true },
   'mine-entrance': { width: 192, height: 192, halfWidth: 76, halfHeight: 32, light: false },
   well: { width: 96, height: 96, halfWidth: 30, halfHeight: 16, light: false },
@@ -67,6 +68,8 @@ export function stageLandmarks(theme: StageTheme): Landmark[] {
       }
     }
   }
+  // A dedicated central-hub range never replaces Faro or an existing courtesy door.
+  landmarks.push({ kind: 'gallery-saloon', x: 4840, y: rail ? 4500 : 3960 });
   return landmarks;
 }
 export function footprint(landmark: Landmark): Footprint {
