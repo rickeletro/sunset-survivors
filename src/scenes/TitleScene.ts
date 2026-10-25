@@ -1,9 +1,9 @@
+import { developerEnabled } from '../dev/access';
 import { bindPulpKeys } from '../ui/layout/pulpSceneKit';
-import { pulpSurface } from '../ui/components/PulpSurface';
 import { CATALOG, preloadHeroSheets, preloadImages } from '../assets/registry';
 import { createMenuRoot, menuBackdropScale } from '../ui/layout/menuLayout';
 import Phaser from 'phaser';
-import { difficultyProfile, difficultySettings } from '../data/difficulty';
+import { difficultySettings } from '../data/difficulty';
 import { sounds } from '../audio/SoundManager';
 import { THEME } from '../ui/theme/tokens';
 import { SpriteGenerator } from '../utils/SpriteGenerator';
@@ -24,7 +24,6 @@ export class TitleScene extends Phaser.Scene {
   private startBtnBorderGlow!: Phaser.GameObjects.Graphics;
   private lanternGlows: Phaser.GameObjects.Image[] = [];
   private sunGlowGraphics!: Phaser.GameObjects.Graphics;
-  private optionsModalContainer?: Phaser.GameObjects.Container;
 
   constructor() {
     super('TitleScene');
@@ -39,7 +38,6 @@ export class TitleScene extends Phaser.Scene {
 
   create() {
     this.isAdvancing = false;
-    this.optionsModalContainer = undefined;
     this.lanternGlows = [];
 
     // Generate procedural pixel textures for game
@@ -321,203 +319,6 @@ export class TitleScene extends Phaser.Scene {
   // -------------------------------------------------------------
   // MODAL DE OPÇÕES DE ÁUDIO (SLIDERS DESLIZANTES PARA BGM & SFX)
   // -------------------------------------------------------------
-  private openOptionsMenuModal() {
-    if (this.optionsModalContainer) return;
-    sounds.playRevolver();
-
-    const modalContainer = this.add.container(0, 0);
-    this.optionsModalContainer = modalContainer;
-
-    // Dark backdrop overlay bloqueando cliques atrás
-    const overlay = this.add.graphics();
-    overlay.fillStyle(0x000000, 0.75);
-    overlay.fillRect(-1000, -512, 2000, 1024);
-    overlay.setInteractive(new Phaser.Geom.Rectangle(-1000, -512, 2000, 1024), Phaser.Geom.Rectangle.Contains);
-    modalContainer.add(overlay);
-
-    const boxH = 430;
-    modalContainer.add(pulpSurface(this, 0, 0, 620, boxH, 'paper'));
-    const titleText = this.add.text(0, -boxH / 2 + 48, '★ AUDIO OPTIONS ★', {
-      fontFamily: THEME.typography.westernFont,
-      fontSize: '20px',
-      color: '#a51e16',
-      strokeThickness: 0,
-    }).setOrigin(0.5);
-    modalContainer.add(titleText);
-
-    // -------------------------------------------------------------
-    // SLIDER CREATION HELPER
-    // -------------------------------------------------------------
-    const createSlider = (
-      yPos: number,
-      labelStr: string,
-      initialVal: number,
-      onChange: (val: number) => void
-    ) => {
-      const sliderTrackW = 340;
-      const sliderTrackH = 16;
-      const trackX = -30;
-
-      // Label (left)
-      const label = this.add.text(-220, yPos - 30, labelStr, {
-        fontFamily: THEME.typography.pixelFont,
-        fontSize: '11px',
-        color: '#2b1408',
-      }).setOrigin(0, 0.5);
-      modalContainer.add(label);
-
-      // Percentage text (right)
-      const pctText = this.add.text(210, yPos - 30, `${Math.round(initialVal * 100)}%`, {
-        fontFamily: THEME.typography.pixelFont,
-        fontSize: '11px',
-        color: '#78350f',
-      }).setOrigin(0, 0.5);
-      modalContainer.add(pctText);
-
-      // Track graphics
-      const trackGfx = this.add.graphics();
-      const fillGfx = this.add.graphics();
-      modalContainer.add([trackGfx, fillGfx]);
-
-      const drawTrack = (val: number) => {
-        // Track background
-        trackGfx.clear();
-        trackGfx.fillStyle(0x321b10, 1);
-        trackGfx.fillRoundedRect(trackX - sliderTrackW / 2, yPos - sliderTrackH / 2, sliderTrackW, sliderTrackH, 8);
-        trackGfx.lineStyle(1, 0x78350f, 1);
-        trackGfx.strokeRoundedRect(trackX - sliderTrackW / 2, yPos - sliderTrackH / 2, sliderTrackW, sliderTrackH, 8);
-
-        // Active fill
-        fillGfx.clear();
-        fillGfx.fillStyle(0xd97706, 1);
-        const fillW = Math.max(8, sliderTrackW * val);
-        fillGfx.fillRoundedRect(trackX - sliderTrackW / 2 + 2, yPos - sliderTrackH / 2 + 2, fillW - 4, sliderTrackH - 4, 6);
-      };
-
-      drawTrack(initialVal);
-
-      // Knob (Thumb)
-      const knob = this.add.graphics();
-      const knobRadius = 14;
-      const drawKnob = (kx: number) => {
-        knob.clear();
-        knob.fillStyle(0x1a0d00, 0.3);
-        knob.fillCircle(kx, yPos + 3, knobRadius);
-        knob.fillStyle(0xffc52a, 1);
-        knob.fillCircle(kx, yPos, knobRadius);
-        knob.lineStyle(2, 0x603719, 1);
-        knob.strokeCircle(kx, yPos, knobRadius);
-        knob.fillStyle(0xa51e16, 1);
-        knob.fillCircle(kx, yPos, 4);
-      };
-
-      const startKx = trackX - sliderTrackW / 2 + sliderTrackW * initialVal;
-      drawKnob(startKx);
-      modalContainer.add(knob);
-
-      // Interactive hit zone for dragging
-      const hitZone = this.add.zone(trackX, yPos, sliderTrackW + 36, 40)
-        .setInteractive({ useHandCursor: true });
-      modalContainer.add(hitZone);
-
-      let isDragging = false;
-      const updateFromPointer = (pointerX: number) => {
-        // Posição local no rootContainer escalado
-        const localX = (pointerX - this.cameras.main.width / 2) / this.rootContainer.scaleX;
-        const clampedX = Phaser.Math.Clamp(localX, trackX - sliderTrackW / 2, trackX + sliderTrackW / 2);
-        const ratio = (clampedX - (trackX - sliderTrackW / 2)) / sliderTrackW;
-        drawTrack(ratio);
-        drawKnob(clampedX);
-        pctText.setText(`${Math.round(ratio * 100)}%`);
-        onChange(ratio);
-      };
-
-      hitZone.on('pointerdown', (p: Phaser.Input.Pointer) => {
-        isDragging = true;
-        updateFromPointer(p.x);
-      });
-
-      const move = (p: Phaser.Input.Pointer) => { if (isDragging) updateFromPointer(p.x); };
-      const release = () => { isDragging = false; };
-      this.input.on('pointermove', move);
-      this.input.on('pointerup', release);
-      modalContainer.once('destroy', () => { this.input.off('pointermove', move); this.input.off('pointerup', release); });
-    };
-
-    // 1. Music Slider (inicia a 75%)
-    createSlider(-55, 'MUSIC', sounds.getMusicVolume(), (val) => {
-      sounds.setMusicVolume(val);
-    });
-
-    // 2. SFX Slider (inicia a 45%)
-    createSlider(35, 'SFX', sounds.getSfxVolume(), (val) => {
-      sounds.setSfxVolume(val);
-      sounds.playPistolShot();
-    });
-
-    // 3. Mute Toggle Button
-    const isMuted = sounds.getIsMuted();
-    const muteBtn = this.add.text(0, 115, isMuted ? 'AUDIO: MUTED' : 'AUDIO: ACTIVE', {
-      fontFamily: THEME.typography.pixelFont,
-      fontSize: '11px',
-      color: isMuted ? '#ef4444' : '#166534',
-      backgroundColor: '#d6c09a',
-      padding: { left: 16, right: 16, top: 8, bottom: 8 },
-    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
-
-    muteBtn.on('pointerdown', () => {
-      const nowMuted = sounds.toggleMute();
-      muteBtn.setText(nowMuted ? 'AUDIO: MUTED' : 'AUDIO: ACTIVE');
-      muteBtn.setColor(nowMuted ? '#ef4444' : '#166534');
-    });
-    modalContainer.add(muteBtn);
-
-    // 4. Close [ CONFIRMAR / VOLTAR ] Button
-    const closeBtn = this.add.text(0, 175, 'SALVAR E VOLTAR', {
-      fontFamily: THEME.typography.pixelFont,
-      fontSize: '12px',
-      color: '#ffffff',
-      backgroundColor: '#8b0e0e',
-      padding: { left: 24, right: 24, top: 10, bottom: 10 },
-    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
-
-    closeBtn.on('pointerdown', () => {
-      sounds.playRevolver();
-      this.closeOptionsMenuModal();
-    });
-    modalContainer.add(closeBtn);
-
-    // Entrance Animation (Escala elástica)
-    modalContainer.setScale(0.85);
-    modalContainer.setAlpha(0);
-    this.tweens.add({
-      targets: modalContainer,
-      scaleX: 1.0,
-      scaleY: 1.0,
-      alpha: 1.0,
-      duration: 180,
-      ease: 'Back.easeOut',
-    });
-
-    this.rootContainer.add(modalContainer);
-  }
-
-  private closeOptionsMenuModal() {
-    if (!this.optionsModalContainer) return;
-    this.tweens.add({
-      targets: this.optionsModalContainer,
-      scaleX: 0.85,
-      scaleY: 0.85,
-      alpha: 0,
-      duration: 140,
-      ease: 'Power2',
-      onComplete: () => {
-        this.optionsModalContainer?.destroy();
-        this.optionsModalContainer = undefined;
-      },
-    });
-  }
-
   // -------------------------------------------------------------
   // LAYER 8: AMBIENT PARTICLES (Dust Specks & Saloon Smoke)
   // -------------------------------------------------------------
@@ -616,67 +417,22 @@ export class TitleScene extends Phaser.Scene {
   }
 
   private createAuxiliaryMenu() {
-    // Posicionado com folga confortável abaixo do botão PRESS START (base do start btn em y=360, aux em y=420)
-    const auxContainer = this.add.container(0, 420);
-
-    const items = [
-      { text: 'AUDIO [M]', onClick: () => this.openOptionsMenuModal() },
-      { text: 'DIFFICULTY [D]', onClick: () => this.openDifficulty() },
-      { text: 'CONTROLS [H]', onClick: () => this.openControls() },
-      { text: 'STATS [S]', onClick: () => this.openStats() },
-      { text: 'UNLOCKS [U]', onClick: () => this.openUnlockables() },
-    ];
-
-    // Five compact actions, centered below PRESS START.
-    const positionsX = [-480, -240, 0, 240, 480];
-
-    items.forEach((item, idx) => {
-      const btn = new WesternButton(this, {
-        x: positionsX[idx],
-        y: 0,
-        width: 220,
-        height: 56,
-        presentation: 'pulp',
-        text: item.text,
-        variant: 'wood',
-        fontSize: '18px',
-        onClick: item.onClick,
-      });
-      auxContainer.add(btn);
-    });
-
-    this.rootContainer.add(auxContainer);
-    this.rootContainer.add(this.add.text(0, 460, `MODO: ${difficultyProfile(difficultySettings.get()).label}  •  [D] ALTERAR`, {
-      fontFamily: THEME.typography.pixelFont, fontSize: '12px', color: '#ffc52a', stroke: '#120b08', strokeThickness: 3,
-    }).setOrigin(0.5));
+    this.rootContainer.add(new WesternButton(this, {
+      x: 0, y: 420, width: 360, height: 62, presentation: 'pulp', text: 'MENU',
+      variant: 'wood', fontSize: '27px', onClick: () => this.openMainMenu(),
+    }));
   }
 
-  private openDifficulty() {
-    if (this.isAdvancing || this.optionsModalContainer) return;
+  private openMainMenu() {
+    if (this.isAdvancing) return;
     sounds.playRevolver();
-    this.cameras.main.flash(70, 255, 197, 42, false);
-    this.scene.start('DifficultyScene');
+    this.scene.pause('TitleScene'); this.scene.launch('MenuScene', { fromScene: 'TitleScene' });
   }
 
-  private openControls() {
-    if (this.isAdvancing || this.optionsModalContainer) return;
-    sounds.playRevolver();
-
-    this.scene.start('ControlsScene', { fromScene: 'TitleScene' });
-  }
-
-  private openStats() {
-    if (this.isAdvancing || this.optionsModalContainer) return;
-    sounds.playRevolver();
-
-    this.scene.start('StatsScene', { fromScene: 'TitleScene' });
-  }
-
-  private openUnlockables() {
-    if (this.isAdvancing || this.optionsModalContainer) return;
-    sounds.playRevolver();
-
-    this.scene.start('UnlockablesScene');
+  private openDeveloper(): void {
+    if (!developerEnabled() || this.isAdvancing) return;
+    this.isAdvancing = true; sounds.playRevolver(); this.cameras.main.flash(70, 255, 197, 42, false);
+    this.scene.start('DeveloperScene');
   }
 
   // -------------------------------------------------------------
@@ -684,16 +440,16 @@ export class TitleScene extends Phaser.Scene {
   // -------------------------------------------------------------
   private setupInputs() {
     bindPulpKeys(this, {
-      SPACE: () => this.optionsModalContainer ? this.closeOptionsMenuModal() : this.advanceToGame(),
-      ENTER: () => this.optionsModalContainer ? this.closeOptionsMenuModal() : this.advanceToGame(),
-      ESC: () => this.closeOptionsMenuModal(),
-      D: () => this.openDifficulty(), M: () => this.openOptionsMenuModal(),
-      H: () => this.openControls(), S: () => this.openStats(), U: () => this.openUnlockables(),
+      SPACE: () => this.advanceToGame(),
+      ENTER: () => this.advanceToGame(),
+      ESC: () => this.openMainMenu(),
+      F2: () => this.openDeveloper(),
+      M: () => this.openMainMenu(),
     });
   }
 
   private advanceToGame() {
-    if (this.isAdvancing || this.optionsModalContainer) return;
+    if (this.isAdvancing) return;
     this.isAdvancing = true;
 
     // Immediately snap visual elements in case intro sequence was running

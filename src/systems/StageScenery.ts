@@ -54,7 +54,19 @@ export function createStageScenery(scene: Phaser.Scene, stage: StageConfig): str
     g.lineStyle(3, GOLD, 0.7).strokeCircle(80, 80, 77);
     rect(OUT, 57, 56, 46, 44); rect(WOOD, 60, 59, 40, 38); rect(GOLD, 62, 66, 36, 5); rect(GOLD, 76, 60, 7, 36);
   });
-  texture('stage_dust', 4, 4, () => rect(0xf2d49a, 1, 1, 2, 2));
+  texture('stage_roast', 24, 20, () => {
+    rect(OUT, 3, 7, 18, 11); rect(0xa95121, 4, 8, 15, 8);
+    rect(0xffb557, 6, 8, 9, 3); rect(0x603719, 5, 14, 13, 2);
+    rect(0xf2d49a, 17, 3, 3, 8); rect(0xf2d49a, 16, 2, 6, 3);
+  });
+  texture('stage_activity', 128, 64, () => {
+    g.fillStyle(GOLD, 0.10).fillEllipse(64, 32, 120, 54);
+    g.lineStyle(2, GOLD, 0.85).strokeEllipse(64, 32, 116, 50);
+    g.lineStyle(1, GOLD, 0.35).strokeEllipse(64, 32, 104, 42);
+    rect(GOLD, 60, 4, 8, 3); rect(GOLD, 60, 57, 8, 3);
+  });
+  texture('stage_dust', 6, 4, () => { rect(0xf2d49a, 0, 1, 5, 2); rect(0xffc52a, 1, 0, 2, 1); });
+  texture('stage_ember', 4, 6, () => { rect(0xff791c, 1, 1, 2, 4); rect(0xffc52a, 1, 1, 2, 2); });
   texture('stage_axe', 24, 24, () => {
     rect(OUT, 10, 1, 6, 23); rect(WOOD, 12, 3, 2, 20);
     rect(OUT, 3, 2, 19, 11); rect(0xb8b3ae, 5, 4, 15, 7); rect(0xf2d49a, 5, 4, 3, 7);

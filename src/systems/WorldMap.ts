@@ -1,3 +1,4 @@
+import { windSway } from '../data/stageAtmosphere';
 import Phaser from 'phaser';
 import { getStage, StageConfig } from '../data/stages';
 import { createStageScenery } from './StageScenery';
@@ -117,6 +118,11 @@ export class WorldMap {
   /** Cria/destrói sprites conforme a distância do jogador. */
   update(px: number, py: number) {
     this.landmarks.update(px, py, this.scene.time.now);
+    for (const key of this.active) {
+      for (const d of this.decorationChunks.get(key) ?? []) {
+        if (d.kind === 'sagebrush' && d.sprite) d.sprite.rotation = windSway(this.scene.time.now, d.x, d.y);
+      }
+    }
     const pcx = Math.floor(px / CHUNK);
     const pcy = Math.floor(py / CHUNK);
     const wanted = new Set<string>();

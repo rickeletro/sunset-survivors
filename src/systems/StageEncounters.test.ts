@@ -49,7 +49,7 @@ describe('telegraphed hazards and optional supply camps', () => {
   it('lets an unclaimed camp expire without rewarding or blocking future camps', () => {
     const { encounters, hooks } = fixture();
     encounters.tick(90, false);
-    expect(encounters.objectiveHint()).toContain('PROVISOES');
+    expect(encounters.objectiveHint()).toContain('SUPPLIES');
     encounters.update(80000);
     expect(hooks.reward).not.toHaveBeenCalled();
     hooks.spawn.mockClear();

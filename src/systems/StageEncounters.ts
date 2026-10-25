@@ -35,9 +35,9 @@ export class StageEncounters {
     const phase = stagePhase(this.stage, elapsed);
     if (phase !== this.lastPhase) {
       this.lastPhase = phase;
-      if (phase === 'respite') this.hooks.banner('RESPIRO — RECOLHA O SAQUE!', '#f2d49a');
-      if (phase === 'surge') this.hooks.banner('A HORDA ESTA CHEGANDO!', '#ff791c');
-      if (phase === 'last-stand') this.hooks.banner('ULTIMO MINUTO — O PROCURADO SE APROXIMA!', '#e52b20');
+      if (phase === 'respite') this.hooks.banner('BREATHER — COLLECT YOUR LOOT!', '#f2d49a');
+      if (phase === 'surge') this.hooks.banner('THE HORDE IS COMING!', '#ff791c');
+      if (phase === 'last-stand') this.hooks.banner('LAST MINUTE — THE OUTLAW APPROACHES!', '#e52b20');
     }
     if (!bossActive && elapsed >= this.nextSupply && elapsed < this.stage.duration - 45) {
       this.nextSupply = elapsed + 150;
@@ -55,7 +55,7 @@ export class StageEncounters {
     const point = safeEventPoint(p.x, p.y, this.eventIndex++ * 2.4, 380);
     const clear = this.hooks.clearPoint(point.x, point.y);
     const marker = this.scene.add.image(clear.x, clear.y, 'wm_supply').setDepth(5);
-    const text = this.scene.add.text(clear.x, clear.y - 55, 'PROVISOES\nFIQUE NO CIRCULO', { fontFamily: THEME.typography.pixelFont, fontSize: '9px', color: '#ffc52a', stroke: '#120b08', strokeThickness: 3, align: 'center' }).setOrigin(0.5).setDepth(20);
+    const text = this.scene.add.text(clear.x, clear.y - 55, 'SUPPLIES\nSTAY IN THE CIRCLE', { fontFamily: THEME.typography.pixelFont, fontSize: '9px', color: '#ffc52a', stroke: '#120b08', strokeThickness: 3, align: 'center' }).setOrigin(0.5).setDepth(20);
     this.supply = { ...clear, progress: 0, age: 0, marker, text };
     this.hooks.banner(this.stage.objective, '#ffc52a');
     // Guarded objective: enter the camp, clear its guards, hold for 8 seconds.
@@ -129,17 +129,17 @@ export class StageEncounters {
       const inside = Math.hypot(p.x - s.x, p.y - s.y) <= 80;
       const contested = this.hooks.contested(s.x, s.y);
       s.progress = objectiveProgress(s.progress, inside && !contested, delta / 1000);
-      s.text.setText(`${contested ? 'LIMPE A AREA' : 'PROVISOES'}\n${Math.floor(s.progress)} / 8s`);
-      if (s.progress >= 8) { this.clearSupply(); this.hooks.reward(); this.hooks.banner('PROVISOES: XP + OURO + CURA!', '#ffc52a'); }
-      else if (s.age >= 80000) { this.clearSupply(); this.hooks.banner('O COMBOIO PARTIU — NOVA CHANCE EM BREVE', '#f2d49a'); }
+      s.text.setText(`${contested ? 'CLEAR THE AREA' : 'SUPPLIES'}\n${Math.floor(s.progress)} / 8s`);
+      if (s.progress >= 8) { this.clearSupply(); this.hooks.reward(); this.hooks.banner('SUPPLIES: XP + GOLD + HEAL!', '#ffc52a'); }
+      else if (s.age >= 80000) { this.clearSupply(); this.hooks.banner('THE WAGON HAS LEFT — ANOTHER CHANCE SOON', '#f2d49a'); }
     }
   }
   objectiveHint(): string {
-    if (!this.supply) return 'PROVISOES OPCIONAIS A CADA 2:30';
+    if (!this.supply) return 'OPTIONAL SUPPLIES EVERY 2:30';
     const p = this.hooks.position(); const s = this.supply;
     const dx = s.x - p.x; const dy = s.y - p.y;
-    const dir = Math.abs(dx) > Math.abs(dy) ? dx > 0 ? 'LESTE' : 'OESTE' : dy > 0 ? 'SUL' : 'NORTE';
-    return `PROVISOES ${dir} ${Math.round(Math.hypot(dx, dy))}m • ${Math.max(0, 80 - Math.floor(s.age / 1000))}s`;
+    const dir = Math.abs(dx) > Math.abs(dy) ? dx > 0 ? 'EAST' : 'WEST' : dy > 0 ? 'SOUTH' : 'NORTH';
+    return `SUPPLIES ${dir} ${Math.round(Math.hypot(dx, dy))}m • ${Math.max(0, 80 - Math.floor(s.age / 1000))}s`;
   }
   private clearSupply(): void { this.supply?.marker.destroy(); this.supply?.text.destroy(); this.supply = undefined; }
   destroy(): void { this.clearSupply(); this.hazards.forEach(h => { h.train?.destroy(); h.graphic.destroy(); }); this.hazards = []; }

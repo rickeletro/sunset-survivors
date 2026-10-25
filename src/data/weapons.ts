@@ -128,7 +128,7 @@ export const WEAPONS: Record<string, WeaponDef> = {
     sound: 'revolver',
     type: 'nearest',
     levels: [
-      { level: 1, damage: 85, cooldownMs: 420, projectileCount: 6, pierce: 3, speed: 750, range: 600, description: 'Saraivada de balas explosivas perfurantes contínuas' },
+      { level: 1, damage: 85, cooldownMs: 420, projectileCount: 6, pierce: 3, speed: 750, range: 600, description: 'Continuous volleys of piercing explosive bullets' },
     ],
   },
 
@@ -139,7 +139,7 @@ export const WEAPONS: Record<string, WeaponDef> = {
     sound: 'shotgun',
     type: 'spread',
     levels: [
-      { level: 1, damage: 90, cooldownMs: 650, projectileCount: 12, pierce: 4, speed: 650, range: 500, description: '12 estilhaços devastadores com raio extremo e repulsão' },
+      { level: 1, damage: 90, cooldownMs: 650, projectileCount: 12, pierce: 4, speed: 650, range: 500, description: 'Twelve devastating pellets with extreme reach and knockback' },
     ],
   },
 
@@ -150,7 +150,7 @@ export const WEAPONS: Record<string, WeaponDef> = {
     sound: 'rifle',
     type: 'directional',
     levels: [
-      { level: 1, damage: 280, cooldownMs: 600, projectileCount: 3, pierce: 99, speed: 1100, range: 900, description: 'Linha tripla de snipers dourados de perfuração ilimitada' },
+      { level: 1, damage: 280, cooldownMs: 600, projectileCount: 3, pierce: 99, speed: 1100, range: 900, description: 'Three golden sniper shots with unlimited piercing' },
     ],
   },
 
@@ -161,7 +161,7 @@ export const WEAPONS: Record<string, WeaponDef> = {
     sound: 'explosion',
     type: 'lob',
     levels: [
-      { level: 1, damage: 330, cooldownMs: 1250, projectileCount: 3, pierce: 99, speed: 420, range: 500, description: 'Barris de pólvora que geram explosão maciça e chamas persistentes' },
+      { level: 1, damage: 330, cooldownMs: 1250, projectileCount: 3, pierce: 99, speed: 420, range: 500, description: 'Powder barrels create massive explosions and lingering fire' },
     ],
   },
 
@@ -172,7 +172,7 @@ export const WEAPONS: Record<string, WeaponDef> = {
     sound: 'revolver',
     type: 'sweep',
     levels: [
-      { level: 1, damage: 130, cooldownMs: 800, projectileCount: 4, pierce: 99, speed: 6.5, range: 280, description: 'Quatro chicotes dourados atingem os dois flancos com alcance extremo' },
+      { level: 1, damage: 130, cooldownMs: 800, projectileCount: 4, pierce: 99, speed: 6.5, range: 280, description: 'Four golden whips strike both flanks with extreme reach' },
     ],
   },
 };

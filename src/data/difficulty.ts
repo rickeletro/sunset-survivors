@@ -1,9 +1,9 @@
 import type { EnemyDef } from './enemies';
 export type DifficultyId = 'easy' | 'normal' | 'hardcore';
 export const DIFFICULTIES = {
-  easy: { label: 'EASY', enemyHp: 0.85, bossHp: 0.75, incomingDamage: 0.65, description: 'Mais margem para aprender e explorar.' },
-  normal: { label: 'NORMAL', enemyHp: 1, bossHp: 1, incomingDamage: 1, description: 'A referencia: esquiva, build e escolhas.' },
-  hardcore: { label: 'HARDCORE', enemyHp: 1.15, bossHp: 1.15, incomingDamage: 1.15, description: 'Erros custam mais. Sem apagar progresso.' },
+  easy: { label: 'EASY', enemyHp: 0.85, bossHp: 0.75, incomingDamage: 0.65, description: 'More room to learn and explore.' },
+  normal: { label: 'NORMAL', enemyHp: 1, bossHp: 1, incomingDamage: 1, description: 'The frontier standard: dodge, build and choose.' },
+  hardcore: { label: 'HARDCORE', enemyHp: 1.15, bossHp: 1.15, incomingDamage: 1.15, description: 'Mistakes cost more. Your progress stays safe.' },
 } as const;
 export const DIFFICULTY_IDS = ['easy', 'normal', 'hardcore'] as const;
 export function normalizeDifficulty(value: unknown): DifficultyId {
@@ -26,14 +26,14 @@ export function incomingDamage(base: number, armor: number, mode?: DifficultyId)
 }
 interface Storage { getItem(key: string): string | null; setItem(key: string, value: string): void; }
 export class DifficultySettings {
-  private selected: DifficultyId = 'normal';
+  private selected: DifficultyId = 'hardcore';
   constructor(private storage: () => Storage = () => globalThis.localStorage) {
-    try { this.selected = normalizeDifficulty(this.storage().getItem('sunset_difficulty_v1')); } catch { /* Session fallback. */ }
+    try { this.selected = normalizeDifficulty(this.storage().getItem('sunset_difficulty_v2') ?? 'hardcore'); } catch { /* Session fallback. */ }
   }
   get(): DifficultyId { return this.selected; }
   set(value: unknown): void {
     this.selected = normalizeDifficulty(value);
-    try { this.storage().setItem('sunset_difficulty_v1', this.selected); } catch { /* Session fallback. */ }
+    try { this.storage().setItem('sunset_difficulty_v2', this.selected); } catch { /* Session fallback. */ }
   }
 }
 export const difficultySettings = new DifficultySettings();

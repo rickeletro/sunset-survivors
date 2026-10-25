@@ -1,3 +1,10 @@
+import { FrontierCompass } from '../ui/hud/FrontierCompass';
+import { SaloonVisit } from '../data/saloon';
+import { MenuScene } from './MenuScene';
+import { AudioScene } from './AudioScene';
+import { RankingScene } from './RankingScene';
+import { TitleScene } from './TitleScene';
+import { rankings } from '../data/RankingManager';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const { Node } = vi.hoisted(() => {
@@ -18,7 +25,7 @@ const { Node } = vi.hoisted(() => {
     setScale(x: number, y = x) { this.scaleX = x; this.scaleY = y; return this; }
     setSize(width: number, height: number) { this.width = width; this.height = height; return this; }
     setText(text: string) { this.text = text; return this; }
-    setScrollFactor() { return this; } setFontFamily() { return this; }
+    setResolution() { return this; } setScrollFactor() { return this; } setFontFamily() { return this; }
     setFontSize(size: number) { this.fontSize = size; return this; }
     setX(x: number) { this.x = x; return this; }
     setDisplaySize(width: number, height: number) { this.width = width; this.height = height; return this; }
@@ -27,14 +34,14 @@ const { Node } = vi.hoisted(() => {
     bringToTop(node: Node) { this.list = this.list.filter(n => n !== node); this.list.push(node); return this; }
     setY(y: number) { this.y = y; return this; }
     setVisible(visible: boolean) { this.visible = visible; return this; }
-    setOrigin() { return this; } setAlpha() { return this; } setBlendMode() { return this; }
+    setOrigin() { return this; } setAlpha(alpha: number) { (this as any).alpha = alpha; return this; } setBlendMode() { return this; }
     setDepth() { return this; } setStroke() { return this; } setColor() { return this; }
     setTint() { return this; } setInteractive() { return this; }
   }
   return { Node };
 });
 vi.mock('phaser', () => ({ default: { Scene: class {}, BlendModes: { ADD: 1 }, GameObjects: { Container: Node } } }));
-vi.mock('../audio/SoundManager', () => ({ sounds: { playRevolver: vi.fn(), playIntroMusic: vi.fn(), stopBGM: vi.fn(), playHit: vi.fn(), playGunReload: vi.fn(), playGameplayMusic: vi.fn(), playLevelUp: vi.fn(), playHeroVoice: vi.fn(), playRicochet: vi.fn() } }));
+vi.mock('../audio/SoundManager', () => ({ sounds: { getMusicVolume: vi.fn(() => .7), getSfxVolume: vi.fn(() => .4), setMusicVolume: vi.fn(), setSfxVolume: vi.fn(), getIsMuted: vi.fn(() => false), toggleMute: vi.fn(), playHospitalityGreeting: vi.fn(), playDealerGreeting: vi.fn(), stopFaroAudio: vi.fn(), playRevolver: vi.fn(), playIntroMusic: vi.fn(), stopBGM: vi.fn(), playHit: vi.fn(), playGunReload: vi.fn(), playGameplayMusic: vi.fn(), playLevelUp: vi.fn(), playHeroVoice: vi.fn(), playRicochet: vi.fn() } }));
 vi.mock('../data/GameStatsManager', () => ({ statsManager: { recordRun: vi.fn(), calculateRank: () => 'A', getStats: () => ({ totalScore: 100, totalKills: 20, goldCollected: 500, deaths: 2, bestStreak: 3, playTimeSeconds: 120, stagesCleared: 1, unlockedBosses: [1] }) } }));
 import { sounds } from '../audio/SoundManager';
 import { difficultySettings } from '../data/difficulty';
@@ -65,7 +72,7 @@ function setup(Scene: any, data: any = {}) {
     add: {
       container: node, graphics, zone: (x: number, y: number, width: number, height: number) => Object.assign(node(x, y), { width, height }),
       existing: (n: any) => objects.push(n),
-      image: (x: number, y: number, key: string) => Object.assign(node(x, y), { key, width: 1536, height: 1024 }),
+      image: (x: number, y: number, key: string) => Object.assign(node(x, y), { key, width: key.startsWith('poster_') ? 330 : 1536, height: key.startsWith('poster_') ? 512 : 1024 }),
       sprite: (x: number, y: number) => Object.assign(node(x, y), { width: 128, height: 144 }),
       nineslice: (x: number, y: number, key: string, _frame: any, width: number, height: number) => Object.assign(node(x, y), { key, width, height }),
       text: (x: number, y: number, text: string, style: any) => Object.assign(node(x, y), { text, style, width: Math.max(...text.split('\n').map((s: string) => s.length)) * parseFloat(style.fontSize) * 0.55, height: parseFloat(style.fontSize) }),
@@ -84,7 +91,7 @@ function setup(Scene: any, data: any = {}) {
 
 beforeEach(() => { vi.clearAllMocks(); difficultySettings.set('normal'); });
 describe('composed Western Pulp menus without browser gameplay or screenshots', () => {
-  it.each([PauseScene, DifficultyScene, SaloonScene, GameOverScene, StageClearScene, GameCompleteScene, ControlsScene, UnlockablesScene, StatsScene, StoryScene].map(Scene => ({ Scene, name: Scene.name })))('$name preloads its own assets and keeps action buttons within the reference canvas', ({ Scene }) => {
+  it.each([MenuScene, AudioScene, RankingScene, PauseScene, DifficultyScene, SaloonScene, GameOverScene, StageClearScene, GameCompleteScene, ControlsScene, UnlockablesScene, StatsScene, StoryScene].map(Scene => ({ Scene, name: Scene.name })))('$name preloads its own assets and keeps action buttons within the reference canvas', ({ Scene }) => {
     const h = setup(Scene); h.scene.preload(); h.scene.create();
     expect(h.scene.load.image.mock.calls.some((call: string[]) => call[0] === 'saloon_bkg')).toBe(true);
     expect(h.buttons().length).toBeGreaterThan(0);
@@ -100,7 +107,7 @@ describe('composed Western Pulp menus without browser gameplay or screenshots', 
   it('supports selecting pause actions with arrows and resumes the paused game', () => {
     const h = setup(PauseScene); h.scene.create();
     h.scene.input.keyboard.emit('keydown-DOWN'); h.scene.input.keyboard.emit('keydown-ENTER');
-    expect(h.scene.scene.launch).toHaveBeenCalledWith('ControlsScene', { fromScene: 'PauseScene' });
+    expect(h.scene.scene.launch).toHaveBeenCalledWith('MenuScene', { fromScene: 'PauseScene' });
     h.scene.input.keyboard.emit('keydown-UP'); h.scene.input.keyboard.emit('keydown-ENTER');
     expect(h.scene.scene.resume).toHaveBeenCalledWith('GameScene');
   });
@@ -161,7 +168,7 @@ describe('live in-world tutorial presentation', () => {
     expect(view.skipButton.width).toBeGreaterThanOrEqual(44);
     expect(view.skipButton.height).toBeGreaterThanOrEqual(44);
     expect(view.skipButton.visible).toBe(true);
-    expect(view.skipLabel.text).toBe(width < 600 ? 'PULAR' : 'PULAR [T]');
+    expect(view.skipLabel.text).toBe(width < 600 ? 'SKIP' : 'SKIP [T]');
     h.scene.input.keyboard.emit('keydown-T'); expect(skip).toHaveBeenCalledTimes(1);
     model.skip(); view.update(4000, 4000, 0); expect(view.skipButton.visible).toBe(false);
     model.tick(3000); view.update(4000, 4000, 0); expect(view.root.visible).toBe(false);
@@ -295,4 +302,126 @@ describe('story and upgrade UI lifecycle', () => {
     for (let i = 0; i < 20; i++) { h.scene.setupControls(); expect(h.scene.input.keyboard.listeners.get('keydown')).toHaveLength(1); h.scene.events.emit('shutdown'); }
     expect(h.scene.input.keyboard.listeners.get('keydown')).toHaveLength(0);
   });
+});
+
+
+it.each([false, true])('always renders level and description, whether poster art is loaded: %s', loaded => {
+  const choice = { type: 'evolution', id: 'desperado_fury', name: 'Desperado Fury', icon: 'revolver', currentLevel: 0, nextLevel: 1, description: 'Six piercing shots explode at the end of their flight.' };
+  const h = setup(LevelUpScene, { choices: [choice], onSelect: vi.fn() });
+  h.scene.rootContainer = h.scene.add.container(0, 0);
+  h.scene.textures.exists = () => loaded;
+  h.scene.createPowerupCards();
+  expect(h.labels()).toContain(choice.description); expect(h.labels()).toContain('★ LV. 1 ★');
+  if (!loaded) expect(h.labels()).toContain(choice.name);
+  else {
+    const poster = h.objects.find(o => o.key === 'card_desperado_fury');
+    expect(poster.scaleX).toBe(poster.scaleY);
+  }
+});
+
+it('preloads all eight boss posters for the pop-up shooting booth', () => {
+  const h = setup(SaloonScene, { gallery: true, onGalleryLeave: vi.fn(), onLeave: vi.fn() }); h.scene.preload();
+  const keys = new Set(h.scene.load.image.mock.calls.map((c: any[]) => c[0]));
+  for (let boss = 1; boss <= 8; boss++) expect(keys.has(`boss_poster_${boss}`)).toBe(true);
+});
+
+
+describe('unified menu and local hall of fame', () => {
+  it('shows only one auxiliary MENU button on the title and opens a paused overlay', () => {
+    const h = setup(TitleScene); h.scene.rootContainer = h.scene.add.container(0,0);
+    h.scene.createAuxiliaryMenu();
+    expect(h.buttons()).toHaveLength(1); expect(h.labels()).toContain('MENU');
+    h.buttons()[0].activate();
+    expect(h.scene.scene.pause).toHaveBeenCalledWith('TitleScene');
+    expect(h.scene.scene.launch).toHaveBeenCalledWith('MenuScene', { fromScene: 'TitleScene' });
+  });
+  it('keeps the pause menu and game suspended when opening audio, then returns to its owner', () => {
+    const h = setup(MenuScene, { fromScene: 'PauseScene' }); h.scene.create();
+    h.scene.input.keyboard.emit('keydown-ENTER');
+    expect(h.scene.scene.pause).toHaveBeenCalledWith('MenuScene');
+    expect(h.scene.scene.launch).toHaveBeenCalledWith('AudioScene', { fromScene: 'MenuScene', duringRun: true });
+    const audio = setup(AudioScene, { fromScene: 'MenuScene' }); audio.scene.create(); audio.scene.input.keyboard.emit('keydown-ESC');
+    expect(audio.scene.scene.resume).toHaveBeenCalledWith('MenuScene');
+    expect(audio.scene.scene.resume).not.toHaveBeenCalledWith('GameScene');
+    h.scene.input.keyboard.emit('keydown-ESC'); expect(h.scene.scene.resume).toHaveBeenCalledWith('PauseScene');
+  });
+  it('applies an explicitly selected difficulty to the paused run and its restart configuration', () => {
+    const h = setup(DifficultyScene, { fromScene: 'MenuScene', duringRun: true });
+    const game = { setRunDifficulty: vi.fn() }, pause = setup(PauseScene, { difficulty: 'hardcore' }).scene;
+    h.scene.scene.get = (key: string) => key === 'GameScene' ? game : pause;
+    h.scene.choose('easy');
+    expect(game.setRunDifficulty).toHaveBeenCalledWith('easy'); expect(pause.difficulty).toBe('easy');
+    expect(h.scene.scene.resume).toHaveBeenCalledWith('MenuScene');
+  });
+  it('saves the actual death result once, including zeros, and returns from ranking directly to the title', () => {
+    const h = setup(GameOverScene, { runId: 'ranking-test-death', kills: 0, bounty: 0, timeSurvivedSeconds: 0, stage: 4 }); h.scene.create();
+    h.scene.nameField = { value: () => '  THE KID  ' };
+    h.scene.openRanking(); h.scene.openRanking();
+    const entries = rankings.list().filter(e => e.runId === 'ranking-test-death');
+    expect(entries).toHaveLength(1); expect(entries[0]).toMatchObject({ name: 'THE KID', score: 0, seconds: 0, stage: 4 });
+    expect(h.scene.scene.start).toHaveBeenCalledExactlyOnceWith('RankingScene', { fromScene: 'TitleScene' });
+    expect(h.scene.scene.pause).not.toHaveBeenCalled();
+    const r = setup(RankingScene, { fromScene: 'GameOverScene' }); r.scene.create(); r.scene.input.keyboard.emit('keydown-ESC');
+    expect(r.scene.scene.start).toHaveBeenCalledWith('TitleScene'); expect(r.scene.scene.resume).not.toHaveBeenCalledWith('GameOverScene');
+  });
+  it.each([ControlsScene,StatsScene,UnlockablesScene])('returns nested $name pages to the same menu', Scene => {
+    const h = setup(Scene, { fromScene: 'MenuScene' }); h.scene.create(); h.scene.goBack();
+    expect(h.scene.scene.resume).toHaveBeenCalledWith('MenuScene'); expect(h.scene.scene.start).not.toHaveBeenCalled();
+  });
+  it('shows large uniformly scaled approved posters without individual wooden boxes', () => {
+    for (const Scene of [ControlsScene, StatsScene, UnlockablesScene]) {
+      const h = setup(Scene); h.scene.textures.exists = () => true; h.scene.create();
+      const posters = h.objects.filter(o => o.key === 'poster_billy'); expect(posters.length).toBeGreaterThan(0);
+      for (const art of posters) { expect(art.scaleX).toBe(art.scaleY); expect(art.height*art.scaleY).toBeGreaterThanOrEqual(242); }
+      if (Scene === UnlockablesScene) for (const poster of posters) expect(poster.parentContainer.list.some((o: any) => o.key === 'ui_pulp_wood' || o.key === 'ui_pulp_paper')).toBe(false);
+    }
+  });
+});
+
+it('changes audio through the shared sound manager and keeps ranking pagination bounded', () => {
+  const a = setup(AudioScene); a.scene.create();
+  a.buttons()[0].activate(); expect(sounds.setMusicVolume).toHaveBeenCalledWith(expect.closeTo(.6));
+  a.buttons()[3].activate(); expect(sounds.setSfxVolume).toHaveBeenCalledWith(.5);
+  a.buttons()[4].activate(); expect(sounds.toggleMute).toHaveBeenCalledOnce();
+  const r = setup(RankingScene); r.scene.create();
+  r.scene.turn(-100); expect(r.scene.page).toBe(0); r.scene.turn(100); expect(r.scene.page).toBeLessThanOrEqual(14);
+});
+
+it('reuses compass graphics, hides during interiors and releases resize listeners', () => {
+  const h=setup(PauseScene); const compass=new FrontierCompass(h.scene), count=h.objects.length;
+  const visit=new SaloonVisit([{x:100,y:200,activity:'gallery'}],undefined,true);
+  const clear=vi.fn(() => (compass as any).dots); (compass as any).dots.clear=clear;
+  for (let t=0;t<1000;t+=16) compass.update(visit,t,0,t);
+  expect(clear.mock.calls.length).toBeLessThanOrEqual(10); expect(clear.mock.calls.length).toBeGreaterThan(0);
+  expect(h.objects).toHaveLength(count); expect(compass.root.visible).toBe(true);
+  compass.update(visit,0,0,1000,true); expect(compass.root.visible).toBe(false);
+  compass.update(visit,0,0,1001); expect(compass.root.visible).toBe(true);
+  h.scene.scale.width=640; h.scene.scale.height=360; h.scene.scale.emit('resize');
+  expect(compass.root.x+112*compass.root.scaleX).toBeLessThanOrEqual(628);
+  h.scene.events.emit('shutdown'); expect(compass.root.active).toBe(false); expect(h.scene.scale.listeners.get('resize')).toHaveLength(0);
+});
+
+it('keeps only cardinal labels and a translucent circular compass face', () => {
+  const h=setup(PauseScene); const compass=new FrontierCompass(h.scene);
+  expect(h.labels()).toEqual(['N','E','S','W']);
+  expect((compass.root.list[0] as any).alpha).toBe(.65);
+});
+
+it('welcomes hospitality guests with its own voice and omits both redundant captions', () => {
+  const h=setup(SaloonScene,{hospitality:true,onLeave:vi.fn()}); h.scene.create();
+  expect(h.labels()).not.toContain('GOOD COMPANY TO HELP YOU CATCH YOUR BREATH');
+  expect(h.labels()).not.toContain('ONE VISIT PER DOOR • OPTIONAL • COMBAT PAUSED');
+  expect(h.labels()).toContain('WELCOME: +20 XP • RESTORE 12% HEALTH');
+  expect(sounds.playHospitalityGreeting).toHaveBeenCalledOnce(); expect(sounds.playDealerGreeting).not.toHaveBeenCalled();
+  h.scene.events.emit('shutdown'); expect(sounds.stopFaroAudio).toHaveBeenCalledOnce();
+});
+
+it('returns the ranking to its menu owner and ignores late server responses after shutdown', async () => {
+  const h=setup(RankingScene,{fromScene:'MenuScene'});
+  let resolve!: (value: boolean) => void;
+  const sync=vi.spyOn(rankings,'sync').mockImplementationOnce(()=>new Promise<boolean>(r=>{resolve=r;}));
+  h.scene.create(); h.scene.events.emit('shutdown'); resolve(true); await Promise.resolve(); await Promise.resolve();
+  expect(h.scene.status.text).toBe('CONNECTING TO THE FRONTIER…');
+  h.scene.back(); expect(h.scene.scene.resume).toHaveBeenCalledWith('MenuScene');
+  sync.mockRestore();
 });

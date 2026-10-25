@@ -1,0 +1,21 @@
+name = "sunset-survivors-ranking"
+main = "worker.mjs"
+compatibility_date = "2026-10-24"
+workers_dev = true
+
+[vars]
+# CORS uses the origin only, without the GitHub Pages repository path.
+ALLOWED_ORIGINS = "http://localhost:3000,https://rickeletro.github.io"
+
+[[d1_databases]]
+binding = "RANKING_DB"
+database_name = "sunset-survivors"
+database_id = "313d4e66-0b50-4ecb-9432-1e4626872d2d"
+migrations_dir = "migrations"
+
+[[ratelimits]]
+name = "RANKING_WRITES"
+namespace_id = "41981"
+[ratelimits.simple]
+limit = 120
+period = 60

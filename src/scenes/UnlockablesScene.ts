@@ -1,5 +1,5 @@
 import { preloadImages } from '../assets/registry';
-import { preloadPulp, pulpBackdrop, pulpHeading, pulpText, pulpButton, pulpPaper, pulpWood, bindPulpKeys } from '../ui/layout/pulpSceneKit';
+import { preloadPulp, pulpBackdrop, pulpHeading, pulpText, pulpButton, bindPulpKeys } from '../ui/layout/pulpSceneKit';
 import { createMenuRoot } from '../ui/layout/menuLayout';
 import Phaser from 'phaser';
 import { sounds } from '../audio/SoundManager';
@@ -8,6 +8,8 @@ import { statsManager } from '../data/GameStatsManager';
 import { WesternButton } from '../ui/components/WesternButton';
 
 export class UnlockablesScene extends Phaser.Scene {
+  private fromScene = 'TitleScene';
+  init(data?: { fromScene?: string }) { this.fromScene = data?.fromScene ?? 'TitleScene'; }
   private rootContainer!: Phaser.GameObjects.Container;
   private currentTab: 'characters' | 'artwork' | 'extras' = 'characters';
   private tabButtons: WesternButton[] = [];
@@ -25,7 +27,6 @@ export class UnlockablesScene extends Phaser.Scene {
   create() {
     this.rootContainer = createMenuRoot(this);
     pulpBackdrop(this, this.rootContainer, true);
-    pulpWood(this, this.rootContainer, 0, 40, 1410, 660);
     pulpHeading(this, this.rootContainer, 'UNLOCKABLES', -400, 1120, 70, true);
     this.gridContainer = this.add.container(0, 20); this.rootContainer.add(this.gridContainer);
     this.tabButtons = [];
@@ -68,27 +69,28 @@ export class UnlockablesScene extends Phaser.Scene {
     for (let i = 0; i < count; i++) {
       const entry = entries[i];
       const x = (i % columns - (columns - 1) / 2) * (columns === 3 ? 360 : 260);
-      const y = -100 + Math.floor(i / columns) * 260;
-      const card = pulpPaper(this, this.gridContainer, x, y, columns === 3 ? 290 : 220, 235);
+      const y = -85 + Math.floor(i / columns) * 290;
+      const card = this.add.container(x, y); this.gridContainer.add(card);
       if (entry?.unlocked && entry.texture && this.textures.exists(entry.texture)) {
         const art = this.add.image(0, -12, entry.texture);
-        art.setScale(Math.min(180 / art.width, 178 / art.height)); card.add(art);
-        pulpText(this, card, 0, 95, entry.name, 21, '#120b08');
+        art.setScale(Math.min((columns === 3 ? 300 : 230) / art.width, 260 / art.height)); card.add(art);
+        pulpText(this, card, 0, 134, entry.name, 21, '#ffc52a');
       } else if (entry?.unlocked) {
         pulpText(this, card, 0, -15, '★', 66, '#a51e16');
         pulpText(this, card, 0, 90, entry.name, 21, '#120b08');
       } else {
-        pulpText(this, card, 0, -12, '?', 100, '#603719');
-        pulpText(this, card, 0, 90, entry?.name ?? 'LOCKED', 21, '#603719');
+        pulpText(this, card, 0, -12, '?', 100, '#f2d49a');
+        pulpText(this, card, 0, 90, entry?.name ?? 'LOCKED', 21, '#f2d49a');
       }
     }
-    pulpText(this, this.gridContainer, 0, 328, '[← →] CHANGE CATEGORY    [ESC] BACK', 20);
+    pulpText(this, this.gridContainer, 0, 365, '[← →] CHANGE CATEGORY    [ESC] BACK', 20);
   }
 
   private goBack() {
     sounds.playRevolver();
 
-    this.scene.start('TitleScene');
+    if (this.fromScene === 'MenuScene') { this.scene.stop('UnlockablesScene'); this.scene.resume('MenuScene'); }
+    else this.scene.start('TitleScene');
   }
 
 }

@@ -40,7 +40,7 @@ export class FirstRunTutorialView {
     scene.tweens.add({ targets: this.keys, alpha: 0.6, duration: 650, yoyo: true, repeat: -1 });
     this.skipButton = scene.add.container(0, 0).setScrollFactor(0).setDepth(94).setSize(164, 48).setInteractive({ useHandCursor: true });
     this.skipButton.add(scene.add.graphics().fillStyle(0x321b10, 0.96).fillRect(-82, -24, 164, 48).lineStyle(2, 0xffc52a).strokeRect(-82, -24, 164, 48));
-    this.skipLabel = scene.add.text(0, 0, 'PULAR [T]', { fontFamily: THEME.typography.pixelFont, fontSize: '12px', color: '#f2d49a' }).setOrigin(0.5);
+    this.skipLabel = scene.add.text(0, 0, 'SKIP [T]', { fontFamily: THEME.typography.pixelFont, fontSize: '12px', color: '#f2d49a' }).setOrigin(0.5);
     this.skipButton.add(this.skipLabel);
     this.skipButton.on('pointerdown', (_pointer: unknown, _x: unknown, _y: unknown, event: Phaser.Types.Input.EventData) => { event.stopPropagation(); skip(); });
     this.skipKey = skip;
@@ -72,10 +72,10 @@ export class FirstRunTutorialView {
     const signature = `${this.model.phase}:${this.model.mode}:${this.model.hasFired}`;
     if (signature !== this.signature) {
       this.signature = signature;
-      this.skipLabel.setText(this.model.mode === 'touch' ? 'PULAR' : 'PULAR [T]');
-      const compactTitles = { move: 'ANDE. TIROS AUTOMÁTICOS!', shoot: this.model.hasFired ? 'VIU SÓ? SEM CLICAR!' : 'A ARMA ATIRA SOZINHA!', ready: 'AGORA É COM VOCÊ!', reminder: 'TIROS AUTOMÁTICOS', loot: 'SAQUE DÁ MELHORIAS!', idle: '' };
+      this.skipLabel.setText(this.model.mode === 'touch' ? 'SKIP' : 'SKIP [T]');
+      const compactTitles = { move: 'MOVE. AUTOMATIC FIRE!', shoot: this.model.hasFired ? 'SEE? NO CLICKING!' : 'YOUR GUN FIRES AUTOMATICALLY!', ready: 'YOUR TURN, PARTNER!', reminder: 'AUTOMATIC FIRE', loot: 'LOOT BRINGS UPGRADES!', idle: '' };
       this.title.setText(this.compact ? compactTitles[this.model.phase] : copy.title); this.body.setText(this.short && this.model.phase !== 'loot'
-        ? `${this.model.mode === 'touch' ? 'Arraste para andar.' : 'WASD / setas para andar.'}\nMira e tiros automáticos.`
+        ? `${this.model.mode === 'touch' ? 'Drag to move.' : 'WASD / arrows to move.'}\nAutomatic aiming and firing.`
         : copy.body); this.keys.setText(copy.keys); this.step.setText(copy.step);
     }
     this.ring.clear();

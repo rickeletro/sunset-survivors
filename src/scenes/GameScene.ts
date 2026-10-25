@@ -1,3 +1,12 @@
+import { FrontierCompass } from '../ui/hud/FrontierCompass';
+import { GALLERY_BOSS_KEYS, galleryProfile } from '../data/shootingGallery';
+import { FrontierEvents } from '../systems/FrontierEvents';
+import { faroPrize as chooseFaroPrize } from '../data/faroPrize';
+import { developerEnabled } from '../dev/access';
+import { FARO_MIN_STAKE, FaroTable, type FaroSettlement } from '../data/faro';
+import { preloadChickens } from '../systems/ChickenSprites';
+import { FrontierWildlife } from '../systems/FrontierWildlife';
+import { StageAtmosphere } from '../systems/StageAtmosphere';
 import { preloadSurfaces } from '../ui/components/PulpSurface';
 import { WeaponEffects } from '../systems/WeaponEffects';
 import { molotovFootprint } from '../data/weaponPresentation';
@@ -65,6 +74,10 @@ export class GameScene extends Phaser.Scene {
   private stageConfig!: StageConfig;
   private encounters!: StageEncounters;
   private stageStatus!: Phaser.GameObjects.Text;
+  private wildlife?: FrontierWildlife;
+  private frontierEvents?: FrontierEvents;
+  private atmosphere?: StageAtmosphere;
+  private frontierCompass?: FrontierCompass;
   private saloonVisit?: SaloonVisit;
   private saloonViews: { door: SaloonDoor; view: BuildingPortalView }[] = [];
   private saloonRestore?: () => void;
@@ -102,6 +115,7 @@ export class GameScene extends Phaser.Scene {
   private kills: number = 0;
   private choosingUpgrade = false;
   private runId = '';
+  private developerTest = false;
   private gameTimeSeconds: number = 0;
   private isGameOver: boolean = false;
 
@@ -151,7 +165,8 @@ export class GameScene extends Phaser.Scene {
     super('GameScene');
   }
 
-  init(data?: { character?: CharacterData; stage?: number; difficulty?: DifficultyId }) {
+  init(data?: { character?: CharacterData; stage?: number; difficulty?: DifficultyId; developer?: boolean }) {
+    this.developerTest = !!data?.developer && developerEnabled();
     this.character = data?.character || CHARACTERS.billy;
     this.stage = Math.max(1, Math.min(8, data?.stage || 1));
     this.stageConfig = getStage(this.stage);
@@ -160,13 +175,15 @@ export class GameScene extends Phaser.Scene {
 
   preload() {
     preloadSurfaces(this);
+    preloadImages(this, GALLERY_BOSS_KEYS);
+    preloadChickens(this, this.stageConfig.theme);
     preloadImages(this, sceneryForStage(this.stageConfig.theme).map(sceneryKey));
     // The black doorway cut must not reveal the street while the interior loads.
     if (saloonDoors(this.stageConfig.theme).length) {
-      preloadImages(this, ['saloon_bkg', 'intro_bkg', 'decor_lantern', 'decor_spark', 'saloon_cancan']);
+      preloadImages(this, ['saloon_bkg', 'intro_bkg', 'decor_lantern', 'decor_spark', 'saloon_cancan', 'faro_dealer']);
     }
-    preloadImages(this, [...this.stageConfig.props, 'lantern'].map(kind => `wm_${kind}`));
-    if (this.stageConfig.theme === 'canyon') preloadImages(this, WORLD_DECORATION_KEYS);
+    preloadImages(this, [...new Set([...this.stageConfig.props, 'lantern', 'crate', 'barrel'])].map(kind => `wm_${kind}`));
+    if (!['saloon', 'caboose', 'manor'].includes(this.stageConfig.theme)) preloadImages(this, WORLD_DECORATION_KEYS);
     preloadCombatSprites(this, this.stage);
     if (this.stage === 1 && !hasGreedwellSprites(this)) preloadGreedwell(this);
     if (!this.textures.exists('hud_avatar_steve')) {
@@ -258,11 +275,8 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.setBounds(0, 0, WORLD_W, WORLD_H);
     this.cameras.main.startFollow(this.player, true, 0.12, 0.12);
     this.worldMap.update(startX, startY);
-    const dust = this.add.particles(0, 0, 'stage_dust', {
-      frequency: 140, lifespan: 3500, speedX: { min: 12, max: 30 }, speedY: { min: -8, max: 4 },
-      alpha: { start: 0.35, end: 0 }, quantity: 1,
-    }).setDepth(18);
-    dust.startFollow(this.player, -260, -160);
+    this.wildlife = new FrontierWildlife(this, this.stageConfig.theme);
+    this.atmosphere = new StageAtmosphere(this, this.stageConfig.theme, this.player);
 
     // Horde systems: director, pool, spatial hash, event bus
     this.gameEvents = new GameEvents();
@@ -292,6 +306,13 @@ export class GameScene extends Phaser.Scene {
       this.gameEvents.removeAllListeners();
     });
 
+    this.frontierEvents = new FrontierEvents(this, this.stageConfig.theme, {
+      spawn: (kind, x, y) => this.spawnEnemy(kind, x, y),
+      banner: text => this.showBanner(text, '#ffc52a'),
+      explode: (x, y, radius, damage) => {
+        for (const enemy of [...this.enemies]) if (!enemy.dead && Math.hypot(enemy.sprite.x - x, enemy.sprite.y - y) <= radius) this.damageEnemy(enemy, damage);
+      },
+    });
     // Keyboard Inputs
     if (this.input.keyboard) {
       this.cursors = this.input.keyboard.createCursorKeys();
@@ -302,6 +323,7 @@ export class GameScene extends Phaser.Scene {
         if (this.isGameOver || this.choosingUpgrade || this.saloonOpen || this.scene.isPaused('GameScene')) return;
         this.scene.pause('GameScene');
         this.scene.launch('PauseScene', {
+          developer: this.developerTest,
           character: this.character,
           stage: this.stage,
           difficulty: this.difficulty, audit: this.balanceSnapshot(),
@@ -317,6 +339,7 @@ export class GameScene extends Phaser.Scene {
     this.createHUD();
     this.createOnboarding();
     this.createSaloonInteraction();
+    this.frontierCompass = new FrontierCompass(this);
 
     // Game Timer Loop (Seconds)
     this.time.addEvent({
@@ -332,15 +355,19 @@ export class GameScene extends Phaser.Scene {
       loop: true,
     });
 
+    if (this.developerTest) this.add.text(this.scale.width / 2, 178, 'DEVELOPER TEST • [ESC] RESTART / RETURN TO PANEL', {
+      fontFamily: THEME.typography.pixelFont, fontSize: '12px', color: '#ffc52a', backgroundColor: '#321b10', padding: { x: 10, y: 6 },
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(60);
     this.updateStageStatus();
-    if (!this.onboarding?.blocking) this.showBanner(`FASE ${this.stage} — ${this.stageConfig.title}`, '#ffc52a');
+    if (!this.onboarding?.blocking) this.showBanner(`STAGE ${this.stage} — ${this.stageConfig.title}`, '#ffc52a');
     sounds.startBGM(this.stage);
   }
 
   private createOnboarding(): void {
     const device = this.sys.game.device;
     const touch = device.input.touch && !device.os.desktop;
-    this.onboarding = new FirstRunTutorial(this.stage !== 1 || tutorialProgress.hasCompleted(), touch ? 'touch' : 'keyboard', () => tutorialProgress.complete());
+    this.onboarding = new FirstRunTutorial(this.developerTest || this.stage !== 1 || tutorialProgress.hasCompleted(), touch ? 'touch' : 'keyboard', () => tutorialProgress.complete());
+    if (this.developerTest) this.onboarding.skip();
     this.practiceActive = this.onboarding.blocking;
     this.onboardingView = new FirstRunTutorialView(this, this.onboarding, () => {
       if (!this.onboarding?.blocking) return;
@@ -364,7 +391,7 @@ export class GameScene extends Phaser.Scene {
     this.fireZones = [];
     this.weaponTimers.forEach((_timer, key) => this.weaponTimers.set(key, 0));
     sounds.playLevelUp();
-    this.showBanner(`FASE ${this.stage} — AGORA É COM VOCÊ!`, '#ffc52a');
+    this.showBanner(`STAGE ${this.stage} — YOUR TURN, PARTNER!`, '#ffc52a');
   }
 
   private spawnPracticeBandit(): void {
@@ -601,8 +628,8 @@ export class GameScene extends Phaser.Scene {
   private updateStageStatus(): void {
     const remaining = Math.max(0, this.stageConfig.duration - this.gameTimeSeconds);
     const clock = `${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2, '0')}`;
-    const labels = { arrival: 'CHEGADA', pressure: 'CERCO', surge: 'HORDA', respite: 'RESPIRO', 'last-stand': 'RESISTA', boss: 'PROCURADO' };
-    this.stageStatus.setText(`${difficultyProfile(this.difficulty).label} • FASE ${this.stage} • ${labels[stagePhase(this.stageConfig, this.gameTimeSeconds)]} • ${this.bossSpawned ? 'DERROTE O BOSS' : `BOSS EM ${clock}`}`);
+    const labels = { arrival: 'ARRIVAL', pressure: 'SIEGE', surge: 'HORDE', respite: 'BREATHER', 'last-stand': 'HOLD OUT', boss: 'WANTED' };
+    this.stageStatus.setText(`${difficultyProfile(this.difficulty).label} • STAGE ${this.stage} • ${labels[stagePhase(this.stageConfig, this.gameTimeSeconds)]} • ${this.bossSpawned ? 'DEFEAT THE BOSS' : `BOSS IN ${clock}`}`);
     this.objectiveStatus.setText(this.encounters.objectiveHint());
   }
 
@@ -670,14 +697,14 @@ export class GameScene extends Phaser.Scene {
       case 'whip':
         e.vulnerableUntil = this.combatNow + 1300;
         this.encounters.warn({ x: x + Math.cos(angle) * 100, y: y + Math.sin(angle) * 100, radius: 145 }, 1000, 350, bossAttackDamage(30));
-        this.showBanner('CHICOTE! ATAQUE QUANDO O ESCUDO BAIXAR', '#ffc52a');
+        this.showBanner('WHIP! STRIKE WHEN THE SHIELD DROPS', '#ffc52a');
         break;
       case 'axes':
         for (const offset of [-0.45, 0, 0.45]) this.fireHostileBullet(x, y, angle + offset, bossAttackDamage(25), 620, true);
         this.encounters.warn({ x, y, radius: 100 }, 850, 450, bossAttackDamage(25));
         break;
       case 'gatling':
-        this.showBanner('GATLING — A MIRA VAI TRAVAR!', '#ff791c');
+        this.showBanner('GATLING — AIM LOCK INCOMING!', '#ff791c');
         this.encounters.warn({ x: this.player.x, y: this.player.y, radius: 50 }, 1000, 100, 0);
         for (let i = 0; i < 10; i++) this.time.delayedCall(1000 + i * 90, () => {
           if (!e.dead && !this.isGameOver && !this.bossDefeated) { sounds.playRevolver(); this.fireHostileBullet(e.sprite.x, e.sprite.y, angle + (i - 4.5) * 0.075, bossAttackDamage(18), 850); }
@@ -702,6 +729,7 @@ export class GameScene extends Phaser.Scene {
     const oldX = this.player.x, oldY = this.player.y;
     this.handlePlayerMovement(delta);
     this.updateSaloonPrompt();
+    this.atmosphere?.update();
     const previousPhase = this.onboarding?.phase;
     this.onboarding?.tick(delta, Math.hypot(this.player.x - oldX, this.player.y - oldY));
     if (previousPhase === 'move' && this.onboarding?.phase === 'shoot') this.spawnPracticeBandit();
@@ -727,9 +755,15 @@ export class GameScene extends Phaser.Scene {
     this.player.setDepth(worldDepth(this.player.y));
     this.worldMap.update(this.player.x, this.player.y);
     this.updateDrops(delta);
+    if (!this.onboarding?.blocking) {
+      const healed = this.wildlife?.update(delta, this.player.x, this.player.y, this.hp, this.maxHp,
+        (x, y) => this.worldMap.resolve(x, y, 8)) ?? 0;
+      if (healed > 0) { this.hp += healed; this.updateHpBar(); sounds.playCoin(); }
+    }
     if (this.choosingUpgrade) return;
     this.updateFireZones(delta);
     this.encounters.update(delta);
+    this.frontierEvents?.update(delta, this.player.x, this.player.y, this.bossSpawned || this.bossDefeated || this.choosingUpgrade);
   }
 
   private saloonBlocked(): boolean {
@@ -737,9 +771,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   private createSaloonInteraction(): void {
-    this.saloonVisit = new SaloonVisit(saloonDoors(this.stageConfig.theme));
+    this.saloonVisit = new SaloonVisit(saloonDoors(this.stageConfig.theme), this.stageConfig.id === 2 ? { healthFraction: 0.2, bounty: 0 } : undefined, true, this.stageConfig.id === 2);
     this.saloonViews = this.saloonVisit.doors.flatMap(door => door.portal ? [{ door,
-      view: new BuildingPortalView(this, door.portal, 'SALOON', () => this.openSaloon(door)) }] : []);
+      view: new BuildingPortalView(this, door.portal, door.activity === 'gallery' ? `${galleryProfile(this.stageConfig.id).name.toUpperCase()} • TARGET PRACTICE` : door.activity === 'hospitality' ? 'HOSPITALITY • HEAL + XP' : this.stageConfig.id === 2 ? 'SALOON • FARO • $ + ITEMS' : 'SALOON • HEAL + $', () => this.openSaloon(door)) }] : []);
     const enter = () => this.openSaloon();
     this.input.keyboard?.on('keydown-E', enter);
     this.events.once('shutdown', () => {
@@ -753,8 +787,10 @@ export class GameScene extends Phaser.Scene {
   }
 
   private updateSaloonPrompt(): void {
-    const blocked = this.saloonBlocked(), used = !!this.saloonVisit?.used;
+    const blocked = this.saloonBlocked();
+    this.frontierCompass?.update(this.saloonVisit, this.player.x, this.player.y, this.combatNow, !!(this.saloonOpen || this.onboarding?.visible || this.choosingUpgrade || this.isGameOver));
     this.saloonViews?.forEach(({ door, view }) => {
+      const used = !!this.saloonVisit?.wasUsed(door);
       const distance = Math.hypot(door.x - this.player.x, door.y - this.player.y);
       view.update(distance, !blocked && !used && distance <= SALOON_ENTRY_RADIUS, used, this.combatNow, blocked);
     });
@@ -774,6 +810,12 @@ export class GameScene extends Phaser.Scene {
     const door = requested ?? visit?.nearby(this.player.x, this.player.y, blocked);
     if (!visit || blocked || visit.used || !door?.portal || !visit.doors.includes(door) ||
       Math.hypot(door.x - this.player.x, door.y - this.player.y) > SALOON_ENTRY_RADIUS) return;
+    if (this.stageConfig.id === 2 && (door.activity ?? 'saloon') === 'saloon' && this.bounty < FARO_MIN_STAKE) {
+      this.showBanner('FARO: COLLECT AT LEAST $2 IN BOUNTY TO PLAY', '#ffc52a'); return;
+    }
+    const isFaro = this.stageConfig.id === 2 && (door.activity ?? 'saloon') === 'saloon';
+    const offeredPrize = isFaro ? chooseFaroPrize(this.generateUpgradeChoices()) : undefined;
+    if (isFaro && !offeredPrize) { this.showBanner('FARO: YOUR ARSENAL IS ALREADY AT ITS LIMIT', '#ffc52a'); return; }
     const portal = door.portal;
     const path = this.worldMap.buildingPath(this.player, portal.threshold);
     if (!path) { sounds.playRicochet(); return; } // No free safety/consumed visit when the door is unreachable.
@@ -782,13 +824,15 @@ export class GameScene extends Phaser.Scene {
     this.saloonOpen = true;
     const clockPaused = this.time.paused, tweensPaused = this.tweens.paused;
     const visible = this.player.visible;
-    this.saloonRestore = () => { this.time.paused = clockPaused; this.tweens.paused = tweensPaused; this.player.visible = visible; };
+    const originalZoom = this.cameras.main.zoom;
+    this.saloonRestore = () => { this.cameras.main.zoom = originalZoom; this.time.paused = clockPaused; this.tweens.paused = tweensPaused; this.player.visible = visible; };
     // Freeze immediately, including the queued-pause transition frame.
     this.time.paused = true; this.tweens.paused = true;
     this.player.anims?.stop(); this.player.visible = false;
     this.updateSaloonPrompt();
     this.scene.pause('GameScene');
     let phase: 'enter' | 'inside' | 'exit' | 'done' = 'enter';
+    let faroTable: FaroTable | undefined, faroPrize: UpgradeChoice | undefined, faroSettlement: FaroSettlement | undefined;
     const current = () => this.saloonVisit === visit && this.saloonOpen && !this.isGameOver;
     const restore = (reward?: ReturnType<SaloonVisit['leave']>) => {
       if (!current() || phase === 'done') return;
@@ -797,16 +841,25 @@ export class GameScene extends Phaser.Scene {
         this.hp = Math.min(this.maxHp, this.hp + Math.round(this.maxHp * reward.healthFraction));
         this.updateHpBar(); this.addBounty(reward.bounty); sounds.playCoin();
       }
+      if (faroSettlement) {
+        this.addBounty(faroSettlement.bountyDelta);
+        if (faroSettlement.wonItem && faroPrize) {
+          const levels = faroPrize.type === 'weapon' ? this.activeWeapons : this.activePassives;
+          while ((levels.get(faroPrize.id) ?? 0) < faroPrize.nextLevel) this.applyUpgrade(faroPrize);
+        }
+      }
       this.invulnUntil = Math.max(this.invulnUntil, this.combatNow + PLAYER_HIT_GRACE_MS);
       this.saloonRestore?.(); this.saloonRestore = undefined;
       this.saloonOpen = false;
       this.scene.resume('GameScene');
+      if (reward?.xp) this.awardXp(reward.xp);
     };
     const transition = (mode: 'enter' | 'exit', route: PortalPoint[], complete: () => void, cancel: () => void) => {
       const data: BuildingTransitionData = { mode, path: route, portal,
         camera: { scrollX: this.cameras.main.scrollX, scrollY: this.cameras.main.scrollY, zoom: this.cameras.main.zoom },
         actor: { texture: this.player.texture.key, frame: this.player.frame.name, scaleX: this.player.scaleX,
           scaleY: this.player.scaleY, hero: this.character.id, pixellab: this.usePixellab },
+        onZoom: zoom => { if (current()) this.cameras.main.zoom = zoom; },
         onPosition: (p, dx, dy) => { if (current() && phase === mode) this.applyPortalPose(p, dx, dy); },
         onComplete: () => {
           if (!current() || phase !== mode) return;
@@ -818,10 +871,19 @@ export class GameScene extends Phaser.Scene {
     };
     transition('enter', path, () => {
       phase = 'inside';
-      this.scene.launch('SaloonScene', { onLeave: (accept: boolean) => {
+      if (isFaro) {
+        faroTable = new FaroTable(this.bounty);
+        faroPrize = offeredPrize;
+      }
+      this.scene.launch('SaloonScene', { gallery: door.activity === 'gallery', galleryStage: this.stageConfig.id, onGalleryLeave: (gains: { bounty: number; xp: number }) => {
+        if (!current() || phase !== 'inside' || door.activity !== 'gallery') return;
+        phase = 'exit'; visit.leave(false); this.scene.stop('SaloonScene');
+        transition('exit', returnPath, () => { restore(); this.addBounty(gains.bounty); if (gains.xp) this.awardXp(gains.xp); }, () => { restore(); this.addBounty(gains.bounty); if (gains.xp) this.awardXp(gains.xp); });
+      }, table: faroTable, prize: faroPrize, faro: isFaro, hospitality: door.activity === 'hospitality', onLeave: (accept: boolean) => {
         if (!current() || phase !== 'inside') return;
         phase = 'exit';
-        const reward = visit.leave(accept);
+        faroSettlement = faroTable?.close();
+        const reward = visit.leave(door.activity === 'gallery' ? false : accept, faroSettlement?.wonItem);
         this.scene.stop('SaloonScene');
         transition('exit', returnPath, () => restore(reward), () => restore(reward));
       } });
@@ -1131,10 +1193,12 @@ export class GameScene extends Phaser.Scene {
     for (let i = this.projectiles.length - 1; i >= 0; i--) {
       const p = this.projectiles[i];
 
+      const previousX = p.sprite.x, previousY = p.sprite.y;
       // Linear Projectiles
       p.sprite.x += (p.vx * delta) / 1000;
       p.sprite.y += (p.vy * delta) / 1000;
       p.life -= delta;
+      if (p.life > 0) { this.wildlife?.hit(previousX, previousY, p.sprite.x, p.sprite.y); if (!this.onboarding?.blocking && !this.bossSpawned) this.frontierEvents?.hit(previousX, previousY, p.sprite.x, p.sprite.y, p.damage); }
 
       // Ricochete de borda para sniper dourado (Golden Marshal)
       if (p.isBouncingSniper && (p.bouncesLeft ?? 0) > 0) {
@@ -1186,6 +1250,9 @@ export class GameScene extends Phaser.Scene {
     for (let i = this.enemies.length - 1; i >= 0; i--) {
       const e = this.enemies[i];
       if (e.training) continue;
+      if (e.fleeGoal && e.escapeAt === -1) {
+        e.dead = true; this.enemies.splice(i, 1); this.enemyPool.release(e.sprite); continue;
+      }
       const dx = this.player.x - e.sprite.x;
       const dy = this.player.y - e.sprite.y;
       const dist = Math.hypot(dx, dy);
@@ -1196,14 +1263,14 @@ export class GameScene extends Phaser.Scene {
       if (refresh && e.type !== 'boss') e.aiTimer = 100 + Math.random() * 60;
       if (refresh && dist > 0.1) {
         const radius = e.type === 'boss' ? (this.stage === 3 ? 25 : 14) : ENEMY_DEFS[e.type].radius;
-        const target = this.worldMap.chaseTarget?.(e.sprite.x, e.sprite.y, this.player.x, this.player.y, radius) ?? this.player;
+        const target = this.worldMap.chaseTarget?.(e.sprite.x, e.sprite.y, e.fleeGoal?.x ?? this.player.x, e.fleeGoal?.y ?? this.player.y, radius) ?? e.fleeGoal ?? this.player;
         const steerX = target.x - e.sprite.x, steerY = target.y - e.sprite.y;
         const steerDistance = Math.hypot(steerX, steerY) || 1;
         e.dirX = steerX / steerDistance;
         e.dirY = steerY / steerDistance;
       }
 
-      this.updateEnemyTactics(e, dx, dy, dist, delta);
+      if (!e.fleeGoal) this.updateEnemyTactics(e, dx, dy, dist, delta);
       // During a charge, the sprite must face the locked movement direction too.
       const charging = (e.chargeWindup ?? 0) > 0 || (e.chargeRemaining ?? 0) > 0;
       const faceX = charging ? e.chargeX ?? dx : e.dirX ?? dx;
@@ -1721,7 +1788,7 @@ export class GameScene extends Phaser.Scene {
       // Flash épico de evolução
       this.cameras.main.flash(500, 255, 215, 0);
       sounds.playLevelUp();
-      this.showBanner(`★ ARMA EVOLUÍDA: ${choice.name.toUpperCase()}! ★`, '#ffc52a');
+      this.showBanner(`★ WEAPON EVOLVED: ${choice.name.toUpperCase()}! ★`, '#ffc52a');
     } else if (choice.type === 'weapon') {
       const newLvl = (this.activeWeapons.get(choice.id) || 0) + 1;
       this.activeWeapons.set(choice.id, newLvl);
@@ -1756,6 +1823,7 @@ export class GameScene extends Phaser.Scene {
 
   private stageClear() {
     if (this.isGameOver) return;
+    if (this.developerTest) { this.endDeveloperTest('STAGE COMPLETE'); return; }
     const bonus = stageClearBonus(this.stage);
     this.addBounty(bonus);
     this.isGameOver = true;
@@ -1778,7 +1846,17 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
+  private endDeveloperTest(result: string): void {
+    if (this.isGameOver) return;
+    this.isGameOver = true; sounds.stopBGM(); sounds.playIntroMusic();
+    this.scene.start('DeveloperScene', { stage: this.stage, hero: this.character.id, difficulty: this.difficulty,
+      result: `${result} • ${this.kills} KILLS • ${this.gameTimeSeconds}s` });
+  }
+
+  public setRunDifficulty(mode: DifficultyId) { this.difficulty = normalizeDifficulty(mode); }
+
   private gameOver(victory: boolean) {
+    if (this.developerTest) { this.endDeveloperTest(victory ? 'STAGE COMPLETE' : 'TEST ENDED'); return; }
     if (victory) {
       this.stageClear();
       return;

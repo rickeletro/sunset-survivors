@@ -27,3 +27,12 @@ Thumbs.db
 !.vscode/extensions.json
 *.swp
 *.zip
+
+# Persistent server data (back up separately)
+.data/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+
+# Local Cloudflare tooling state
+.wrangler/

@@ -1,3 +1,8 @@
+import { MenuScene } from './scenes/MenuScene';
+import { AudioScene } from './scenes/AudioScene';
+import { RankingScene } from './scenes/RankingScene';
+import { DeveloperScene } from './scenes/DeveloperScene';
+import { developerEnabled } from './dev/access';
 import Phaser from 'phaser';
 import { CharacterSelectScene } from './scenes/CharacterSelectScene';
 import { ControlsScene } from './scenes/ControlsScene';
@@ -19,6 +24,8 @@ import { WantedScene } from './scenes/WantedScene';
 
 const allScenes: (typeof Phaser.Scene)[] = [
   TitleScene,
+  MenuScene, AudioScene, RankingScene,
+  ...(developerEnabled() ? [DeveloperScene] : []),
   DifficultyScene,
   StoryScene,
   CharacterSelectScene,
@@ -42,6 +49,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const sceneParam = urlParams.get('scene');
 
 const sceneMap: Record<string, typeof Phaser.Scene> = {
+  ranking: RankingScene,
   difficulty: DifficultyScene,
   stageintro: StageIntroScene,
   wanted: WantedScene,
@@ -55,6 +63,8 @@ const sceneMap: Record<string, typeof Phaser.Scene> = {
   unlocks: UnlockablesScene,
   controls: ControlsScene,
 };
+
+if (developerEnabled()) sceneMap.developer = DeveloperScene;
 
 if (sceneParam && sceneMap[sceneParam]) {
   const target = sceneMap[sceneParam];

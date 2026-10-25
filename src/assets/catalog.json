@@ -86,7 +86,14 @@
     "wm_statue": "assets/scenery/western-pulp/statue.png",
     "wm_lantern": "assets/scenery/western-pulp/lantern.png",
     "ui_pulp_paper": "assets/ui/materials/paper.png",
-    "ui_pulp_wood": "assets/ui/materials/wood.png"
+    "ui_pulp_wood": "assets/ui/materials/wood.png",
+    "faro_dealer": "assets/characters/dealer/faro-dealer.png",
+    "card_desperado_fury": "assets/powerup/evolutions/desperado_fury.png",
+    "card_blunderbuss_doom": "assets/powerup/evolutions/blunderbuss_doom.png",
+    "card_golden_repeater": "assets/powerup/evolutions/golden_repeater.png",
+    "card_hellfire_keg": "assets/powerup/evolutions/hellfire_keg.png",
+    "card_cyclone_whip": "assets/powerup/evolutions/cyclone_whip.png",
+    "scenery_gallery-saloon": "assets/scenery/pixellab/saloon.png"
   },
   "sheets": {
     "hero_steve": {
@@ -355,6 +362,20 @@
         ""
       ],
       "frames": 7
+    },
+    "wildlife:chicken-walk": {
+      "root": "assets/wildlife/pixellab/chicken/walk",
+      "directions": [
+        "east",
+        "north",
+        "north-east",
+        "north-west",
+        "south",
+        "south-east",
+        "south-west",
+        "west"
+      ],
+      "frames": 9
     }
   },
   "titleImages": [

@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS rankings (
+  runId TEXT PRIMARY KEY, name TEXT NOT NULL, score INTEGER NOT NULL,
+  kills INTEGER NOT NULL, bounty INTEGER NOT NULL, stage INTEGER NOT NULL,
+  level INTEGER NOT NULL, seconds REAL NOT NULL, character TEXT NOT NULL,
+  difficulty TEXT NOT NULL, createdAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS ranking_score ON rankings(score DESC,stage DESC,kills DESC,seconds DESC,runId ASC);

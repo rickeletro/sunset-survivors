@@ -1,0 +1,90 @@
+{
+  "alpha_threshold": 32,
+  "items": [
+    {
+      "name": "Steve gameplay",
+      "path": "public/assets/characters/pixellab/steve/Idle/animations/walking-4-frames/south/frame_000.png",
+      "scale": 0.5,
+      "canvas": [
+        256,
+        256
+      ],
+      "visible_bbox": [
+        93,
+        63,
+        227,
+        200
+      ],
+      "visible_world": [
+        67.0,
+        68.5
+      ],
+      "height_ratio_to_hero": 1.0,
+      "within_declared_range": true
+    },
+    {
+      "name": "Suspended cargo",
+      "path": "public/assets/scenery/western-pulp/crate.png",
+      "scale": 1.2,
+      "canvas": [
+        44,
+        42
+      ],
+      "visible_bbox": [
+        3,
+        2,
+        40,
+        40
+      ],
+      "visible_world": [
+        44.4,
+        45.6
+      ],
+      "height_ratio_to_hero": 0.6657,
+      "within_declared_range": true
+    },
+    {
+      "name": "Powder barrel",
+      "path": "public/assets/scenery/western-pulp/barrel.png",
+      "scale": 1.1,
+      "canvas": [
+        36,
+        44
+      ],
+      "visible_bbox": [
+        2,
+        2,
+        33,
+        42
+      ],
+      "visible_world": [
+        34.1,
+        44.0
+      ],
+      "height_ratio_to_hero": 0.6423,
+      "within_declared_range": true
+    },
+    {
+      "name": "House facade",
+      "path": "public/assets/scenery/pixellab/house.png",
+      "scale": 1.45,
+      "canvas": [
+        192,
+        192
+      ],
+      "visible_bbox": [
+        13,
+        24,
+        179,
+        165
+      ],
+      "visible_world": [
+        240.7,
+        204.45
+      ],
+      "height_ratio_to_hero": 2.9847,
+      "within_declared_range": true
+    }
+  ],
+  "issues": []
+}

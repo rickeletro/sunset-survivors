@@ -15,7 +15,10 @@
     "music:prompts": "node scripts/import-stage-music.mjs --prompts",
     "balance:audit": "node scripts/audit-balance.mjs",
     "sustain:audit": "node scripts/audit-sustain.mjs",
-    "balance:telemetry": "node scripts/audit-telemetry.mjs"
+    "balance:telemetry": "node scripts/audit-telemetry.mjs",
+    "start": "node server/index.mjs",
+    "ranking:backup": "node server/backup.mjs",
+    "ranking:check": "node scripts/check-ranking-server.mjs"
   },
   "dependencies": {
     "phaser": "^3.88.2"
@@ -24,5 +27,8 @@
     "typescript": "^5.7.2",
     "vite": "^6.0.7",
     "vitest": "^5.0.5"
+  },
+  "engines": {
+    "node": ">=22.13.0"
   }
 }

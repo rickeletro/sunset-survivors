@@ -1,0 +1,69 @@
+{
+  "alpha_threshold": 32,
+  "items": [
+    {
+      "name": "Steve gameplay",
+      "path": "public/assets/characters/pixellab/steve/Idle/animations/walking-4-frames/south/frame_000.png",
+      "scale": 0.5,
+      "canvas": [
+        256,
+        256
+      ],
+      "visible_bbox": [
+        93,
+        63,
+        227,
+        200
+      ],
+      "visible_world": [
+        67.0,
+        68.5
+      ],
+      "height_ratio_to_hero": 1.0,
+      "within_declared_range": true
+    },
+    {
+      "name": "Gallery saloon (existing facade)",
+      "path": "public/assets/scenery/pixellab/saloon.png",
+      "scale": 1.0,
+      "canvas": [
+        256,
+        256
+      ],
+      "visible_bbox": [
+        15,
+        11,
+        239,
+        239
+      ],
+      "visible_world": [
+        224.0,
+        228.0
+      ],
+      "height_ratio_to_hero": 3.3285,
+      "within_declared_range": true
+    },
+    {
+      "name": "House",
+      "path": "public/assets/scenery/pixellab/house.png",
+      "scale": 1.45,
+      "canvas": [
+        192,
+        192
+      ],
+      "visible_bbox": [
+        13,
+        24,
+        179,
+        165
+      ],
+      "visible_world": [
+        240.7,
+        204.45
+      ],
+      "height_ratio_to_hero": 2.9847,
+      "within_declared_range": true
+    }
+  ],
+  "issues": []
+}

@@ -1,7 +1,7 @@
 import { MUSIC_MANIFEST, stageMusicSource } from './stageMusic';
 /**
  * Web Audio API Synthesizer for Sunset Survivors
- * Zero external audio file dependencies - 100% synthesized authentic 16-bit arcade Western sound effects!
+ * Synthesized arcade effects and cached, volume-controlled recorded clips.
  */
 
 class SoundManager {
@@ -67,6 +67,7 @@ class SoundManager {
 
   public setSfxVolume(vol: number) {
     this.sfxVolume = Math.max(0, Math.min(1, vol));
+    for (const clip of this.faroAudio.values()) clip.volume = this.sfxVolume;
     try {
       if (typeof localStorage !== 'undefined') {
         localStorage.setItem('sunset_survivors_sfx_volume', this.sfxVolume.toString());
@@ -79,6 +80,7 @@ class SoundManager {
 
   public toggleMute(): boolean {
     this.isMuted = !this.isMuted;
+    for (const clip of this.faroAudio.values()) clip.muted = this.isMuted;
     if (this.currentBgm) {
       this.currentBgm.muted = this.isMuted;
       this.currentBgm.volume = this.isMuted ? 0 : this.musicVolume;
@@ -532,6 +534,28 @@ class SoundManager {
       this.sfxScreamAudio.volume = this.sfxVolume;
       this.sfxScreamAudio.play().catch(() => {});
     } catch {}
+  }
+
+  private faroAudio = new Map<string, HTMLAudioElement>();
+  private playFaroClip(key: 'cards' | 'shuffle' | 'dealer' | 'hospitality'): void {
+    if (this.isMuted) return;
+    const paths = {
+      hospitality: 'assets/audio/voices/hospitality_vices.mp3',
+      cards: 'assets/audio/sfx/cards.mp3', shuffle: 'assets/audio/sfx/shuffling-deck-of-cards.mp3', dealer: 'assets/audio/voices/dealer.mp3',
+    };
+    try {
+      let clip = this.faroAudio.get(key);
+      if (!clip) { clip = new Audio(paths[key]); clip.preload = 'auto'; this.faroAudio.set(key, clip); }
+      clip.currentTime = 0; clip.volume = this.sfxVolume; clip.muted = false;
+      void clip.play().catch(() => {});
+    } catch { /* Optional SFX must never interrupt a wager or navigation. */ }
+  }
+  public playCards(): void { this.playFaroClip('cards'); }
+  public playShuffle(): void { this.playFaroClip('shuffle'); }
+  public playDealerGreeting(): void { this.playFaroClip('dealer'); }
+  public playHospitalityGreeting(): void { this.playFaroClip('hospitality'); }
+  public stopFaroAudio(): void {
+    for (const clip of this.faroAudio.values()) { clip.pause(); clip.currentTime = 0; }
   }
 
   private currentHeroVoice: HTMLAudioElement | null = null;
