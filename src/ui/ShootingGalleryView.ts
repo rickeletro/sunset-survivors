@@ -1,3 +1,4 @@
+import { ECONOMY } from '../data/economy';
 import type Phaser from 'phaser';
 import { ShootingGallery, gallerySlot, galleryPlatePose, GALLERY_SLOTS } from '../data/shootingGallery';
 import { BossTargetPlate } from './components/BossTargetPlate';
@@ -13,7 +14,7 @@ export class ShootingGalleryView {
   private round: ShootingGallery;
   private exited = false;
   private targets: BossTargetPlate[] = [];
-  constructor(scene: Phaser.Scene, root: Phaser.GameObjects.Container, onExit: (reward: { bounty: number; xp: number }) => void, stage = 1) {
+  constructor(scene: Phaser.Scene, root: Phaser.GameObjects.Container, onExit: (reward: { bounty: number; xp: number }) => void, stage = 1, admission?: { price:number; balance:()=>number; pay:()=>boolean }) {
     this.round = new ShootingGallery(Math.random, stage);
     const profile = this.round.profile;
     pulpWood(scene, root, 0, -440, 1360, 104);
@@ -66,9 +67,13 @@ export class ShootingGalleryView {
     const speed = pulpText(scene, root, 0, 335, '', 24);
     const purse = pulpText(scene, root, 440, 335, '', 24, '#ffc52a');
     const status = pulpText(scene, root, 0, 384, 'Hit the boss boards before they fold away. One miss or escape ends the round.', 20);
-    const action = pulpButton(scene, root, -315, 449, 'START SHOWDOWN', () => {
-      if (this.round.state !== 'ready') return; this.round.start(); sounds.playReload(); action.setText('DRAW!');
-    }, 560, true);
+    const start = () => {
+      if (this.round.state !== 'ready') return;
+      if (admission && !admission.pay()) { status.setText('NOT ENOUGH RUN CASH FOR ADMISSION.'); return; }
+      this.round.start(); sounds.playReload(); action.setText('DRAW!');
+    };
+    const action = pulpButton(scene, root, -315, 449, admission ? `START $${admission.price} / CASH $${admission.balance()}` : 'START SHOWDOWN', start, 560, true);
+    if (admission) action.setEnabled(admission.balance() >= admission.price);
     const leave = () => { if (this.exited) return; this.exited = true; onExit(this.round.close()); };
     pulpButton(scene, root, 315, 449, 'COLLECT & LEAVE', leave, 560);
     const aim = GALLERY_AIM_AREA;
@@ -105,7 +110,7 @@ export class ShootingGalleryView {
       }
       hits.setText(`HITS ${this.round.hits.size} / ${profile.targets}`);
       speed.setText(`SPEED ${profile.pace + 1 + Math.floor(this.round.hits.size / profile.targets * 2)}  •  ${Math.max(0, Math.ceil((profile.durationMs - (this.round.endedAt ?? this.round.elapsed)) / 1000))}s`);
-      purse.setText(`BOUNTY $${this.round.hits.size * 3 + (this.round.state === 'won' ? profile.perfectBonus : 0)} • XP ${this.round.hits.size * 5}`);
+      purse.setText(`BOUNTY $${this.round.hits.size * ECONOMY.gallery.perHit + (this.round.state === 'won' ? profile.perfectBonus : 0)} • XP ${this.round.hits.size * ECONOMY.gallery.xpPerHit}`);
       if (this.round.state === 'playing') status.setText(this.round.hits.size >= profile.pairAfter ? 'DOUBLE DRAWS • WATCH BOTH TIERS • ONE MISS ENDS IT' : 'DRAW WHEN THE BOARDS RISE • EACH HIT: $3 + 5 XP');
       else if (this.round.state === 'lost') { action.setText('ROUND LOST'); reticle.setVisible(false); status.setText(this.round.failure === 'miss' ? 'MISSED SHOT — ROUND OVER. Collect your earned bounty.' : this.round.failure === 'time' ? 'TIME UP — ROUND OVER. Collect your earned bounty.' : 'A BOARD ESCAPED — ROUND OVER. Collect your earned bounty.'); }
       else if (this.round.state === 'won') { action.setText('PERFECT ROUND!'); reticle.setVisible(false); status.setText(`ALL ${profile.targets} OUTLAWS DOWN • PERFECT BONUS +$${profile.perfectBonus} • COLLECT YOUR REWARD`); }
@@ -121,6 +126,6 @@ export class ShootingGalleryView {
     const update = (_time: number, delta: number) => { if (!this.exited) { this.round.tick(delta); paint(); } };
     paint(); scene.events.on('update', update);
     scene.events.once('shutdown', () => scene.events.off('update', update));
-    bindPulpKeys(scene, { ESC: leave, ENTER: () => { if (this.round.state === 'ready') { this.round.start(); sounds.playReload(); action.setText('DRAW!'); } } });
+    bindPulpKeys(scene, { ESC: leave, ENTER: start });
   }
 }

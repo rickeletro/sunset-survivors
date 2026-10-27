@@ -9,6 +9,7 @@ export interface Projectile {
   vy: number;
   damage: number;
   pierce: number;
+  shieldPiercing?: boolean;
   hits: Set<Enemy>;
   life: number;
   appearance?: BulletAppearance;
@@ -18,6 +19,11 @@ export interface Projectile {
 }
 
 export interface Enemy {
+  miniWave?: number;
+  miniCooldown?: number;
+  miniWindup?: number;
+  miniAim?: number;
+  miniTarget?: {x:number;y:number};
   fleeGoal?: { x: number; y: number };
   escapeAt?: number;
   sprite: Phaser.GameObjects.Sprite;
@@ -50,9 +56,11 @@ export interface Enemy {
 }
 
 export interface Drop {
+  attracted?: boolean;
+  pullSpeed?: number;
   packets?: LootPacket[];
   sprite: Phaser.GameObjects.Sprite;
-  type: 'gold' | 'badge' | 'whiskey';
+  type: 'gold' | 'badge' | 'whiskey' | 'moneybag' | 'magnet';
   val: number;
   bounty: number;
 }

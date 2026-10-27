@@ -38,7 +38,7 @@ export class WantedScene extends Phaser.Scene {
     this.bossData = getBossForStage(this.stage);
     this.mode = data?.mode === 'captured' ? 'captured' : 'briefing';
     this.result = this.mode === 'captured' ? {
-      runId: data?.runId, bonus: data?.bonus, hpPct: data?.hpPct,
+      runId: data?.runId, walletSynced: data?.walletSynced, earnedBounty: data?.earnedBounty, bonus: data?.bonus, hpPct: data?.hpPct,
       character: this.character, stage: this.stage, difficulty: this.difficulty,
       timeSurvivedSeconds: data?.timeSurvivedSeconds ?? 0,
       kills: data?.kills ?? 0, bounty: data?.bounty ?? 0, level: data?.level ?? 1,

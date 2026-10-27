@@ -1,7 +1,8 @@
+import { waveAt, wavePool, MAIN_BOSS_AT } from '../data/waves';
 import { sceneryKey, worldDepth } from '../data/scenery';
 import { THEME } from '../ui/theme/tokens';
 import type Phaser from 'phaser';
-import { objectiveProgress, safeEventPoint, StageConfig, stagePhase } from '../data/stages';
+import { objectiveProgress, safeEventPoint, StageConfig } from '../data/stages';
 import type { EnemyKind } from '../data/enemies';
 
 export interface HazardShape { x: number; y: number; radius: number; width?: number; height?: number; }
@@ -29,27 +30,25 @@ export class StageEncounters {
   private nextHazard = 55;
   private nextSupply = 90;
   private eventIndex = 0;
-  private lastPhase = '';
+  private midWaveEventFired = false;
   constructor(private scene: Phaser.Scene, private stage: StageConfig, private hooks: EncounterHooks) {}
   tick(elapsed: number, bossActive: boolean): void {
-    const phase = stagePhase(this.stage, elapsed);
-    if (phase !== this.lastPhase) {
-      this.lastPhase = phase;
-      if (phase === 'respite') this.hooks.banner('BREATHER — COLLECT YOUR LOOT!', '#f2d49a');
-      if (phase === 'surge') this.hooks.banner('THE HORDE IS COMING!', '#ff791c');
-      if (phase === 'last-stand') this.hooks.banner('LAST MINUTE — THE OUTLAW APPROACHES!', '#e52b20');
-    }
-    if (!bossActive && elapsed >= this.nextSupply && elapsed < this.stage.duration - 45) {
+    if (!bossActive && elapsed >= this.nextSupply && elapsed < MAIN_BOSS_AT - 45) {
       this.nextSupply = elapsed + 150;
-      this.createSupply();
+      this.createSupply(elapsed);
     }
-    if (!bossActive && elapsed >= this.nextHazard && phase !== 'respite') {
+    if (!bossActive && !this.midWaveEventFired && elapsed >= 420 && elapsed < 480) {
+      this.midWaveEventFired = true;
+      this.environmentalEvent();
+      this.nextHazard = elapsed + this.stage.hazardEvery;
+    }
+    if (!bossActive && waveAt(elapsed).id >= 3 && elapsed >= this.nextHazard) {
       this.nextHazard = elapsed + this.stage.hazardEvery;
       this.environmentalEvent();
     }
     if (bossActive) this.clearSupply();
   }
-  private createSupply(): void {
+  private createSupply(elapsed: number): void {
     this.clearSupply();
     const p = this.hooks.position();
     const point = safeEventPoint(p.x, p.y, this.eventIndex++ * 2.4, 380);
@@ -61,7 +60,8 @@ export class StageEncounters {
     // Guarded objective: enter the camp, clear its guards, hold for 8 seconds.
     for (let i = 0; i < 5; i++) {
       const a = i * Math.PI * 2 / 5;
-      this.hooks.spawn(this.stage.signature, clear.x + Math.cos(a) * 160, clear.y + Math.sin(a) * 160);
+      const guard = wavePool(elapsed, this.stage.enemies).some(e => e.kind === this.stage.signature) ? this.stage.signature : 'bandit';
+      this.hooks.spawn(guard, clear.x + Math.cos(a) * 160, clear.y + Math.sin(a) * 160);
     }
   }
   private environmentalEvent(): void {

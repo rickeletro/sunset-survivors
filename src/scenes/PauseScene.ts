@@ -20,7 +20,7 @@ export class PauseScene extends Phaser.Scene {
   private character!: CharacterData;
   private stage: number = 1;
   private developer = false;
-  private difficulty: DifficultyId = 'hardcore';
+  private difficulty: DifficultyId = 'normal';
   private difficultyLabel?: Phaser.GameObjects.Text;
   private rootContainer!: Phaser.GameObjects.Container;
 
@@ -74,6 +74,8 @@ export class PauseScene extends Phaser.Scene {
   private openMenu() {
     this.scene.pause('PauseScene');
     this.scene.launch('MenuScene', { fromScene: 'PauseScene' });
+    // Paused scenes still render; launch preserves the registration order.
+    this.scene.bringToTop('MenuScene');
   }
 
   private restartStage() {

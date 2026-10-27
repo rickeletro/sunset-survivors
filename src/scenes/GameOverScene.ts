@@ -11,6 +11,8 @@ import { statsManager } from '../data/GameStatsManager';
 
 export interface GameOverStats {
   runId?: string;
+  walletSynced?: boolean;
+  earnedBounty?: number;
   victory?: boolean;
   character: CharacterData;
   timeSurvivedSeconds: number;
@@ -30,6 +32,8 @@ export class GameOverScene extends Phaser.Scene {
   private stats!: GameOverStats;
   private rootContainer!: Phaser.GameObjects.Container;
 
+  private banked = 0;
+
   constructor() {
     super('GameOverScene');
   }
@@ -39,7 +43,7 @@ export class GameOverScene extends Phaser.Scene {
     this.submitted = false;
     this.openingRanking = false;
     this.stats = {
-      runId: data?.runId,
+      runId: data?.runId, walletSynced: data?.walletSynced, earnedBounty: data?.earnedBounty,
       character: data?.character || CHARACTERS.billy,
       stage: data?.stage || 1,
       difficulty: normalizeDifficulty(data?.difficulty ?? difficultySettings.get()),
@@ -49,12 +53,12 @@ export class GameOverScene extends Phaser.Scene {
       level: data?.level ?? 1,
     };
 
-    statsManager.recordRun(
+    this.banked = statsManager.recordRun(
       {
-        runId: this.stats.runId,
-        score: runScore(this.stats.bounty, this.stats.kills),
+        runId: this.stats.runId, walletSynced: this.stats.walletSynced,
+        score: runScore(this.stats.earnedBounty ?? this.stats.bounty, this.stats.kills),
         kills: this.stats.kills,
-        gold: this.stats.bounty,
+        gold: this.stats.earnedBounty ?? this.stats.bounty,
         timeSurvivedSeconds: this.stats.timeSurvivedSeconds,
         stage: this.stats.stage || 1,
       difficulty: this.stats.difficulty,
@@ -85,8 +89,9 @@ export class GameOverScene extends Phaser.Scene {
       { label: 'GUNSLINGER', value: this.stats.character.name },
       { label: 'STAGE / LEVEL', value: `${this.stats.stage} / ${this.stats.level} • ${difficultyProfile(this.stats.difficulty).label}` },
       { label: 'SURVIVED', value: `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}` },
-      { label: 'KILLS / GOLD', value: `${this.stats.kills} / $${this.stats.bounty.toLocaleString()}` },
+      { label: 'KILLS / WALLET', value: `${this.stats.kills} / $${this.stats.bounty.toLocaleString()}` },
     ], 650, -108, false, 64);
+    pulpText(this,this.rootContainer,0,-176,`BANK $${statsManager.getStats().bank} • SECURED +$${this.banked ?? 0}`,22,'#ffc52a');
     this.namePrompt = pulpText(this, this.rootContainer, 0, 105, 'ENTER YOUR NAME • CLAIM YOUR PLACE IN THE RANKING', 25, '#ffc52a');
     const field = this.add.graphics().fillStyle(0x120b08, .95).fillRect(-570,145,1140,100);
     field.lineStyle(3,0xffc52a).strokeRect(-570,145,1140,100); this.rootContainer.add(field);
@@ -105,9 +110,9 @@ export class GameOverScene extends Phaser.Scene {
     const name = rankingName(this.nameField?.value() ?? '');
     if (!name) return false;
     this.submitted = rankings.submit({ runId: this.rankingId, name,
-      score: runScore(this.stats.bounty,this.stats.kills), kills: this.stats.kills,
-      bounty: this.stats.bounty, seconds: this.stats.timeSurvivedSeconds, stage: this.stats.stage ?? 1,
-      level: this.stats.level, character: this.stats.character.id, difficulty: this.stats.difficulty ?? 'hardcore',
+      score: runScore(this.stats.earnedBounty ?? this.stats.bounty,this.stats.kills), kills: this.stats.kills,
+      bounty: this.stats.earnedBounty ?? this.stats.bounty, seconds: this.stats.timeSurvivedSeconds, stage: this.stats.stage ?? 1,
+      level: this.stats.level, character: this.stats.character.id, difficulty: this.stats.difficulty ?? 'normal',
     }) || rankings.list().some(e => e.runId === this.rankingId);
     if (this.submitted) this.namePrompt?.setText('YOUR NAME IS IN THE BOOKS, GUNSLINGER.');
     return this.submitted;

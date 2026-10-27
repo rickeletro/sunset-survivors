@@ -1,3 +1,4 @@
+import { ECONOMY } from './economy';
 /** Eight reusable bays; stage profiles alternate endurance and speed increases. */
 export const GALLERY_DURATION = 40000;
 export const GALLERY_TARGETS = 12;
@@ -16,7 +17,7 @@ export function galleryProfile(stage = 1): GalleryProfile {
   const id = Number.isFinite(stage) ? Math.max(1, Math.min(8, Math.floor(stage))) : 1;
   const targets = 12 + Math.floor((id - 1) / 2) * 4, pace = Math.floor(id / 2);
   return { stage: id, name: SALOON_NAMES[id - 1], targets, durationMs: targets * 2500 + 10000,
-    perfectBonus: 20 + (id - 1) * 5, pace,
+    perfectBonus: ECONOMY.gallery.perfectBase + (id - 1) * ECONOMY.gallery.perfectPerStage, pace,
     pairAfter: pace === 0 ? targets + 1 : Math.ceil(targets * (pace === 1 ? 2 / 3 : pace === 2 ? .4 : pace === 3 ? .3 : .2)),
     pairChance: pace === 0 ? 0 : .2 + pace * .15, recoveryMs: Math.max(200, 420 - pace * 55),
     velvet: [0xa51e16, 0x572449, 0xa51e16, 0x603719, 0x572449, 0x321b10, 0x603719, 0x572449][id - 1] };
@@ -98,6 +99,6 @@ export class ShootingGallery {
   close() {
     if (this.paid) return { bounty: 0, xp: 0 };
     const won = this.state === 'won'; this.paid = true; this.state = 'closed'; this.endedAt ??= this.elapsed;
-    return { bounty: this.hits.size * 3 + (won ? this.profile.perfectBonus : 0), xp: this.hits.size * 5 };
+    return { bounty: this.hits.size * ECONOMY.gallery.perHit + (won ? this.profile.perfectBonus : 0), xp: this.hits.size * ECONOMY.gallery.xpPerHit };
   }
 }

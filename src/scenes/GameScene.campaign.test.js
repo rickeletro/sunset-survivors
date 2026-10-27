@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { GameScene } from './GameScene';
+import { MAIN_BOSS_AT } from '../data/waves';
 import { getStage } from '../data/stages';
 import { getBossCombat } from '../data/bossCombat';
 
@@ -13,7 +14,7 @@ vi.mock('../audio/SoundManager', () => ({ sounds: {
 
 function sprite(x = 0, y = 0) {
   const s = { x, y, active: true, anims: {}, destroy: vi.fn(), play: vi.fn() };
-  for (const method of ['setScale', 'setDepth', 'setTint', 'clearTint', 'setFlipX', 'setRotation', 'setOrigin', 'setScrollFactor']) s[method] = () => s;
+  for (const method of ['setScale', 'setDepth', 'setTintFill', 'setTint', 'clearTint', 'setFlipX', 'setRotation', 'setOrigin', 'setScrollFactor']) s[method] = () => s;
   return s;
 }
 function bossHarness(stage) {
@@ -59,7 +60,7 @@ describe('campaign scene integration without rendering', () => {
       director: { tick: () => [] }, runSpawnOrders: vi.fn(), updateStageStatus: vi.fn(), spawnStageBoss: vi.fn(),
     });
     game.onSecondTick(); expect(game.spawnStageBoss).not.toHaveBeenCalled();
-    game.gameTimeSeconds = getStage(stage).duration - 1;
+    game.gameTimeSeconds = MAIN_BOSS_AT - 1;
     game.onSecondTick(); expect(game.spawnStageBoss).toHaveBeenCalledTimes(1);
   });
   it('uses different attack families instead of replaying Simon for every boss', () => {
@@ -152,4 +153,48 @@ it.each([[undefined, 25], [50, 50]])('keeps normal TNT at 25 and executes explic
   game.enemyThrowDynamite(3900, 4000, 0, 0, amount);
   game.tweens.add.mock.calls[0][0].onComplete();
   expect(game.damagePlayer).toHaveBeenCalledExactlyOnceWith(expected);
+});
+
+describe('ten-minute waves and player-size captains',()=>{
+  function miniHarness(stage=1){const g=bossHarness(stage);g.gameTimeSeconds=0;g.character={id:'billy'};
+    g.enemyPool={acquire:(x,y,_texture,scale)=>{const s=sprite(x,y);s.scaleX=scale;s.scaleY=scale;s.setPosition=(x,y)=>{s.x=x;s.y=y;return s;};return s;},release:vi.fn()};
+    g.showBanner=vi.fn();return g;
+  }
+  it('delivers five captains, one main boss and a hard timeout at exact active seconds',async()=>{
+    const {WaveTimeline}=await import('../data/waves');const g=miniHarness();
+    Object.assign(g,{waveTimeline:new WaveTimeline(),isGameOver:false,bossDefeated:false,hpRegen:0,timeText:{setText:vi.fn()},encounters:{tick:vi.fn()},director:{tick:()=>[]},runSpawnOrders:vi.fn(),updateStageStatus:vi.fn(),gameOver:vi.fn(()=>{g.isGameOver=true;})});
+    const minis=[];g.spawnMiniBoss=vi.fn(w=>minis.push([g.gameTimeSeconds,w]));g.spawnStageBoss=vi.fn(()=>{g.bossSpawned=true;});
+    g.saloonOpen=true;g.onSecondTick();expect(g.gameTimeSeconds).toBe(0);g.saloonOpen=false;
+    for(let i=0;i<600;i++)g.onSecondTick();
+    expect(minis).toEqual([[105,1],[225,2],[345,3],[465,4],[585,5]]);expect(g.spawnStageBoss).toHaveBeenCalledTimes(1);expect(g.gameOver).toHaveBeenCalledExactlyOnceWith(false);expect(g.gameTimeSeconds).toBe(600);
+  });
+  it('reserves enough room for all captains and both Smith brothers without erasing the horde',()=>{
+    const g=miniHarness(4);g.enemies=Array.from({length:233},()=>({hp:50}));const old=g.enemies[0];
+    for(let i=1;i<=4;i++)expect(g.spawnMiniBoss(i)).toBeDefined();g.spawnStageBoss();expect(g.spawnMiniBoss(5)).toBeDefined();
+    expect(g.enemies).toHaveLength(240);expect(g.enemies[0]).toBe(old);expect(old.hp).toBe(50);expect(g.spawnEnemy('bandit',0,0)).toBeUndefined();
+  });
+  it('mini-boss death drops its earned loot once and never clears the stage',()=>{
+    const g=miniHarness();const mini=g.spawnMiniBoss(1);g.killEnemy(mini);g.killEnemy(mini);
+    expect(g.kills).toBe(1);expect(g.drops).toHaveLength(1);expect(g.drops[0]).toMatchObject({type:'badge',val:120,bounty:25});expect(g.victory).not.toHaveBeenCalled();
+  });
+  it('locks a quickdraw aim during warning and fires one straight shot only after windup',()=>{
+    const g=miniHarness();g.encounters={warn:vi.fn()};g.fireHostileBullet=vi.fn();const e=g.spawnMiniBoss(2);e.miniCooldown=0;
+    g.updateMiniBoss(e,300,0,300,16);expect(g.fireHostileBullet).not.toHaveBeenCalled();g.updateMiniBoss(e,0,300,300,649);expect(g.fireHostileBullet).not.toHaveBeenCalled();
+    g.updateMiniBoss(e,0,300,300,1);expect(g.fireHostileBullet).toHaveBeenCalledWith(e.sprite.x,e.sprite.y,0,e.damage,850);
+  });
+  it('creates two bounded telegraphed traps for Powder Jack and gives Flint a melee opening',()=>{
+    const g=miniHarness();g.encounters={warn:vi.fn()};g.damagePlayer=vi.fn();const bomber=g.spawnMiniBoss(3);bomber.miniCooldown=0;
+    g.updateMiniBoss(bomber,300,0,300,16);expect(g.encounters.warn).toHaveBeenCalledTimes(2);expect(g.encounters.warn.mock.calls[0].slice(1)).toEqual([1000,2200,30]);
+    const guard=g.spawnMiniBoss(4);guard.miniCooldown=0;g.player.x=guard.sprite.x+65;g.player.y=guard.sprite.y;
+    g.updateMiniBoss(guard,65,0,65,16);expect(guard.miniWindup).toBe(850);g.updateMiniBoss(guard,65,0,65,850);expect(g.damagePlayer).toHaveBeenCalledWith(Math.round(guard.damage*1.35));
+  });
+});
+
+it('applies Flint armor only to frontal ordinary bullets, with an opening during windup',()=>{
+  const g=bossHarness(1);g.critChance=0;g.time={delayedCall:vi.fn()};g.showDamageText=vi.fn();
+  const enemy={sprite:sprite(0,0),type:'rifle_guard',miniWave:4,hp:1000,maxHp:1000,dirX:1,dirY:0};
+  g.damageEnemy(enemy,100,{x:100,y:0});expect(enemy.hp).toBe(975);
+  g.damageEnemy(enemy,100,{x:-100,y:0});expect(enemy.hp).toBe(875);
+  g.damageEnemy(enemy,100,{x:100,y:0,bypassShield:true});expect(enemy.hp).toBe(775);
+  enemy.miniWindup=500;g.damageEnemy(enemy,100,{x:100,y:0});expect(enemy.hp).toBe(675);
 });

@@ -1,12 +1,20 @@
+import { ECONOMY } from './economy';
 import { galleryProfile } from './shootingGallery';
 import { stageLandmarks, SCENERY, sceneryScale, sceneryKey } from './scenery';
 import type { BuildingPortal } from './buildingPortal';
 import type { StageTheme } from './stages';
 
 export interface SaloonReward { healthFraction: number; bounty: number; xp?: number; }
-export const SALOON_REWARD = { healthFraction: 0.2, bounty: 15 } as const;
+export const SALOON_REWARD = { healthFraction: ECONOMY.services.saloon_rest.health, bounty: 0 } as const;
 export const SALOON_ENTRY_RADIUS = 160;
 export interface SaloonDoor { activity?: 'saloon' | 'hospitality' | 'gallery'; x: number; y: number; portal?: BuildingPortal; }
+/** Distance to the building's ground frontage, rather than a tiny door marker. */
+export function buildingDistance(door: SaloonDoor, x: number, y: number): number {
+  const f = door.portal?.facade;
+  if (!f) return Math.hypot(door.x - x, door.y - y);
+  return Math.hypot(Math.max(0, Math.abs(x - f.x) - f.width / 2),
+    Math.max(0, Math.abs(y - f.y) - 48));
+}
 export function saloonDoors(theme: StageTheme): SaloonDoor[] {
   return stageLandmarks(theme).filter(p => p.kind === 'saloon' || p.kind === 'frontier-saloon' || p.kind === 'house' || p.kind === 'gallery-saloon')
     .map(p => ({ activity: p.kind === 'house' ? 'hospitality' : p.kind === 'gallery-saloon' ? 'gallery' : 'saloon', x: p.x + (p.kind === 'house' ? -52.2 : 0), y: p.y + 58, portal: {
@@ -24,16 +32,15 @@ export class SaloonVisit {
   open = false;
   private visited = new Set<SaloonDoor>();
   private activeDoor?: SaloonDoor;
-  private courtesies = new Set<SaloonDoor>();
-  constructor(readonly doors: readonly SaloonDoor[], private reward: SaloonReward = SALOON_REWARD, private perDoor = false, private repeatFaro = false) {}
+  constructor(readonly doors: readonly SaloonDoor[], _reward: SaloonReward = SALOON_REWARD, private perDoor = false, private repeatFaro = false) {}
   wasUsed(door: SaloonDoor): boolean { return this.perDoor ? this.visited.has(door) : this.used; }
   nearby(x: number, y: number, blocked: boolean): SaloonDoor | undefined {
     if (blocked || this.used) return undefined;
-    return this.doors.find(d => !this.wasUsed(d) && Math.hypot(d.x - x, d.y - y) <= SALOON_ENTRY_RADIUS);
+    return this.doors.find(d => !this.wasUsed(d) && buildingDistance(d, x, y) <= SALOON_ENTRY_RADIUS);
   }
   enter(x: number, y: number, blocked: boolean, requested?: SaloonDoor): boolean {
     const door = requested ?? this.nearby(x, y, blocked);
-    if (blocked || this.open || this.used || !door || !this.doors.includes(door) || this.wasUsed(door) || Math.hypot(door.x - x, door.y - y) > SALOON_ENTRY_RADIUS) return false;
+    if (blocked || this.open || this.used || !door || !this.doors.includes(door) || this.wasUsed(door) || buildingDistance(door, x, y) > SALOON_ENTRY_RADIUS) return false;
     const repeatable = this.repeatFaro && (door.activity ?? 'saloon') === 'saloon';
     if (!repeatable) this.visited.add(door);
     this.activeDoor = door;
@@ -41,7 +48,7 @@ export class SaloonVisit {
     this.open = true;
     return true;
   }
-  leave(accept: boolean, prizeWon = false): SaloonReward | undefined {
+  leave(_accept: boolean, prizeWon = false): SaloonReward | undefined {
     if (!this.open) return undefined;
     this.open = false;
     const door = this.activeDoor!;
@@ -49,11 +56,8 @@ export class SaloonVisit {
       this.visited.add(door);
       this.used = this.perDoor ? this.visited.size === this.doors.length : true;
     }
-    if (this.repeatFaro && (door.activity ?? 'saloon') === 'saloon') {
-      if (!accept || this.courtesies.has(door)) return undefined;
-      this.courtesies.add(door);
-    }
-    return accept ? this.activeDoor?.activity === 'hospitality' ? { healthFraction: 0.12, bounty: 0, xp: 20 } : this.reward : undefined;
+    // Access control never grants free benefits; paid services settle through the gameplay wallet.
+    return undefined;
   }
 }
 
@@ -68,6 +72,6 @@ export function buildingDirections(visit: SaloonVisit, x: number, y: number, sta
     const horizontal = Math.abs(dx) > 60 ? dx < 0 ? 'WEST' : 'EAST' : '';
     const direction = [vertical, horizontal].filter(Boolean).join(' / ');
     const name = activity === 'gallery' ? `${galleryProfile(stage).name.toUpperCase()} • TARGETS` : activity === 'hospitality' ? 'HOSPITALITY' : stage === 2 ? 'SALOON • FARO' : 'SALOON';
-    return [`${name}: ${distance <= SALOON_ENTRY_RADIUS ? '[E] ENTER' : `${direction} • ${Math.ceil(distance / 10)} PACES`}`];
+    return [`${name}: ${buildingDistance(door, x, y) <= SALOON_ENTRY_RADIUS ? '[E] ENTER' : `${direction} • ${Math.ceil(distance / 10)} PACES`}`];
   }).join('\n');
 }

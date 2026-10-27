@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { GameScene } from './GameScene';
-import { enemyHealth } from '../data/difficulty';
+import { waveEnemyStats } from '../data/waves';
 import { ENEMY_DEFS } from '../data/enemies';
 import { SpritePool } from '../systems/SpritePool';
 import { playEnemyMovement } from '../systems/PixellabCombat';
@@ -33,8 +33,8 @@ describe('enemy visual size experiment', () => {
       const enemy = game.spawnEnemy(kind, 100, 200);
       expect(sprite.setScale).toHaveBeenLastCalledWith(def.scale * (animated ? 0.5 : 1) * 1.4);
       expect(game.worldMap.resolve).toHaveBeenLastCalledWith(100, 200, def.radius);
-      expect(enemy).toMatchObject({ type: kind, hp: enemyHealth(def, 10),
-        speed: def.speed, damage: def.damage, xpVal: def.xp, bountyVal: def.bounty });
+      expect(enemy).toMatchObject({ type: kind, hp: waveEnemyStats(def, 10).hp,
+        speed: waveEnemyStats(def, 10).speed, damage: waveEnemyStats(def, 10).damage, xpVal: def.xp, bountyVal: def.bounty });
       if (animated) {
         const calls = sprite.setScale.mock.calls.length;
         playEnemyMovement(sprite, kind, 1, 0);
@@ -59,7 +59,7 @@ describe('movement and collisions after detailed sprite migration', () => {
     enemy.aiTimer = 0;
     game.worldMap.chaseTarget = vi.fn(() => game.player);
     game.updateEnemies(100);
-    expect(Math.hypot(sprite.x, sprite.y)).toBeCloseTo(ENEMY_DEFS[kind].speed * 0.1);
+    expect(Math.hypot(sprite.x, sprite.y)).toBeCloseTo(waveEnemyStats(ENEMY_DEFS[kind], 10).speed * 0.1);
     expect(game.worldMap.chaseTarget).toHaveBeenCalledWith(0, 0, 1000, 0, ENEMY_DEFS[kind].radius);
     expect(game.worldMap.resolve).toHaveBeenLastCalledWith(sprite.x, sprite.y, ENEMY_DEFS[kind].radius);
     expect(game.damagePlayer).not.toHaveBeenCalled();

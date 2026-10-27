@@ -14,7 +14,7 @@ function fixture() {
   return { g, sprite };
 }
 describe('recovery, damage and loot integration', () => {
-  it.each([[0.019, 'whiskey'], [0.02, 'badge'], [0.2199, 'badge'], [0.22, 'gold']])('uses the revised health chance without changing XP/cash (%s)', (roll, type) => {
+  it.each([[0.019, 'whiskey'], [0.035, 'badge'], [0.2199, 'badge'], [0.235, 'gold']])('uses the revised health chance without changing XP/cash (%s)', (roll, type) => {
     const { g, sprite } = fixture(), random = vi.spyOn(Math, 'random').mockReturnValue(roll);
     const enemy = { type: 'bandit', sprite, xpVal: 10, bountyVal: 1 }; g.enemies = [enemy];
     try { g.killEnemy(enemy); } finally { random.mockRestore(); }
@@ -26,7 +26,7 @@ describe('recovery, damage and loot integration', () => {
   it('keeps healing per original packet and caps full-health pickups', () => {
     const { g, sprite } = fixture();
     g.drops = [{ type: 'whiskey', sprite, val: 10, bounty: 1, packets: [{ val: 10, bounty: 1 }, { val: 10, bounty: 1 }] }];
-    g.updateDrops(0); expect(g.hp).toBe(62); expect(g.drops).toHaveLength(1);
+    g.updateDrops(0); expect(g.hp).toBe(74); expect(g.drops).toHaveLength(0);
     g.updateDrops(0); expect(g.hp).toBe(74); expect(g.drops).toHaveLength(0);
     g.hp = 99; g.drops = [{ type: 'whiskey', sprite, val: 10, bounty: 1 }]; g.updateDrops(0); expect(g.hp).toBe(100);
   });

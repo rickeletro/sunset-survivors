@@ -1,0 +1,52 @@
+{
+  "alpha_threshold": 16,
+  "hero": {
+    "name": "Steve gameplay",
+    "path": "public/assets/characters/pixellab/steve/Idle/animations/walking-4-frames/south/frame_000.png",
+    "scale": 0.5
+  },
+  "assets": [
+    {
+      "name": "Iron Fist Cole",
+      "path": "public/assets/enemies/pixellab/knife_bandit/Idle/animations/move-attack/south/frame_000.png",
+      "scale": 1.0873015873015872,
+      "min_ratio": 0.98,
+      "max_ratio": 1.02
+    },
+    {
+      "name": "Quickdraw Quinn",
+      "path": "public/assets/enemies/pixellab/rifle_guard/Idle/animations/move-attack/south/frame_000.png",
+      "scale": 1.0378787878787878,
+      "min_ratio": 0.98,
+      "max_ratio": 1.02
+    },
+    {
+      "name": "Powder Jack",
+      "path": "public/assets/enemies/pixellab/dynamite_outlaw/Idle/animations/move-attack/south/frame_000.png",
+      "scale": 1.0703125,
+      "min_ratio": 0.98,
+      "max_ratio": 1.02
+    },
+    {
+      "name": "Marshal Flint",
+      "path": "public/assets/enemies/pixellab/rifle_guard/Idle/animations/move-attack/south/frame_000.png",
+      "scale": 1.0378787878787878,
+      "min_ratio": 0.98,
+      "max_ratio": 1.02
+    },
+    {
+      "name": "Black Spur",
+      "path": "public/assets/enemies/pixellab/rifle_guard/Idle/animations/move-attack/south/frame_000.png",
+      "scale": 1.0378787878787878,
+      "min_ratio": 0.98,
+      "max_ratio": 1.02
+    },
+    {
+      "name": "Existing house",
+      "path": "public/assets/scenery/pixellab/house.png",
+      "scale": 1.45,
+      "min_ratio": 2.8,
+      "max_ratio": 3.3
+    }
+  ]
+}

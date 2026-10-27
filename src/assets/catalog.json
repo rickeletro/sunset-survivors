@@ -93,7 +93,24 @@
     "card_golden_repeater": "assets/powerup/evolutions/golden_repeater.png",
     "card_hellfire_keg": "assets/powerup/evolutions/hellfire_keg.png",
     "card_cyclone_whip": "assets/powerup/evolutions/cyclone_whip.png",
-    "scenery_gallery-saloon": "assets/scenery/pixellab/saloon.png"
+    "scenery_gallery-saloon": "assets/scenery/pixellab/saloon.png",
+    "hud_upgrade_badge": "assets/hud/upgrades/badge.png",
+    "hud_upgrade_bandolier": "assets/hud/upgrades/bandolier.png",
+    "hud_upgrade_dynamite": "assets/hud/upgrades/dynamite.png",
+    "hud_upgrade_lasso": "assets/hud/upgrades/lasso.png",
+    "hud_upgrade_magnet": "assets/hud/upgrades/magnet.png",
+    "hud_upgrade_molotov": "assets/hud/upgrades/molotov.png",
+    "hud_upgrade_peacemaker": "assets/hud/upgrades/peacemaker.png",
+    "hud_upgrade_revolver": "assets/hud/upgrades/revolver.png",
+    "hud_upgrade_rifle": "assets/hud/upgrades/rifle.png",
+    "hud_upgrade_shotgun": "assets/hud/upgrades/shotgun.png",
+    "hud_upgrade_spurs": "assets/hud/upgrades/spurs.png",
+    "hud_upgrade_whiskey": "assets/hud/upgrades/whiskey.png",
+    "hud_upgrade_desperado_fury": "assets/hud/upgrades/desperado_fury.png",
+    "hud_upgrade_blunderbuss_doom": "assets/hud/upgrades/blunderbuss_doom.png",
+    "hud_upgrade_golden_repeater": "assets/hud/upgrades/golden_repeater.png",
+    "hud_upgrade_hellfire_keg": "assets/hud/upgrades/hellfire_keg.png",
+    "hud_upgrade_cyclone_whip": "assets/hud/upgrades/cyclone_whip.png"
   },
   "sheets": {
     "hero_steve": {

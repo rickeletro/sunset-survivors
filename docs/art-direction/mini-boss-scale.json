@@ -1,0 +1,153 @@
+{
+  "alpha_threshold": 16,
+  "items": [
+    {
+      "name": "Steve gameplay",
+      "path": "public/assets/characters/pixellab/steve/Idle/animations/walking-4-frames/south/frame_000.png",
+      "scale": 0.5,
+      "canvas": [
+        256,
+        256
+      ],
+      "visible_bbox": [
+        93,
+        63,
+        227,
+        200
+      ],
+      "visible_world": [
+        67.0,
+        68.5
+      ],
+      "height_ratio_to_hero": 1.0,
+      "within_declared_range": true
+    },
+    {
+      "name": "Iron Fist Cole",
+      "path": "public/assets/enemies/pixellab/knife_bandit/Idle/animations/move-attack/south/frame_000.png",
+      "scale": 1.0873015873015872,
+      "canvas": [
+        92,
+        92
+      ],
+      "visible_bbox": [
+        30,
+        15,
+        60,
+        78
+      ],
+      "visible_world": [
+        32.61904761904761,
+        68.5
+      ],
+      "height_ratio_to_hero": 1.0,
+      "within_declared_range": true
+    },
+    {
+      "name": "Quickdraw Quinn",
+      "path": "public/assets/enemies/pixellab/rifle_guard/Idle/animations/move-attack/south/frame_000.png",
+      "scale": 1.0378787878787878,
+      "canvas": [
+        100,
+        100
+      ],
+      "visible_bbox": [
+        36,
+        16,
+        63,
+        82
+      ],
+      "visible_world": [
+        28.022727272727273,
+        68.5
+      ],
+      "height_ratio_to_hero": 1.0,
+      "within_declared_range": true
+    },
+    {
+      "name": "Powder Jack",
+      "path": "public/assets/enemies/pixellab/dynamite_outlaw/Idle/animations/move-attack/south/frame_000.png",
+      "scale": 1.0703125,
+      "canvas": [
+        96,
+        96
+      ],
+      "visible_bbox": [
+        35,
+        17,
+        62,
+        81
+      ],
+      "visible_world": [
+        28.8984375,
+        68.5
+      ],
+      "height_ratio_to_hero": 1.0,
+      "within_declared_range": true
+    },
+    {
+      "name": "Marshal Flint",
+      "path": "public/assets/enemies/pixellab/rifle_guard/Idle/animations/move-attack/south/frame_000.png",
+      "scale": 1.0378787878787878,
+      "canvas": [
+        100,
+        100
+      ],
+      "visible_bbox": [
+        36,
+        16,
+        63,
+        82
+      ],
+      "visible_world": [
+        28.022727272727273,
+        68.5
+      ],
+      "height_ratio_to_hero": 1.0,
+      "within_declared_range": true
+    },
+    {
+      "name": "Black Spur",
+      "path": "public/assets/enemies/pixellab/rifle_guard/Idle/animations/move-attack/south/frame_000.png",
+      "scale": 1.0378787878787878,
+      "canvas": [
+        100,
+        100
+      ],
+      "visible_bbox": [
+        36,
+        16,
+        63,
+        82
+      ],
+      "visible_world": [
+        28.022727272727273,
+        68.5
+      ],
+      "height_ratio_to_hero": 1.0,
+      "within_declared_range": true
+    },
+    {
+      "name": "Existing house",
+      "path": "public/assets/scenery/pixellab/house.png",
+      "scale": 1.45,
+      "canvas": [
+        192,
+        192
+      ],
+      "visible_bbox": [
+        13,
+        24,
+        179,
+        165
+      ],
+      "visible_world": [
+        240.7,
+        204.45
+      ],
+      "height_ratio_to_hero": 2.9847,
+      "within_declared_range": true
+    }
+  ],
+  "issues": []
+}

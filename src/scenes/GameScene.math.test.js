@@ -27,7 +27,7 @@ describe('combat arithmetic audit', () => {
     for (const method of ['setDepth', 'fillStyle', 'fillCircle']) graphic[method] = () => graphic;
     Object.assign(g, { damageMultiplier: multiplier, areaMultiplier: 1,
       cameras: { main: { shake: vi.fn() } }, add: { graphics: () => graphic }, tweens: { add: vi.fn() },
-      enemies: [{ sprite: { x: 0, y: 0 } }], damageEnemy: vi.fn() });
+      getWeaponEffects: () => ({ explosion: vi.fn() }), enemies: [{ sprite: { x: 0, y: 0 } }], damageEnemy: vi.fn() });
     g.explodeDynamite(0, 0, 70);
     expect(g.damageEnemy).toHaveBeenLastCalledWith(g.enemies[0], Math.round(70 * multiplier));
     const residue = Math.round(Math.round(85 * multiplier) * 0.5);

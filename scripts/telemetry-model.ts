@@ -1,6 +1,6 @@
 import { ENEMY_DEFS, type EnemyKind } from '../src/data/enemies';
-import { GameDirector, type SpawnOrder } from '../src/systems/GameDirector';
-import { getStage, stagePhase } from '../src/data/stages';
+import { HistoricalDirector as GameDirector, historicalPhase as stagePhase, type SpawnOrder } from './historical-director';
+import { getStage } from '../src/data/stages';
 /** Curve used during the player's reported level 27/36 runs. */
 export function reportedRunCost(level: number): number {
   if (level <= 2) return level === 1 ? 50 : 80;
@@ -16,7 +16,7 @@ export function cumulativeCost(level: number, cost = reportedRunCost): number {
  */
 export function reproduceRun(stageId: number, seconds: number, finalKillsPerSecond: number, cost = reportedRunCost, badge = true) {
   let seed = 9437; const random = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 2 ** 32; };
-  const stage = getStage(stageId), director = new GameDirector({ emitSpecialWave() {}, emitEliteSpawned() {} } as never, stage, random);
+  const stage = { ...getStage(stageId), duration:420 }, director = new GameDirector({ emitSpecialWave() {}, emitEliteSpawned() {} } as never, stage, random);
   const alive: EnemyKind[] = [], loot: { at: number; kind: EnemyKind }[] = [];
   let nextWave = 850, nextHazard = 55, nextSupply = 90, kills = 0, budget = 0, xp = 0, raw = 0, earned = 0, level = 1, badgeRank = 0, pendingSupply = 0;
   const choices: { level: number; at: number; badgeRank: number }[] = [];

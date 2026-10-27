@@ -1,3 +1,5 @@
+import { statsManager } from '../data/GameStatsManager';
+import { ProgressScene } from './ProgressScene';
 import { FrontierCompass } from '../ui/hud/FrontierCompass';
 import { SaloonVisit } from '../data/saloon';
 import { MenuScene } from './MenuScene';
@@ -26,6 +28,7 @@ const { Node } = vi.hoisted(() => {
     setSize(width: number, height: number) { this.width = width; this.height = height; return this; }
     setText(text: string) { this.text = text; return this; }
     setResolution() { return this; } setScrollFactor() { return this; } setFontFamily() { return this; }
+    setWordWrapWidth(width: number) { (this as any).style = { ...(this as any).style, wordWrap: { width } }; return this; }
     setFontSize(size: number) { this.fontSize = size; return this; }
     setX(x: number) { this.x = x; return this; }
     setDisplaySize(width: number, height: number) { this.width = width; this.height = height; return this; }
@@ -41,8 +44,8 @@ const { Node } = vi.hoisted(() => {
   return { Node };
 });
 vi.mock('phaser', () => ({ default: { Scene: class {}, BlendModes: { ADD: 1 }, GameObjects: { Container: Node } } }));
-vi.mock('../audio/SoundManager', () => ({ sounds: { getMusicVolume: vi.fn(() => .7), getSfxVolume: vi.fn(() => .4), setMusicVolume: vi.fn(), setSfxVolume: vi.fn(), getIsMuted: vi.fn(() => false), toggleMute: vi.fn(), playHospitalityGreeting: vi.fn(), playDealerGreeting: vi.fn(), stopFaroAudio: vi.fn(), playRevolver: vi.fn(), playIntroMusic: vi.fn(), stopBGM: vi.fn(), playHit: vi.fn(), playGunReload: vi.fn(), playGameplayMusic: vi.fn(), playLevelUp: vi.fn(), playHeroVoice: vi.fn(), playRicochet: vi.fn() } }));
-vi.mock('../data/GameStatsManager', () => ({ statsManager: { recordRun: vi.fn(), calculateRank: () => 'A', getStats: () => ({ totalScore: 100, totalKills: 20, goldCollected: 500, deaths: 2, bestStreak: 3, playTimeSeconds: 120, stagesCleared: 1, unlockedBosses: [1] }) } }));
+vi.mock('../audio/SoundManager', () => ({ sounds: { getMusicVolume: vi.fn(() => .7), getSfxVolume: vi.fn(() => .4), setMusicVolume: vi.fn(), setSfxVolume: vi.fn(), getIsMuted: vi.fn(() => false), toggleMute: vi.fn(), playHospitalityGreeting: vi.fn(), playDealerGreeting: vi.fn(), stopFaroAudio: vi.fn(), playRevolver: vi.fn(), playIntroMusic: vi.fn(), stopBGM: vi.fn(), playHit: vi.fn(), playGunReload: vi.fn(), playGameplayMusic: vi.fn(), playLevelUp: vi.fn(), playHeroVoice: vi.fn(), playPistolShot: vi.fn(), playRicochet: vi.fn() } }));
+vi.mock('../data/GameStatsManager', () => ({ statsManager: { refresh: vi.fn(), isCharacterUnlocked: vi.fn((id: string) => id === 'steve' || id === 'billy'), buyCharacter: vi.fn(() => 'insufficient'), recordRun: vi.fn(), calculateRank: () => 'A', getStats: () => ({ bank: 500, unlockedCharacters: ['steve','billy'], totalScore: 100, totalKills: 20, goldCollected: 500, deaths: 2, bestStreak: 3, playTimeSeconds: 120, stagesCleared: 1, unlockedBosses: [1] }) } }));
 import { sounds } from '../audio/SoundManager';
 import { difficultySettings } from '../data/difficulty';
 import { CharacterSelectScene } from './CharacterSelectScene';
@@ -83,7 +86,7 @@ function setup(Scene: any, data: any = {}) {
     time: { addEvent: () => ({ remove: vi.fn() }), delayedCall: (_delay: number, callback: () => void) => callback() },
     anims: { exists: () => false },
     tweens: { killTweensOf: vi.fn(), add: (config: any) => config.onComplete?.() },
-    scene: { start: vi.fn(), stop: vi.fn(), resume: vi.fn(), pause: vi.fn(), launch: vi.fn() },
+    scene: { start: vi.fn(), stop: vi.fn(), resume: vi.fn(), pause: vi.fn(), launch: vi.fn(), bringToTop: vi.fn() },
   });
   scene.init?.(data);
   return { scene, objects, buttons: () => objects.filter(o => o instanceof WesternButton && o.active), labels: () => objects.filter(o => o.active && o.text).map(o => o.text) };
@@ -91,7 +94,7 @@ function setup(Scene: any, data: any = {}) {
 
 beforeEach(() => { vi.clearAllMocks(); difficultySettings.set('normal'); });
 describe('composed Western Pulp menus without browser gameplay or screenshots', () => {
-  it.each([MenuScene, AudioScene, RankingScene, PauseScene, DifficultyScene, SaloonScene, GameOverScene, StageClearScene, GameCompleteScene, ControlsScene, UnlockablesScene, StatsScene, StoryScene].map(Scene => ({ Scene, name: Scene.name })))('$name preloads its own assets and keeps action buttons within the reference canvas', ({ Scene }) => {
+  it.each([ProgressScene, MenuScene, AudioScene, RankingScene, PauseScene, DifficultyScene, SaloonScene, GameOverScene, StageClearScene, GameCompleteScene, ControlsScene, UnlockablesScene, StatsScene, StoryScene].map(Scene => ({ Scene, name: Scene.name })))('$name preloads its own assets and keeps action buttons within the reference canvas', ({ Scene }) => {
     const h = setup(Scene); h.scene.preload(); h.scene.create();
     expect(h.scene.load.image.mock.calls.some((call: string[]) => call[0] === 'saloon_bkg')).toBe(true);
     expect(h.buttons().length).toBeGreaterThan(0);
@@ -138,7 +141,7 @@ describe('composed Western Pulp menus without browser gameplay or screenshots', 
     for (let i = 0; i < 30; i++) h.scene.input.keyboard.emit('keydown-RIGHT');
     expect(h.buttons()).toHaveLength(4);
     expect(h.scene.currentTab).toBe('characters');
-    expect(h.labels().filter(text => text === '?')).toHaveLength(2);
+    expect(h.labels().filter(text => text === '?')).toHaveLength(4);
   });
   it('does not bind empty menus or keep keyboard listeners after repeated visits', () => {
     const h = setup(PauseScene);
@@ -185,7 +188,7 @@ describe('optional saloon interior controls', () => {
     const h = setup(SaloonScene, { onLeave: leave }); h.scene.create();
     h.scene.input.keyboard.emit('keydown-ENTER');
     h.scene.input.keyboard.emit('keydown-ENTER'); h.scene.input.keyboard.emit('keydown-ESC');
-    expect(leave).toHaveBeenCalledExactlyOnceWith(true);
+    expect(leave).toHaveBeenCalledExactlyOnceWith(false);
     expect(sounds.playIntroMusic).not.toHaveBeenCalled();
     expect(sounds.playGameplayMusic).not.toHaveBeenCalled();
     expect(sounds.stopBGM).not.toHaveBeenCalled();
@@ -327,6 +330,45 @@ it('preloads all eight boss posters for the pop-up shooting booth', () => {
 
 
 describe('unified menu and local hall of fame', () => {
+  it('renders nested pause menus above their suspended owners and returns control in order', () => {
+    // Match Phaser: launch activates a scene without changing render order,
+    // and paused scenes remain visible.
+    let order = ['MenuScene', 'AudioScene', 'GameScene', 'PauseScene'];
+    const states = new Map<string, string>([['GameScene', 'paused'], ['PauseScene', 'active']]);
+    const manager = {
+      pause: (key: string) => states.set(key, 'paused'),
+      launch: (key: string) => states.set(key, 'active'),
+      stop: (key: string) => states.delete(key),
+      resume: (key: string) => states.set(key, 'active'),
+      bringToTop: (key: string) => { order = [...order.filter(item => item !== key), key]; },
+    };
+    const visibleTop = () => order.filter(key => states.has(key)).at(-1);
+    const pause = setup(PauseScene), menu = setup(MenuScene, { fromScene: 'PauseScene' });
+    const audio = setup(AudioScene, { fromScene: 'MenuScene' });
+    for (const h of [pause, menu, audio]) { Object.assign(h.scene.scene, manager); h.scene.create(); }
+
+    pause.buttons()[1].activate();
+    expect(visibleTop()).toBe('MenuScene');
+    expect(states.get('PauseScene')).toBe('paused');
+    menu.buttons()[0].activate();
+    expect(visibleTop()).toBe('AudioScene');
+    expect(states.get('GameScene')).toBe('paused');
+    audio.scene.input.keyboard.emit('keydown-ESC');
+    expect(visibleTop()).toBe('MenuScene');
+    menu.scene.input.keyboard.emit('keydown-ESC');
+    expect(visibleTop()).toBe('PauseScene');
+    expect(states.get('GameScene')).toBe('paused');
+    pause.scene.input.keyboard.emit('keydown-ESC');
+    expect(visibleTop()).toBe('GameScene');
+    expect(states.get('GameScene')).toBe('active');
+  });
+  it.each(['AudioScene', 'DifficultyScene', 'ControlsScene', 'RankingScene', 'StatsScene', 'UnlockablesScene'])('raises $0 above the paused menu', key => {
+    const h = setup(MenuScene, { fromScene: 'PauseScene' }); h.scene.create();
+    const index = ['AudioScene', 'DifficultyScene', 'ControlsScene', 'RankingScene', 'StatsScene', 'UnlockablesScene'].indexOf(key);
+    h.buttons()[index].activate();
+    expect(h.scene.scene.bringToTop).toHaveBeenCalledWith(key);
+    expect(h.scene.scene.launch.mock.invocationCallOrder[0]).toBeLessThan(h.scene.scene.bringToTop.mock.invocationCallOrder[0]);
+  });
   it('shows only one auxiliary MENU button on the title and opens a paused overlay', () => {
     const h = setup(TitleScene); h.scene.rootContainer = h.scene.add.container(0,0);
     h.scene.createAuxiliaryMenu();
@@ -411,7 +453,8 @@ it('welcomes hospitality guests with its own voice and omits both redundant capt
   const h=setup(SaloonScene,{hospitality:true,onLeave:vi.fn()}); h.scene.create();
   expect(h.labels()).not.toContain('GOOD COMPANY TO HELP YOU CATCH YOUR BREATH');
   expect(h.labels()).not.toContain('ONE VISIT PER DOOR • OPTIONAL • COMBAT PAUSED');
-  expect(h.labels()).toContain('WELCOME: +20 XP • RESTORE 12% HEALTH');
+  expect(h.labels()).toContain('ROOM & REST $45');
+  expect(h.labels()).toContain('RESTORE 12% HEALTH +20 XP');
   expect(sounds.playHospitalityGreeting).toHaveBeenCalledOnce(); expect(sounds.playDealerGreeting).not.toHaveBeenCalled();
   h.scene.events.emit('shutdown'); expect(sounds.stopFaroAudio).toHaveBeenCalledOnce();
 });
@@ -424,4 +467,79 @@ it('returns the ranking to its menu owner and ignores late server responses afte
   expect(h.scene.status.text).toBe('CONNECTING TO THE FRONTIER…');
   h.scene.back(); expect(h.scene.scene.resume).toHaveBeenCalledWith('MenuScene');
   sync.mockRestore();
+});
+
+
+describe('paid character selection at responsive sizes', () => {
+  it.each([[800,600],[1280,720],[1536,1024],[2560,1440]])('fits bank and locks within %sx%s', (width,height) => {
+    const h=setup(CharacterSelectScene); h.scene.scale.width=width;h.scene.scale.height=height;h.scene.create();
+    const root=h.scene.rootContainer;
+    expect(root.scaleX).toBe(Math.min(width/1536,height/1024));
+    expect([root.x,root.y]).toEqual([width/2,height/2]);
+    h.scene.selectIndex(2,false);
+    expect(h.scene.rideLabel.text).toContain('$2,400');
+    expect(h.scene.lockOverlays[2].visible).toBe(true);
+    expect(h.scene.lockOverlays[0].visible).toBe(false);
+    h.scene.confirmSelection();
+    expect(h.scene.scene.start).not.toHaveBeenCalled();
+    expect(h.scene.infoQuote.text).toContain('NOT ENOUGH');
+    expect(h.scene.isConfirmed).toBe(false);
+  });
+});
+
+
+describe('progress menu and paid hero confirmation', () => {
+  it('opens guest saves from the menu and keeps imports disabled during a run', () => {
+    const h=setup(MenuScene,{fromScene:'PauseScene'});h.scene.create();
+    const action=h.buttons().find(button=>button.list.some((node:any)=>node.text==='SAVE PROGRESS'))!;
+    action.activate();
+    expect(h.scene.scene.launch).toHaveBeenCalledWith('ProgressScene',{fromScene:'MenuScene',duringRun:true});
+    const p=setup(ProgressScene,{duringRun:true});p.scene.create();
+    expect(p.scene.confirm.enabled).toBe(false);
+    p.scene.pending='{}';p.scene.confirmImport();expect(p.scene.pending).toBe('{}');
+    p.scene.input.keyboard.emit('keydown-ESC');
+    expect(p.scene.scene.resume).toHaveBeenCalledWith('MenuScene');
+  });
+  it('requires a paid unlock followed by a separate ride confirmation', () => {
+    let paid=false;
+    const owned=vi.spyOn(statsManager,'isCharacterUnlocked').mockImplementation(id=>id==='steve'||id==='billy'||(id==='bob'&&paid));
+    const buy=vi.spyOn(statsManager,'buyCharacter').mockImplementation(()=>{paid=true;return 'bought';});
+    try {
+      const h=setup(CharacterSelectScene);h.scene.create();h.scene.selectIndex(2,false);h.scene.confirmSelection();
+      expect(buy).toHaveBeenCalledExactlyOnceWith('bob');expect(h.scene.scene.start).not.toHaveBeenCalled();
+      expect(h.scene.lockOverlays[2].visible).toBe(false);
+      h.scene.confirmSelection();h.scene.confirmSelection();
+      expect(buy).toHaveBeenCalledTimes(1);
+      expect(h.scene.scene.start).toHaveBeenCalledExactlyOnceWith('WantedScene',expect.objectContaining({character:CHARACTERS.bob}));
+    } finally {owned.mockRestore();buy.mockRestore();}
+  });
+});
+
+describe('persistent bank HUD on selection and returning to the title', () => {
+  it.each([[800,600],[1280,720],[1536,1024],[2560,1440]])('shows the saved bank inside the selection canvas at %sx%s', (width,height) => {
+    const h=setup(CharacterSelectScene);h.scene.scale.width=width;h.scene.scale.height=height;h.scene.create();
+    const label=h.scene.bankHud.label;
+    expect(label.text).toBe('BANK $500');
+    const plate=label.parentContainer;
+    expect(plate.y-24).toBeGreaterThanOrEqual(-512);
+    expect(plate.y+24).toBeLessThan(-390-66);
+    expect(h.scene.rootContainer.scaleX).toBe(Math.min(width/1536,height/1024));
+    h.scene.events.emit('shutdown');
+    expect(h.scene.events.listeners.get('resume')).toHaveLength(0);
+    expect(h.scene.events.listeners.get('wake')).toHaveLength(0);
+  });
+  it('refreshes the remaining balance when title or selection resumes instead of showing a fixed amount', () => {
+    const previous=statsManager.getStats();let bank=740;
+    const read=vi.spyOn(statsManager,'getStats').mockImplementation(()=>({...previous,bank}));
+    try {
+      const title=setup(TitleScene);title.scene.rootContainer=title.scene.add.container(0,0);title.scene.createArcadeHUD();
+      const selection=setup(CharacterSelectScene);selection.scene.create();
+      expect(title.labels()).toContain('BANK $740');expect(selection.scene.bankHud.label.text).toBe('BANK $740');
+      bank=140;title.scene.events.emit('resume');selection.scene.events.emit('resume');
+      expect(title.labels()).toContain('BANK $140');expect(selection.scene.bankHud.label.text).toBe('BANK $140');
+      expect(title.labels()).not.toContain('HIGH   $036,250');
+      bank=1234567890123;selection.scene.events.emit('wake');
+      expect(selection.scene.bankHud.label.scaleX).toBeLessThanOrEqual(1);
+    } finally {read.mockRestore();}
+  });
 });

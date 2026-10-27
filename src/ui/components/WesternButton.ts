@@ -27,6 +27,7 @@ export class WesternButton extends Phaser.GameObjects.Container {
   private focused = false;
   private focusManaged = false;
   private activating = false;
+  private enabled = true;
   private isHovered: boolean = false;
   private isPressed: boolean = false;
   private clickHandler: () => void;
@@ -73,10 +74,15 @@ export class WesternButton extends Phaser.GameObjects.Container {
 
   public setText(text: string) {
     this.btnText.setText(text);
+    this.btnText.setScale(Math.min(1, (this.btnWidth - 28) / Math.max(1, this.btnText.width)));
     this.drawButton();
+  }
+  public setEnabled(enabled: boolean): this {
+    this.enabled = enabled; this.setAlpha(enabled ? 1 : .42); return this;
   }
 
   private onPointerOver() {
+    if (!this.enabled) return;
     this.isHovered = true;
     this.drawButton();
     this.scene.tweens.add({
@@ -102,6 +108,7 @@ export class WesternButton extends Phaser.GameObjects.Container {
   }
 
   private onPointerDown() {
+    if (!this.enabled) return;
     this.isPressed = true;
     this.drawButton();
     this.scene.tweens.add({
@@ -120,14 +127,14 @@ export class WesternButton extends Phaser.GameObjects.Container {
   }
 
   public activate(): void {
-    if (this.activating || !this.active) return;
+    if (this.activating || !this.active || !this.enabled) return;
     this.activating = true;
     sounds.playRevolver();
     this.scene.cameras.main.flash(70, 255, 197, 42, false);
     this.scene.tweens.add({
       targets: this, scaleX: 0.96, scaleY: 0.96, duration: THEME.motion.press,
       yoyo: true, ease: 'Back.easeOut',
-      onComplete: () => { this.activating = false; this.clickHandler(); },
+      onComplete: () => { this.activating = false; if (this.enabled && this.active) this.clickHandler(); },
     });
   }
 

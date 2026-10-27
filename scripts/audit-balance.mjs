@@ -19,7 +19,7 @@ console.log('Max-badge upper envelope (earned badge cost not deducted):', { leve
 if (process.argv.includes('--write')) {
   const path = 'docs/architecture/balance-audit-2026-10.json';
   mkdirSync('docs/architecture', { recursive: true });
-  writeFileSync(path, JSON.stringify({ assumptions: { durationSeconds: 420, spawnIntervalMs: 850, pickupDelaySeconds: 4,
-    objectives: 'two completed after 8 seconds; optimistic', combat: 'not simulated; identical hypothetical kill streams isolate XP curve' }, stages: snapshots }, null, 2) + '\n');
+  writeFileSync(path, JSON.stringify({ assumptions: { durationSeconds: 600, spawnIntervalMs: 850, pickupDelaySeconds: 4,
+    objectives: 'three completed after 8 seconds; optimistic; excludes mini-boss loot', combat: 'not simulated; identical hypothetical kill streams isolate XP curve' }, stages: snapshots }, null, 2) + '\n');
   console.log('Saved', path);
 }

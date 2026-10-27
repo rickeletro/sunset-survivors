@@ -18,7 +18,8 @@
     "balance:telemetry": "node scripts/audit-telemetry.mjs",
     "start": "node server/index.mjs",
     "ranking:backup": "node server/backup.mjs",
-    "ranking:check": "node scripts/check-ranking-server.mjs"
+    "ranking:check": "node scripts/check-ranking-server.mjs",
+    "economy:audit": "node scripts/audit-economy.mjs"
   },
   "dependencies": {
     "phaser": "^3.88.2"

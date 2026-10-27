@@ -26,7 +26,7 @@ describe('deterministic progression throughput audit', () => {
   });
   it('keeps the strongest badge scenario bounded rather than removing its reward', () => {
     const normal = simulateProgression(1, 'fast'), boosted = simulateProgression(1, 'fast', undefined, 2.2);
-    expect(normal.level).toBe(16); expect(boosted.level).toBe(20);
+    expect(normal.level).toBe(19); expect(boosted.level).toBe(23);
     expect(boosted.level).toBeGreaterThan(normal.level);
   });
 });

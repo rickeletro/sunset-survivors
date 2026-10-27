@@ -1,3 +1,6 @@
+import { BankHUD } from '../ui/hud/BankHUD';
+import { statsManager } from '../data/GameStatsManager';
+import { ECONOMY } from '../data/economy';
 import { preloadPulp, pulpBackdrop, pulpHeading, pulpText } from '../ui/layout/pulpSceneKit';
 import { pulpSurface } from '../ui/components/PulpSurface';
 import { normalizeDifficulty, difficultySettings, type DifficultyId } from '../data/difficulty';
@@ -43,6 +46,9 @@ export class CharacterSelectScene extends Phaser.Scene {
   private rideOutTween?: Phaser.Tweens.Tween;
 
   private isConfirmed: boolean = false;
+  private lockOverlays: Phaser.GameObjects.Container[] = [];
+  private bankHud!: BankHUD;
+  private rideLabel!: Phaser.GameObjects.Text;
 
   constructor() {
     super('CharacterSelectScene');
@@ -78,6 +84,7 @@ export class CharacterSelectScene extends Phaser.Scene {
     this.tagContainers = [];
     this.tagGraphics = [];
     this.tagTexts = [];
+    this.lockOverlays = [];
     for (const hero of this.characterKeys) {
       if (this.textures.exists(`hero_${hero}`) && !this.anims.exists(`select_preview_${hero}`)) {
         this.anims.create({ key: `select_preview_${hero}`, frames: PREVIEW_FRAMES[hero].map(frame => ({ key: `hero_${hero}`, frame })), frameRate: 6, repeat: -1 });
@@ -91,11 +98,14 @@ export class CharacterSelectScene extends Phaser.Scene {
 
     // 2. Reference Resolution Root Container (1536 x 1024)
 
+    statsManager.refresh();
     this.rootContainer = createMenuRoot(this);
 
     pulpBackdrop(this, this.rootContainer, false);
-    pulpHeading(this, this.rootContainer, 'SELECT YOUR PLAYER', -405, 1120, 58, true);
+    pulpHeading(this, this.rootContainer, 'SELECT YOUR PLAYER', -390, 1120, 58, true);
     pulpText(this, this.rootContainer, 0, -305, '[← →] CHOOSE   •   [ENTER] RIDE OUT', 21);
+
+    this.bankHud = new BankHUD(this, this.rootContainer);
 
     // 4. Create the 4 Wanted Poster Character Cards
     this.createCharacterCards();
@@ -180,6 +190,18 @@ export class CharacterSelectScene extends Phaser.Scene {
       this.tagContainers.push(tagContainer);
 
       container.add(tagContainer);
+
+      const locked = this.add.container(0, 144), plate = this.add.graphics();
+      plate.fillStyle(0x120b08,.94).fillRect(-126,-40,252,80);
+      plate.lineStyle(2,0xffc52a).strokeRect(-126,-40,252,80);
+      plate.lineStyle(4,0xffc52a).strokeRoundedRect(-103,-18,22,23,10);
+      plate.fillStyle(0xc49a55).fillRect(-108,-3,32,27);
+      plate.fillStyle(0x120b08).fillCircle(-92,8,3).fillRect(-94,8,4,9);
+      locked.add(plate);
+      const cost = key === 'bob' || key === 'cormano' ? ECONOMY.characters[key] : 0;
+      locked.add(this.add.text(23,-17,'LOCKED',{fontFamily:THEME.typography.pixelFont,fontSize:'12px',color:'#ffc52a'}).setOrigin(.5));
+      locked.add(this.add.text(23,14,`$${cost.toLocaleString()}`,{fontFamily:THEME.typography.westernFont,fontSize:'30px',color:'#f2d49a'}).setOrigin(.5));
+      locked.setVisible(!statsManager.isCharacterUnlocked(key)); container.add(locked); this.lockOverlays.push(locked);
 
       // Interactive Hit Area
       const hitZone = this.add.zone(0, 0, cardWidth, cardHeight).setInteractive({ useHandCursor: true });
@@ -288,7 +310,7 @@ export class CharacterSelectScene extends Phaser.Scene {
     const btnH = 120;
 
     panelContainer.add(pulpSurface(this, btnCenterX, 0, btnW + 16, 152, 'wood'));
-    const rideLabel = this.add.text(btnCenterX, -8, 'PRESS ENTER\nTO RIDE OUT!', {
+    const rideLabel = this.rideLabel = this.add.text(btnCenterX, -8, 'PRESS ENTER\nTO RIDE OUT!', {
       fontFamily: THEME.typography.westernFont, fontSize: '25px', color: '#ffc52a',
       align: 'center', lineSpacing: 9, stroke: '#120b08', strokeThickness: 2,
     }).setOrigin(0.5);
@@ -391,6 +413,7 @@ export class CharacterSelectScene extends Phaser.Scene {
       const tagText = this.tagTexts[i];
       const poster = this.cardPosters[i];
 
+      this.lockOverlays[i]?.setVisible(!statsManager.isCharacterUnlocked(this.characterKeys[i]));
       glow.clear();
       tagGfx.clear();
 
@@ -425,7 +448,7 @@ export class CharacterSelectScene extends Phaser.Scene {
         selFrame.setAlpha(0.9);
 
         // Poster full brightness
-        poster.setAlpha(1.0);
+        poster.setAlpha(statsManager.isCharacterUnlocked(this.characterKeys[i]) ? 1 : .6);
 
         // 1UP READY Tag in bright arcade red & gold
         this.tagContainers[i].setVisible(true);
@@ -434,7 +457,7 @@ export class CharacterSelectScene extends Phaser.Scene {
         tagGfx.lineStyle(2, 0xffe066, 1.0);
         tagGfx.strokeRoundedRect(-68, -13, 136, 26, 6);
 
-        tagText.setText('★ 1UP READY ★');
+        tagText.setText(statsManager.isCharacterUnlocked(this.characterKeys[i]) ? '★ 1UP READY ★' : '★ LOCKED ★');
         tagText.setColor('#ffe066');
         tagText.setFontSize('11px');
 
@@ -453,7 +476,7 @@ export class CharacterSelectScene extends Phaser.Scene {
         });
 
         selFrame.setVisible(false);
-        poster.setAlpha(0.92);
+        poster.setAlpha(statsManager.isCharacterUnlocked(this.characterKeys[i]) ? .92 : .45);
 
         // Hide tag container on unselected card (the poster paper already displays vintage 1UP)
         this.tagContainers[i].setVisible(false);
@@ -470,6 +493,11 @@ export class CharacterSelectScene extends Phaser.Scene {
     this.infoWeaponVal.setText(selectedChar.subtitle);
     this.infoTraitVal.setText(selectedChar.specialBonus);
     this.infoQuote.setText(selectedChar.quote);
+    const unlocked = statsManager.isCharacterUnlocked(charKey);
+    const price = charKey === 'bob' || charKey === 'cormano' ? ECONOMY.characters[charKey] : 0;
+    this.rideLabel.setText(unlocked ? 'PRESS ENTER\nTO RIDE OUT!' : `UNLOCK ${selectedChar.name}\n$${price.toLocaleString()}`);
+    this.rideLabel.setAlpha(unlocked || statsManager.getStats().bank >= price ? 1 : .45);
+    this.bankHud.refresh();
 
     // Update live 32-bit animated hero sprite
     const textureKey = this.textures.exists(`hero_${charKey}`) ? `hero_${charKey}` : `player_${charKey}`;
@@ -486,10 +514,18 @@ export class CharacterSelectScene extends Phaser.Scene {
   // -------------------------------------------------------------
   private confirmSelection() {
     if (this.isConfirmed) return;
-    this.isConfirmed = true;
-
     const charKey = this.characterKeys[this.selectedIndex];
     const selectedChar = CHARACTERS[charKey];
+    if (!statsManager.isCharacterUnlocked(charKey)) {
+      const result = statsManager.buyCharacter(charKey);
+      if (result === 'bought') {
+        sounds.playLevelUp(); this.selectIndex(this.selectedIndex, false);
+        this.infoQuote.setText(`${selectedChar.name} UNLOCKED — YOUR NEXT RIDE AWAITS!`);
+        this.tweens.add({ targets:this.cardSelectedFrames[this.selectedIndex], alpha:.25, duration:180, yoyo:true, repeat:2 });
+      } else this.infoQuote.setText(result === 'save-failed' ? 'COULD NOT SAVE PURCHASE. YOUR BANK WAS NOT CHARGED.' : 'NOT ENOUGH BANK GOLD. KEEP RIDING, PARTNER!');
+      return;
+    }
+    this.isConfirmed = true;
 
     // Som de tiro ao selecionar o jogador (pistol-shot.mp3) e voz do herói
     sounds.playPistolShot();

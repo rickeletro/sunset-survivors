@@ -1,18 +1,19 @@
 /** Flat Faro / copper rules. Chips exchange for the run's bounty at face value. */
+import { ECONOMY } from './economy';
 export interface FaroCard { rank: number; suit: number; }
 export type FaroSide = 'player' | 'banker';
 export type FaroOutcome = 'win' | 'lose' | 'split' | 'push';
 export interface FaroDeal { banker: FaroCard; player: FaroCard; outcome: FaroOutcome; }
 export interface FaroSettlement { bountyDelta: number; wonItem: boolean; }
-export const FARO_STAKES = [2, 10, 20] as const;
-export const FARO_MIN_STAKE = 2;
-export const FARO_ITEM_STAKE = 10;
-export const FARO_MAX_BETS = 3;
+export const FARO_STAKES = ECONOMY.faro.stakes;
+export const FARO_MIN_STAKE = ECONOMY.faro.minStake;
+export const FARO_ITEM_STAKE = ECONOMY.faro.itemStake;
+export const FARO_MAX_BETS = ECONOMY.faro.maxBets;
 export const faroRank = (rank: number): string => ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'][rank - 1] ?? '?';
 const evenFloor = (value: number) => Math.floor(value / 2) * 2;
 export function faroBudget(bounty: number) {
   const bankroll = Number.isFinite(bounty) ? Math.max(0, Math.floor(bounty)) : 0;
-  return { bankroll, maxStake: Math.min(50, Math.max(2, evenFloor(bankroll * 0.2))), lossLimit: Math.min(bankroll, Math.max(2, evenFloor(bankroll * 0.4))) };
+  return { bankroll, maxStake: Math.min(ECONOMY.faro.maxStake, Math.max(FARO_MIN_STAKE, evenFloor(bankroll * ECONOMY.faro.stakeFraction))), lossLimit: Math.min(bankroll, Math.max(FARO_MIN_STAKE, evenFloor(bankroll * ECONOMY.faro.lossFraction))) };
 }
 export function faroDeck(random = Math.random): FaroCard[] {
   const cards = Array.from({ length: 52 }, (_, i) => ({ rank: i % 13 + 1, suit: Math.floor(i / 13) }));

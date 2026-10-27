@@ -1,3 +1,7 @@
+import { statsManager } from '../data/GameStatsManager';
+import { SpriteGenerator } from '../utils/SpriteGenerator';
+import { ENEMY_CAP, HORDE_CAP, MAIN_BOSS_AT, STAGE_SECONDS, WaveTimeline, waveAt, waveEnemyStats } from '../data/waves';
+import { MINI_BOSSES, MINI_HERO_HEIGHTS, miniBossProfile, miniBossScale, miniBossFootOffset, shieldMultiplier } from '../data/miniBosses';
 import { FrontierCompass } from '../ui/hud/FrontierCompass';
 import { GALLERY_BOSS_KEYS, galleryProfile } from '../data/shootingGallery';
 import { FrontierEvents } from '../systems/FrontierEvents';
@@ -9,13 +13,14 @@ import { FrontierWildlife } from '../systems/FrontierWildlife';
 import { StageAtmosphere } from '../systems/StageAtmosphere';
 import { preloadSurfaces } from '../ui/components/PulpSurface';
 import { WeaponEffects } from '../systems/WeaponEffects';
-import { molotovFootprint } from '../data/weaponPresentation';
-import { BUILD_LIMITS, cooldownMultiplier, stageClearBonus, xpForLevel } from '../data/economy';
+import { UPGRADE_HUD_ASSETS } from '../data/upgradeHud';
+import { molotovFootprint, dynamiteRadius, insideBlast, lobPose } from '../data/weaponPresentation';
+import { ECONOMY, servicePrice, type RunServiceId, BUILD_LIMITS, cooldownMultiplier, stageClearBonus, xpForLevel } from '../data/economy';
 import { FirstRunTutorial, tutorialProgress } from '../systems/FirstRunTutorial';
 import { FirstRunTutorialView } from '../ui/hud/FirstRunTutorialView';
 import { sceneryForStage, sceneryKey, worldDepth } from '../data/scenery';
 import { WORLD_DECORATION_KEYS } from '../data/worldDecorations';
-import { SaloonVisit, saloonDoors, SALOON_ENTRY_RADIUS, type SaloonDoor } from '../data/saloon';
+import { SaloonVisit, saloonDoors, buildingDistance, SALOON_ENTRY_RADIUS, type SaloonDoor } from '../data/saloon';
 import { BuildingPortalView } from '../ui/BuildingPortalView';
 import type { BuildingTransitionData } from './BuildingTransitionScene';
 import { samplePath, pathLength, type PortalPoint } from '../systems/BuildingPath';
@@ -29,7 +34,7 @@ import { sounds } from '../audio/SoundManager';
 import { CharacterData, CHARACTERS } from '../data/characters';
 import { PASSIVES } from '../data/passives';
 import { WEAPONS, WeaponDef } from '../data/weapons';
-import { bossHealth, difficultyProfile, difficultySettings, enemyHealth, incomingDamage, normalizeDifficulty, type DifficultyId } from '../data/difficulty';
+import { bossHealth, difficultyProfile, difficultySettings, incomingDamage, normalizeDifficulty, type DifficultyId } from '../data/difficulty';
 import { THEME } from '../ui/theme/tokens';
 import { UpgradeChoice } from './LevelUpScene';
 import { getBossForStage } from '../data/bosses';
@@ -57,7 +62,7 @@ import { GameEvents, GameEventNames, SpecialWaveEvent } from '../systems/GameEve
 import { SpatialHash } from '../systems/SpatialHash';
 import { SpritePool } from '../systems/SpritePool';
 import { ENEMY_DEFS, ENEMY_VISUAL_SCALE, EnemyKind } from '../data/enemies';
-import { getStage, isBossDue, stagePhase, StageConfig } from '../data/stages';
+import { getStage, isBossDue, StageConfig } from '../data/stages';
 import { bossAttackDamage, bossRageMultiplier, getBossCombat, remainingBossHp } from '../data/bossCombat';
 import { mergeLoot, takeLootPacket } from '../systems/LootBudget';
 import { StageEncounters } from '../systems/StageEncounters';
@@ -84,8 +89,12 @@ export class GameScene extends Phaser.Scene {
   private saloonOpen = false;
   private combatElapsedMs = 0;
   private lastDamageAt = -Infinity;
-  private get combatNow(): number { return this.combatElapsedMs ?? this.time.now; }
+  private get combatNow(): number { return this.combatElapsedMs ?? this.time?.now ?? 0; }
   private objectiveStatus!: Phaser.GameObjects.Text;
+  private activeBanner?: Phaser.GameObjects.Text;
+  private waveTimeline?: WaveTimeline;
+  private rareLootGlow?: Phaser.GameObjects.Graphics;
+  private miniBossVisuals?: Phaser.GameObjects.Graphics;
   private bossMembers: Enemy[] = [];
   private bossDefeated = false;
 
@@ -112,9 +121,14 @@ export class GameScene extends Phaser.Scene {
   private currentXp: number = 0;
   private xpToNextLevel: number = 20;
   private bounty: number = 0;
+  private specialRoundsUntil = 0;
+  private gunOilUntil = 0;
+  private lastPickupChimeAt = -Infinity;
   private kills: number = 0;
   private choosingUpgrade = false;
   private runId = '';
+  private walletActive = false;
+  private earnedBounty = 0;
   private developerTest = false;
   private gameTimeSeconds: number = 0;
   private isGameOver: boolean = false;
@@ -167,7 +181,10 @@ export class GameScene extends Phaser.Scene {
 
   init(data?: { character?: CharacterData; stage?: number; difficulty?: DifficultyId; developer?: boolean }) {
     this.developerTest = !!data?.developer && developerEnabled();
-    this.character = data?.character || CHARACTERS.billy;
+    const requested = data?.character?.id ?? 'billy';
+    // Every gameplay entry point must enforce ownership, not only the selection screen.
+    this.character = (this.developerTest || statsManager.isCharacterUnlocked(requested))
+      ? CHARACTERS[requested] ?? CHARACTERS.billy : CHARACTERS.billy;
     this.stage = Math.max(1, Math.min(8, data?.stage || 1));
     this.stageConfig = getStage(this.stage);
     this.difficulty = normalizeDifficulty(data?.difficulty ?? difficultySettings.get());
@@ -175,6 +192,7 @@ export class GameScene extends Phaser.Scene {
 
   preload() {
     preloadSurfaces(this);
+    preloadImages(this, UPGRADE_HUD_ASSETS);
     preloadImages(this, GALLERY_BOSS_KEYS);
     preloadChickens(this, this.stageConfig.theme);
     preloadImages(this, sceneryForStage(this.stageConfig.theme).map(sceneryKey));
@@ -201,6 +219,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   create() {
+    SpriteGenerator.createEconomyDrops(this);
+    this.rareLootGlow = this.add.graphics().setDepth(3);
     this.onboardingView = undefined;
     this.weaponEffects = undefined;
     this.practiceActive = false;
@@ -208,6 +228,8 @@ export class GameScene extends Phaser.Scene {
     this.isGameOver = false;
     this.bossSpawned = false;
     this.bossMembers = [];
+    this.waveTimeline = new WaveTimeline();
+    this.activeBanner = undefined;
     this.bossDefeated = false;
     this.enemies = [];
     this.projectiles = [];
@@ -220,7 +242,8 @@ export class GameScene extends Phaser.Scene {
     this.choosingUpgrade = false;
     this.runId = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
     this.kills = 0;
-    this.bounty = 0;
+    this.initializeWallet();
+    this.specialRoundsUntil = 0; this.gunOilUntil = 0; this.lastPickupChimeAt=-Infinity;
     this.level = 1;
     this.currentXp = 0;
     this.rawXpEarned = 0; this.totalXpEarned = 0; this.totalDamageTaken = 0;
@@ -291,7 +314,7 @@ export class GameScene extends Phaser.Scene {
       damage: amount => this.damagePlayer(amount),
       spawn: (kind, x, y) => this.spawnEnemy(kind, x, y),
       reward: () => {
-        this.addBounty(300 + this.stage * 75);
+        this.addBounty(ECONOMY.sources.supplyBase + this.stage * ECONOMY.sources.supplyPerStage);
         this.hp = Math.min(this.maxHp, this.hp + 20);
         this.updateHpBar();
         sounds.playCoin();
@@ -307,7 +330,7 @@ export class GameScene extends Phaser.Scene {
     });
 
     this.frontierEvents = new FrontierEvents(this, this.stageConfig.theme, {
-      spawn: (kind, x, y) => this.spawnEnemy(kind, x, y),
+      spawn: (kind, x, y) => this.spawnEnemy(this.gameTimeSeconds < 240 && kind === 'rifle_guard' ? 'bandit' : kind, x, y),
       banner: text => this.showBanner(text, '#ffc52a'),
       explode: (x, y, radius, damage) => {
         for (const enemy of [...this.enemies]) if (!enemy.dead && Math.hypot(enemy.sprite.x - x, enemy.sprite.y - y) <= radius) this.damageEnemy(enemy, damage);
@@ -337,6 +360,7 @@ export class GameScene extends Phaser.Scene {
 
     // Create Arcade HUD
     this.createHUD();
+    this.miniBossVisuals = this.add.graphics().setDepth(23);
     this.createOnboarding();
     this.createSaloonInteraction();
     this.frontierCompass = new FrontierCompass(this);
@@ -462,6 +486,7 @@ export class GameScene extends Phaser.Scene {
     this.bossBarContainer = this.hud.bossBarContainer;
     this.stageStatus = this.hud.stageStatus;
     this.objectiveStatus = this.hud.objectiveStatus;
+    this.hud.upgrades.sync(this.activeWeapons, this.activePassives);
   }
   private updateXpBar(): void { this.hud.setXp(this.currentXp, this.xpToNextLevel); }
   private updateHpBar(): void { this.hud.setHealth(this.hp, this.maxHp); }
@@ -487,7 +512,10 @@ export class GameScene extends Phaser.Scene {
       this.updateHpBar();
     }
 
-    // The boss arrives at seven minutes; kills never skip its timeline.
+    if (this.gameTimeSeconds >= STAGE_SECONDS) { this.gameOver(false); return; }
+    const beat = this.waveTimeline?.advance(this.gameTimeSeconds);
+    for (const wave of beat?.miniBosses ?? []) this.spawnMiniBoss(wave);
+    // The main boss arrives at 9:00; ordinary hordes continue until victory or 10:00.
     if (!this.bossSpawned && isBossDue(this.stageConfig, this.gameTimeSeconds)) this.spawnStageBoss();
     this.encounters.tick(this.gameTimeSeconds, this.bossSpawned);
     this.updateStageStatus();
@@ -497,6 +525,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private showBanner(text: string, color: string) {
+    if (this.activeBanner) { this.tweens.killTweensOf?.(this.activeBanner); this.activeBanner.destroy(); }
     const banner = this.add.text(this.scale.width / 2, this.scale.height / 2 - 130, text, {
       fontFamily: THEME.typography.pixelFont,
       fontSize: '18px',
@@ -505,6 +534,7 @@ export class GameScene extends Phaser.Scene {
       strokeThickness: 5,
       align: 'center', wordWrap: { width: Math.max(240, this.scale.width - 60) },
     }).setOrigin(0.5).setScrollFactor(0).setDepth(80);
+    this.activeBanner = banner;
     this.tweens.add({
       targets: banner,
       alpha: 0,
@@ -552,7 +582,7 @@ export class GameScene extends Phaser.Scene {
       const sprite = this.add.sprite(position.x, position.y, texture).setScale(legacy ? GREEDWELL_SCALE : this.stage === 1 ? 1.2 : 1.25).setDepth(15);
       const enemy: Enemy = {
         sprite, type: 'boss', hp, maxHp: hp,
-        speed: combat.speed, damage: combat.damage, xpVal: 300, bountyVal: 200 + this.stage * 50,
+        speed: combat.speed, damage: combat.damage, xpVal: 300, bountyVal: ECONOMY.sources.bossBase + this.stage * ECONOMY.sources.bossPerStage,
         throwCooldown: 1800 + index * 600, usesPixellab: legacy, animLock: 0,
         bossSlug: this.stage === 1 ? undefined : slug,
       };
@@ -576,7 +606,7 @@ export class GameScene extends Phaser.Scene {
 
     for (const order of orders) {
       const base = this.worldMap.spawnPointAround(px, py);
-      for (let i = 0; i < order.count && this.enemies.length < 240; i++) {
+      for (let i = 0; i < order.count && this.enemies.length < HORDE_CAP; i++) {
         let x: number;
         let y: number;
         if (order.pattern === 'encircle') {
@@ -596,13 +626,14 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  private spawnEnemy(kind: EnemyKind, x: number, y: number) {
-    if (this.enemies.length >= 240) return;
+  private spawnEnemy(kind: EnemyKind, x: number, y: number, mini?: ReturnType<typeof miniBossProfile>) {
+    if (this.enemies.length >= (mini ? ENEMY_CAP : HORDE_CAP)) return;
     const def = ENEMY_DEFS[kind];
-    const hp = enemyHealth(def, this.gameTimeSeconds, this.difficulty);
+    const stats = waveEnemyStats(def, this.gameTimeSeconds, this.difficulty);
+    const hp = mini?.hp ?? stats.hp;
     const combatTexture = enemySpriteTexture(this, kind);
     const frameScale = combatTexture ? 64 / this.textures.get(combatTexture).getSourceImage().width : 1;
-    const sprite = this.enemyPool.acquire(x, y, combatTexture ?? def.texture, def.scale * frameScale * ENEMY_VISUAL_SCALE);
+    const sprite = this.enemyPool.acquire(x, y, combatTexture ?? def.texture, mini ? miniBossScale(mini.kind, MINI_HERO_HEIGHTS[this.character?.id] ?? 68.5) : def.scale * frameScale * ENEMY_VISUAL_SCALE);
     const safe = this.worldMap.resolve(x, y, def.radius);
     sprite.setPosition(safe.x, safe.y);
     if (def.tint) sprite.setTint(def.tint);
@@ -611,29 +642,83 @@ export class GameScene extends Phaser.Scene {
       type: kind,
       hp,
       maxHp: hp,
-      speed: def.speed,
-      damage: def.damage,
-      xpVal: def.xp,
-      bountyVal: def.bounty,
+      speed: mini?.speed ?? stats.speed,
+      damage: mini?.damage ?? stats.damage,
+      xpVal: mini?.xp ?? def.xp,
+      bountyVal: mini?.bounty ?? def.bounty,
       throwCooldown: kind === 'dynamiter' ? 2000 : kind === 'rifle_guard' ? 1700 : undefined,
       combatSprite: !!combatTexture,
       chargeCooldown: kind === 'longhorn' ? 650 : undefined,
       pooled: true,
-      tint: def.tint,
+      tint: mini?.color ?? def.tint,
+      miniWave: mini?.wave, miniCooldown: mini ? 1300 : undefined,
     };
+    if (mini) sprite.setTint(mini.color);
     this.enemies.push(enemy);
     return enemy;
   }
 
+  private spawnMiniBoss(wave: number): Enemy | undefined {
+    const profile = miniBossProfile(wave, this.stage, this.difficulty);
+    const point = this.worldMap.spawnPointAround(this.player.x, this.player.y, 480, 560);
+    const enemy = this.spawnEnemy(profile.kind, point.x, point.y, profile);
+    if (enemy) { sounds.playBossWarning(); this.showBanner(`WAVE ${wave} CAPTAIN — ${profile.name}`, '#ffc52a'); }
+    return enemy;
+  }
+
+  private updateMiniBoss(e: Enemy, dx: number, dy: number, distance: number, delta: number): void {
+    const def = MINI_BOSSES[e.miniWave! - 1];
+    if ((e.miniWindup ?? 0) > 0) {
+      e.miniWindup = Math.max(0, e.miniWindup! - delta);
+      if (e.miniWindup === 0) {
+        if ((def.wave === 1 || def.wave === 4) && e.miniTarget && Math.hypot(this.player.x-e.miniTarget.x,this.player.y-e.miniTarget.y)<65) this.damagePlayer(Math.round(e.damage*1.35));
+        if (def.wave === 2 || def.wave === 5) {
+          sounds.playRevolver();
+          for (const offset of def.wave === 5 ? [-.1, 0, .1] : [0]) this.fireHostileBullet(e.sprite.x, e.sprite.y, e.miniAim! + offset, e.damage, 850);
+        }
+        e.miniCooldown = def.cooldown * (def.wave === 5 && e.hp < e.maxHp * .4 ? .7 : 1);
+      }
+      return;
+    }
+    e.miniCooldown = (e.miniCooldown ?? 0) - delta;
+    if (e.miniCooldown! > 0 || distance > (def.wave === 1 || def.wave === 4 ? 130 : 700)) return;
+    e.miniWindup = def.windup; e.miniAim = Math.atan2(dy, dx);
+    e.miniTarget = {x:this.player.x, y:this.player.y};
+    if (def.wave === 1 || def.wave === 4) {
+      const length = distance || 1;
+      e.miniTarget={x:e.sprite.x+dx/length*65,y:e.sprite.y+dy/length*65};
+      this.encounters.warn({...e.miniTarget,radius:65}, def.windup, 120, 0);
+    }
+    if (def.wave === 3) {
+      // Telegraph and persistent traps use the existing bounded hazard manager.
+      for (const offset of [-70, 70]) this.encounters.warn({x:e.miniTarget.x+offset,y:e.miniTarget.y,radius:46}, def.windup, 2200, e.damage);
+    }
+  }
+
+  private drawMiniBosses(): void {
+    const g = this.miniBossVisuals; if (!g) return; g.clear();
+    for (const e of this.enemies) if (e.miniWave && !e.dead) {
+      const def = MINI_BOSSES[e.miniWave-1], x=e.sprite.x, y=e.sprite.y;
+      g.fillStyle(0x120b08,.9).fillRect(x-26,y-50,52,7);
+      g.fillStyle(def.color,1).fillRect(x-25,y-49,50*Math.max(0,e.hp/e.maxHp),5);
+      g.lineStyle(1,def.color,.9).strokeCircle(x,y+miniBossFootOffset(def.kind,MINI_HERO_HEIGHTS[this.character?.id] ?? 68.5)-1,15);
+      if (e.miniWave===4 && !(e.miniWindup!>0)) {
+        const a=Math.atan2(e.dirY??1,e.dirX??0);g.lineStyle(5,0x8bdd78,.85).beginPath().arc(x,y,24,a-.9,a+.9).strokePath();
+      }
+      if (e.miniWindup!>0 && (e.miniWave===2 || e.miniWave===5)) g.lineStyle(3,0xffc52a,.7).lineBetween(x,y,x+Math.cos(e.miniAim!)*600,y+Math.sin(e.miniAim!)*600);
+    }
+  }
+
   private updateStageStatus(): void {
-    const remaining = Math.max(0, this.stageConfig.duration - this.gameTimeSeconds);
+    const wave = waveAt(this.gameTimeSeconds);
+    const remaining = Math.max(0, wave.id * 120 - this.gameTimeSeconds);
     const clock = `${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2, '0')}`;
-    const labels = { arrival: 'ARRIVAL', pressure: 'SIEGE', surge: 'HORDE', respite: 'BREATHER', 'last-stand': 'HOLD OUT', boss: 'WANTED' };
-    this.stageStatus.setText(`${difficultyProfile(this.difficulty).label} • STAGE ${this.stage} • ${labels[stagePhase(this.stageConfig, this.gameTimeSeconds)]} • ${this.bossSpawned ? 'DEFEAT THE BOSS' : `BOSS IN ${clock}`}`);
+    this.stageStatus.setText(`${difficultyProfile(this.difficulty).label} • WAVE ${wave.id}/5 • ${wave.name} • ${this.bossSpawned ? 'DEFEAT THE BOSS • ' : ''}${clock}`);
     this.objectiveStatus.setText(this.encounters.objectiveHint());
   }
 
   private updateEnemyTactics(e: Enemy, dx: number, dy: number, distance: number, delta: number): void {
+    if (e.miniWave) { this.updateMiniBoss(e, dx, dy, distance, delta); return; }
     if ((e.type === 'coyote' || e.type === 'knife_scout') && distance > 100) {
       const angle = Math.atan2(dy, dx) + Math.sin(this.gameTimeSeconds * 0.8 + e.sprite.x * 0.01) * 0.65;
       e.dirX = Math.cos(angle); e.dirY = Math.sin(angle);
@@ -752,6 +837,7 @@ export class GameScene extends Phaser.Scene {
     this.updateProjectiles(delta);
     this.weaponEffects?.update(delta, this.projectiles);
     this.updateEnemies(delta);
+    this.drawMiniBosses();
     this.player.setDepth(worldDepth(this.player.y));
     this.worldMap.update(this.player.x, this.player.y);
     this.updateDrops(delta);
@@ -773,7 +859,7 @@ export class GameScene extends Phaser.Scene {
   private createSaloonInteraction(): void {
     this.saloonVisit = new SaloonVisit(saloonDoors(this.stageConfig.theme), this.stageConfig.id === 2 ? { healthFraction: 0.2, bounty: 0 } : undefined, true, this.stageConfig.id === 2);
     this.saloonViews = this.saloonVisit.doors.flatMap(door => door.portal ? [{ door,
-      view: new BuildingPortalView(this, door.portal, door.activity === 'gallery' ? `${galleryProfile(this.stageConfig.id).name.toUpperCase()} • TARGET PRACTICE` : door.activity === 'hospitality' ? 'HOSPITALITY • HEAL + XP' : this.stageConfig.id === 2 ? 'SALOON • FARO • $ + ITEMS' : 'SALOON • HEAL + $', () => this.openSaloon(door)) }] : []);
+      view: new BuildingPortalView(this, door.portal, door.activity === 'gallery' ? `${galleryProfile(this.stageConfig.id).name.toUpperCase()} • TARGET PRACTICE` : door.activity === 'hospitality' ? 'HOSPITALITY • PAID REST & SUPPLIES' : this.stageConfig.id === 2 ? 'SALOON • FARO • $ + ITEMS' : 'SALOON • PAID REST & SUPPLIES', () => this.openSaloon(door)) }] : []);
     const enter = () => this.openSaloon();
     this.input.keyboard?.on('keydown-E', enter);
     this.events.once('shutdown', () => {
@@ -791,7 +877,7 @@ export class GameScene extends Phaser.Scene {
     this.frontierCompass?.update(this.saloonVisit, this.player.x, this.player.y, this.combatNow, !!(this.saloonOpen || this.onboarding?.visible || this.choosingUpgrade || this.isGameOver));
     this.saloonViews?.forEach(({ door, view }) => {
       const used = !!this.saloonVisit?.wasUsed(door);
-      const distance = Math.hypot(door.x - this.player.x, door.y - this.player.y);
+      const distance = buildingDistance(door, this.player.x, this.player.y);
       view.update(distance, !blocked && !used && distance <= SALOON_ENTRY_RADIUS, used, this.combatNow, blocked);
     });
   }
@@ -809,7 +895,7 @@ export class GameScene extends Phaser.Scene {
     const visit = this.saloonVisit, blocked = this.saloonBlocked();
     const door = requested ?? visit?.nearby(this.player.x, this.player.y, blocked);
     if (!visit || blocked || visit.used || !door?.portal || !visit.doors.includes(door) ||
-      Math.hypot(door.x - this.player.x, door.y - this.player.y) > SALOON_ENTRY_RADIUS) return;
+      buildingDistance(door, this.player.x, this.player.y) > SALOON_ENTRY_RADIUS) return;
     if (this.stageConfig.id === 2 && (door.activity ?? 'saloon') === 'saloon' && this.bounty < FARO_MIN_STAKE) {
       this.showBanner('FARO: COLLECT AT LEAST $2 IN BOUNTY TO PLAY', '#ffc52a'); return;
     }
@@ -833,17 +919,35 @@ export class GameScene extends Phaser.Scene {
     this.scene.pause('GameScene');
     let phase: 'enter' | 'inside' | 'exit' | 'done' = 'enter';
     let faroTable: FaroTable | undefined, faroPrize: UpgradeChoice | undefined, faroSettlement: FaroSettlement | undefined;
+    let pendingXp = 0, gallerySettlement: { bounty:number; xp:number } | undefined;
+    const purchases = new Set<RunServiceId>();
     const current = () => this.saloonVisit === visit && this.saloonOpen && !this.isGameOver;
-    const restore = (reward?: ReturnType<SaloonVisit['leave']>) => {
+    const allowed: RunServiceId[] = door.activity === 'gallery' ? ['gallery'] : isFaro ? [] : [door.activity === 'hospitality' ? 'hospitality_rest' : 'saloon_rest','special_rounds','gun_oil'];
+    const canBuy = (id: RunServiceId): boolean => {
+      if (!current() || phase !== 'inside' || !allowed.includes(id) || purchases.has(id) || this.bounty < servicePrice(id,this.stageConfig.id)) return false;
+      if (id === 'saloon_rest' && this.hp >= this.maxHp) return false;
+      if (id === 'special_rounds' && this.combatNow < this.specialRoundsUntil) return false;
+      if (id === 'gun_oil' && this.combatNow < this.gunOilUntil) return false;
+      return true;
+    };
+    const buy = (id: RunServiceId): boolean => {
+      if (!canBuy(id)) return false;
+      const service = ECONOMY.services[id];
+      if(this.addBounty(-servicePrice(id,this.stageConfig.id)) === false)return false;
+      purchases.add(id);
+      if (service.health) { this.hp = Math.min(this.maxHp,this.hp + Math.round(this.maxHp * service.health)); this.updateHpBar(); }
+      pendingXp += service.xp;
+      if (id === 'special_rounds') this.specialRoundsUntil = this.combatNow + service.duration;
+      if (id === 'gun_oil') this.gunOilUntil = this.combatNow + service.duration;
+      return true;
+    };
+    const restore = () => {
       if (!current() || phase === 'done') return;
       phase = 'done';
-      if (reward) {
-        this.hp = Math.min(this.maxHp, this.hp + Math.round(this.maxHp * reward.healthFraction));
-        this.updateHpBar(); this.addBounty(reward.bounty); sounds.playCoin();
-      }
+      if (gallerySettlement) { this.addBounty(gallerySettlement.bounty); pendingXp += gallerySettlement.xp; }
       if (faroSettlement) {
-        this.addBounty(faroSettlement.bountyDelta);
-        if (faroSettlement.wonItem && faroPrize) {
+        const paid=this.addBounty(faroSettlement.bountyDelta)!==false;
+        if (paid && faroSettlement.wonItem && faroPrize) {
           const levels = faroPrize.type === 'weapon' ? this.activeWeapons : this.activePassives;
           while ((levels.get(faroPrize.id) ?? 0) < faroPrize.nextLevel) this.applyUpgrade(faroPrize);
         }
@@ -852,7 +956,7 @@ export class GameScene extends Phaser.Scene {
       this.saloonRestore?.(); this.saloonRestore = undefined;
       this.saloonOpen = false;
       this.scene.resume('GameScene');
-      if (reward?.xp) this.awardXp(reward.xp);
+      if (pendingXp) { const xp=pendingXp; pendingXp=0; this.awardXp(xp); }
     };
     const transition = (mode: 'enter' | 'exit', route: PortalPoint[], complete: () => void, cancel: () => void) => {
       const data: BuildingTransitionData = { mode, path: route, portal,
@@ -875,17 +979,22 @@ export class GameScene extends Phaser.Scene {
         faroTable = new FaroTable(this.bounty);
         faroPrize = offeredPrize;
       }
-      this.scene.launch('SaloonScene', { gallery: door.activity === 'gallery', galleryStage: this.stageConfig.id, onGalleryLeave: (gains: { bounty: number; xp: number }) => {
+      this.scene.launch('SaloonScene', { getBalance:()=>this.bounty, canBuy, onBuy:buy, gallery: door.activity === 'gallery', galleryStage: this.stageConfig.id, onGalleryLeave: (gains: { bounty: number; xp: number }) => {
         if (!current() || phase !== 'inside' || door.activity !== 'gallery') return;
         phase = 'exit'; visit.leave(false); this.scene.stop('SaloonScene');
-        transition('exit', returnPath, () => { restore(); this.addBounty(gains.bounty); if (gains.xp) this.awardXp(gains.xp); }, () => { restore(); this.addBounty(gains.bounty); if (gains.xp) this.awardXp(gains.xp); });
+        if (purchases.has('gallery')) {
+          const profile=galleryProfile(this.stageConfig.id);
+          gallerySettlement={bounty:Math.max(0,Math.min(profile.targets*ECONOMY.gallery.perHit+profile.perfectBonus,Number(gains.bounty)||0)),xp:Math.max(0,Math.min(profile.targets*ECONOMY.gallery.xpPerHit,Number(gains.xp)||0))};
+        }
+        transition('exit', returnPath, restore, restore);
       }, table: faroTable, prize: faroPrize, faro: isFaro, hospitality: door.activity === 'hospitality', onLeave: (accept: boolean) => {
         if (!current() || phase !== 'inside') return;
+        if (accept && !isFaro && door.activity !== 'gallery') buy(door.activity === 'hospitality' ? 'hospitality_rest' : 'saloon_rest');
         phase = 'exit';
         faroSettlement = faroTable?.close();
-        const reward = visit.leave(door.activity === 'gallery' ? false : accept, faroSettlement?.wonItem);
+        visit.leave(false, faroSettlement?.wonItem);
         this.scene.stop('SaloonScene');
-        transition('exit', returnPath, () => restore(reward), () => restore(reward));
+        transition('exit', returnPath, restore, restore);
       } });
     }, () => { visit.leave(false); restore(); });
   }
@@ -957,6 +1066,10 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  private get attackDamageMultiplier(): number {
+    return this.damageMultiplier * (this.combatNow < (this.specialRoundsUntil ?? 0) ? ECONOMY.specialDamage : 1);
+  }
+
   // 2. Weapon Auto-Fire Systems
   private handleWeaponsAutoFire(delta: number) {
     this.activeWeapons.forEach((level, weaponId) => {
@@ -965,7 +1078,7 @@ export class GameScene extends Phaser.Scene {
       const lvlInfo = def.levels[level - 1];
       const curTimer = (this.weaponTimers.get(weaponId) || 0) + delta;
 
-      const effectiveCooldown = (lvlInfo.cooldownMs / this.fireRateMultiplier);
+      const effectiveCooldown = (lvlInfo.cooldownMs / (this.fireRateMultiplier * (this.combatNow < (this.gunOilUntil ?? 0) ? ECONOMY.oilFireRate : 1)));
       if (curTimer >= effectiveCooldown) {
         // Preserve fractional cooldown instead of losing a frame at every volley.
         // Limit catch-up after extreme stalls, never bank a burst across a pause.
@@ -1008,8 +1121,9 @@ export class GameScene extends Phaser.Scene {
             sprite,
             vx: Math.cos(angle) * lvl.speed,
             vy: Math.sin(angle) * lvl.speed,
-            damage: Math.round(lvl.damage * this.damageMultiplier),
+            damage: Math.round(lvl.damage * this.attackDamageMultiplier),
             pierce: lvl.pierce,
+            shieldPiercing: lvl.pierce > 1,
             hits: new Set(),
             life: (lvl.range / lvl.speed) * 1000,
             isExplosiveBullet: isDesperado,
@@ -1041,8 +1155,9 @@ export class GameScene extends Phaser.Scene {
             sprite,
             vx: Math.cos(angle) * (lvl.speed + (Math.random() * 60 - 30)),
             vy: Math.sin(angle) * (lvl.speed + (Math.random() * 60 - 30)),
-            damage: Math.round(lvl.damage * this.damageMultiplier),
+            damage: Math.round(lvl.damage * this.attackDamageMultiplier),
             pierce: lvl.pierce,
+            shieldPiercing: lvl.pierce > 1,
             hits: new Set(),
             life: (lvl.range / lvl.speed) * 1000,
           });
@@ -1071,8 +1186,9 @@ export class GameScene extends Phaser.Scene {
             sprite,
             vx: Math.cos(a) * lvl.speed,
             vy: Math.sin(a) * lvl.speed,
-            damage: Math.round(lvl.damage * this.damageMultiplier),
+            damage: Math.round(lvl.damage * this.attackDamageMultiplier),
             pierce: lvl.pierce,
+            shieldPiercing: lvl.pierce > 1,
             hits: new Set(),
             life: (lvl.range / lvl.speed) * 1000,
             isBouncingSniper: isGolden,
@@ -1092,7 +1208,9 @@ export class GameScene extends Phaser.Scene {
           const ty = target ? target.sprite.y + (i ? Math.sin(i * 2.4) * 45 : 0) : this.player.y + Math.sin(i * 1.2) * 120;
           const sprite = this.add.sprite(this.player.x, this.player.y, 'proj_dynamite').setDepth(16);
           if (isKeg) sprite.setTint(0xff2200).setScale(1.8);
-          this.lobProjectile(sprite, tx, ty, isKeg ? 800 : 650, () => this.explodeDynamite(tx, ty, lvl.damage, isKeg));
+          const radius = dynamiteRadius(this.areaMultiplier, isKeg);
+          this.lobProjectile(sprite, tx, ty, isKeg ? 800 : 650,
+            () => this.explodeDynamite(tx, ty, lvl.damage, isKeg, false, radius), radius);
         }
         break;
       }
@@ -1114,7 +1232,7 @@ export class GameScene extends Phaser.Scene {
         sounds.playWhip();
         const side = nearest[0] ? Math.sign(nearest[0].sprite.x - this.player.x) || 1 : Math.cos(facingAngle) < 0 ? -1 : 1;
         this.getWeaponEffects().whip(side, lvl.projectileCount + this.extraProjectiles, lvl.range * this.areaMultiplier,
-          Math.round(lvl.damage * this.damageMultiplier), this.activeWeapons.get(def.id) ?? 1, def.id === 'cyclone_whip');
+          Math.round(lvl.damage * this.attackDamageMultiplier), this.activeWeapons.get(def.id) ?? 1, def.id === 'cyclone_whip');
         break;
       }
     }
@@ -1128,45 +1246,41 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
-  private lobProjectile(sprite: Phaser.GameObjects.Sprite, x: number, y: number, duration: number, land: () => void): void {
+  private lobProjectile(sprite: Phaser.GameObjects.Sprite, x: number, y: number, duration: number, land: () => void, blastRadius?: number): void {
     const startX = this.player.x, startY = this.player.y, flight = { progress: 0 };
+    const marker = blastRadius === undefined ? undefined : this.getWeaponEffects().throwMarker(startX, startY, x, y, blastRadius);
+    const runId = this.runId;
+    let landed = false;
     this.tweens.add({ targets: flight, progress: 1, duration,
-      onUpdate: () => sprite.setPosition(startX + (x - startX) * flight.progress, startY + (y - startY) * flight.progress - Math.sin(flight.progress * Math.PI) * 70).setRotation(flight.progress * Math.PI * 4),
-      onComplete: () => { sprite.destroy(); if (!this.isGameOver) land(); },
+      onUpdate: () => {
+        const pose = lobPose(startX, startY, x, y, flight.progress);
+        sprite.setPosition(pose.x, pose.y).setRotation(marker ? pose.rotation : flight.progress * Math.PI * 4);
+        if (marker) marker.progress = flight.progress;
+      },
+      onComplete: () => {
+        if (landed) return;
+        landed = true; sprite.destroy(); if (marker) marker.done = true;
+        if (!this.isGameOver && !this.bossDefeated && this.runId === runId) land();
+      },
     });
   }
 
   private createFirePatch(x: number, y: number, damage: number, rank: number): void {
     if (this.fireZones.length >= 64) this.fireZones.shift()?.graphics.destroy();
-    this.fireZones.push({ x, y, ...molotovFootprint(rank, this.areaMultiplier), damage: Math.round(damage * this.damageMultiplier),
+    this.fireZones.push({ x, y, ...molotovFootprint(rank, this.areaMultiplier), damage: Math.round(damage * this.attackDamageMultiplier),
       tickTimer: 0, graphics: this.add.graphics().setDepth(4) });
   }
 
-  private explodeDynamite(x: number, y: number, damage: number, isKeg = false, alreadyScaled = false) {
+  private explodeDynamite(x: number, y: number, damage: number, isKeg = false, alreadyScaled = false, impactRadius?: number) {
     sounds.playExplosion();
-    this.cameras.main.shake(isKeg ? 450 : 250, isKeg ? 0.016 : 0.008);
 
-    const radius = (isKeg ? 150 : 90) * this.areaMultiplier;
-    const scaledDamage = alreadyScaled ? damage : Math.round(damage * this.damageMultiplier);
-
-    // Shockwave animation
-    const circle = this.add.graphics().setDepth(20);
-    circle.fillStyle(0xf59e0b, 0.85);
-    circle.fillCircle(x, y, radius);
-    circle.fillStyle(0xdc2626, 0.9);
-    circle.fillCircle(x, y, radius * 0.65);
-
-    this.tweens.add({
-      targets: circle,
-      alpha: 0,
-      scaleX: 1.4,
-      scaleY: 1.4,
-      duration: isKeg ? 500 : 350,
-      onComplete: () => circle.destroy(),
-    });
+    const radius = impactRadius ?? dynamiteRadius(this.areaMultiplier, isKeg);
+    const scaledDamage = alreadyScaled ? damage : Math.round(damage * this.attackDamageMultiplier);
+    this.getWeaponEffects().explosion(x, y, radius, isKeg ? 'hellfire' : alreadyScaled ? 'residue' : 'tnt');
 
     if (isKeg) {
       // Cria lago de fogo persistente
+      if (this.fireZones.length >= 64) this.fireZones.shift()?.graphics.destroy();
       const gfx = this.add.graphics().setDepth(4);
       this.fireZones.push({
         x,
@@ -1181,8 +1295,7 @@ export class GameScene extends Phaser.Scene {
 
     // Damage all enemies in explosion radius (copy: kills mutate the array)
     this.enemies.slice().forEach((enemy) => {
-      const dist = Math.hypot(enemy.sprite.x - x, enemy.sprite.y - y);
-      if (dist <= radius) {
+      if (!enemy.dead && insideBlast(enemy.sprite.x, enemy.sprite.y, x, y, radius)) {
         this.damageEnemy(enemy, scaledDamage);
       }
     });
@@ -1222,7 +1335,7 @@ export class GameScene extends Phaser.Scene {
         const dist = Math.hypot(enemy.sprite.x - p.sprite.x, enemy.sprite.y - p.sprite.y);
         if (dist < 26) {
           p.hits.add(enemy);
-          this.damageEnemy(enemy, p.damage);
+          this.damageEnemy(enemy, p.damage, enemy.miniWave === 4 ? {x:previousX,y:previousY,bypassShield:(p.shieldPiercing ?? (p.pierce > 1)) || p.isExplosiveBullet} : undefined);
 
           // Explosão residual do Desperado Fury
           if (p.isExplosiveBullet) {
@@ -1273,8 +1386,8 @@ export class GameScene extends Phaser.Scene {
       if (!e.fleeGoal) this.updateEnemyTactics(e, dx, dy, dist, delta);
       // During a charge, the sprite must face the locked movement direction too.
       const charging = (e.chargeWindup ?? 0) > 0 || (e.chargeRemaining ?? 0) > 0;
-      const faceX = charging ? e.chargeX ?? dx : e.dirX ?? dx;
-      const faceY = charging ? e.chargeY ?? dy : e.dirY ?? dy;
+      const faceX = e.miniWindup! > 0 ? Math.cos(e.miniAim!) : charging ? e.chargeX ?? dx : e.dirX ?? dx;
+      const faceY = e.miniWindup! > 0 ? Math.sin(e.miniAim!) : charging ? e.chargeY ?? dy : e.dirY ?? dy;
       if (e.bossSlug) playBossMovement(e.sprite, e.bossSlug, faceX, faceY);
       else if (e.combatSprite && e.type !== 'boss') playEnemyMovement(e.sprite, e.type, faceX, faceY);
       else if (e.usesPixellab) {
@@ -1291,7 +1404,7 @@ export class GameScene extends Phaser.Scene {
       }
 
       if (e.dirX !== undefined && e.dirY !== undefined) {
-        const speed = (e.chargeWindup ?? 0) > 0 ? 0 : (e.chargeRemaining ?? 0) > 0 ? 440 : e.type === 'rifle_guard' && dist < 240 ? 0 : e.speed;
+        const speed = (e.miniWindup ?? 0) > 0 || (e.chargeWindup ?? 0) > 0 ? 0 : (e.chargeRemaining ?? 0) > 0 ? 440 : e.type === 'rifle_guard' && !e.miniWave && dist < 240 ? 0 : e.speed;
         const step = (speed * delta) / 1000;
         e.sprite.x += e.dirX * step;
         e.sprite.y += e.dirY * step;
@@ -1329,21 +1442,21 @@ export class GameScene extends Phaser.Scene {
       }
 
       // Dynamiter attacks from distance
-      if (e.type === 'dynamiter' && e.throwCooldown !== undefined) {
+      if (!e.miniWave && e.type === 'dynamiter' && e.throwCooldown !== undefined) {
         e.throwCooldown -= delta;
         if (e.throwCooldown <= 0 && dist < 320) {
           e.throwCooldown = 3000;
-          this.enemyThrowDynamite(e.sprite.x, e.sprite.y);
+          this.enemyThrowDynamite(e.sprite.x, e.sprite.y, 0, 0, Math.round(25 * e.damage / ENEMY_DEFS.dynamiter.damage));
         }
       }
 
-      if (e.type === 'rifle_guard' && e.throwCooldown !== undefined) {
+      if (!e.miniWave && e.type === 'rifle_guard' && e.throwCooldown !== undefined) {
         e.throwCooldown -= delta;
         if (e.throwCooldown <= 0 && dist < 520) {
           e.throwCooldown = 2600;
           const angle = Math.atan2(dy, dx);
           this.encounters.warn({ x: this.player.x, y: this.player.y, radius: 28 }, 650, 100, 0);
-          this.time.delayedCall(650, () => { if (!e.dead && !this.isGameOver && !this.bossDefeated) this.fireHostileBullet(e.sprite.x, e.sprite.y, angle, 14, 380); });
+          this.time.delayedCall(650, () => { if (!e.dead && !this.isGameOver && !this.bossDefeated) this.fireHostileBullet(e.sprite.x, e.sprite.y, angle, Math.round(14 * e.damage / ENEMY_DEFS.rifle_guard.damage), 380); });
         }
       }
 
@@ -1438,40 +1551,76 @@ export class GameScene extends Phaser.Scene {
 
   // 6. Drops & Magnet Pull
   private updateDrops(delta: number) {
+    this.rareLootGlow?.clear();
+    let collected=0, pickupCash=0;
     for (let i = this.drops.length - 1; i >= 0; i--) {
       const d = this.drops[i];
       const dx = this.player.x - d.sprite.x;
       const dy = this.player.y - d.sprite.y;
-      const dist = Math.hypot(dx, dy);
+      let dist = Math.hypot(dx, dy);
+      if (d.type === 'magnet') {
+        const pulse=(Math.sin(this.combatNow/130)+1)/2;
+        d.sprite.setScale(.45+pulse*.025);
+        this.rareLootGlow?.lineStyle(2,0xffc52a,.6+pulse*.3).strokeCircle(d.sprite.x,d.sprite.y,22+pulse*5);
+      }
 
-      if (dist > 0 && dist < this.magnetRadius) {
+      if (dist > 0 && (d.attracted || dist < this.magnetRadius)) {
         // Accelerate magnet pull towards player
-        const speed = 400 + (1 - dist / this.magnetRadius) * 350;
-        d.sprite.x += (dx / dist) * (speed * delta) / 1000;
-        d.sprite.y += (dy / dist) * (speed * delta) / 1000;
+        const speed = d.attracted ? (d.pullSpeed=Math.min(ECONOMY.loot.maxPullSpeed,(d.pullSpeed??ECONOMY.loot.pullSpeed)+delta*.8)) : 400 + (1 - dist / this.magnetRadius) * 350;
+        const travel=Math.min(dist,speed*Math.max(0,delta)/1000);
+        d.sprite.x += (dx / dist) * travel;
+        d.sprite.y += (dy / dist) * travel;
+        dist=Math.hypot(this.player.x-d.sprite.x,this.player.y-d.sprite.y);
       }
 
       if (dist < 28) {
-        // Collect drop
-        sounds.playCoin();
-        const { packet, exhausted } = takeLootPacket(d);
-        if (d.type === 'whiskey') {
-          this.hp = Math.min(this.maxHp, this.hp + HEAL_DROP_HP);
-          this.updateHpBar();
+        // Consume the triggering packet first; marking the rest never awards or duplicates loot.
+        if (d.type === 'magnet') {
+          const { exhausted }=takeLootPacket(d);
+          if (exhausted) { d.sprite.destroy(); this.drops.splice(i,1); }
+          for (const item of this.drops) item.attracted=true;
+          sounds.playMagnet(); this.getWeaponEffects().explosion(this.player.x,this.player.y,170,'magnet');
+          this.showBanner('RARE MAGNET — ALL LOOT INBOUND!', '#ffc52a');
+          continue;
         }
-        if (packet.val > 0) this.onboarding?.collectedXp();
-        this.awardXp(packet.val);
-        this.addBounty(packet.bounty);
-
-        if (exhausted) { d.sprite.destroy(); this.drops.splice(i, 1); }
-        if (this.choosingUpgrade) break;
+        // Drain original packets in a bounded batch, preserving XP rounding and every upgrade pause.
+        let exhausted=false;
+        do {
+          if (this.combatNow-(this.lastPickupChimeAt ?? -Infinity)>=80) { sounds.playCoin(); this.lastPickupChimeAt=this.combatNow; }
+          const result=takeLootPacket(d); exhausted=result.exhausted;
+          if (d.type === 'whiskey') { this.hp=Math.min(this.maxHp,this.hp+HEAL_DROP_HP); this.updateHpBar(); }
+          if (result.packet.val>0) this.onboarding?.collectedXp();
+          this.awardXp(result.packet.val); pickupCash+=result.packet.bounty; collected++;
+        } while(!exhausted && !this.choosingUpgrade && collected<ECONOMY.loot.collectionBudget);
+        if(exhausted) { d.sprite.destroy(); this.drops.splice(i,1); }
+        if(this.choosingUpgrade || collected>=ECONOMY.loot.collectionBudget) break;
       }
     }
+    // One persistent wallet write per pickup batch, including a large Magnet collection.
+    if(pickupCash)this.addBounty(pickupCash);
   }
 
-  private addBounty(amount: number) {
-    this.bounty += amount;
-    this.bountyText.setText(`$${String(this.bounty).padStart(6, '0')}`);
+  private initializeWallet() {
+    this.walletActive=!this.developerTest;
+    this.earnedBounty=0;
+    statsManager.refresh();
+    this.bounty=statsManager.getStats().bank;
+  }
+
+  private addBounty(amount: number): boolean {
+    if (!Number.isFinite(amount)) return false;
+    const delta=Math.trunc(amount);
+    if(this.walletActive) {
+      const balance=statsManager.changeBalance(delta);
+      if(balance===undefined) {
+        this.showBanner('GOLD NOT SAVED — CHECK BROWSER STORAGE', '#e52b20');
+        return false;
+      }
+      this.bounty=balance;
+    } else this.bounty = Math.max(0,this.bounty + delta);
+    if(delta>0)this.earnedBounty=(this.earnedBounty ?? 0)+delta;
+    this.bountyText?.setText(`$${String(this.bounty).padStart(6, '0')}`);
+    return true;
   }
 
   private addXp(amount: number) {
@@ -1497,12 +1646,15 @@ export class GameScene extends Phaser.Scene {
     return { mode: normalizeDifficulty(this.difficulty), seconds: this.gameTimeSeconds, kills: this.kills,
       level: this.level, rawXp: this.rawXpEarned, earnedXp: this.totalXpEarned,
       badge: this.activePassives.get('badge') ?? 0, damageTaken: this.totalDamageTaken,
-      bossSeconds: this.bossSpawned ? Math.max(0, this.gameTimeSeconds - this.stageConfig.duration) : 0 };
+      bossSeconds: this.bossSpawned ? Math.max(0, this.gameTimeSeconds - MAIN_BOSS_AT) : 0 };
   }
 
   // Damage Handlers with Critical Hit Calculation
-  private damageEnemy(enemy: Enemy, dmg: number) {
+  private damageEnemy(enemy: Enemy, dmg: number, source?: {x:number;y:number;bypassShield?:boolean}) {
     if (enemy.dead) return;
+    if (enemy.miniWave === 4 && !(enemy.miniWindup! > 0) && source) {
+      dmg *= shieldMultiplier(enemy.dirX ?? 0, enemy.dirY ?? 1, source.x-enemy.sprite.x, source.y-enemy.sprite.y, source.bypassShield);
+    }
     if (enemy.type === 'boss' && this.stage === 5 && this.combatNow > (enemy.vulnerableUntil ?? 0)) dmg *= 0.45;
 
     // Critical Hit Roll
@@ -1549,28 +1701,36 @@ export class GameScene extends Phaser.Scene {
     this.gameEvents.emitEnemyKilled({ kind: enemy.type, x: enemy.sprite.x, y: enemy.sprite.y });
 
     // Drop Loot
-    const dropRand = Math.random();
-    let dropType: 'gold' | 'badge' | 'whiskey' = 'gold';
+    const dropRand = Math.random() + Number.EPSILON;
+    let dropType: Drop['type'] = 'gold';
     let texture = 'drop_gold';
 
-    if (enemy.type === 'boss' || enemy.type === 'elite') {
+    if (enemy.miniWave || enemy.type === 'boss' || enemy.type === 'elite') {
       dropType = 'badge';
       texture = 'drop_badge';
     } else if (dropRand < HEAL_DROP_CHANCE) {
       dropType = 'whiskey';
       texture = 'drop_whiskey';
-    } else if (dropRand < HEAL_DROP_CHANCE + 0.2) {
+    } else if (dropRand < HEAL_DROP_CHANCE + ECONOMY.loot.moneyBagChance) {
+      dropType='moneybag'; texture='drop_moneybag';
+    } else if (dropRand < HEAL_DROP_CHANCE + ECONOMY.loot.moneyBagChance + ECONOMY.loot.badgeChance) {
       dropType = 'badge';
       texture = 'drop_badge';
     }
 
     // The final boss immediately starts stage clear: its cash drop cannot be collected.
     // Pay boss bounties once on death and leave XP pickup behavior unchanged.
-    const lootBounty = enemy.type === 'boss' ? 0 : enemy.bountyVal;
+    const lootBounty = enemy.type === 'boss' ? 0 : enemy.bountyVal + (dropType === 'moneybag' ? ECONOMY.loot.moneyBagValue : 0);
     if (enemy.type === 'boss') this.addBounty(enemy.bountyVal);
     if (!mergeLoot(this.drops, { type: dropType, x: enemy.sprite.x, y: enemy.sprite.y, val: enemy.xpVal, bounty: lootBounty })) {
       const dropSprite = this.add.sprite(enemy.sprite.x, enemy.sprite.y, texture).setScale(1.3).setDepth(4);
       this.drops.push({ sprite: dropSprite, type: dropType, val: enemy.xpVal, bounty: lootBounty });
+    }
+
+    if (enemy.miniWave && Math.random() < ECONOMY.loot.magnetChance) {
+      if (!mergeLoot(this.drops,{type:'magnet',x:enemy.sprite.x,y:enemy.sprite.y,val:0,bounty:0})) {
+        this.drops.push({type:'magnet',sprite:this.add.sprite(enemy.sprite.x+26,enemy.sprite.y,'hud_upgrade_magnet').setScale(.45).setDepth(5),val:0,bounty:0});
+      }
     }
 
     // Boss death animation plays on a detached corpse sprite
@@ -1770,7 +1930,7 @@ export class GameScene extends Phaser.Scene {
 
   private applyUpgrade(choice: UpgradeChoice) {
     if (choice.type === 'reward') {
-      if (choice.id === 'gold_purse') this.addBounty(25);
+      if (choice.id === 'gold_purse') this.addBounty(ECONOMY.sources.purse);
       else { this.hp = Math.min(this.maxHp, this.hp + 25); this.updateHpBar(); }
       return;
     }
@@ -1785,8 +1945,7 @@ export class GameScene extends Phaser.Scene {
       this.activeWeapons.set(choice.id, 1);
       this.weaponTimers.set(choice.id, 0);
 
-      // Flash épico de evolução
-      this.cameras.main.flash(500, 255, 215, 0);
+      // The equipment badge provides localized evolution feedback.
       sounds.playLevelUp();
       this.showBanner(`★ WEAPON EVOLVED: ${choice.name.toUpperCase()}! ★`, '#ffc52a');
     } else if (choice.type === 'weapon') {
@@ -1815,6 +1974,7 @@ export class GameScene extends Phaser.Scene {
         this.updateHpBar();
       }
     }
+    this.hud?.upgrades?.sync(this.activeWeapons, this.activePassives, choice.id);
   }
 
   private victory() {
@@ -1834,7 +1994,7 @@ export class GameScene extends Phaser.Scene {
     this.time.delayedCall(800, () => {
       this.scene.start('WantedScene', {
         mode: 'captured',
-        runId: this.runId, bonus, hpPct: this.hp / this.maxHp,
+        runId: this.runId, walletSynced: this.walletActive, earnedBounty: this.earnedBounty, bonus, hpPct: this.hp / this.maxHp,
         character: this.character,
         stage: this.stage,
         difficulty: this.difficulty,
@@ -1866,7 +2026,7 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.fade(800, 0, 0, 0);
     this.time.delayedCall(850, () => {
       this.scene.start('GameOverScene', {
-        runId: this.runId,
+        runId: this.runId, walletSynced: this.walletActive, earnedBounty: this.earnedBounty,
         character: this.character,
         stage: this.stage,
         difficulty: this.difficulty,
