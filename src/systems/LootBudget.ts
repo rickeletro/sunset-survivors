@@ -17,7 +17,7 @@ export function mergeLoot(drops: BudgetedDrop[], incoming: LootPacket & { type: 
   nearest.packets.push({ val: incoming.val, bounty: incoming.bounty });
   return true;
 }
-/** One original pickup per frame preserves the existing XP/level-up calculation. */
+/** One original pickup packet at a time preserves the existing XP/level-up calculation. */
 export function takeLootPacket(drop: BudgetedDrop): { packet: LootPacket; exhausted: boolean } {
   if (!drop.packets) return { packet: { val: drop.val, bounty: drop.bounty }, exhausted: true };
   const packet = drop.packets.shift()!;

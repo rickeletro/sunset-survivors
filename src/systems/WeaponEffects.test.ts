@@ -7,9 +7,9 @@ function fixture() {
   const graphics: ReturnType<typeof graphic>[] = [];
   function graphic() {
     const g = { setDepth: vi.fn(), clear: vi.fn(), fillStyle: vi.fn(), fillRect: vi.fn(), fillEllipse: vi.fn(),
-      fillTriangle: vi.fn(), lineStyle: vi.fn(), lineBetween: vi.fn(), strokePoints: vi.fn(),
+      fillTriangle: vi.fn(), fillCircle: vi.fn(), strokeCircle: vi.fn(), lineStyle: vi.fn(), lineBetween: vi.fn(), strokePoints: vi.fn(),
       generateTexture: vi.fn((key: string) => textures.add(key)), destroy: vi.fn() };
-    for (const key of ['setDepth', 'clear', 'fillStyle', 'fillRect', 'fillEllipse', 'fillTriangle', 'lineStyle', 'lineBetween', 'strokePoints'] as const) g[key].mockReturnValue(g);
+    for (const key of ['setDepth', 'clear', 'fillStyle', 'fillRect', 'fillEllipse', 'fillTriangle', 'fillCircle', 'strokeCircle', 'lineStyle', 'lineBetween', 'strokePoints'] as const) g[key].mockReturnValue(g);
     return g;
   }
   const make = () => { const g = graphic(); graphics.push(g); return g; };
@@ -20,6 +20,23 @@ function fixture() {
   return { effects, graphics, textures, enemies, damage, scene, make };
 }
 describe('scene-owned weapon effects', () => {
+  it('draws bounded local smoke, sparks and impact rings without applying any gameplay damage', () => {
+    const f = fixture(), marker = f.effects.throwMarker(1000, 500, 1200, 600, 90);
+    marker.progress = .5;
+    for (let i = 0; i < 100; i++) f.effects.explosion(1200, 600, 90, 'tnt');
+    expect(f.graphics).toHaveLength(3); // One trail layer and two shared layers, regardless of explosion count.
+    const layer = f.graphics[2];
+    f.effects.update(90, []);
+    expect(layer.strokeCircle).toHaveBeenCalledWith(1200, 600, 90);
+    expect(layer.strokeCircle.mock.calls.every(call => call[2] <= 90)).toBe(true);
+    expect(layer.strokeCircle.mock.calls.length).toBe(16 * 2);
+    expect(f.damage).not.toHaveBeenCalled();
+    expect(layer.fillRect.mock.calls.length).toBeLessThanOrEqual(16 * 34);
+    const count = f.graphics.length; marker.done = true; f.effects.update(1000, []);
+    layer.strokeCircle.mockClear(); f.effects.update(16, []);
+    expect(layer.strokeCircle).not.toHaveBeenCalled(); expect(f.graphics).toHaveLength(count);
+    f.scene.events.emit('shutdown'); expect(f.graphics.every(g => g.destroy.mock.calls.length === 1)).toBe(true);
+  });
   it('caches each bullet tier and bottle texture instead of allocating textures per shot', () => {
     const f = fixture(), sprite = { setTexture: vi.fn() } as unknown as Phaser.GameObjects.Sprite;
     f.effects.dressBullet(sprite, 'rifle', 1); f.effects.dressBullet(sprite, 'rifle', 1);

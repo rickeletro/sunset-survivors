@@ -1,8 +1,25 @@
 import { describe, expect, it } from 'vitest';
-import { SALOON_REWARD, SaloonVisit, saloonDoors } from './saloon';
+import { SALOON_ENTRY_RADIUS, SaloonVisit, saloonDoors, buildingDistance } from './saloon';
 import { footprint, stageLandmarks } from './scenery';
 
 describe('optional stage-limited saloon visit', () => {
+  it.each(['saloon', 'hospitality', 'gallery'] as const)('allows %s entry near either side of the building without standing on the door circle', activity => {
+    const door = saloonDoors('canyon').find(d => (d.activity ?? 'saloon') === activity)!;
+    const f = door.portal!.facade;
+    for (const side of [-1, 1]) {
+      const visit = new SaloonVisit([door], undefined, true);
+      const x = f.x + side * (f.width / 2 + SALOON_ENTRY_RADIUS - 1), y = f.y + 40;
+      expect(Math.hypot(x - door.x, y - door.y)).toBeGreaterThan(SALOON_ENTRY_RADIUS);
+      expect(buildingDistance(door, x, y)).toBeCloseTo(SALOON_ENTRY_RADIUS - 1);
+      expect(visit.nearby(x, y, false)).toBe(door);
+      expect(visit.open).toBe(false);
+      expect(visit.enter(x, y, false, door)).toBe(true);
+    }
+    const visit = new SaloonVisit([door]);
+    const farX = f.x + f.width / 2 + SALOON_ENTRY_RADIUS + 1;
+    expect(visit.enter(farX, f.y, false, door)).toBe(false);
+    expect(visit.enter(f.x, f.y, true, door)).toBe(false);
+  });
   it('has an accessible canyon door without adding or expanding a ground obstacle', () => {
     const saloon = stageLandmarks('canyon').find(p => p.kind === 'frontier-saloon')!;
     expect(saloonDoors('canyon')[0]).toMatchObject({ x: 3580, y: 3668 });
@@ -17,7 +34,7 @@ describe('optional stage-limited saloon visit', () => {
     expect(visit.nearby(160, 0, false)).toBeTruthy(); expect(visit.used).toBe(false);
     expect(visit.enter(160, 0, false)).toBe(true);
     expect(visit.enter(0, 0, false)).toBe(false);
-    expect(visit.leave(true)).toEqual(SALOON_REWARD);
+    expect(visit.leave(true)).toBeUndefined();
     expect(visit.leave(true)).toBeUndefined();
     expect(visit.enter(1000, 0, false)).toBe(false);
   });
@@ -29,12 +46,12 @@ describe('optional stage-limited saloon visit', () => {
   });
 });
 
-it('grants the railroad courtesy only once, on accepted exit', () => {
+it('never grants free courtesy rewards on accepted exit', () => {
   const reward = { healthFraction: 0.2, bounty: 35, xp: 40 };
   const doors = saloonDoors('railroad'), visit = new SaloonVisit(doors, reward);
   expect(visit.leave(true)).toBeUndefined();
   expect(visit.enter(doors[0].x, doors[0].y, false)).toBe(true);
-  expect(visit.leave(true)).toEqual(reward);
+  expect(visit.leave(true)).toBeUndefined();
   expect(visit.leave(true)).toBeUndefined();
   expect(visit.enter(doors[1].x, doors[1].y, false)).toBe(false);
 });
@@ -43,12 +60,12 @@ it('supports several independent doors when explicitly enabled, including hospit
   const doors = saloonDoors('canyon'), visit = new SaloonVisit(doors, undefined, true);
   const home = doors.find(d => d.activity === 'hospitality')!;
   expect(visit.enter(home.x, home.y, false, home)).toBe(true);
-  expect(visit.leave(true)).toEqual({ healthFraction: 0.12, bounty: 0, xp: 20 });
+  expect(visit.leave(true)).toBeUndefined();
   expect(visit.wasUsed(home)).toBe(true);
   expect(visit.enter(home.x, home.y, false, home)).toBe(false);
   const saloon = doors[0];
   expect(visit.enter(saloon.x, saloon.y, false, saloon)).toBe(true);
-  expect(visit.leave(true)).toEqual(SALOON_REWARD);
+  expect(visit.leave(true)).toBeUndefined();
 });
 
 it('advertises both Faro and independent hospitality in the railroad settlement', async () => {
@@ -63,18 +80,18 @@ it('advertises both Faro and independent hospitality in the railroad settlement'
   expect(buildingDirections(visit, 4000, 4000, 2)).toContain('FARO');
 });
 
-it('keeps Faro available through repeat visits until the door prize is won, with one courtesy heal', () => {
+it('keeps Faro available through repeat visits until the door prize is won, without free courtesy heals', () => {
   const doors = saloonDoors('railroad'), door = doors[0];
   const visit = new SaloonVisit(doors, { healthFraction: .2, bounty: 0 }, true, true);
   for (let i = 0; i < 4; i++) {
     expect(visit.enter(door.x, door.y, false, door)).toBe(true);
-    expect(visit.leave(true, false)).toEqual(i === 0 ? { healthFraction: .2, bounty: 0 } : undefined);
+    expect(visit.leave(true, false)).toBeUndefined();
     expect(visit.wasUsed(door)).toBe(false);
   }
   expect(visit.enter(door.x, door.y, false, door)).toBe(true); visit.leave(true, true);
   expect(visit.wasUsed(door)).toBe(true); expect(visit.enter(door.x, door.y, false, door)).toBe(false);
   const home = doors.find(d => d.activity === 'hospitality')!;
-  expect(visit.enter(home.x, home.y, false, home)).toBe(true); expect(visit.leave(true)).toEqual({ healthFraction: .12, bounty: 0, xp: 20 });
+  expect(visit.enter(home.x, home.y, false, home)).toBe(true); expect(visit.leave(true)).toBeUndefined();
   expect(visit.enter(home.x, home.y, false, home)).toBe(false);
 });
 it('does not consume a repeatable Faro doorway on cancelled entry or declined exit', () => {

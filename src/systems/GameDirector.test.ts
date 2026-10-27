@@ -1,41 +1,27 @@
-import { describe, expect, it, vi } from 'vitest';
-import { GameDirector, MAX_ALIVE } from './GameDirector';
-import type { GameEvents } from './GameEvents';
-import { ENEMY_DEFS } from '../data/enemies';
+import { describe,it,expect,vi } from 'vitest';
+import { GameDirector,MAX_ALIVE } from './GameDirector';
 import { STAGES } from '../data/stages';
-const bus = () => ({ emitSpecialWave: vi.fn(), emitEliteSpawned: vi.fn() } as unknown as GameEvents);
-
-describe('stage-aware horde director', () => {
-  it('simulates every second of all eight stages without invalid enemies or overflowing the cap', () => {
-    for (const stage of STAGES) {
-      const director = new GameDirector(bus(), stage, () => 0.5);
-      let alive = 0;
-      for (let t = 0; t <= stage.duration + 90; t++) {
-        alive = Math.max(0, alive - 2); // steady player kills, not a browser playtest
-        for (const order of [...director.waveOrders(t, alive), ...director.tick(t, alive)]) {
-          expect(ENEMY_DEFS[order.kind]).toBeDefined();
-          expect(order.count).toBeGreaterThan(0);
-          // Each call has its own capacity; scene admission is also capped.
-          alive = Math.min(MAX_ALIVE, alive + order.count);
-        }
-        expect(director.targetCount(t)).toBeLessThanOrEqual(MAX_ALIVE);
-      }
+import { HORDE_CAP,WAVES,wavePool } from '../data/waves';
+const bus=()=>({emitSpecialWave:vi.fn(),emitEliteSpawned:vi.fn()});
+describe('five-wave token-budgeted director',()=>{
+  it.each(STAGES)('simulates all ten minutes of stage $id within the cap and the current wave roster',stage=>{
+    const d=new GameDirector(bus() as never,stage,()=>.9);let alive=0;
+    for(let ms=850;ms<600000;ms+=850){const t=ms/1000;alive=Math.max(0,alive-2);const allowed=wavePool(t,stage.enemies).map(e=>e.kind);
+      for(const order of d.waveOrders(t,alive)){expect(allowed).toContain(order.kind);alive+=order.count;}
+      expect(alive).toBeLessThanOrEqual(HORDE_CAP);expect(d.targetCount(t)).toBeLessThan(MAX_ALIVE);
     }
+    expect(d.waveOrders(600,0)).toEqual([]);
   });
-  it('honors unlock times, stage rosters, recovery and a nearly full arena', () => {
-    const stage = STAGES[1]; const d = new GameDirector(bus(), stage, () => 0.99);
-    expect(d.waveOrders(0, 0).every(o => ENEMY_DEFS[o.kind].unlockAt <= 0)).toBe(true);
-    expect(d.waveOrders(100, 0).every(o => (stage.enemies[o.kind] ?? 0) > 0)).toBe(true);
-    expect(d.targetCount(150)).toBeLessThan(d.targetCount(120));
-    expect(d.waveOrders(600, MAX_ALIVE)).toEqual([]);
-    expect(d.tick(200, MAX_ALIVE - 1).reduce((sum, o) => sum + o.count, 0)).toBeLessThanOrEqual(1);
+  it('emits exactly five announcements and resets without extra special/elite spawns',()=>{
+    const events=bus(),d=new GameDirector(events as never);
+    for(let t=0;t<600;t++){expect(d.tick(t,0)).toEqual([]);d.tick(t,0);}
+    expect(events.emitSpecialWave).toHaveBeenCalledTimes(5);d.reset();d.tick(0,0);expect(events.emitSpecialWave).toHaveBeenCalledTimes(6);
   });
-  it('resets event scheduling and does not duplicate special waves in one second', () => {
-    const b = bus(); const d = new GameDirector(b);
-    expect(d.tick(30, 0).length).toBe(1);
-    expect(d.tick(30, 0)).toEqual([]);
-    d.reset();
-    expect(d.tick(29, 0)).toEqual([]);
-    expect(d.tick(30, 0).length).toBe(1);
+  it('matches nominal per-second rates without building a burst behind the entity limit',()=>{
+    for(const wave of WAVES){const d=new GameDirector(bus() as never);let total=0;const start=(wave.id-1)*120+(wave.id===1?0:20);
+      for(let i=0;i<100;i++)total+=d.waveOrders(start+i*.85,0).reduce((s,o)=>s+o.count,0);
+      expect(total).toBeCloseTo(Math.floor(wave.spawnRate*85+1e-9),-0);
+      d.waveOrders(start+86,HORDE_CAP);expect(d.waveOrders(start+87,0).reduce((s,o)=>s+o.count,0)).toBeLessThanOrEqual(Math.ceil(wave.spawnRate*1.7));
+    }
   });
 });

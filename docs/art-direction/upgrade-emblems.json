@@ -1,0 +1,531 @@
+[
+  {
+    "id": "badge",
+    "source": "assets/powerup/sheriffs_star.png",
+    "tool": "PixelLab MCP",
+    "operation": "create_image_pixflux",
+    "job_id": "84c99d2a-6a33-4c59-9608-aeaa7cec4e57",
+    "asset_id": "8c11019c-8c2a-5dd1-9e0c-d2069ffbad74",
+    "seed": 9828,
+    "prompt": "SUNSET SURVIVORS Western Pulp 98 arcade HUD ITEM ICON, native 64x64 pixel art. A newly composed simplified icon based on the reference poster artwork: one large six-point golden sheriff star badge with rounded tips and engraved central circle, no lettering. One centered bold item or paired item, fills 80 percent of square, fully inside canvas with a 4 pixel safe margin. Crisp charcoal pixel outline, readable chunky shapes, rich 32-bit Neo Geo shading, warm gold highlights, dark bronze shadows. Background is opaque golden yellow #FFC52A upper field and burnt red #A51E16 lower field with a few broad sunset rays, simple and uncluttered. No landscape, no buildings, no poster frame, no borders, no text, no letters, no numbers, no level labels. Make the object immediately recognizable at small size. Square full bleed yellow and red background.",
+    "output": [
+      64,
+      64
+    ],
+    "render": [
+      36,
+      36
+    ],
+    "background": "opaque golden yellow / burnt red sunset",
+    "discarded_jobs": [],
+    "reference": {
+      "poster_crop": [
+        48,
+        143,
+        256,
+        256
+      ],
+      "thumbnail": [
+        64,
+        64
+      ],
+      "init_image_strength": 60
+    }
+  },
+  {
+    "id": "bandolier",
+    "source": "assets/powerup/ammo_bandolier.png",
+    "tool": "PixelLab MCP",
+    "operation": "create_image_pixen",
+    "job_id": "10e5bbaf-3547-43bb-9255-bb54bfc962be",
+    "asset_id": "eb636d3d-a5bb-51b8-a184-3a3838d0e105",
+    "seed": 299830,
+    "prompt": "SUNSET SURVIVORS equipment icon, native 64x64 pixel art. TWO CROSSED LEATHER AMMO BELTS. Each is a wide BROWN LEATHER STRAP covered in a continuous row of short GOLDEN BRASS BULLET CARTRIDGES. X-shaped cartridge bandoliers. Big brass bullets clearly visible along both entire straps. Equipment ammunition belts, ABSOLUTELY NO GUNS OR RIFLES, no long gun barrels. Center the single clear equipment motif, fills 80 percent of square. Crisp black outline, chunky recognizable 32-bit Neo Geo pixel shapes, warm bronze shadows and golden highlights. SIMPLE OPAQUE GOLDEN YELLOW #FFC52A and BURNT RED #A51E16 sunset background. NO TEXT, NO LETTERING, NO WORDS, NO NUMBERS, NO LOGO, NO LABELS, NO POSTER FRAME, NO BORDER. Large readable object with padding. Western Pulp 98 arcade art based on the existing item poster.",
+    "output": [
+      64,
+      64
+    ],
+    "render": [
+      36,
+      36
+    ],
+    "background": "opaque golden yellow / burnt red sunset",
+    "discarded_jobs": [
+      "7cbb1296-f668-4e1b-b338-4de991543c6d"
+    ],
+    "reference": {
+      "type": "visual brief from existing poster"
+    }
+  },
+  {
+    "id": "dynamite",
+    "source": "assets/powerup/tnt_dynamite.png",
+    "tool": "PixelLab MCP",
+    "operation": "create_image_pixflux",
+    "job_id": "3e6dd803-1d94-4dab-80fd-68d38f254c85",
+    "asset_id": "cca5fbde-c7bf-5c34-b81c-c54eeef1301a",
+    "seed": 9830,
+    "prompt": "SUNSET SURVIVORS Western Pulp 98 arcade HUD ITEM ICON, native 64x64 pixel art. A newly composed simplified icon based on the reference poster artwork: three thick red dynamite sticks tied together with golden rope, one curved lit fuse and tiny golden spark. One centered bold item or paired item, fills 80 percent of square, fully inside canvas with a 4 pixel safe margin. Crisp charcoal pixel outline, readable chunky shapes, rich 32-bit Neo Geo shading, warm gold highlights, dark bronze shadows. Background is opaque golden yellow #FFC52A upper field and burnt red #A51E16 lower field with a few broad sunset rays, simple and uncluttered. No landscape, no buildings, no poster frame, no borders, no text, no letters, no numbers, no level labels. Make the object immediately recognizable at small size. Square full bleed yellow and red background.",
+    "output": [
+      64,
+      64
+    ],
+    "render": [
+      36,
+      36
+    ],
+    "background": "opaque golden yellow / burnt red sunset",
+    "discarded_jobs": [],
+    "reference": {
+      "poster_crop": [
+        142,
+        423,
+        756,
+        756
+      ],
+      "thumbnail": [
+        64,
+        64
+      ],
+      "init_image_strength": 60
+    }
+  },
+  {
+    "id": "lasso",
+    "source": "assets/powerup/spinning_lasso.png",
+    "tool": "PixelLab MCP",
+    "operation": "create_image_pixflux",
+    "job_id": "da2bfc7d-d6b9-4a41-8c7e-9728cc4cf1ed",
+    "asset_id": "cfdfc824-ce1a-55e8-8378-72098f62bfa3",
+    "seed": 9831,
+    "prompt": "SUNSET SURVIVORS Western Pulp 98 arcade HUD ITEM ICON, native 64x64 pixel art. A newly composed simplified icon based on the reference poster artwork: one large coiled golden rope lasso forming two clear oval loops with a knot. One centered bold item or paired item, fills 80 percent of square, fully inside canvas with a 4 pixel safe margin. Crisp charcoal pixel outline, readable chunky shapes, rich 32-bit Neo Geo shading, warm gold highlights, dark bronze shadows. Background is opaque golden yellow #FFC52A upper field and burnt red #A51E16 lower field with a few broad sunset rays, simple and uncluttered. No landscape, no buildings, no poster frame, no borders, no text, no letters, no numbers, no level labels. Make the object immediately recognizable at small size. Square full bleed yellow and red background.",
+    "output": [
+      64,
+      64
+    ],
+    "render": [
+      36,
+      36
+    ],
+    "background": "opaque golden yellow / burnt red sunset",
+    "discarded_jobs": [],
+    "reference": {
+      "poster_crop": [
+        142,
+        423,
+        756,
+        756
+      ],
+      "thumbnail": [
+        64,
+        64
+      ],
+      "init_image_strength": 60
+    }
+  },
+  {
+    "id": "magnet",
+    "source": "assets/powerup/horseshoe_magnet.png",
+    "tool": "PixelLab MCP",
+    "operation": "create_image_pixflux",
+    "job_id": "95b42d70-5e77-48b6-b679-fe9093c8a451",
+    "asset_id": "4e274f1d-ac80-5a97-9b43-ad3e4ac4eb43",
+    "seed": 9832,
+    "prompt": "SUNSET SURVIVORS Western Pulp 98 arcade HUD ITEM ICON, native 64x64 pixel art. A newly composed simplified icon based on the reference poster artwork: one large red horseshoe U magnet with silver tips attracting three gold nuggets. One centered bold item or paired item, fills 80 percent of square, fully inside canvas with a 4 pixel safe margin. Crisp charcoal pixel outline, readable chunky shapes, rich 32-bit Neo Geo shading, warm gold highlights, dark bronze shadows. Background is opaque golden yellow #FFC52A upper field and burnt red #A51E16 lower field with a few broad sunset rays, simple and uncluttered. No landscape, no buildings, no poster frame, no borders, no text, no letters, no numbers, no level labels. Make the object immediately recognizable at small size. Square full bleed yellow and red background.",
+    "output": [
+      64,
+      64
+    ],
+    "render": [
+      36,
+      36
+    ],
+    "background": "opaque golden yellow / burnt red sunset",
+    "discarded_jobs": [],
+    "reference": {
+      "poster_crop": [
+        48,
+        143,
+        256,
+        256
+      ],
+      "thumbnail": [
+        64,
+        64
+      ],
+      "init_image_strength": 60
+    }
+  },
+  {
+    "id": "molotov",
+    "source": "assets/powerup/whiskey_molotov.png",
+    "tool": "PixelLab MCP",
+    "operation": "create_image_pixflux",
+    "job_id": "78d4cf07-b3c1-4318-bc7b-6ddf539c7719",
+    "asset_id": "a7efc197-ea2c-58ae-a149-f4ce5e57cb33",
+    "seed": 9833,
+    "prompt": "SUNSET SURVIVORS Western Pulp 98 arcade HUD ITEM ICON, native 64x64 pixel art. A newly composed simplified icon based on the reference poster artwork: one tilted amber whiskey bottle with a burning red and gold cloth wick, no lettering. One centered bold item or paired item, fills 80 percent of square, fully inside canvas with a 4 pixel safe margin. Crisp charcoal pixel outline, readable chunky shapes, rich 32-bit Neo Geo shading, warm gold highlights, dark bronze shadows. Background is opaque golden yellow #FFC52A upper field and burnt red #A51E16 lower field with a few broad sunset rays, simple and uncluttered. No landscape, no buildings, no poster frame, no borders, no text, no letters, no numbers, no level labels. Make the object immediately recognizable at small size. Square full bleed yellow and red background.",
+    "output": [
+      64,
+      64
+    ],
+    "render": [
+      36,
+      36
+    ],
+    "background": "opaque golden yellow / burnt red sunset",
+    "discarded_jobs": [],
+    "reference": {
+      "poster_crop": [
+        142,
+        423,
+        756,
+        756
+      ],
+      "thumbnail": [
+        64,
+        64
+      ],
+      "init_image_strength": 60
+    }
+  },
+  {
+    "id": "peacemaker",
+    "source": "assets/powerup/twin_peacemakers.png",
+    "tool": "PixelLab MCP",
+    "operation": "create_image_pixen",
+    "job_id": "1115ab90-b667-47d2-aa20-baca95a5e5bf",
+    "asset_id": "7fa35611-9ead-51ef-bc36-fd80aebf268c",
+    "seed": 199835,
+    "prompt": "Native 64x64 Western Pulp 98 arcade equipment icon. TWO CROSSED POLISHED SILVER REVOLVERS with IVORY WHITE GRIPS, two barrels point diagonally up. Centered large paired gun silhouettes with black pixel outlines, bronze shadows, chunky clean pixels and gold highlights. Simple FLAT GOLDEN YELLOW and BURNT RED SUNBURST background, opaque full square. Item icon only. NO TEXT OR LETTERING ANYWHERE, NO UI OR POSTER, NO SIGNS, NO WORDS, NO LOGO, NO LABELS, NO BORDERS, NO BUILDINGS, NO LANDSCAPE. Large guns fully visible with four-pixel padding. Polished rich 32-bit Neo Geo pixel art, NOT a poster or a card.",
+    "output": [
+      64,
+      64
+    ],
+    "render": [
+      36,
+      36
+    ],
+    "background": "opaque golden yellow / burnt red sunset",
+    "discarded_jobs": [
+      "acd994d6-f5dc-41b7-b191-54351a6f749b"
+    ],
+    "reference": {
+      "type": "visual brief from existing poster"
+    }
+  },
+  {
+    "id": "revolver",
+    "source": "assets/powerup/dual_revolvers.png",
+    "tool": "PixelLab MCP",
+    "operation": "create_image_pixflux",
+    "job_id": "eda34d4b-e0cf-4246-9db1-5b073830cd8e",
+    "asset_id": "662ec612-cc0f-5e18-a27a-81b340ae15ec",
+    "seed": 9835,
+    "prompt": "SUNSET SURVIVORS Western Pulp 98 arcade HUD ITEM ICON, native 64x64 pixel art. A newly composed simplified icon based on the reference poster artwork: two crossed dark steel Colt revolvers with warm brown wooden grips, barrels pointing up diagonally. One centered bold item or paired item, fills 80 percent of square, fully inside canvas with a 4 pixel safe margin. Crisp charcoal pixel outline, readable chunky shapes, rich 32-bit Neo Geo shading, warm gold highlights, dark bronze shadows. Background is opaque golden yellow #FFC52A upper field and burnt red #A51E16 lower field with a few broad sunset rays, simple and uncluttered. No landscape, no buildings, no poster frame, no borders, no text, no letters, no numbers, no level labels. Make the object immediately recognizable at small size. Square full bleed yellow and red background.",
+    "output": [
+      64,
+      64
+    ],
+    "render": [
+      36,
+      36
+    ],
+    "background": "opaque golden yellow / burnt red sunset",
+    "discarded_jobs": [],
+    "reference": {
+      "poster_crop": [
+        48,
+        143,
+        256,
+        256
+      ],
+      "thumbnail": [
+        64,
+        64
+      ],
+      "init_image_strength": 60
+    }
+  },
+  {
+    "id": "rifle",
+    "source": "assets/powerup/winchester_repeater.png",
+    "tool": "PixelLab MCP",
+    "operation": "create_image_pixflux",
+    "job_id": "ff75a186-4c8f-4ce8-a99a-83c6cf773b13",
+    "asset_id": "840b8030-6ab3-5629-bded-1bceb0d9ce4b",
+    "seed": 9836,
+    "prompt": "SUNSET SURVIVORS Western Pulp 98 arcade HUD ITEM ICON, native 64x64 pixel art. A newly composed simplified icon based on the reference poster artwork: one long Winchester lever action rifle diagonally across the square, dark steel barrel and carved golden brown wooden stock. One centered bold item or paired item, fills 80 percent of square, fully inside canvas with a 4 pixel safe margin. Crisp charcoal pixel outline, readable chunky shapes, rich 32-bit Neo Geo shading, warm gold highlights, dark bronze shadows. Background is opaque golden yellow #FFC52A upper field and burnt red #A51E16 lower field with a few broad sunset rays, simple and uncluttered. No landscape, no buildings, no poster frame, no borders, no text, no letters, no numbers, no level labels. Make the object immediately recognizable at small size. Square full bleed yellow and red background.",
+    "output": [
+      64,
+      64
+    ],
+    "render": [
+      36,
+      36
+    ],
+    "background": "opaque golden yellow / burnt red sunset",
+    "discarded_jobs": [],
+    "reference": {
+      "poster_crop": [
+        142,
+        423,
+        756,
+        756
+      ],
+      "thumbnail": [
+        64,
+        64
+      ],
+      "init_image_strength": 60
+    }
+  },
+  {
+    "id": "shotgun",
+    "source": "assets/powerup/sawed_off_shotgun.png",
+    "tool": "PixelLab MCP",
+    "operation": "create_image_pixflux",
+    "job_id": "f47a2ed6-fb1f-4cf6-b210-ff9d2cd3ef83",
+    "asset_id": "8d4a0224-fc64-5599-9c66-dfe61a191fa6",
+    "seed": 9837,
+    "prompt": "SUNSET SURVIVORS Western Pulp 98 arcade HUD ITEM ICON, native 64x64 pixel art. A newly composed simplified icon based on the reference poster artwork: one short sawed-off double barrel shotgun diagonally across the square with two silver barrels and brown wooden stock. One centered bold item or paired item, fills 80 percent of square, fully inside canvas with a 4 pixel safe margin. Crisp charcoal pixel outline, readable chunky shapes, rich 32-bit Neo Geo shading, warm gold highlights, dark bronze shadows. Background is opaque golden yellow #FFC52A upper field and burnt red #A51E16 lower field with a few broad sunset rays, simple and uncluttered. No landscape, no buildings, no poster frame, no borders, no text, no letters, no numbers, no level labels. Make the object immediately recognizable at small size. Square full bleed yellow and red background.",
+    "output": [
+      64,
+      64
+    ],
+    "render": [
+      36,
+      36
+    ],
+    "background": "opaque golden yellow / burnt red sunset",
+    "discarded_jobs": [],
+    "reference": {
+      "poster_crop": [
+        142,
+        423,
+        756,
+        756
+      ],
+      "thumbnail": [
+        64,
+        64
+      ],
+      "init_image_strength": 60
+    }
+  },
+  {
+    "id": "spurs",
+    "source": "assets/powerup/silver_spurs.png",
+    "tool": "PixelLab MCP",
+    "operation": "create_image_pixen",
+    "job_id": "0ad8b745-943e-4a4b-a8d8-5f623b6ebf42",
+    "asset_id": "34f5e1f7-9823-52a6-8e89-497878c837c5",
+    "seed": 299831,
+    "prompt": "SUNSET SURVIVORS equipment icon, native 64x64 pixel art. TWO ORNATE SILVER COWBOY SPURS, standalone metal curved heel bands with straps and two prominent large STAR-SHAPED ROWEL WHEELS. One star wheel near upper right, another near lower left. Polished silver with engraved gold details. Only the metal spurs, ABSOLUTELY NO BOOTS, NO SHOES, NO PEOPLE. Center the single clear equipment motif, fills 80 percent of square. Crisp black outline, chunky recognizable 32-bit Neo Geo pixel shapes, warm bronze shadows and golden highlights. SIMPLE OPAQUE GOLDEN YELLOW #FFC52A and BURNT RED #A51E16 sunset background. NO TEXT, NO LETTERING, NO WORDS, NO NUMBERS, NO LOGO, NO LABELS, NO POSTER FRAME, NO BORDER. Large readable object with padding. Western Pulp 98 arcade art based on the existing item poster.",
+    "output": [
+      64,
+      64
+    ],
+    "render": [
+      36,
+      36
+    ],
+    "background": "opaque golden yellow / burnt red sunset",
+    "discarded_jobs": [
+      "f4f6ca18-3966-4278-9a7d-6b98a2f6b9ea"
+    ],
+    "reference": {
+      "type": "visual brief from existing poster"
+    }
+  },
+  {
+    "id": "whiskey",
+    "source": "assets/powerup/frontier_whiskey.png",
+    "tool": "PixelLab MCP",
+    "operation": "create_image_pixflux",
+    "job_id": "5a948afb-91b1-4dd1-86de-92ef445a9733",
+    "asset_id": "88fe8b7b-32fb-59c4-a37a-6834a86737b6",
+    "seed": 9839,
+    "prompt": "SUNSET SURVIVORS Western Pulp 98 arcade HUD ITEM ICON, native 64x64 pixel art. A newly composed simplified icon based on the reference poster artwork: one upright amber whiskey bottle with a red cap and a small whiskey glass, plain label without lettering. One centered bold item or paired item, fills 80 percent of square, fully inside canvas with a 4 pixel safe margin. Crisp charcoal pixel outline, readable chunky shapes, rich 32-bit Neo Geo shading, warm gold highlights, dark bronze shadows. Background is opaque golden yellow #FFC52A upper field and burnt red #A51E16 lower field with a few broad sunset rays, simple and uncluttered. No landscape, no buildings, no poster frame, no borders, no text, no letters, no numbers, no level labels. Make the object immediately recognizable at small size. Square full bleed yellow and red background.",
+    "output": [
+      64,
+      64
+    ],
+    "render": [
+      36,
+      36
+    ],
+    "background": "opaque golden yellow / burnt red sunset",
+    "discarded_jobs": [],
+    "reference": {
+      "poster_crop": [
+        48,
+        143,
+        256,
+        256
+      ],
+      "thumbnail": [
+        64,
+        64
+      ],
+      "init_image_strength": 60
+    }
+  },
+  {
+    "id": "desperado_fury",
+    "source": "assets/powerup/evolutions/desperado_fury.png",
+    "tool": "PixelLab MCP",
+    "operation": "create_image_pixflux",
+    "job_id": "6c8d979e-033f-4baa-b253-033008c75017",
+    "asset_id": "a7c7c888-6939-5c25-a7eb-164b66d59d2c",
+    "seed": 9840,
+    "prompt": "SUNSET SURVIVORS Western Pulp 98 arcade HUD ITEM ICON, native 64x64 pixel art. A newly composed simplified icon based on the reference poster artwork: two crossed ornate golden revolvers with tiny fiery muzzle sparks, a few brass bullets. One centered bold item or paired item, fills 80 percent of square, fully inside canvas with a 4 pixel safe margin. Crisp charcoal pixel outline, readable chunky shapes, rich 32-bit Neo Geo shading, warm gold highlights, dark bronze shadows. Background is opaque golden yellow #FFC52A upper field and burnt red #A51E16 lower field with a few broad sunset rays, simple and uncluttered. No landscape, no buildings, no poster frame, no borders, no text, no letters, no numbers, no level labels. Make the object immediately recognizable at small size. Square full bleed yellow and red background.",
+    "output": [
+      64,
+      64
+    ],
+    "render": [
+      36,
+      36
+    ],
+    "background": "opaque golden yellow / burnt red sunset",
+    "discarded_jobs": [],
+    "reference": {
+      "poster_crop": [
+        128,
+        430,
+        768,
+        768
+      ],
+      "thumbnail": [
+        64,
+        64
+      ],
+      "init_image_strength": 60
+    }
+  },
+  {
+    "id": "blunderbuss_doom",
+    "source": "assets/powerup/evolutions/blunderbuss_doom.png",
+    "tool": "PixelLab MCP",
+    "operation": "create_image_pixflux",
+    "job_id": "872138b5-40c7-4915-aed2-d9b2a180cad5",
+    "asset_id": "02014607-888b-5edb-b633-0bbd29b04820",
+    "seed": 9841,
+    "prompt": "SUNSET SURVIVORS Western Pulp 98 arcade HUD ITEM ICON, native 64x64 pixel art. A newly composed simplified icon based on the reference poster artwork: one imposing dark bronze blunderbuss with a very wide flared bell muzzle and three round pellets. One centered bold item or paired item, fills 80 percent of square, fully inside canvas with a 4 pixel safe margin. Crisp charcoal pixel outline, readable chunky shapes, rich 32-bit Neo Geo shading, warm gold highlights, dark bronze shadows. Background is opaque golden yellow #FFC52A upper field and burnt red #A51E16 lower field with a few broad sunset rays, simple and uncluttered. No landscape, no buildings, no poster frame, no borders, no text, no letters, no numbers, no level labels. Make the object immediately recognizable at small size. Square full bleed yellow and red background.",
+    "output": [
+      64,
+      64
+    ],
+    "render": [
+      36,
+      36
+    ],
+    "background": "opaque golden yellow / burnt red sunset",
+    "discarded_jobs": [],
+    "reference": {
+      "poster_crop": [
+        128,
+        430,
+        768,
+        768
+      ],
+      "thumbnail": [
+        64,
+        64
+      ],
+      "init_image_strength": 60
+    }
+  },
+  {
+    "id": "golden_repeater",
+    "source": "assets/powerup/evolutions/golden_repeater.png",
+    "tool": "PixelLab MCP",
+    "operation": "create_image_pixen",
+    "job_id": "511525e8-2d0e-49fd-ab34-ea15c2ab32cb",
+    "asset_id": "dc1ef6ba-9235-5ae1-a725-dbf34b0d5b83",
+    "seed": 299832,
+    "prompt": "SUNSET SURVIVORS equipment icon, native 64x64 pixel art. ONE COMPLETE GOLD-PLATED WINCHESTER LEVER-ACTION RIFLE, long thin GOLDEN BARREL pointed upper right, warm brown wooden stock lower left, gold lever loop beneath. The ENTIRE RIFLE fits diagonally fully within a 6 pixel safety margin. Small bright gold star glint. Complete rifle silhouette, no cropped gun, no cut-off barrel or stock. Center the single clear equipment motif, fills 80 percent of square. Crisp black outline, chunky recognizable 32-bit Neo Geo pixel shapes, warm bronze shadows and golden highlights. SIMPLE OPAQUE GOLDEN YELLOW #FFC52A and BURNT RED #A51E16 sunset background. NO TEXT, NO LETTERING, NO WORDS, NO NUMBERS, NO LOGO, NO LABELS, NO POSTER FRAME, NO BORDER. Large readable object with padding. Western Pulp 98 arcade art based on the existing item poster.",
+    "output": [
+      64,
+      64
+    ],
+    "render": [
+      36,
+      36
+    ],
+    "background": "opaque golden yellow / burnt red sunset",
+    "discarded_jobs": [
+      "49f91d31-e6eb-449c-bdfb-56c602f15d54"
+    ],
+    "reference": {
+      "type": "visual brief from existing poster"
+    }
+  },
+  {
+    "id": "hellfire_keg",
+    "source": "assets/powerup/evolutions/hellfire_keg.png",
+    "tool": "PixelLab MCP",
+    "operation": "create_image_pixflux",
+    "job_id": "9e922112-35c5-4f51-bf8d-7682f63f5947",
+    "asset_id": "54ef82eb-5348-5f38-b68e-47d9a1d1bf6c",
+    "seed": 9843,
+    "prompt": "SUNSET SURVIVORS Western Pulp 98 arcade HUD ITEM ICON, native 64x64 pixel art. A newly composed simplified icon based on the reference poster artwork: one stout wooden dynamite keg with dark metal bands and a small lit fuse, warm red flames around its base. One centered bold item or paired item, fills 80 percent of square, fully inside canvas with a 4 pixel safe margin. Crisp charcoal pixel outline, readable chunky shapes, rich 32-bit Neo Geo shading, warm gold highlights, dark bronze shadows. Background is opaque golden yellow #FFC52A upper field and burnt red #A51E16 lower field with a few broad sunset rays, simple and uncluttered. No landscape, no buildings, no poster frame, no borders, no text, no letters, no numbers, no level labels. Make the object immediately recognizable at small size. Square full bleed yellow and red background.",
+    "output": [
+      64,
+      64
+    ],
+    "render": [
+      36,
+      36
+    ],
+    "background": "opaque golden yellow / burnt red sunset",
+    "discarded_jobs": [],
+    "reference": {
+      "poster_crop": [
+        128,
+        430,
+        768,
+        768
+      ],
+      "thumbnail": [
+        64,
+        64
+      ],
+      "init_image_strength": 60
+    }
+  },
+  {
+    "id": "cyclone_whip",
+    "source": "assets/powerup/evolutions/cyclone_whip.png",
+    "tool": "PixelLab MCP",
+    "operation": "create_image_pixflux",
+    "job_id": "f019d3ba-ccff-47d3-8e64-bf5588522332",
+    "asset_id": "37fe1572-c9bd-5714-949c-32e63da7d6c0",
+    "seed": 9844,
+    "prompt": "SUNSET SURVIVORS Western Pulp 98 arcade HUD ITEM ICON, native 64x64 pixel art. A newly composed simplified icon based on the reference poster artwork: one braided brown leather bullwhip with a clear wooden handle, curled in a dynamic golden spiral. One centered bold item or paired item, fills 80 percent of square, fully inside canvas with a 4 pixel safe margin. Crisp charcoal pixel outline, readable chunky shapes, rich 32-bit Neo Geo shading, warm gold highlights, dark bronze shadows. Background is opaque golden yellow #FFC52A upper field and burnt red #A51E16 lower field with a few broad sunset rays, simple and uncluttered. No landscape, no buildings, no poster frame, no borders, no text, no letters, no numbers, no level labels. Make the object immediately recognizable at small size. Square full bleed yellow and red background.",
+    "output": [
+      64,
+      64
+    ],
+    "render": [
+      36,
+      36
+    ],
+    "background": "opaque golden yellow / burnt red sunset",
+    "discarded_jobs": [],
+    "reference": {
+      "poster_crop": [
+        128,
+        430,
+        768,
+        768
+      ],
+      "thumbnail": [
+        64,
+        64
+      ],
+      "init_image_strength": 60
+    }
+  }
+]

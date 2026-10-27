@@ -316,6 +316,8 @@ class SoundManager {
   }
 
   // 7. Level Up Fanfare (Western Brass Trumpet Arpeggio)
+  public playMagnet(): void { this.playLevelUp(); this.playCoin(); }
+
   public playLevelUp() {
     if (this.isMuted) return;
     this.initContext();

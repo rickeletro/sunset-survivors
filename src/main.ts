@@ -1,3 +1,4 @@
+import { ProgressScene } from './scenes/ProgressScene';
 import { MenuScene } from './scenes/MenuScene';
 import { AudioScene } from './scenes/AudioScene';
 import { RankingScene } from './scenes/RankingScene';
@@ -24,7 +25,7 @@ import { WantedScene } from './scenes/WantedScene';
 
 const allScenes: (typeof Phaser.Scene)[] = [
   TitleScene,
-  MenuScene, AudioScene, RankingScene,
+  MenuScene, AudioScene, RankingScene, ProgressScene,
   ...(developerEnabled() ? [DeveloperScene] : []),
   DifficultyScene,
   StoryScene,

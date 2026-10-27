@@ -1,4 +1,14 @@
 export interface BulletAppearance { color: number; core: number; length: number; thickness: number; trail: number; tier: number; }
+export type ExplosionKind = 'tnt' | 'hellfire' | 'residue' | 'magnet';
+/** Shared footprint: visuals never enlarge or move the damage region. Existing weapon radii are preserved. */
+export function dynamiteRadius(area: number, isKeg = false): number { return (isKeg ? 150 : 90) * area; }
+export function insideBlast(x: number, y: number, centerX: number, centerY: number, radius: number): boolean {
+  return (x - centerX) ** 2 + (y - centerY) ** 2 <= radius ** 2 + 1e-7;
+}
+export function lobPose(startX: number, startY: number, endX: number, endY: number, progress: number) {
+  const p = Math.max(0, Math.min(1, progress));
+  return { x: startX + (endX - startX) * p, y: startY + (endY - startY) * p - Math.sin(p * Math.PI) * 70, rotation: -.35 + p * 1.2 };
+}
 export function bulletAppearance(weapon: string, level: number): BulletAppearance {
   const evolved = ['desperado_fury', 'blunderbuss_doom', 'golden_repeater'].includes(weapon);
   const tier = evolved ? 6 : Math.max(1, Math.min(5, Math.floor(level)));

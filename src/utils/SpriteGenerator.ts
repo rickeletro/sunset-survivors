@@ -5,6 +5,17 @@ import Phaser from 'phaser';
  * Generates crisp, authentic pixel art sprites for players, enemies, bullets, and items
  */
 export class SpriteGenerator {
+  public static createEconomyDrops(scene: Phaser.Scene): void {
+    if (scene.textures.exists('drop_moneybag')) return;
+    const canvas = scene.textures.createCanvas('drop_moneybag',24,28);
+    if (!canvas) return;
+    const ctx=canvas.getContext();
+    ctx.fillStyle='#120B08'; ctx.fillRect(6,1,12,6); ctx.fillRect(3,9,18,16); ctx.fillRect(6,25,12,2);
+    ctx.fillStyle='#603719'; ctx.fillRect(5,10,14,14); ctx.fillRect(8,2,8,7);
+    ctx.fillStyle='#F2D49A'; ctx.fillRect(7,11,4,10);
+    ctx.fillStyle='#FFC52A'; ctx.fillRect(5,7,14,3); ctx.fillRect(13,14,4,6); ctx.fillRect(11,16,8,2);
+    canvas.refresh();
+  }
   public static generateAll(scene: Phaser.Scene) {
     if (scene.textures.exists('player_steve')) return;
 

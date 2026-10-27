@@ -26,7 +26,7 @@ describe('telegraphed hazards and optional supply camps', () => {
   it('requires a clear camp and eight seconds inside before granting a reward once', () => {
     const { encounters, hooks, position } = fixture();
     encounters.tick(90, false);
-    const guard = hooks.spawn.mock.calls.find(call => call[0] === 'coyote')!;
+    const guard = hooks.spawn.mock.calls.find(call => call[0] === 'bandit')!;
     // First guard is 160px east of the camp.
     position.x = guard[1] - 160; position.y = guard[2];
     hooks.contested.mockReturnValue(true);
@@ -86,4 +86,11 @@ describe('telegraphed hazards and optional supply camps', () => {
     expect(hooks.damage).toHaveBeenCalledWith(35);
   });
 
+});
+
+it('triggers the phase-specific hazard at exactly 7:00 once, without duplicating it on the same tick',()=>{
+  const {encounters,hooks}=fixture(1);
+  encounters.tick(419,false);hooks.spawn.mockClear();
+  encounters.tick(420,false);expect(hooks.spawn.mock.calls.filter(c=>c[0]==='longhorn')).toHaveLength(5);
+  hooks.spawn.mockClear();encounters.tick(420,false);expect(hooks.spawn).not.toHaveBeenCalled();
 });

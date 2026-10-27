@@ -4,7 +4,7 @@ import { xpForLevel } from '../data/economy';
 import { WEAPONS } from '../data/weapons';
 import { PASSIVES } from '../data/passives';
 vi.mock('phaser', () => ({ default: { Scene: class {}, Events: { EventEmitter: class {} }, Utils: { Array: { Shuffle: a => a } } } }));
-vi.mock('../audio/SoundManager', () => ({ sounds: { playCoin: vi.fn(), playRicochet: vi.fn() } }));
+vi.mock('../audio/SoundManager', () => ({ sounds: { playCoin: vi.fn(), playRicochet: vi.fn(), playLevelUp: vi.fn() } }));
 function fixture() {
   const game = Object.create(GameScene.prototype);
   Object.assign(game, { currentXp: 0, level: 1, xpToNextLevel: xpForLevel(1), choosingUpgrade: false,
@@ -15,6 +15,23 @@ function fixture() {
   return game;
 }
 describe('campaign economy integration', () => {
+  it('syncs the actual acquired ranks and evolution replacement to the HUD, excluding instant rewards', () => {
+    const g = fixture(), sync = vi.fn();
+    g.hud = { upgrades: { sync } }; g.weaponTimers = new Map([['revolver', 0]]);
+    g.showBanner = vi.fn(); g.cameras = { main: { shake: vi.fn(), flash: vi.fn() } };
+    for (let i = 0; i < 4; i++) g.applyUpgrade({ type: 'weapon', id: 'revolver' });
+    expect(g.activeWeapons.get('revolver')).toBe(5);
+    expect(sync).toHaveBeenLastCalledWith(g.activeWeapons,g.activePassives,'revolver');
+    for (const id of Object.keys(PASSIVES)) {
+      for (let i = 0; i < 5; i++) g.applyUpgrade({ type: 'passive', id });
+      expect(g.activePassives.get(id)).toBe(5);
+    }
+    g.applyUpgrade({ type:'evolution',id:'desperado_fury',name:'Desperado Fury' });
+    expect(g.activeWeapons.has('revolver')).toBe(false); expect(g.activeWeapons.get('desperado_fury')).toBe(1);
+    expect(sync).toHaveBeenLastCalledWith(g.activeWeapons,g.activePassives,'desperado_fury');
+    expect(g.cameras.main.shake).not.toHaveBeenCalled(); expect(g.cameras.main.flash).not.toHaveBeenCalled();
+    sync.mockClear(); g.applyUpgrade({type:'reward',id:'gold_purse'}); expect(sync).not.toHaveBeenCalled();
+  });
   it('queues large XP rewards one modal at a time without losing surplus XP', () => {
     const g = fixture(); g.addXp(125);
     expect(g.level).toBe(2); expect(g.currentXp).toBe(75); expect(g.scene.launch).toHaveBeenCalledTimes(1);

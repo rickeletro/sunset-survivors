@@ -7,10 +7,10 @@ import Phaser from 'phaser';
 import { CATALOG, preloadImages } from '../assets/registry';
 import { createMenuRoot } from '../ui/layout/menuLayout';
 import { bindPulpKeys, bindPulpMenu, preloadPulp, pulpBackdrop, pulpButton, pulpHeading, pulpPaper, pulpText, pulpWood } from '../ui/layout/pulpSceneKit';
-import { SALOON_REWARD } from '../data/saloon';
+import { ECONOMY, servicePrice, type RunServiceId } from '../data/economy';
 import { sounds } from '../audio/SoundManager';
 
-export interface SaloonSceneData { gallery?: boolean; galleryStage?: number; onGalleryLeave?: (reward: { bounty: number; xp: number }) => void; faro?: boolean; hospitality?: boolean; table?: FaroTable; prize?: UpgradeChoice; onLeave: (accept: boolean) => void; }
+export interface SaloonSceneData { gallery?: boolean; galleryStage?: number; onGalleryLeave?: (reward: { bounty: number; xp: number }) => void; faro?: boolean; hospitality?: boolean; table?: FaroTable; prize?: UpgradeChoice; getBalance?: () => number; canBuy?: (id: RunServiceId) => boolean; onBuy?: (id: RunServiceId) => boolean; onLeave: (accept: boolean) => void; }
 
 /** Separate interior, illustration, footlights and interactive UI; gameplay scene stays paused. */
 export class SaloonScene extends Phaser.Scene {
@@ -22,8 +22,9 @@ export class SaloonScene extends Phaser.Scene {
   private table?: FaroTable;
   private prize?: UpgradeChoice;
   private hospitality = false;
+  private shop?: Pick<SaloonSceneData, 'getBalance' | 'canBuy' | 'onBuy'>;
   constructor() { super('SaloonScene'); }
-  init(data: SaloonSceneData) { this.galleryStage = data.galleryStage ?? 1; this.gallery = data.gallery ? data.onGalleryLeave : undefined; this.table = data.table; this.prize = data.prize; this.hospitality = !!data.hospitality; this.faro = !!data.faro && !this.hospitality; this.onLeave = data.onLeave; this.finished = false; }
+  init(data: SaloonSceneData) { this.shop = data; this.galleryStage = data.galleryStage ?? 1; this.gallery = data.gallery ? data.onGalleryLeave : undefined; this.table = data.table; this.prize = data.prize; this.hospitality = !!data.hospitality; this.faro = !!data.faro && !this.hospitality; this.onLeave = data.onLeave; this.finished = false; }
   preload() { preloadPulp(this); preloadImages(this, ['saloon_cancan', 'faro_dealer']);
     if (this.gallery) preloadImages(this, GALLERY_BOSS_KEYS);
     const key = this.prize?.type === 'reward' ? 'card_badge' : `card_${this.prize?.id}`;
@@ -34,7 +35,7 @@ export class SaloonScene extends Phaser.Scene {
     if (this.hospitality) sounds.playHospitalityGreeting();
     else if (!this.gallery) sounds.playDealerGreeting();
     this.events.once('shutdown', () => sounds.stopFaroAudio());
-    if (this.gallery) { new ShootingGalleryView(this, root, this.gallery, this.galleryStage); return; }
+    if (this.gallery) { new ShootingGalleryView(this, root, this.gallery, this.galleryStage, { price:servicePrice('gallery',this.galleryStage), balance:()=>this.shop?.getBalance?.() ?? 0, pay:()=>this.shop?.onBuy?.('gallery') ?? false }); return; }
     if (this.faro && this.table && this.prize) {
       new FaroTableView(this, root, this.table, this.prize, () => this.finish(true));
       return;
@@ -52,15 +53,25 @@ export class SaloonScene extends Phaser.Scene {
       root.add(light);
       this.tweens.add({ targets: light, alpha: 0.45, duration: 1100, yoyo: true, repeat: -1 });
     }
-    pulpPaper(this, root, 0, 280, 1120, 96);
-    pulpText(this, root, 0, this.hospitality ? 280 : 264, this.hospitality ? 'WELCOME: +20 XP • RESTORE 12% HEALTH' : `ON THE HOUSE: RESTORE ${SALOON_REWARD.healthFraction * 100}% HEALTH  +$${SALOON_REWARD.bounty}`, 30, '#a51e16');
-    if (!this.hospitality) pulpText(this, root, 0, 302, 'ONE VISIT PER DOOR • OPTIONAL • COMBAT PAUSED', 21, '#120b08');
-    bindPulpMenu(this, [
-      pulpButton(this, root, -270, 390, this.hospitality ? 'REST & RETURN' : 'ACCEPT & RETURN', () => this.finish(true), 510, true),
-      pulpButton(this, root, 270, 390, 'LEAVE WITHOUT BONUS', () => this.finish(false), 510),
-    ], true);
-    pulpText(this, root, 0, 465, '[← →] SELECT   [ENTER] CONFIRM   [ESC] LEAVE', 22);
-    bindPulpKeys(this, { ESC: () => this.finish(false) });
+    pulpPaper(this, root, 0, 258, 1260, 76);
+    const balance = pulpText(this, root, 0, 258, '', 26, '#a51e16');
+    const ids: RunServiceId[] = [this.hospitality ? 'hospitality_rest' : 'saloon_rest', 'special_rounds', 'gun_oil'];
+    const buttons: ReturnType<typeof pulpButton>[] = [];
+    const descriptions = [this.hospitality ? 'RESTORE 12% HEALTH +20 XP' : 'RESTORE 20% HEALTH', '+20% DAMAGE / 30s', '+15% FIRE RATE / 30s'];
+    const refresh = () => {
+      balance.setText(`WALLET $${this.shop?.getBalance?.() ?? 0} • SAVED BETWEEN RUNS`);
+      ids.forEach((id,i) => buttons[i].setEnabled(this.shop?.canBuy?.(id) ?? false));
+    };
+    ids.forEach((id,i) => {
+      const x=(i-1)*426, price=servicePrice(id,this.galleryStage);
+      buttons.push(pulpButton(this,root,x,350,`${ECONOMY.services[id].name} $${price}`,()=>{
+        if (this.shop?.onBuy?.(id)) { sounds.playCoin(); refresh(); }
+      },410,i===0));
+      pulpText(this,root,x,406,descriptions[i],20);
+    });
+    buttons.push(pulpButton(this,root,0,470,'RETURN TO THE FRONTIER',()=>this.finish(false),620));
+    refresh(); bindPulpMenu(this,buttons);
+    bindPulpKeys(this,{ ESC:()=>this.finish(false) });
     // Existing game music continues; this scene never starts or switches a track.
   }
   private finish(accept: boolean): void {

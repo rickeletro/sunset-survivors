@@ -10,17 +10,17 @@ describe('Faro rules and real bounty economy', () => {
   it('never creates free funds and caps stakes and visit losses', () => {
     expect(new FaroTable(0).placeBet(7, 'player', 2)).toBe(false);
     expect(faroBudget(100)).toEqual({ bankroll: 100, maxStake: 20, lossLimit: 40 });
-    expect(faroBudget(1000).maxStake).toBe(50);
+    expect(faroBudget(1000).maxStake).toBe(100);
     const t = new FaroTable(100, [c(7), c(2), c(7, 1), c(2, 1), c(7, 2), c(2, 2)]);
     for (let i = 0; i < 2; i++) { expect(t.placeBet(7, 'player', 20)).toBe(true); t.deal(); }
     expect(t.finished).toBe(true); expect(t.close().bountyDelta).toBe(-40);
   });
-  it('pays even money and qualifies only a $10+ win for an item', () => {
-    const t = new FaroTable(100, [c(2), c(7), c(2, 1), c(7, 1)]);
+  it('pays even money and qualifies only a $40+ win for an item', () => {
+    const t = new FaroTable(200, [c(2), c(7), c(2, 1), c(7, 1)]);
     t.placeBet(7, 'player', 2); expect(t.deal()?.outcome).toBe('win'); expect(t.wonItem).toBe(false);
-    t.placeBet(7, 'player', 10); t.deal();
-    expect(t.close()).toEqual({ bountyDelta: 12, wonItem: true });
-    expect(t.close()).toEqual({ bountyDelta: 12, wonItem: true });
+    t.placeBet(7, 'player', 40); t.deal();
+    expect(t.close()).toEqual({ bountyDelta: 42, wonItem: true });
+    expect(t.close()).toEqual({ bountyDelta: 42, wonItem: true });
     expect(t.placeBet(7, 'player', 2)).toBe(false);
   });
   it('locks a copper bet through pushes without charging it twice', () => {

@@ -10,7 +10,7 @@ vi.mock('./layout/pulpSceneKit', () => ({
   bindPulpKeys: (_s, keys) => { h.bindings = keys; },
 }));
 vi.mock('./components/FaroCard', () => ({ playingCard: (s, r, x, y) => { const n = s.add.container(x, y); r.add(n); return n; } }));
-function fixture() {
+function fixture(bankroll = 100) {
   h.nodes = []; h.buttons = []; h.bindings = {};
   const all = [], pending = [];
   const node = (x = 0, y = 0) => {
@@ -24,16 +24,16 @@ function fixture() {
   const scene = { textures: { exists: () => false }, add: { container: node, graphics: () => g }, input: { setDraggable: vi.fn() },
     tweens: { add: options => { if (options.onComplete) pending.push(options.onComplete); } }, cameras: { main: { flash: vi.fn() } },
     time: { delayedCall: (_ms, callback) => pending.push(callback) } };
-  const table = new FaroTable(100, [{ rank: 2, suit: 0 }, { rank: 7, suit: 1 }, { rank: 2, suit: 1 }, { rank: 7, suit: 2 }]);
+  const table = new FaroTable(bankroll, [{ rank: 2, suit: 0 }, { rank: 7, suit: 1 }, { rank: 2, suit: 1 }, { rank: 7, suit: 2 }]);
   const exit = vi.fn(); new FaroTableView(scene, node(), table, { type: 'weapon', id: 'shotgun', name: 'Shotgun', description: 'Upgrade shotgun' }, exit);
   return { table, exit, all, reveal: () => { while (pending.length) pending.shift()(); } };
 }
 it('blocks repeated deals and exit during animation, then settles real winnings exactly once', () => {
-  const { table, exit, reveal } = fixture();
-  h.bindings.F(); h.bindings.ENTER(); expect(table.balance).toBe(110); expect(table.wonItem).toBe(true);
+  const { table, exit, reveal } = fixture(200);
+  h.bindings.F(); h.bindings.F(); h.bindings.ENTER(); expect(table.balance).toBe(240); expect(table.wonItem).toBe(true);
   h.bindings.ENTER(); h.bindings.ESC(); expect(table.remainingCards).toBe(2); expect(exit).not.toHaveBeenCalled();
   reveal(); expect(h.nodes.some(n => n.text.includes('PRIZE WON'))).toBe(true);
-  h.bindings.ESC(); h.bindings.ESC(); expect(exit).toHaveBeenCalledOnce(); expect(table.close().bountyDelta).toBe(10);
+  h.bindings.ESC(); h.bindings.ESC(); expect(exit).toHaveBeenCalledOnce(); expect(table.close().bountyDelta).toBe(40);
 });
 it('stacks dragged coins, rejects oversized stacks without debiting, and locks pending bets', () => {
   const { all, table, reveal } = fixture(); const coin = all.find(n => n.handlers.drop); const seven = all.find(n => n.data.faroRank === 7);
@@ -50,7 +50,7 @@ it('rejects an oversized drag stack without charging money', () => {
   const { all, table, reveal } = fixture(); const chips = all.filter(n => n.handlers.drop), seven = all.find(n => n.data.faroRank === 7);
   chips[2].handlers.drop(null, seven); chips[0].handlers.drop(null, seven);
   expect(table.balance).toBe(100); expect(h.nodes.some(n => n.text.includes('Bet limit $20'))).toBe(true);
-  h.bindings.ENTER(); reveal(); expect(table.close().bountyDelta).toBe(20);
+  h.bindings.ENTER(); reveal(); expect(table.close().bountyDelta).toBe(2);
 });
 
 it('withdraws a live unmatched wager between turns without a second charge', () => {

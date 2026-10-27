@@ -26,14 +26,14 @@ export function incomingDamage(base: number, armor: number, mode?: DifficultyId)
 }
 interface Storage { getItem(key: string): string | null; setItem(key: string, value: string): void; }
 export class DifficultySettings {
-  private selected: DifficultyId = 'hardcore';
+  private selected: DifficultyId = 'normal';
   constructor(private storage: () => Storage = () => globalThis.localStorage) {
-    try { this.selected = normalizeDifficulty(this.storage().getItem('sunset_difficulty_v2') ?? 'hardcore'); } catch { /* Session fallback. */ }
+    try { this.selected = normalizeDifficulty(this.storage().getItem('sunset_difficulty_v3') ?? 'normal'); } catch { /* Session fallback. */ }
   }
   get(): DifficultyId { return this.selected; }
   set(value: unknown): void {
     this.selected = normalizeDifficulty(value);
-    try { this.storage().setItem('sunset_difficulty_v2', this.selected); } catch { /* Session fallback. */ }
+    try { this.storage().setItem('sunset_difficulty_v3', this.selected); } catch { /* Session fallback. */ }
   }
 }
 export const difficultySettings = new DifficultySettings();

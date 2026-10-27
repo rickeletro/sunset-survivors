@@ -60,7 +60,7 @@ export class UnlockablesScene extends Phaser.Scene {
     this.gridContainer.removeAll(true);
     const stats = statsManager.getStats();
     const entries: { name: string; texture?: string; unlocked: boolean }[] = this.currentTab === 'characters' ? [
-      ...['steve', 'billy', 'bob', 'cormano'].map(id => ({ name: id.toUpperCase(), texture: `poster_${id}`, unlocked: true })),
+      ...['steve', 'billy', 'bob', 'cormano'].map(id => ({ name: id.toUpperCase(), texture: `poster_${id}`, unlocked: stats.unlockedCharacters.includes(id) })),
       { name: 'SECRET', unlocked: stats.stagesCleared >= 4 },
       { name: 'SECRET', unlocked: stats.stagesCleared >= 8 },
     ] : BOSSES.map(boss => ({ name: `STAGE ${boss.stage}`, texture: boss.posterKey, unlocked: stats.unlockedBosses.includes(boss.stage) || boss.stage === 1 }));

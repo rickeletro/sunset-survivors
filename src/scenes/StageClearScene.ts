@@ -9,6 +9,8 @@ import { statsManager } from '../data/GameStatsManager';
 
 export interface StageClearData {
   runId?: string;
+  walletSynced?: boolean;
+  earnedBounty?: number;
   bonus?: number;
   hpPct?: number;
   character: CharacterData;
@@ -25,20 +27,22 @@ export class StageClearScene extends Phaser.Scene {
   private rootContainer!: Phaser.GameObjects.Container;
   private rank: 'S' | 'A' | 'B' | 'C' = 'A';
 
+  private banked = 0;
+
   constructor() {
     super('StageClearScene');
   }
 
   init(data?: Partial<StageClearData>) {
     this.dataReceived = {
-      runId: data?.runId, bonus: data?.bonus ?? 0, hpPct: data?.hpPct ?? 1,
+      runId: data?.runId, walletSynced: data?.walletSynced, earnedBounty: data?.earnedBounty, bonus: data?.bonus ?? 0, hpPct: data?.hpPct ?? 1,
       character: data?.character || CHARACTERS.billy,
       stage: data?.stage || 1,
       difficulty: normalizeDifficulty(data?.difficulty ?? difficultySettings.get()),
-      timeSurvivedSeconds: data?.timeSurvivedSeconds || 222,
-      kills: data?.kills || 284,
-      bounty: data?.bounty || 1350,
-      level: data?.level || 5,
+      timeSurvivedSeconds: data?.timeSurvivedSeconds ?? 222,
+      kills: data?.kills ?? 284,
+      bounty: data?.bounty ?? 1350,
+      level: data?.level ?? 5,
     };
 
     this.rank = statsManager.calculateRank(
@@ -48,12 +52,12 @@ export class StageClearScene extends Phaser.Scene {
     );
 
     // Save run progress
-    statsManager.recordRun(
+    this.banked = statsManager.recordRun(
       {
-        runId: this.dataReceived.runId,
-        score: this.dataReceived.bounty * 10 + this.dataReceived.kills * 50,
+        runId: this.dataReceived.runId, walletSynced: this.dataReceived.walletSynced,
+        score: (this.dataReceived.earnedBounty ?? this.dataReceived.bounty) * 10 + this.dataReceived.kills * 50,
         kills: this.dataReceived.kills,
-        gold: this.dataReceived.bounty,
+        gold: this.dataReceived.earnedBounty ?? this.dataReceived.bounty,
         timeSurvivedSeconds: this.dataReceived.timeSurvivedSeconds,
         stage: this.dataReceived.stage,
         difficulty: this.dataReceived.difficulty,
@@ -74,6 +78,7 @@ export class StageClearScene extends Phaser.Scene {
     pulpBackdrop(this, this.rootContainer, false);
     pulpHeading(this, this.rootContainer, '★ STAGE CLEAR! ★', -350, 1360, 112);
     pulpText(this, this.rootContainer, 0, -242, `STAGE ${this.dataReceived.stage} • ${difficultyProfile(this.dataReceived.difficulty).label} • OUTLAW DEFEATED`, 25);
+    pulpText(this,this.rootContainer,0,-198,`BANK $${statsManager.getStats().bank} • SECURED +$${this.banked ?? 0}`,22,'#ffc52a');
     const hero = this.add.sprite(-480, 120, `hero_${this.dataReceived.character.id}`, 0).setScale(2.7).setTint(0x120b08);
     this.rootContainer.add(hero);
     const report = pulpWood(this, this.rootContainer, 215, 55, 940, 420);
@@ -81,7 +86,7 @@ export class StageClearScene extends Phaser.Scene {
     const seconds = Math.floor(this.dataReceived.timeSurvivedSeconds % 60);
     const stats = this.add.container(-130, 0); report.add(stats);
     pulpStats(this, stats, [
-      { label: 'SCORE', value: this.dataReceived.bounty * 10 + this.dataReceived.kills * 50 },
+      { label: 'SCORE', value: (this.dataReceived.earnedBounty ?? this.dataReceived.bounty) * 10 + this.dataReceived.kills * 50 },
       { label: 'TIME', value: `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}` },
       { label: 'KILLS', value: this.dataReceived.kills },
       { label: 'GOLD', value: this.dataReceived.bounty },

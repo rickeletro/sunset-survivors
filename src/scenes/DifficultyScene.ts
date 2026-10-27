@@ -16,7 +16,7 @@ export class DifficultyScene extends Phaser.Scene {
     const root = createMenuRoot(this);
     pulpBackdrop(this, root, true);
     pulpHeading(this, root, 'CHOOSE YOUR CHALLENGE', -380, 1320, 80, true);
-    pulpText(this, root, 0, -265, 'HARDCORE BY DEFAULT • SAME CAMPAIGN IN ALL THREE MODES', 24);
+    pulpText(this, root, 0, -265, 'NORMAL BY DEFAULT • SAME CAMPAIGN IN ALL THREE MODES', 24);
     const buttons = DIFFICULTY_IDS.map((mode, i) => {
       const p = DIFFICULTIES[mode], x = (i - 1) * 470;
       pulpWood(this, root, x, -20, 430, 430);

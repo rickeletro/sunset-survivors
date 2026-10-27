@@ -58,3 +58,10 @@ it('starts local tests without tutorial reminders or writing tutorial completion
   const remember = vi.fn(), tutorial = new FirstRunTutorial(true, 'keyboard', remember);
   tutorial.skip(); expect(tutorial.visible).toBe(false); expect(tutorial.blocking).toBe(false); expect(remember).not.toHaveBeenCalled();
 });
+it('enforces paid character ownership at gameplay entry while keeping isolated developer tests', () => {
+  const game=fixture(GameScene);gate.enabled=true;
+  game.init({character:CHARACTERS.bob});expect(game.character.id).toBe('billy');
+  game.init({character:CHARACTERS.cormano});expect(game.character.id).toBe('billy');
+  game.init({character:CHARACTERS.cormano,developer:true});expect(game.character.id).toBe('cormano');
+  gate.enabled=false;game.init({character:CHARACTERS.bob,developer:true});expect(game.character.id).toBe('billy');gate.enabled=true;
+});

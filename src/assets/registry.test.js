@@ -1,14 +1,24 @@
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { CATALOG, framePath, preloadImages } from './registry';
 
 describe('single runtime asset catalog', () => {
+  it('ships every upgrade icon at native 64x64 without changing the HUD texture keys', () => {
+    const icons = Object.entries(CATALOG.images).filter(([key]) => key.startsWith('hud_upgrade_'));
+    expect(icons).toHaveLength(17);
+    for (const [key, path] of icons) {
+      expect(CATALOG.images[`card_${key.slice('hud_upgrade_'.length)}`]).toBeDefined();
+      const png = readFileSync(new URL(`../../public/${path}`, import.meta.url));
+      expect(png.subarray(1, 4).toString()).toBe('PNG');
+      expect([png.readUInt32BE(16), png.readUInt32BE(20)], key).toEqual([64, 64]);
+    }
+  });
   it('resolves all images, sheets and animated frames to existing public files', () => {
     const paths = new Set([...Object.values(CATALOG.images), ...Object.values(CATALOG.sheets).map(s => s.path)]);
     for (const [key, sequence] of Object.entries(CATALOG.sequences)) {
       for (const direction of sequence.directions) for (let i = 0; i < sequence.frames; i++) paths.add(framePath(key, direction, i));
     }
-    expect(paths.size).toBe(887);
+    expect(paths.size).toBe(904);
     for (const path of paths) expect(existsSync(new URL(`../../public/${path}`, import.meta.url)), path).toBe(true);
   });
   it('skips cached textures and fails clearly for a key absent from the catalog', () => {

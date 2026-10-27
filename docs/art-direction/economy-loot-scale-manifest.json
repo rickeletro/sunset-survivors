@@ -1,0 +1,38 @@
+{
+  "alpha_threshold": 16,
+  "hero": {
+    "name": "Steve gameplay",
+    "path": "public/assets/characters/pixellab/steve/Idle/animations/walking-4-frames/south/frame_000.png",
+    "scale": 0.5
+  },
+  "assets": [
+    {
+      "name": "Existing house",
+      "path": "public/assets/scenery/pixellab/house.png",
+      "scale": 1.45,
+      "min_ratio": 2.8,
+      "max_ratio": 3.3
+    },
+    {
+      "name": "Magnet ground minimum",
+      "path": "public/assets/hud/upgrades/magnet.png",
+      "scale": 0.45,
+      "min_ratio": 0.35,
+      "max_ratio": 0.46
+    },
+    {
+      "name": "Magnet ground pulse maximum",
+      "path": "public/assets/hud/upgrades/magnet.png",
+      "scale": 0.475,
+      "min_ratio": 0.35,
+      "max_ratio": 0.46
+    },
+    {
+      "name": "Moneybag procedural ground",
+      "path": "docs/art-direction/moneybag-procedural-reference.png",
+      "scale": 1.3,
+      "min_ratio": 0.45,
+      "max_ratio": 0.52
+    }
+  ]
+}

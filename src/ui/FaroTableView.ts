@@ -1,4 +1,5 @@
 import type Phaser from 'phaser';
+import { ECONOMY } from '../data/economy';
 import { FaroTable, FARO_STAKES, faroRank } from '../data/faro';
 import type { UpgradeChoice } from '../scenes/LevelUpScene';
 import { sounds } from '../audio/SoundManager';
@@ -110,10 +111,10 @@ export class FaroTableView {
       'The exposed soda is discarded. The first dealt card loses; the second wins.',
       'A winning rank pays 1:1 profit plus your stake. Copper reverses the result.',
       'Matching ranks take half your stake. No match leaves the same bet in play.',
-      'Win a $10+ bet to claim the poster: +5 levels, up to the item’s level cap.',
+      `Win a $${ECONOMY.faro.itemStake}+ bet to claim the poster: +5 levels, up to the item’s level cap.`,
       'You may return with more bounty until this saloon’s prize is won.',
-      'Three bets per visit. Stake cap: 20% of entry bounty ($2–$50).',
-      'Visit loss budget: 40% of entry bounty. Limits round down to even dollars.',
+      'Three bets per visit. Stake cap: 20% of entry bounty ($2–$100).',
+      `Visit loss budget: ${ECONOMY.faro.lossFraction * 100}% of entry bounty. Limits round down to even dollars.`,
       '[← →] Rank   [F] Chip   [C] Copper   [BACKSPACE] Withdraw / clear',
       '[ENTER] Deal   [ESC] Leave / close tutorial. Unresolved stakes are refunded.',
     ];

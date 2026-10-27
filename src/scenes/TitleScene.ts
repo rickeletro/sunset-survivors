@@ -1,3 +1,4 @@
+import { BankHUD } from '../ui/hud/BankHUD';
 import { developerEnabled } from '../dev/access';
 import { bindPulpKeys } from '../ui/layout/pulpSceneKit';
 import { CATALOG, preloadHeroSheets, preloadImages } from '../assets/registry';
@@ -294,12 +295,8 @@ export class TitleScene extends Phaser.Scene {
     const p1 = this.add.text(-680, -480, '1UP    $000000', hudStyle);
     this.rootContainer.add(p1);
 
-    // Center: HIGH SCORE
-    const hi = this.add.text(0, -480, 'HIGH   $036,250', {
-      ...hudStyle,
-      color: '#ff4433',
-    }).setOrigin(0.5, 0);
-    this.rootContainer.add(hi);
+    // Persistent bank shows the remaining balance every time the player returns.
+    new BankHUD(this, this.rootContainer);
 
     // Right: CREDIT
     const cr = this.add.text(680, -480, 'CREDIT   04', hudStyle).setOrigin(1, 0);
