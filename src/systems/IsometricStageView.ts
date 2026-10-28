@@ -31,8 +31,9 @@ export class IsometricStageView {
   private readonly plazas: readonly IsometricPlazaPatch[];
   private readonly activeProps = new Map<number, ActiveIsoClusterProp>();
   private readonly activePlazas = new Map<number, ActiveIsoPlaza>();
-  private readonly vignetteGfx?: Phaser.GameObjects.Graphics;
   public readonly uiCamera?: Phaser.Cameras.Scene2D.Camera;
+  public readonly vignetteFx?: Phaser.FX.Vignette;
+  public readonly tiltShiftFx?: Phaser.FX.Bokeh;
   private readonly resizeHandler: () => void;
   private readonly preRenderHandler: () => void;
 
@@ -51,16 +52,18 @@ export class IsometricStageView {
       this.uiCamera.setScroll?.(0, 0);
     }
 
-    if (scene.add?.graphics) {
-      this.vignetteGfx = scene.add.graphics().setScrollFactor?.(0).setDepth?.(19);
-      this.drawVignette();
+    const postFX = scene.cameras?.main?.postFX;
+    if (postFX) {
+      const profile = isometricStageProfile(theme);
+      // Smooth radial lens vignette + subtle tilt-shift bokeh blur on the world camera edges
+      this.vignetteFx = postFX.addVignette?.(0.5, 0.5, 0.74, profile.vignetteAlpha * 0.75);
+      this.tiltShiftFx = postFX.addTiltShift?.(0.25, 0.55, 0.12, 0.75, 0.75, 0.48);
     }
 
     this.resizeHandler = () => {
       if (this.uiCamera && this.scene.scale) {
         this.uiCamera.setSize?.(this.scene.scale.width, this.scene.scale.height);
       }
-      this.drawVignette();
     };
     this.preRenderHandler = () => this.syncCameraLayers();
     scene.scale?.on?.('resize', this.resizeHandler);
@@ -87,33 +90,6 @@ export class IsometricStageView {
       } else {
         uiCam.ignore(child);
       }
-    }
-  }
-
-  private drawVignette(): void {
-    if (!this.vignetteGfx) return;
-    const w = this.scene.scale?.width || 1536;
-    const h = this.scene.scale?.height || 1024;
-    const profile = isometricStageProfile(this.theme);
-    const alpha = profile.vignetteAlpha;
-
-    this.vignetteGfx.clear();
-    const bands = 6;
-    for (let i = 0; i < bands; i++) {
-      const ratio = (bands - i) / bands;
-      const bandAlpha = alpha * ratio * 0.28;
-      const insetX = Math.round(i * (w * 0.028));
-      const insetY = Math.round(i * (h * 0.028));
-      const thicknessX = Math.round(w * 0.032);
-      const thicknessY = Math.round(h * 0.032);
-
-      this.vignetteGfx.fillStyle(0x120b08, bandAlpha);
-      // Top and bottom warm vignette bands
-      this.vignetteGfx.fillRect(0, insetY, w, thicknessY);
-      this.vignetteGfx.fillRect(0, h - insetY - thicknessY, w, thicknessY);
-      // Left and right warm vignette bands
-      this.vignetteGfx.fillRect(insetX, 0, thicknessX, h);
-      this.vignetteGfx.fillRect(w - insetX - thicknessX, 0, thicknessX, h);
     }
   }
 
@@ -221,10 +197,14 @@ export class IsometricStageView {
   public destroy(): void {
     this.scene.scale?.off?.('resize', this.resizeHandler);
     this.scene.events?.off?.('prerender', this.preRenderHandler);
+    const postFX = this.scene.cameras?.main?.postFX;
+    if (postFX?.remove) {
+      if (this.vignetteFx) postFX.remove(this.vignetteFx);
+      if (this.tiltShiftFx) postFX.remove(this.tiltShiftFx);
+    }
     if (this.uiCamera && this.scene.cameras?.remove) {
       this.scene.cameras.remove(this.uiCamera, true);
     }
-    this.vignetteGfx?.destroy?.();
     for (const plaza of this.activePlazas.values()) {
       plaza.tile.destroy?.();
       plaza.border.destroy?.();

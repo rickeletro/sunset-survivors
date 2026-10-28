@@ -424,7 +424,6 @@ export class GameScene extends Phaser.Scene {
     }).setOrigin(0.5).setScrollFactor(0).setDepth(60);
     this.updateStageStatus();
     if (!this.onboarding?.blocking) this.showBanner(`STAGE ${this.stage} — ${this.stageConfig.title}`, '#ffc52a');
-    this.isometricView?.syncCameraLayers();
     sounds.startBGM(this.stage);
   }
 

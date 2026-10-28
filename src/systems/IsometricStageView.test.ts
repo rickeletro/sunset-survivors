@@ -81,6 +81,11 @@ function createHarness() {
     cameras: {
       main: {
         ignore: vi.fn(),
+        postFX: {
+          addVignette: vi.fn(() => ({ type: 'vignette' })),
+          addTiltShift: vi.fn(() => ({ type: 'tiltShift' })),
+          remove: vi.fn(),
+        },
       },
       add: vi.fn(() => ({
         setZoom: vi.fn(),
@@ -164,12 +169,17 @@ describe('Isometric 2.5D / 3/4 Oblique World & Stage View', () => {
     const remainingWorldObjects = h.created.filter(o => !o.destroyed && o.key !== 'graphics');
     expect(remainingWorldObjects).toHaveLength(0);
 
-    // Re-enter hub and then trigger scene shutdown
+    // Re-enter hub with a HUD element and then trigger scene shutdown
+    const hud = h.scene.add.graphics().setScrollFactor(0);
     view.update(4000, 4000, 1500);
     expect(view.uiCamera).toBeDefined();
-    expect((h.scene.cameras.main.ignore as any)).toHaveBeenCalled();
+    expect(view.vignetteFx).toBeDefined();
+    expect(view.tiltShiftFx).toBeDefined();
+    expect((h.scene.cameras.main.ignore as any)).toHaveBeenCalledWith(hud);
     expect((view.uiCamera!.ignore as any)).toHaveBeenCalled();
+    hud.destroy();
     h.shutdown();
+    expect((h.scene.cameras.main.postFX.remove as any)).toHaveBeenCalledTimes(2);
     expect(h.created.every(o => o.destroyed)).toBe(true);
   });
 });

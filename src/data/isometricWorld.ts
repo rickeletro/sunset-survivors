@@ -228,3 +228,4 @@ export function stageIsometricClusters(theme: StageTheme): IsometricPropPlacemen
   }
   return props;
 }
+
