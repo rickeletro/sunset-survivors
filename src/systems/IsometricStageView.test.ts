@@ -1,7 +1,7 @@
 import type Phaser from 'phaser';
 import { describe, expect, it, vi } from 'vitest';
 import {
-  compassRoseStarPoints,
+  ISOMETRIC_ASSET_KEYS,  compassRoseStarPoints,
   ISOMETRIC_PLANE,
   isometricEllipse,
   isometricStageProfile,
@@ -122,9 +122,10 @@ function createHarness() {
 describe('Isometric 2.5D / 3/4 Oblique World & Stage View', () => {
   it.each(STAGES)('configures isometric ground, boardwalk plazas and non-blocking clusters for stage $id ($theme)', stage => {
     const profile = isometricStageProfile(stage.theme);
-    expect(['ground_iso_wood', 'ground_iso_canyon', 'ground_iso_stone']).toContain(profile.groundTexture);
+    expect(ISOMETRIC_ASSET_KEYS).toContain(profile.groundTexture);
+    expect(profile.groundTexture === 'ground_iso_wood').toBe(['saloon', 'caboose'].includes(stage.theme));
     expect(profile.vignetteAlpha).toBeGreaterThan(0.35);
-    expect(stageBoardwalkPatches(stage.theme)).toHaveLength(5);
+    expect(stageBoardwalkPatches(stage.theme)).toHaveLength(0);
 
     const clusters = stageIsometricClusters(stage.theme);
     expect(clusters.length).toBeGreaterThanOrEqual(30);
@@ -158,7 +159,7 @@ describe('Isometric 2.5D / 3/4 Oblique World & Stage View', () => {
 
     view.update(4000, 4000, 500);
     const activeNear = h.created.filter(o => !o.destroyed);
-    expect(activeNear.some(o => o.key === 'ground_iso_wood')).toBe(true);
+    expect(activeNear.some(o => o.key === 'ground_iso_wood')).toBe(false);
     expect(activeNear.some(o => o.key === 'iso_barrel_lantern')).toBe(true);
     expect(activeNear.some(o => o.key === 'iso_crate_wheel')).toBe(true);
     expect(activeNear.some(o => o.key === 'iso_wanted_wall')).toBe(true);

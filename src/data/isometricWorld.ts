@@ -9,13 +9,17 @@ export const ISOMETRIC_PLANE = {
   isoAngleRad: Math.atan(0.5),
 } as const;
 
-export type IsometricGroundKey = 'ground_iso_wood' | 'ground_iso_canyon' | 'ground_iso_stone';
+export type IsometricGroundKey = 'ground_iso_wood' | 'ground_iso_canyon' | 'ground_iso_stone' | 'ground_iso_railroad' | 'ground_iso_burning' | 'ground_iso_mountain' | 'ground_iso_hacienda';
 export type IsometricSetPieceKey = 'iso_barrel_lantern' | 'iso_crate_wheel' | 'iso_wanted_wall';
 
 export const ISOMETRIC_ASSET_KEYS: readonly (IsometricGroundKey | IsometricSetPieceKey)[] = [
   'ground_iso_wood',
   'ground_iso_canyon',
   'ground_iso_stone',
+  'ground_iso_railroad',
+  'ground_iso_burning',
+  'ground_iso_mountain',
+  'ground_iso_hacienda',
   'iso_barrel_lantern',
   'iso_crate_wheel',
   'iso_wanted_wall',
@@ -35,27 +39,27 @@ export const ISOMETRIC_STAGE_PROFILES: Record<StageTheme, IsometricStageProfile>
   canyon: {
     theme: 'canyon',
     groundTexture: 'ground_iso_canyon',
-    plazaTexture: 'ground_iso_wood',
+    plazaTexture: 'ground_iso_canyon',
     groundTint: 0xffffff,
-    plazaTint: 0xf5d7b0,
+    plazaTint: 0xffffff,
     vignetteAlpha: 0.44,
     lanternColor: 0xffa32a,
   },
   railroad: {
     theme: 'railroad',
-    groundTexture: 'ground_iso_canyon',
-    plazaTexture: 'ground_iso_wood',
-    groundTint: 0xe2c4a6,
-    plazaTint: 0xdfb992,
+    groundTexture: 'ground_iso_railroad',
+    plazaTexture: 'ground_iso_railroad',
+    groundTint: 0xffffff,
+    plazaTint: 0xffffff,
     vignetteAlpha: 0.46,
     lanternColor: 0xff791c,
   },
   'burning-town': {
     theme: 'burning-town',
-    groundTexture: 'ground_iso_wood',
-    plazaTexture: 'ground_iso_wood',
-    groundTint: 0xf0b294,
-    plazaTint: 0xffc4a3,
+    groundTexture: 'ground_iso_burning',
+    plazaTexture: 'ground_iso_burning',
+    groundTint: 0xffffff,
+    plazaTint: 0xffffff,
     vignetteAlpha: 0.52,
     lanternColor: 0xff791c,
   },
@@ -64,7 +68,7 @@ export const ISOMETRIC_STAGE_PROFILES: Record<StageTheme, IsometricStageProfile>
     groundTexture: 'ground_iso_wood',
     plazaTexture: 'ground_iso_wood',
     groundTint: 0xffffff,
-    plazaTint: 0xffe4b8,
+    plazaTint: 0xffffff,
     vignetteAlpha: 0.5,
     lanternColor: 0xffc52a,
   },
@@ -72,35 +76,35 @@ export const ISOMETRIC_STAGE_PROFILES: Record<StageTheme, IsometricStageProfile>
     theme: 'caboose',
     groundTexture: 'ground_iso_wood',
     plazaTexture: 'ground_iso_wood',
-    groundTint: 0xe6c39c,
-    plazaTint: 0xf5d7b0,
+    groundTint: 0xffffff,
+    plazaTint: 0xffffff,
     vignetteAlpha: 0.48,
     lanternColor: 0xffc52a,
   },
   mountain: {
     theme: 'mountain',
-    groundTexture: 'ground_iso_stone',
-    plazaTexture: 'ground_iso_wood',
-    groundTint: 0xd8c6e0,
-    plazaTint: 0xdfc4a8,
+    groundTexture: 'ground_iso_mountain',
+    plazaTexture: 'ground_iso_mountain',
+    groundTint: 0xffffff,
+    plazaTint: 0xffffff,
     vignetteAlpha: 0.48,
     lanternColor: 0xffc52a,
   },
   hacienda: {
     theme: 'hacienda',
-    groundTexture: 'ground_iso_stone',
-    plazaTexture: 'ground_iso_wood',
-    groundTint: 0xf2dca6,
-    plazaTint: 0xf5d7b0,
+    groundTexture: 'ground_iso_hacienda',
+    plazaTexture: 'ground_iso_hacienda',
+    groundTint: 0xffffff,
+    plazaTint: 0xffffff,
     vignetteAlpha: 0.45,
     lanternColor: 0xffa32a,
   },
   manor: {
     theme: 'manor',
     groundTexture: 'ground_iso_stone',
-    plazaTexture: 'ground_iso_wood',
-    groundTint: 0xc8bfd6,
-    plazaTint: 0xd9be9e,
+    plazaTexture: 'ground_iso_stone',
+    groundTint: 0xffffff,
+    plazaTint: 0xffffff,
     vignetteAlpha: 0.54,
     lanternColor: 0xffc52a,
   },
@@ -180,15 +184,16 @@ const HUB_CENTERS: readonly [number, number][] = [
  * Generates isometric wooden boardwalk plazas for each hub so every stage has tactile diagonal timber streets.
  */
 export function stageBoardwalkPatches(theme: StageTheme): IsometricPlazaPatch[] {
-  const profile = isometricStageProfile(theme);
+  // Stage ground is one continuous Wang-autotiled PixelLab terrain: no patchwork plazas.
   const patches: IsometricPlazaPatch[] = [];
-  for (const [cx, cy] of HUB_CENTERS) {
+  void theme;
+  for (const [cx, cy] of [] as [number, number][]) {
     patches.push({
       x: cx,
       y: cy,
       width: 1180,
       height: 520,
-      texture: profile.plazaTexture,
+      texture: 'ground_iso_wood',
     });
   }
   return patches;

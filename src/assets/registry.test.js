@@ -18,7 +18,7 @@ describe('single runtime asset catalog', () => {
     for (const [key, sequence] of Object.entries(CATALOG.sequences)) {
       for (const direction of sequence.directions) for (let i = 0; i < sequence.frames; i++) paths.add(framePath(key, direction, i));
     }
-    expect(paths.size).toBe(1034);
+    expect(paths.size).toBe(1038);
     for (const path of paths) expect(existsSync(new URL(`../../public/${path}`, import.meta.url)), path).toBe(true);
   });
   it('ships PixelLab PNGs for drops, stage pickups and thrown projectiles at expected native dimensions', () => {
@@ -35,9 +35,13 @@ describe('single runtime asset catalog', () => {
       chest_closed: [80, 80],
       chest_open: [80, 80],
       cancan_dancer: [128, 128],
-      ground_iso_wood: [128, 128],
-      ground_iso_canyon: [128, 128],
-      ground_iso_stone: [128, 128],
+      ground_iso_wood: [1024, 1024],
+      ground_iso_canyon: [1024, 1024],
+      ground_iso_stone: [1024, 1024],
+      ground_iso_railroad: [1024, 1024],
+      ground_iso_burning: [1024, 1024],
+      ground_iso_mountain: [1024, 1024],
+      ground_iso_hacienda: [1024, 1024],
       iso_barrel_lantern: [96, 96],
       iso_crate_wheel: [128, 128],
       iso_wanted_wall: [128, 128],

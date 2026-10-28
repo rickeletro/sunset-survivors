@@ -126,6 +126,10 @@
     "ground_iso_wood": "assets/scenery/pixellab/ground_iso_wood.png",
     "ground_iso_canyon": "assets/scenery/pixellab/ground_iso_canyon.png",
     "ground_iso_stone": "assets/scenery/pixellab/ground_iso_stone.png",
+    "ground_iso_railroad": "assets/scenery/pixellab/ground_iso_railroad.png",
+    "ground_iso_burning": "assets/scenery/pixellab/ground_iso_burning.png",
+    "ground_iso_mountain": "assets/scenery/pixellab/ground_iso_mountain.png",
+    "ground_iso_hacienda": "assets/scenery/pixellab/ground_iso_hacienda.png",
     "iso_barrel_lantern": "assets/scenery/pixellab/iso_barrel_lantern.png",
     "iso_crate_wheel": "assets/scenery/pixellab/iso_crate_wheel.png",
     "iso_wanted_wall": "assets/scenery/pixellab/iso_wanted_wall.png"
