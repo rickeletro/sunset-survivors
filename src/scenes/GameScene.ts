@@ -72,7 +72,9 @@ import { bossSpriteTexture, enemySpriteTexture, playBossMovement, playEnemyMovem
 import { getEligibleEvolution, WEAPON_EVOLUTIONS } from '../data/evolutions';
 import { CrowRush, preloadCrowRush } from '../systems/CrowRush';
 import { FRONTIER_ENEMY_ROLES, isFrontierEnemy } from '../data/frontierEnemyRoles';
+import { ISOMETRIC_ASSET_KEYS, ISOMETRIC_PLANE, isometricStageProfile } from '../data/isometricWorld';
 import { rollChestReward, type ChestWheelSegment } from '../data/chestReward';
+import { IsometricStageView } from '../systems/IsometricStageView';
 import { ChestRewardEvent } from '../ui/ChestRewardEvent';
 
 export class GameScene extends Phaser.Scene {
@@ -89,6 +91,7 @@ export class GameScene extends Phaser.Scene {
   private frontierEvents?: FrontierEvents;
   private crowRush?: CrowRush;
   private atmosphere?: StageAtmosphere;
+  private isometricView?: IsometricStageView;
   private frontierCompass?: FrontierCompass;
   private saloonVisit?: SaloonVisit;
   private saloonViews: { door: SaloonDoor; view: BuildingPortalView }[] = [];
@@ -208,6 +211,7 @@ export class GameScene extends Phaser.Scene {
     preloadSurfaces(this);
     preloadImages(this, UPGRADE_HUD_ASSETS);
     preloadImages(this, ['drop_gold', 'drop_badge', 'drop_whiskey', 'drop_moneybag', 'stage_roast', 'wm_supply', 'proj_dynamite', 'proj_lasso', 'stage_axe', 'chest_closed', 'chest_open', 'cancan_dancer']);
+    preloadImages(this, ISOMETRIC_ASSET_KEYS);
     preloadImages(this, GALLERY_BOSS_KEYS);
     preloadChickens(this, this.stageConfig.theme);
     preloadCrowRush(this);
@@ -295,7 +299,8 @@ export class GameScene extends Phaser.Scene {
     const startX = WORLD_W / 2;
     const startY = WORLD_H / 2;
     this.worldMap = new WorldMap(this, startX, startY, 260, this.stageConfig);
-    this.add.tileSprite(0, 0, WORLD_W, WORLD_H, this.worldMap.groundTexture).setOrigin(0, 0).setDepth(-10);
+    const groundTile = this.add.tileSprite(0, 0, WORLD_W, WORLD_H, this.worldMap.groundTexture).setOrigin(0, 0).setDepth(-10);
+    groundTile.setTint?.(isometricStageProfile(this.stageConfig.theme).groundTint);
 
     // Player Sprite (32-bit Neo Geo Arcade Hero)
     const heroKey = `hero_${this.character.id}`;
@@ -313,10 +318,13 @@ export class GameScene extends Phaser.Scene {
     }
     this.player.setDepth(10);
 
-    // Smooth camera follow inside world bounds
+    // Smooth camera follow inside world bounds with 2.5D isometric close framing
     this.cameras.main.setBounds(0, 0, WORLD_W, WORLD_H);
-    this.cameras.main.startFollow(this.player, true, 0.12, 0.12);
+    this.cameras.main.setZoom?.(ISOMETRIC_PLANE.cameraZoom);
+    this.cameras.main.startFollow(this.player, true, 0.14, 0.14);
     this.worldMap.update(startX, startY);
+    this.isometricView = new IsometricStageView(this, this.stageConfig.theme);
+    this.isometricView.update(startX, startY, 0);
     this.wildlife = new FrontierWildlife(this, this.stageConfig.theme);
     this.atmosphere = new StageAtmosphere(this, this.stageConfig.theme, this.player);
 
@@ -865,6 +873,7 @@ export class GameScene extends Phaser.Scene {
     if (this.onboarding?.blocking) {
       this.player.setDepth(worldDepth(this.player.y));
       this.worldMap.update(this.player.x, this.player.y);
+      this.isometricView?.update(this.player.x, this.player.y, this.time.now);
       if (this.onboarding.phase === 'shoot') {
         this.enemyHash.rebuild(this.enemies);
         this.handleWeaponsAutoFire(delta);
@@ -882,6 +891,7 @@ export class GameScene extends Phaser.Scene {
     this.drawMiniBosses();
     this.player.setDepth(worldDepth(this.player.y));
     this.worldMap.update(this.player.x, this.player.y);
+    this.isometricView?.update(this.player.x, this.player.y, this.time.now);
     this.updateDrops(delta);
     if (!this.onboarding?.blocking) {
       const healed = this.wildlife?.update(delta, this.player.x, this.player.y, this.hp, this.maxHp,

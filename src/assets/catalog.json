@@ -122,7 +122,13 @@
     "stage_axe": "assets/projectiles/pixellab/stage_axe.png",
     "chest_closed": "assets/drops/pixellab/chest_closed.png",
     "chest_open": "assets/drops/pixellab/chest_open.png",
-    "cancan_dancer": "assets/ui/pulp/cancan_dancer.png"
+    "cancan_dancer": "assets/ui/pulp/cancan_dancer.png",
+    "ground_iso_wood": "assets/scenery/pixellab/ground_iso_wood.png",
+    "ground_iso_canyon": "assets/scenery/pixellab/ground_iso_canyon.png",
+    "ground_iso_stone": "assets/scenery/pixellab/ground_iso_stone.png",
+    "iso_barrel_lantern": "assets/scenery/pixellab/iso_barrel_lantern.png",
+    "iso_crate_wheel": "assets/scenery/pixellab/iso_crate_wheel.png",
+    "iso_wanted_wall": "assets/scenery/pixellab/iso_wanted_wall.png"
   },
   "sheets": {
     "hero_steve": {
@@ -529,6 +535,12 @@
     "stage_axe",
     "chest_closed",
     "chest_open",
-    "cancan_dancer"
+    "cancan_dancer",
+    "ground_iso_wood",
+    "ground_iso_canyon",
+    "ground_iso_stone",
+    "iso_barrel_lantern",
+    "iso_crate_wheel",
+    "iso_wanted_wall"
   ]
 }
