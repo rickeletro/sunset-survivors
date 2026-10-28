@@ -18,7 +18,7 @@ describe('durable server rankings',()=>{
     let store=createRankingStore(path);
     try {
       store.submitBatch([entry()]);store.close();store=createRankingStore(path);
-      expect(store.list()).toHaveLength(1);expect(store.list()[0]).toMatchObject({score:1050,name:'José KID'});
+      expect(store.list()).toHaveLength(1);expect(store.list()[0]).toMatchObject({score:1014,name:'José KID'});
       store.submitBatch([{...entry(),name:'Changed',kills:900}]);expect(store.list()[0].name).toBe('José KID');expect(store.list()).toHaveLength(1);
     } finally {store.close();rmSync(dir,{recursive:true,force:true});}
   });

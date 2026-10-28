@@ -1,5 +1,5 @@
 /** Definições tipadas dos inimigos comuns. O boss continua em data/bosses. */
-export type EnemyKind = 'bandit' | 'snake' | 'dynamiter' | 'heavy' | 'elite' | 'knife_bandit' | 'knife_scout' | 'coyote' | 'longhorn' | 'rifle_guard';
+export type EnemyKind = 'bandit' | 'snake' | 'dynamiter' | 'heavy' | 'elite' | 'knife_bandit' | 'knife_scout' | 'coyote' | 'longhorn' | 'rifle_guard' | 'thief' | 'drifter' | 'bow_scout' | 'outlaw_woman';
 
 /** Visual-only readability experiment; collision radii and boss scales stay unchanged. */
 export const ENEMY_VISUAL_SCALE = 1.4;
@@ -34,5 +34,11 @@ export const ENEMY_DEFS: Record<EnemyKind, EnemyDef> = {
   coyote: { kind: 'coyote', texture: 'enemy_snake', scale: 1, baseHp: 24, hpPerSecond: 0.2, speed: 145, damage: 11, xp: 10, bounty: 1, unlockAt: 10, weight: 0, radius: 8 },
   longhorn: { kind: 'longhorn', texture: 'enemy_heavy', scale: 1.3, baseHp: 260, hpPerSecond: 0.5, speed: 85, damage: 32, xp: 50, bounty: 8, unlockAt: 0, weight: 0, radius: 18 },
   rifle_guard: { kind: 'rifle_guard', texture: 'enemy_bandit', scale: 1, baseHp: 65, hpPerSecond: 0.35, speed: 75, damage: 16, xp: 22, bounty: 3, unlockAt: 35, weight: 0, radius: 10 },
+  // Their PixelLab files are delivered as separate sequences; aliases preserve a
+  // complete four-direction fallback during an asset update.
+  thief: { kind: 'thief', texture: 'enemy_bandit', scale: .95, baseHp: 34, hpPerSecond: .25, speed: 152, damage: 10, xp: 10, bounty: 5, unlockAt: 20, weight: 0, radius: 8 },
+  drifter: { kind: 'drifter', texture: 'enemy_bandit', scale: 1, baseHp: 58, hpPerSecond: .4, speed: 88, damage: 15, xp: 16, bounty: 4, unlockAt: 120, weight: 0, radius: 10 },
+  bow_scout: { kind: 'bow_scout', texture: 'enemy_bandit', scale: 1, baseHp: 52, hpPerSecond: .35, speed: 95, damage: 17, xp: 18, bounty: 4, unlockAt: 240, weight: 0, radius: 10 },
+  outlaw_woman: { kind: 'outlaw_woman', texture: 'enemy_bandit', scale: 1, baseHp: 82, hpPerSecond: .5, speed: 105, damage: 19, xp: 20, bounty: 6, unlockAt: 360, weight: 0, radius: 10 },
 
 };

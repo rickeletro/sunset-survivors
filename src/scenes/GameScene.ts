@@ -1,3 +1,5 @@
+import { FRONTIER_FEEL, GunslingerStyle, evolutionTrail } from '../data/gunslingerStyle';
+import { GunslingerHUD } from '../ui/hud/GunslingerHUD';
 import { statsManager } from '../data/GameStatsManager';
 import { SpriteGenerator } from '../utils/SpriteGenerator';
 import { ENEMY_CAP, HORDE_CAP, MAIN_BOSS_AT, STAGE_SECONDS, WaveTimeline, waveAt, waveEnemyStats } from '../data/waves';
@@ -68,6 +70,8 @@ import { mergeLoot, takeLootPacket } from '../systems/LootBudget';
 import { StageEncounters } from '../systems/StageEncounters';
 import { bossSpriteTexture, enemySpriteTexture, playBossMovement, playEnemyMovement, preloadCombatSprites } from '../systems/PixellabCombat';
 import { getEligibleEvolution, WEAPON_EVOLUTIONS } from '../data/evolutions';
+import { CrowRush } from '../systems/CrowRush';
+import { FRONTIER_ENEMY_ROLES, isFrontierEnemy } from '../data/frontierEnemyRoles';
 
 export class GameScene extends Phaser.Scene {
   private character!: CharacterData;
@@ -81,6 +85,7 @@ export class GameScene extends Phaser.Scene {
   private stageStatus!: Phaser.GameObjects.Text;
   private wildlife?: FrontierWildlife;
   private frontierEvents?: FrontierEvents;
+  private crowRush?: CrowRush;
   private atmosphere?: StageAtmosphere;
   private frontierCompass?: FrontierCompass;
   private saloonVisit?: SaloonVisit;
@@ -129,6 +134,11 @@ export class GameScene extends Phaser.Scene {
   private runId = '';
   private walletActive = false;
   private earnedBounty = 0;
+  private gunslinger?: GunslingerStyle;
+  private gunslingerHUD?: GunslingerHUD;
+  private moveIntent={x:1,y:0};
+  private rerollsRemaining:number=FRONTIER_FEEL.rerolls;
+  private contractChoices=0;
   private developerTest = false;
   private gameTimeSeconds: number = 0;
   private isGameOver: boolean = false;
@@ -243,6 +253,7 @@ export class GameScene extends Phaser.Scene {
     this.runId = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
     this.kills = 0;
     this.initializeWallet();
+    this.gunslinger=new GunslingerStyle(this.character.id);this.moveIntent={x:1,y:0};this.rerollsRemaining=FRONTIER_FEEL.rerolls;this.contractChoices=0;
     this.specialRoundsUntil = 0; this.gunOilUntil = 0; this.lastPickupChimeAt=-Infinity;
     this.level = 1;
     this.currentXp = 0;
@@ -313,7 +324,8 @@ export class GameScene extends Phaser.Scene {
       position: () => ({ x: this.player.x, y: this.player.y }),
       damage: amount => this.damagePlayer(amount),
       spawn: (kind, x, y) => this.spawnEnemy(kind, x, y),
-      reward: () => {
+      reward: (contract?:boolean) => {
+        if(contract)this.contractChoices++;
         this.addBounty(ECONOMY.sources.supplyBase + this.stage * ECONOMY.sources.supplyPerStage);
         this.hp = Math.min(this.maxHp, this.hp + 20);
         this.updateHpBar();
@@ -330,17 +342,23 @@ export class GameScene extends Phaser.Scene {
     });
 
     this.frontierEvents = new FrontierEvents(this, this.stageConfig.theme, {
-      spawn: (kind, x, y) => this.spawnEnemy(this.gameTimeSeconds < 240 && kind === 'rifle_guard' ? 'bandit' : kind, x, y),
+      spawn: (kind, x, y) => this.spawnEnemy(kind === 'knife_bandit' ? 'thief' : this.gameTimeSeconds < 240 && kind === 'rifle_guard' ? 'bandit' : kind, x, y),
       banner: text => this.showBanner(text, '#ffc52a'),
       explode: (x, y, radius, damage) => {
         for (const enemy of [...this.enemies]) if (!enemy.dead && Math.hypot(enemy.sprite.x - x, enemy.sprite.y - y) <= radius) this.damageEnemy(enemy, damage);
       },
     });
+    this.crowRush = new CrowRush(this, text => this.showBanner(text, '#572449'));
     // Keyboard Inputs
     if (this.input.keyboard) {
       this.cursors = this.input.keyboard.createCursorKeys();
       this.keysWASD = this.input.keyboard.addKeys('W,A,S,D') as { [key: string]: Phaser.Input.Keyboard.Key };
 
+      const dodge=(event:KeyboardEvent)=>{if(!event.repeat)this.tryDodge();};
+      this.input.keyboard.on('keydown-SPACE',dodge);
+      const contract=(event:KeyboardEvent)=>{if(!event.repeat&&!this.saloonBlocked())this.encounters.acceptContract();};
+      this.input.keyboard.on('keydown-F',contract);
+      this.events.once(Phaser.Scenes.Events.SHUTDOWN,()=>{this.input.keyboard?.off('keydown-SPACE',dodge);this.input.keyboard?.off('keydown-F',contract);});
       // ESC key to Pause
       this.input.keyboard.on('keydown-ESC', () => {
         if (this.isGameOver || this.choosingUpgrade || this.saloonOpen || this.scene.isPaused('GameScene')) return;
@@ -360,6 +378,8 @@ export class GameScene extends Phaser.Scene {
 
     // Create Arcade HUD
     this.createHUD();
+    this.gunslingerHUD=new GunslingerHUD(this,this.gunslinger!,()=>this.tryDodge());
+    this.gunslingerHUD.setRoute(evolutionTrail(this.activeWeapons,this.activePassives));
     this.miniBossVisuals = this.add.graphics().setDepth(23);
     this.createOnboarding();
     this.createSaloonInteraction();
@@ -646,7 +666,7 @@ export class GameScene extends Phaser.Scene {
       damage: mini?.damage ?? stats.damage,
       xpVal: mini?.xp ?? def.xp,
       bountyVal: mini?.bounty ?? def.bounty,
-      throwCooldown: kind === 'dynamiter' ? 2000 : kind === 'rifle_guard' ? 1700 : undefined,
+      throwCooldown: kind === 'dynamiter' ? 2000 : kind === 'rifle_guard' ? 1700 : isFrontierEnemy(kind) && FRONTIER_ENEMY_ROLES[kind].cooldown > 0 ? FRONTIER_ENEMY_ROLES[kind].cooldown : undefined,
       combatSprite: !!combatTexture,
       chargeCooldown: kind === 'longhorn' ? 650 : undefined,
       pooled: true,
@@ -760,6 +780,9 @@ export class GameScene extends Phaser.Scene {
   private fireHostileBullet(x: number, y: number, angle: number, damage: number, range = 680, axe = false): void {
     this.getProjectileSystem().fire(x, y, angle, damage, { range, axe });
   }
+  private fireHostileArrow(x: number, y: number, angle: number, damage: number, range = 680): void {
+    this.getProjectileSystem().fire(x, y, angle, damage, { range, arrow: true, duration: range / .45 });
+  }
 
   private stageBossAttack(e: Enemy): void {
     const profile = getBossCombat(this.stage);
@@ -811,8 +834,15 @@ export class GameScene extends Phaser.Scene {
     if (this.isGameOver || this.bossDefeated || this.saloonOpen) return;
     this.combatElapsedMs = (this.combatElapsedMs ?? 0) + delta;
     if (!this.onboarding?.blocking && !this.choosingUpgrade && this.currentXp >= this.xpToNextLevel) { this.addXp(0); return; }
+    if(this.contractChoices>0&&!this.choosingUpgrade&&!this.onboarding?.blocking){this.contractChoices--;this.triggerLevelUp('CONTRACT WON!');return;}
     const oldX = this.player.x, oldY = this.player.y;
     this.handlePlayerMovement(delta);
+    const crowPull = this.crowRush?.update(delta, this.combatNow, this.player, false);
+    if (crowPull) {
+      const pulled = this.worldMap.resolve(this.player.x + crowPull.x, this.player.y + crowPull.y, 10);
+      this.player.setPosition(pulled.x, pulled.y);
+    }
+    this.gunslingerHUD?.update(this.combatNow,this.player.x,this.player.y,!!(this.onboarding?.visible||this.choosingUpgrade));
     this.updateSaloonPrompt();
     this.atmosphere?.update();
     const previousPhase = this.onboarding?.phase;
@@ -874,7 +904,7 @@ export class GameScene extends Phaser.Scene {
 
   private updateSaloonPrompt(): void {
     const blocked = this.saloonBlocked();
-    this.frontierCompass?.update(this.saloonVisit, this.player.x, this.player.y, this.combatNow, !!(this.saloonOpen || this.onboarding?.visible || this.choosingUpgrade || this.isGameOver));
+    this.frontierCompass?.update(this.saloonVisit, this.player.x, this.player.y, this.combatNow, !!(this.saloonOpen || this.onboarding?.visible || this.choosingUpgrade || this.isGameOver),this.encounters?.objectivePoint);
     this.saloonViews?.forEach(({ door, view }) => {
       const used = !!this.saloonVisit?.wasUsed(door);
       const distance = buildingDistance(door, this.player.x, this.player.y);
@@ -1001,32 +1031,26 @@ export class GameScene extends Phaser.Scene {
 
   // 1. Player Movement & Facing Direction
   private handlePlayerMovement(delta: number) {
-    let dx = 0;
-    let dy = 0;
-
-    const keyboardMoving = this.cursors && this.keysWASD && [this.cursors.left, this.cursors.right, this.cursors.up, this.cursors.down, this.keysWASD.W, this.keysWASD.A, this.keysWASD.S, this.keysWASD.D].some(key => key.isDown);
-    if (keyboardMoving) this.onboarding?.setInput('keyboard');
-
-    // Keyboard WASD / Arrows
-    if (this.cursors?.left.isDown || this.keysWASD?.A.isDown) dx -= 1;
-    if (this.cursors?.right.isDown || this.keysWASD?.D.isDown) dx += 1;
-    if (this.cursors?.up.isDown || this.keysWASD?.W.isDown) dy -= 1;
-    if (this.cursors?.down.isDown || this.keysWASD?.S.isDown) dy += 1;
-
-    // Mobile Touch Joystick
-    if (this.touchOrigin) {
-      dx += this.touchVector.x;
-      dy += this.touchVector.y;
-    }
-
+    let {x:dx,y:dy}=this.readMovementIntent();
+    const keyboardMoving=this.cursors&&this.keysWASD&&[this.cursors.left,this.cursors.right,this.cursors.up,this.cursors.down,this.keysWASD.W,this.keysWASD.A,this.keysWASD.S,this.keysWASD.D].some(key=>key.isDown);
+    if(keyboardMoving)this.onboarding?.setInput('keyboard');
+    const dash=this.gunslinger?.movement(this.combatNow,delta);
+    if(dx||dy)this.moveIntent={x:dx,y:dy};
+    if(dash){dx=dash.x;dy=dash.y;}
+    this.gunslinger?.tick(this.combatNow,delta,dx!==0||dy!==0);
     if (dx !== 0 || dy !== 0) {
       const len = Math.hypot(dx, dy);
       const nx = dx / len;
       const ny = dy / len;
-      const step = (this.moveSpeed * delta) / 1000;
-
-      this.player.x += nx * step;
-      this.player.y += ny * step;
+      const step = dash?Math.hypot(dash.x,dash.y):(this.moveSpeed * delta) / 1000;
+      // Substeps preserve building collision during the fast dodge, including a slow frame.
+      if(dash){
+        const steps=Math.max(1,Math.ceil(step/8));
+        for(let i=0;i<steps;i++){
+          const point=this.worldMap.resolve(this.player.x+nx*step/steps,this.player.y+ny*step/steps,10);
+          this.player.x=point.x;this.player.y=point.y;
+        }
+      }else{this.player.x+=nx*step;this.player.y+=ny*step;}
 
       if (this.usePixellab) {
         // Use real directional views when present, otherwise the nearest available view.
@@ -1066,8 +1090,35 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  private readMovementIntent(){
+    let x=(this.cursors?.right?.isDown||this.keysWASD?.D?.isDown?1:0)-(this.cursors?.left?.isDown||this.keysWASD?.A?.isDown?1:0);
+    let y=(this.cursors?.down?.isDown||this.keysWASD?.S?.isDown?1:0)-(this.cursors?.up?.isDown||this.keysWASD?.W?.isDown?1:0);
+    if(this.touchOrigin){x+=this.touchVector.x;y+=this.touchVector.y;}
+    return{x,y};
+  }
+
+  private tryDodge():boolean {
+    const blocked=this.isGameOver||this.bossDefeated||this.saloonOpen||this.choosingUpgrade||!!this.onboarding?.blocking;
+    const held=this.readMovementIntent(),direction=held.x||held.y?held:this.moveIntent??{x:1,y:0};
+    if(!this.gunslinger?.dodge(this.combatNow,direction.x,direction.y,blocked))return false;
+    this.invulnUntil=Math.max(this.invulnUntil??0,this.combatNow+FRONTIER_FEEL.dash.invulnerable);
+    sounds.playReload();
+    if(this.character.id==='cormano'){
+      let pushed=0;
+      for(const enemy of this.enemies){
+        if(enemy.dead||enemy.type==='boss'||enemy.miniWave||pushed>=FRONTIER_FEEL.kick.cap)continue;
+        const dx=enemy.sprite.x-this.player.x,dy=enemy.sprite.y-this.player.y,distance=Math.hypot(dx,dy);
+        if(distance>FRONTIER_FEEL.kick.radius)continue;
+        const length=Math.hypot(direction.x,direction.y)||1;
+        const point=this.worldMap.resolve(enemy.sprite.x+(distance?dx/distance:direction.x/length)*FRONTIER_FEEL.kick.distance,enemy.sprite.y+(distance?dy/distance:direction.y/length)*FRONTIER_FEEL.kick.distance,10);
+        enemy.sprite.x=point.x;enemy.sprite.y=point.y;pushed++;
+      }
+    }
+    return true;
+  }
+
   private get attackDamageMultiplier(): number {
-    return this.damageMultiplier * (this.combatNow < (this.specialRoundsUntil ?? 0) ? ECONOMY.specialDamage : 1);
+    return this.damageMultiplier * (this.gunslinger?.damage??1) * (this.combatNow < (this.specialRoundsUntil ?? 0) ? ECONOMY.specialDamage : 1);
   }
 
   // 2. Weapon Auto-Fire Systems
@@ -1078,7 +1129,7 @@ export class GameScene extends Phaser.Scene {
       const lvlInfo = def.levels[level - 1];
       const curTimer = (this.weaponTimers.get(weaponId) || 0) + delta;
 
-      const effectiveCooldown = (lvlInfo.cooldownMs / (this.fireRateMultiplier * (this.combatNow < (this.gunOilUntil ?? 0) ? ECONOMY.oilFireRate : 1)));
+      const effectiveCooldown = (lvlInfo.cooldownMs / (this.fireRateMultiplier * (this.gunslinger?.fireRate??1) * (this.combatNow < (this.gunOilUntil ?? 0) ? ECONOMY.oilFireRate : 1)));
       if (curTimer >= effectiveCooldown) {
         // Preserve fractional cooldown instead of losing a frame at every volley.
         // Limit catch-up after extreme stalls, never bank a burst across a pause.
@@ -1404,7 +1455,8 @@ export class GameScene extends Phaser.Scene {
       }
 
       if (e.dirX !== undefined && e.dirY !== undefined) {
-        const speed = (e.miniWindup ?? 0) > 0 || (e.chargeWindup ?? 0) > 0 ? 0 : (e.chargeRemaining ?? 0) > 0 ? 440 : e.type === 'rifle_guard' && !e.miniWave && dist < 240 ? 0 : e.speed;
+        const role = e.type === 'boss' ? undefined : isFrontierEnemy(e.type) ? FRONTIER_ENEMY_ROLES[e.type] : undefined;
+        const speed = (e.miniWindup ?? 0) > 0 || (e.chargeWindup ?? 0) > 0 ? 0 : (e.chargeRemaining ?? 0) > 0 ? 440 : (e.type === 'rifle_guard' && !e.miniWave && dist < 240) || (!!role?.stopRange && dist < role.stopRange) ? 0 : e.speed;
         const step = (speed * delta) / 1000;
         e.sprite.x += e.dirX * step;
         e.sprite.y += e.dirY * step;
@@ -1457,6 +1509,23 @@ export class GameScene extends Phaser.Scene {
           const angle = Math.atan2(dy, dx);
           this.encounters.warn({ x: this.player.x, y: this.player.y, radius: 28 }, 650, 100, 0);
           this.time.delayedCall(650, () => { if (!e.dead && !this.isGameOver && !this.bossDefeated) this.fireHostileBullet(e.sprite.x, e.sprite.y, angle, Math.round(14 * e.damage / ENEMY_DEFS.rifle_guard.damage), 380); });
+        }
+      }
+
+      if (!e.miniWave && e.type !== 'boss' && isFrontierEnemy(e.type) && e.throwCooldown !== undefined) {
+        const role = FRONTIER_ENEMY_ROLES[e.type];
+        e.throwCooldown -= delta;
+        if (e.throwCooldown <= 0 && dist < role.range) {
+          e.throwCooldown = role.cooldown;
+          const angle = Math.atan2(dy, dx);
+          if (role.attack === 'revolver') {
+            sounds.playRevolver(); this.fireHostileBullet(e.sprite.x, e.sprite.y, angle, e.damage, role.range);
+          } else if (role.attack === 'arrow') {
+            sounds.playRicochet(); this.fireHostileArrow(e.sprite.x, e.sprite.y, angle, e.damage, role.range);
+          } else if (role.attack === 'double-revolver') {
+            sounds.playRevolver();
+            for (const offset of [-.09, .09]) this.fireHostileBullet(e.sprite.x, e.sprite.y, angle + offset, e.damage, role.range);
+          }
         }
       }
 
@@ -1552,7 +1621,7 @@ export class GameScene extends Phaser.Scene {
   // 6. Drops & Magnet Pull
   private updateDrops(delta: number) {
     this.rareLootGlow?.clear();
-    let collected=0, pickupCash=0;
+    let collected=0, pickupCash=0, pickupXp=0;
     for (let i = this.drops.length - 1; i >= 0; i--) {
       const d = this.drops[i];
       const dx = this.player.x - d.sprite.x;
@@ -1590,14 +1659,15 @@ export class GameScene extends Phaser.Scene {
           const result=takeLootPacket(d); exhausted=result.exhausted;
           if (d.type === 'whiskey') { this.hp=Math.min(this.maxHp,this.hp+HEAL_DROP_HP); this.updateHpBar(); }
           if (result.packet.val>0) this.onboarding?.collectedXp();
-          this.awardXp(result.packet.val); pickupCash+=result.packet.bounty; collected++;
+          this.awardXp(result.packet.val);pickupXp+=Math.round(result.packet.val*(this.xpBonus??1)); pickupCash+=result.packet.bounty; collected++;
         } while(!exhausted && !this.choosingUpgrade && collected<ECONOMY.loot.collectionBudget);
         if(exhausted) { d.sprite.destroy(); this.drops.splice(i,1); }
         if(this.choosingUpgrade || collected>=ECONOMY.loot.collectionBudget) break;
       }
     }
     // One persistent wallet write per pickup batch, including a large Magnet collection.
-    if(pickupCash)this.addBounty(pickupCash);
+    const credited=pickupCash?this.addBounty(pickupCash)!==false:true;
+    if(collected)this.gunslingerHUD?.pickup(pickupXp,credited?pickupCash:0,this.combatNow);
   }
 
   private initializeWallet() {
@@ -1658,7 +1728,7 @@ export class GameScene extends Phaser.Scene {
     if (enemy.type === 'boss' && this.stage === 5 && this.combatNow > (enemy.vulnerableUntil ?? 0)) dmg *= 0.45;
 
     // Critical Hit Roll
-    const isCrit = Math.random() < this.critChance;
+    const isCrit = Math.random() < Math.min(1,this.critChance+(this.gunslinger?.crit??0));
     const finalDamage = isCrit ? Math.round(dmg * this.critMultiplier) : dmg;
 
     enemy.hp -= finalDamage;
@@ -1697,6 +1767,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.kills++;
+    if(this.gunslinger?.kill(this.combatNow)){this.showBanner('HOT STREAK! 8s OF FAST LEAD','#ffc52a');sounds.playCoin();}
     this.killsText.setText(String(this.kills).padStart(4, '0'));
     this.gameEvents.emitEnemyKilled({ kind: enemy.type, x: enemy.sprite.x, y: enemy.sprite.y });
 
@@ -1773,6 +1844,7 @@ export class GameScene extends Phaser.Scene {
     if (this.combatNow < this.invulnUntil) return;
     this.invulnUntil = this.combatNow + PLAYER_HIT_GRACE_MS;
     this.lastDamageAt = this.combatNow;
+    this.gunslinger?.damaged();
     this.tweens.add({
       targets: this.player,
       alpha: 0.35,
@@ -1829,17 +1901,26 @@ export class GameScene extends Phaser.Scene {
   }
 
   // Level Up Modal
-  private triggerLevelUp() {
+  private triggerLevelUp(title='LEVEL UP!') {
     if (this.choosingUpgrade || this.isGameOver || this.saloonOpen) return;
     this.choosingUpgrade = true;
     this.scene.pause();
 
     // Pick 3 random eligible choices
-    const choices = this.generateUpgradeChoices();
+    let choices = this.generateUpgradeChoices();
     const runId = this.runId;
     let resolved = false;
     this.scene.launch('LevelUpScene', {
-      choices,
+      choices,title,
+      rerollsRemaining:this.rerollsRemaining,
+      onReroll:()=>{
+        if(resolved||!this.choosingUpgrade||this.isGameOver||this.runId!==runId||this.rerollsRemaining<=0)return undefined;
+        const key=(list:UpgradeChoice[])=>list.map(c=>c.id).sort().join('|');
+        let next=choices;
+        for(let attempt=0;attempt<12&&key(next)===key(choices);attempt++)next=this.generateUpgradeChoices();
+        if(key(next)===key(choices))return undefined;
+        choices=next;this.rerollsRemaining--;return{choices:next,remaining:this.rerollsRemaining};
+      },
       character: this.character,
       level: this.level,
       hp: Math.ceil(this.hp),
@@ -1975,6 +2056,7 @@ export class GameScene extends Phaser.Scene {
       }
     }
     this.hud?.upgrades?.sync(this.activeWeapons, this.activePassives, choice.id);
+    this.gunslingerHUD?.setRoute(evolutionTrail(this.activeWeapons,this.activePassives));
   }
 
   private victory() {

@@ -94,3 +94,20 @@ it('triggers the phase-specific hazard at exactly 7:00 once, without duplicating
   encounters.tick(420,false);expect(hooks.spawn.mock.calls.filter(c=>c[0]==='longhorn')).toHaveLength(5);
   hooks.spawn.mockClear();encounters.tick(420,false);expect(hooks.spawn).not.toHaveBeenCalled();
 });
+
+describe('optional high-stakes camp contract',()=>{
+ it('requires nearby deliberate acceptance, resets pre-held progress, adds bounded guards and rewards only once',()=>{
+  const {encounters,hooks,position}=fixture();encounters.tick(90,false);expect(encounters.acceptContract()).toBe(false);
+  const guard=hooks.spawn.mock.calls[0];position.x=guard[1]-160;position.y=guard[2];encounters.update(7000);
+  expect(encounters.acceptContract()).toBe(true);expect(encounters.acceptContract()).toBe(false);expect(hooks.spawn).toHaveBeenCalledTimes(9);
+  hooks.contested.mockReturnValue(true);encounters.update(7000);expect(hooks.reward).not.toHaveBeenCalled();
+  hooks.contested.mockReturnValue(false);encounters.update(7999);expect(hooks.reward).not.toHaveBeenCalled();encounters.update(1);
+  expect(hooks.reward).toHaveBeenCalledExactlyOnceWith(true);encounters.update(9000);expect(hooks.reward).toHaveBeenCalledOnce();
+  encounters.tick(240,false);const next=hooks.spawn.mock.calls[9];position.x=next[1]-160;position.y=next[2];expect(encounters.acceptContract()).toBe(false);
+ });
+ it('fails after the deadline without free rewards and preserves future ordinary supply camps',()=>{
+  const {encounters,hooks,position}=fixture();encounters.tick(90,false);const guard=hooks.spawn.mock.calls[0];position.x=guard[1]-160;position.y=guard[2];
+  expect(encounters.acceptContract()).toBe(true);hooks.contested.mockReturnValue(true);encounters.update(25001);expect(hooks.reward).not.toHaveBeenCalled();
+  expect(encounters.objectiveHint()).toContain('EVERY');encounters.tick(240,false);expect(hooks.spawn.mock.calls.filter(call=>call[0]!=='longhorn')).toHaveLength(14);
+ });
+});

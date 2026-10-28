@@ -61,13 +61,23 @@ class SoundManager {
     }
   }
 
+  /** Includes every cached SFX/voice, including clips that are already playing.
+   * Music is intentionally controlled by its own channel. */
+  private recordedSfx(): HTMLAudioElement[] {
+    return [
+      ...this.sfxPistolPool, ...this.heroVoiceAudios.values(), ...this.faroAudio.values(),
+      ...[this.pistolAudio, this.reloadAudio, this.sfxScreamAudio].filter(
+        (clip): clip is HTMLAudioElement => clip !== null),
+    ];
+  }
+
   public getSfxVolume(): number {
     return this.sfxVolume;
   }
 
   public setSfxVolume(vol: number) {
     this.sfxVolume = Math.max(0, Math.min(1, vol));
-    for (const clip of this.faroAudio.values()) clip.volume = this.sfxVolume;
+    for (const clip of this.recordedSfx()) clip.volume = this.sfxVolume;
     try {
       if (typeof localStorage !== 'undefined') {
         localStorage.setItem('sunset_survivors_sfx_volume', this.sfxVolume.toString());
@@ -80,7 +90,7 @@ class SoundManager {
 
   public toggleMute(): boolean {
     this.isMuted = !this.isMuted;
-    for (const clip of this.faroAudio.values()) clip.muted = this.isMuted;
+    for (const clip of this.recordedSfx()) clip.muted = this.isMuted;
     if (this.currentBgm) {
       this.currentBgm.muted = this.isMuted;
       this.currentBgm.volume = this.isMuted ? 0 : this.musicVolume;
@@ -126,7 +136,7 @@ class SoundManager {
 
     noise.connect(filter);
     filter.connect(noiseGain);
-    noiseGain.connect(this.ctx.destination);
+    noiseGain.connect(this.sfxGainNode!);
 
     // Initial sharp transient
     osc.type = 'triangle';
@@ -137,7 +147,7 @@ class SoundManager {
     gain.gain.exponentialRampToValueAtTime(0.01, t + 0.08);
 
     osc.connect(gain);
-    gain.connect(this.ctx.destination);
+    gain.connect(this.sfxGainNode!);
 
     osc.start(t);
     noise.start(t);
@@ -164,7 +174,7 @@ class SoundManager {
     gain.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
 
     osc.connect(gain);
-    gain.connect(this.ctx.destination);
+    gain.connect(this.sfxGainNode!);
 
     // White noise explosion blast
     const bufferSize = this.ctx.sampleRate * 0.35;
@@ -187,7 +197,7 @@ class SoundManager {
 
     noise.connect(filter);
     filter.connect(noiseGain);
-    noiseGain.connect(this.ctx.destination);
+    noiseGain.connect(this.sfxGainNode!);
 
     osc.start(t);
     noise.start(t);
@@ -213,7 +223,7 @@ class SoundManager {
     gain.gain.exponentialRampToValueAtTime(0.01, t + 0.15);
 
     osc.connect(gain);
-    gain.connect(this.ctx.destination);
+    gain.connect(this.sfxGainNode!);
     osc.start(t);
     osc.stop(t + 0.15);
 
@@ -239,7 +249,7 @@ class SoundManager {
     gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
 
     osc.connect(gain);
-    gain.connect(this.ctx.destination);
+    gain.connect(this.sfxGainNode!);
     osc.start(t);
     osc.stop(t + 0.22);
   }
@@ -287,7 +297,7 @@ class SoundManager {
 
     noise.connect(filter);
     filter.connect(gain);
-    gain.connect(this.ctx.destination);
+    gain.connect(this.sfxGainNode!);
     noise.start(t);
     noise.stop(t + 0.6);
   }
@@ -310,7 +320,7 @@ class SoundManager {
     gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
 
     osc.connect(gain);
-    gain.connect(this.ctx.destination);
+    gain.connect(this.sfxGainNode!);
     osc.start(t);
     osc.stop(t + 0.22);
   }
@@ -337,7 +347,7 @@ class SoundManager {
       gain.gain.exponentialRampToValueAtTime(0.01, t + 0.25);
 
       osc.connect(gain);
-      gain.connect(this.ctx.destination);
+      gain.connect(this.sfxGainNode!);
       osc.start(t);
       osc.stop(t + 0.25);
     });
@@ -361,7 +371,7 @@ class SoundManager {
     gain.gain.exponentialRampToValueAtTime(0.01, t + 0.09);
 
     osc.connect(gain);
-    gain.connect(this.ctx.destination);
+    gain.connect(this.sfxGainNode!);
     osc.start(t);
     osc.stop(t + 0.09);
   }
@@ -385,7 +395,7 @@ class SoundManager {
     gain.gain.exponentialRampToValueAtTime(0.01, t + 1.2);
 
     osc.connect(gain);
-    gain.connect(this.ctx.destination);
+    gain.connect(this.sfxGainNode!);
     osc.start(t);
     osc.stop(t + 1.2);
   }
@@ -407,7 +417,7 @@ class SoundManager {
     popGain.gain.setValueAtTime(0.5, t);
     popGain.gain.exponentialRampToValueAtTime(0.01, t + 0.04);
     popOsc.connect(popGain);
-    popGain.connect(this.ctx.destination);
+    popGain.connect(this.sfxGainNode!);
     popOsc.start(t);
     popOsc.stop(t + 0.04);
 
@@ -424,7 +434,7 @@ class SoundManager {
       gain.gain.setValueAtTime(0.35, ct);
       gain.gain.exponentialRampToValueAtTime(0.001, ct + 0.025);
       osc.connect(gain);
-      gain.connect(this.ctx.destination);
+      gain.connect(this.sfxGainNode!);
       osc.start(ct);
       osc.stop(ct + 0.025);
     });
@@ -439,7 +449,7 @@ class SoundManager {
     snapGain.gain.setValueAtTime(0.8, snapTime);
     snapGain.gain.exponentialRampToValueAtTime(0.001, snapTime + 0.10);
     snapOsc.connect(snapGain);
-    snapGain.connect(this.ctx.destination);
+    snapGain.connect(this.sfxGainNode!);
     snapOsc.start(snapTime);
     snapOsc.stop(snapTime + 0.10);
 
@@ -452,7 +462,7 @@ class SoundManager {
     ringGain.gain.setValueAtTime(0.28, snapTime);
     ringGain.gain.exponentialRampToValueAtTime(0.001, snapTime + 0.16);
     ringOsc.connect(ringGain);
-    ringGain.connect(this.ctx.destination);
+    ringGain.connect(this.sfxGainNode!);
     ringOsc.start(snapTime);
     ringOsc.stop(snapTime + 0.16);
   }

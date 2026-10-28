@@ -1,3 +1,4 @@
+import { gameViewport } from './display/viewport';
 import { ProgressScene } from './scenes/ProgressScene';
 import { MenuScene } from './scenes/MenuScene';
 import { AudioScene } from './scenes/AudioScene';
@@ -76,8 +77,7 @@ if (sceneParam && sceneMap[sceneParam]) {
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   parent: 'game-container',
-  width: 1920,
-  height: 1080,
+  ...gameViewport(window.innerWidth, window.innerHeight, window.matchMedia('(pointer: coarse)').matches && Math.min(window.innerWidth, window.innerHeight) <= 900),
   pixelArt: true,
   roundPixels: true,
   backgroundColor: '#0a0503',

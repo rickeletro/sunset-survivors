@@ -1,5 +1,5 @@
 import type Phaser from 'phaser';
-import { compassLayout, compassMarkers } from '../../data/frontierCompass';
+import { compassLayout, compassMarkers, projectCompassPoint } from '../../data/frontierCompass';
 import type { SaloonVisit } from '../../data/saloon';
 import { THEME } from '../theme/tokens';
 /** A bounded, north-up radar. No render texture, secondary camera, shaders or per-frame tweens. */
@@ -32,11 +32,14 @@ export class FrontierCompass {
     resize(); scene.scale.on('resize',resize);
     scene.events.once('shutdown',() => { scene.scale.off('resize',resize); this.root.destroy(); });
   }
-  update(visit: SaloonVisit | undefined, x: number,y: number, now: number,hidden=false): void {
-    this.root.setVisible(!hidden && !!visit?.doors.length);
-    if (!visit || hidden || now>=this.lastUpdate && now-this.lastUpdate<100) return;
+  update(visit: SaloonVisit | undefined, x: number,y: number, now: number,hidden=false,objective?:Readonly<{x:number;y:number;contract?:boolean}>): void {
+    this.root.setVisible(!hidden && (!!visit?.doors.length||!!objective));
+    if ((!visit&&!objective) || hidden || now>=this.lastUpdate && now-this.lastUpdate<100) return;
     this.lastUpdate=now; this.dots.clear();
-    for (const m of compassMarkers(visit,x,y)) {
+    if(objective){const m=projectCompassPoint(objective.x,objective.y,x,y),r=objective.contract?6:5,color=objective.contract?0xff791c:0xffc52a;
+      this.dots.lineStyle(2,color).strokeRect(m.x-r,m.y-r,r*2,r*2);this.dots.fillStyle(color).fillCircle(m.x,m.y,2);
+    }
+    for (const m of visit?compassMarkers(visit,x,y):[]) {
       const color = m.used?0x786958:m.door.activity==='hospitality'?0x8bdd78:m.door.activity==='gallery'?0xe52b20:0xffc52a;
       this.dots.fillStyle(0x120b08,.9).fillCircle(m.x,m.y,6);
       this.dots.lineStyle(1,color,m.used?.4:1);

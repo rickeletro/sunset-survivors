@@ -2,12 +2,15 @@ import { SALOON_ENTRY_RADIUS, type SaloonDoor, type SaloonVisit } from './saloon
 export const COMPASS_RANGE = 2000;
 export const COMPASS_RADIUS = 76;
 export interface CompassMarker { door: SaloonDoor; x: number; y: number; distance: number; edge: boolean; used: boolean; nearby: boolean; }
+export function projectCompassPoint(x:number,y:number,px:number,py:number){
+  const dx=x-px,dy=y-py,distance=Math.hypot(dx,dy),factor=COMPASS_RADIUS/Math.max(COMPASS_RANGE,distance);
+  return{x:dx*factor,y:dy*factor,distance,edge:distance>COMPASS_RANGE};
+}
 /** North stays up; distant activities point toward their nearest available doorway. */
 export function compassMarkers(visit: SaloonVisit, px: number, py: number): CompassMarker[] {
   const all = visit.doors.map(door => {
-    const dx = door.x-px, dy = door.y-py, distance = Math.hypot(dx,dy);
-    const factor = COMPASS_RADIUS / Math.max(COMPASS_RANGE,distance);
-    return { door, x: dx*factor, y:dy*factor, distance, edge:distance>COMPASS_RANGE, used:visit.wasUsed(door), nearby:distance<=SALOON_ENTRY_RADIUS };
+    const point=projectCompassPoint(door.x,door.y,px,py);
+    return {door,...point,used:visit.wasUsed(door),nearby:point.distance<=SALOON_ENTRY_RADIUS};
   });
   return all.filter(m => !m.edge || !m.used && !all.some(other => !other.used && (other.door.activity ?? 'saloon') === (m.door.activity ?? 'saloon') && (other.distance<m.distance || other.distance===m.distance && visit.doors.indexOf(other.door)<visit.doors.indexOf(m.door))));
 }

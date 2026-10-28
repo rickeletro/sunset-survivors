@@ -53,6 +53,7 @@ export interface Enemy {
   chargeY?: number;
   vulnerableUntil?: number;
   attackCount?: number;
+  roleCooldown?: number;
 }
 
 export interface Drop {

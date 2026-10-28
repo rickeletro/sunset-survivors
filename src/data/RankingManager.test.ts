@@ -1,6 +1,6 @@
 import { describe,it,expect } from 'vitest';
-import { RankingManager, rankingName, runScore, type RankingEntry } from './RankingManager';
-const entry = (id: string, score = 100): RankingEntry => ({ runId: id, name: 'Billy', score, kills: 2, bounty: 0, stage: 1, level: 1, seconds: 60, character: 'billy', difficulty: 'hardcore' });
+import { RankingManager, rankingName, runScore, survivalScore, type RankingEntry } from './RankingManager';
+const entry = (id: string, score = 100): RankingEntry => ({ runId: id, name: 'Billy', score:survivalScore(score,60,'hardcore'), kills: score, bounty: 0, stage: 1, level: 1, seconds: 60, character: 'billy', difficulty: 'hardcore' });
 describe('persistent local ranking', () => {
   it('uses the existing score formula and accepts zero-valued results', () => {
     expect(runScore(45,12)).toBe(1050); const r = new RankingManager(() => { throw Error(); });
@@ -14,14 +14,14 @@ describe('persistent local ranking', () => {
     expect(r.submit(entry('a'))).toBe(true); expect(r.submit(entry('a',200))).toBe(false); expect(r.list()).toHaveLength(1);
   });
   it('persists sorted results, supports mode filters and does not expose mutable entries', () => {
-    let saved = '[]'; const storage = () => ({ getItem: () => saved, setItem: (_k: string,v: string) => { saved=v; } });
+    const saved=new Map<string,string>(); const storage=()=>({getItem:(key:string)=>saved.get(key)??null,setItem:(key:string,value:string)=>{saved.set(key,value);}});
     const r = new RankingManager(storage); r.submit(entry('a')); r.submit({ ...entry('b',200), difficulty:'easy' });
     const loaded = new RankingManager(storage); expect(loaded.list().map(e => e.runId)).toEqual(['b','a']);
     expect(loaded.list('hardcore')).toHaveLength(1); loaded.list()[0].name = 'changed'; expect(loaded.list()[0].name).toBe('Billy');
   });
   it('handles damaged storage and retains at most the best hundred results', () => {
     const r = new RankingManager(() => ({ getItem: () => '{bad', setItem: () => {} }));
-    for (let i=0;i<110;i++) r.submit(entry(String(i),i)); expect(r.list()).toHaveLength(100); expect(r.list().at(-1)?.score).toBe(10);
+    for (let i=0;i<110;i++) r.submit(entry(String(i),i)); expect(r.list()).toHaveLength(100); expect(r.list().at(-1)?.score).toBe(survivalScore(10,60,'hardcore'));
   });
 });
 
@@ -74,4 +74,29 @@ it('defaults production builds to the live Worker while preserving local develop
   expect(rankingEndpoint('  ',true)).toBe(PUBLIC_RANKING_API);
   expect(rankingEndpoint(undefined,false)).toBe('/api/rankings');
   expect(rankingEndpoint(' https://custom.example/api/rankings ',true)).toBe('https://custom.example/api/rankings');
+});
+
+describe('survival scoring and durable personal history',()=>{
+  it('scores kills, active survival, completed waves and difficulty without rewarding money',()=>{
+    expect(survivalScore(10,119,'normal')).toBe(738);
+    expect(survivalScore(10,120,'normal')).toBe(1240);
+    expect(survivalScore(10,120,'hardcore')).toBe(1612);
+    expect(survivalScore(10,120,'easy')).toBe(992);
+    expect(survivalScore(-1,NaN)).toBe(0);
+    expect(survivalScore(10,900)).toBe(survivalScore(10,600));
+    const r=new RankingManager(()=>{throw Error('offline');});
+    r.submit({...entry('poor'),bounty:0});r.submit({...entry('rich'),bounty:1000000});
+    expect(r.list()[0].score).toBe(r.list()[1].score);
+  });
+  it('keeps a result outside the top hundred in personal history after server sync and restart',async()=>{
+    const values=new Map<string,string>();const storage=()=>({getItem:(key:string)=>values.get(key)??null,setItem:(key:string,value:string)=>{values.set(key,value);}});
+    const top=Array.from({length:100},(_,i)=>entry(`remote-${i}`,200+i));
+    const request=async(_url:string,init?:RequestInit)=>({ok:true,json:async()=>init?.method==='POST'?{accepted:JSON.parse(String(init.body)).entries.map((e:RankingEntry)=>e.runId)}:{entries:top}});
+    const first=new RankingManager(storage,request);first.submit(entry('my-low-run',1));expect(await first.sync()).toBe(true);
+    expect(first.list().some(row=>row.runId==='my-low-run')).toBe(false);
+    expect(first.find('my-low-run')?.name).toBe('Billy');expect(first.position(first.find('my-low-run')!)).toBe(101);
+    const next=new RankingManager(storage,request);expect(next.submit(entry('my-low-run',9999))).toBe(false);
+    expect(next.history().some(row=>row.runId==='my-low-run')).toBe(true);
+    expect(next.list()).toHaveLength(100);
+  });
 });

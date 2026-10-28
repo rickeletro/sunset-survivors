@@ -51,7 +51,7 @@ export class ControlsScene extends Phaser.Scene {
     pulpText(this, board, -355, 205, 'PAUSE', 31, '#f2d49a', 'left');
     keycap(130, 205, 'ESC', 180);
     const note = pulpPaper(this, this.rootContainer, 0, 350, 1260, 118);
-    pulpText(this, note, 0, 0, 'SURVIVE, COLLECT UPGRADES,\nAND DEFEAT THE BOSS OF EACH STAGE!', 29, '#120b08');
+    pulpText(this, note, 0, 0, 'SPACE / TAP: DODGE · 15 QUICK KILLS: HOT STREAK\n[R] SECOND CHANCE AT LEVEL UP · SUPPLIES: RISK FOR UPGRADE', 29, '#120b08');
     const back = pulpButton(this, this.rootContainer, 0, 458, 'BACK', () => this.goBack(), 330);
     bindPulpMenu(this, [back]); bindPulpKeys(this, { ESC: () => this.goBack() });
   }

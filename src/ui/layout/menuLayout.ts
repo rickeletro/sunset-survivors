@@ -1,18 +1,18 @@
 import type Phaser from 'phaser';
 import { THEME } from '../theme/tokens';
 
-export function menuTransform(width: number, height: number) {
+export function menuTransform(width: number, height: number, reference = { width: THEME.layout.referenceWidth, height: THEME.layout.referenceHeight }) {
   return {
     x: width / 2, y: height / 2,
-    scale: Math.min(Math.max(1, width) / THEME.layout.referenceWidth, Math.max(1, height) / THEME.layout.referenceHeight),
+    scale: Math.min(Math.max(1, width) / reference.width, Math.max(1, height) / reference.height),
   };
 }
 
 /** One subscription per scene run, disposed even when a menu exits unexpectedly. */
-export function createMenuRoot(scene: Phaser.Scene): Phaser.GameObjects.Container {
+export function createMenuRoot(scene: Phaser.Scene, reference?: { width: number; height: number }): Phaser.GameObjects.Container {
   const root = scene.add.container(0, 0);
   const resize = () => {
-    const fit = menuTransform(scene.scale.width, scene.scale.height);
+    const fit = menuTransform(scene.scale.width, scene.scale.height, reference);
     root.setPosition(fit.x, fit.y).setScale(fit.scale);
   };
   resize();

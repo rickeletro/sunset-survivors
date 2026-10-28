@@ -6,15 +6,16 @@ interface ProjectileHooks {
   active: () => boolean;
   damage: (amount: number) => void;
 }
-interface ShotOptions { range?: number; axe?: boolean; duration?: number; hitRadius?: number; tint?: number; }
+interface ShotOptions { range?: number; axe?: boolean; arrow?: boolean; duration?: number; hitRadius?: number; tint?: number; }
 
 /** Owns enemy bullet visuals and safe tween disposal; scene supplies combat callbacks. */
 export class HostileProjectiles {
   constructor(private scene: Phaser.Scene, private hooks: ProjectileHooks) {}
   fire(x: number, y: number, angle: number, damage: number, options: ShotOptions = {}): void {
     if (!this.hooks.active()) return;
-    const { range = 680, axe = false, duration = range / 0.3, hitRadius = 20, tint = axe ? 0xf2d49a : 0xe52b20 } = options;
-    const bullet = this.scene.add.sprite(x, y, axe ? 'stage_axe' : 'proj_bullet').setDepth(8).setTint(tint).setRotation(angle);
+    const { range = 680, axe = false, arrow = false, duration = range / 0.3, hitRadius = arrow ? 16 : 20, tint = axe ? 0xf2d49a : arrow ? 0xf2d49a : 0xe52b20 } = options;
+    const bullet = this.scene.add.sprite(x, y, axe ? 'stage_axe' : arrow ? 'proj_rifle' : 'proj_bullet').setDepth(8).setTint(tint).setRotation(angle);
+    if (arrow) bullet.setScale(.58);
     this.scene.tweens.add({
       targets: bullet, x: x + Math.cos(angle) * range, y: y + Math.sin(angle) * range,
       rotation: axe ? angle + Math.PI * 5 : angle, duration,

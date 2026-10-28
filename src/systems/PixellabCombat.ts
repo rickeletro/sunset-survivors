@@ -10,6 +10,7 @@ export const ENEMY_ASSETS = {
   bandit: 'rifle_guard', snake: 'coyote', heavy: 'rifle_guard', elite: 'rifle_guard',
   knife_bandit: 'knife_bandit', knife_scout: 'knife_scout', coyote: 'coyote',
   dynamiter: 'dynamiter', longhorn: 'longhorn', rifle_guard: 'rifle_guard',
+  thief: 'knife_scout', drifter: 'rifle_guard', bow_scout: 'knife_bandit', outlaw_woman: 'dynamiter',
 } as const satisfies Record<EnemyKind, keyof typeof enemyFrameBounds>;
 
 /** Keep the combat point at the torso and the feet at a fixed offset below it.

@@ -35,7 +35,7 @@ export class RankingScene extends Phaser.Scene {
     const online=await rankings.sync();
     if (generation!==this.generation) return;
     this.online=online;
-    this.status.setText(online?'SERVER RANKING • SCORE = GOLD × 10 + KILLS × 50':'OFFLINE • YOUR SCORE IS SAFE • REFRESH TO RETRY');
+    this.status.setText(online?'SERVER RANKING • KILLS / SURVIVAL / WAVES / DIFFICULTY':'OFFLINE • YOUR SCORE IS SAFE • REFRESH TO RETRY');
     this.page=Math.min(this.page,Math.max(0,Math.ceil(rankings.list().length/7)-1)); this.renderRows();
   }
 

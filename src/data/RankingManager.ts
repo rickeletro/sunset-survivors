@@ -1,3 +1,5 @@
+import { survivalScore } from '../../shared/ranking-score.js';
+export { survivalScore } from '../../shared/ranking-score.js';
 import { normalizeDifficulty, type DifficultyId } from './difficulty';
 export interface RankingEntry {
   runId: string; name: string; score: number; kills: number; bounty: number;
@@ -10,19 +12,22 @@ export function rankingEndpoint(apiUrl: string | undefined, production: boolean)
   return apiUrl?.trim() || (production ? PUBLIC_RANKING_API : '/api/rankings');
 }
 export const RANKING_ENDPOINT = rankingEndpoint(import.meta.env.VITE_RANKING_API_URL, import.meta.env.PROD);
-const KEY = 'sunset_rankings_v1', PENDING_KEY = 'sunset_ranking_pending_v1';
+const KEY = 'sunset_rankings_v1', PENDING_KEY = 'sunset_ranking_pending_v1', HISTORY_KEY = 'sunset_ranking_history_v1';
 export function rankingName(value: string): string {
   return value.normalize('NFKC').replace(/[^\p{L}\p{N} ._'’-]/gu, '').trim().replace(/\s+/g, ' ').slice(0, 18);
 }
 export function runScore(bounty: number, kills: number): number { return Math.max(0, Math.floor(bounty)) * 10 + Math.max(0, Math.floor(kills)) * 50; }
 function validEntries(value: unknown): RankingEntry[] {
   if (!Array.isArray(value)) return [];
-  return value.filter(e => e && typeof e.runId === 'string' && typeof e.name === 'string' && rankingName(e.name) && ['score','kills','bounty','stage','level','seconds'].every(k => Number.isFinite(e[k]) && e[k] >= 0)).map(e => ({ ...e, name: rankingName(e.name), difficulty: normalizeDifficulty(e.difficulty) }));
+  return value.filter(e => e && typeof e.runId === 'string' && typeof e.name === 'string' && rankingName(e.name) && ['score','kills','bounty','stage','level','seconds'].every(k => Number.isFinite(e[k]) && e[k] >= 0)).map(e => ({ ...e, score:survivalScore(e.kills,e.seconds,e.difficulty), name: rankingName(e.name), difficulty: normalizeDifficulty(e.difficulty) }));
 }
+export function compareRankings(a: RankingEntry,b: RankingEntry): number { return b.score-a.score || b.stage-a.stage || b.kills-a.kills || b.seconds-a.seconds || a.runId.localeCompare(b.runId); }
 export class RankingManager {
   private entries: RankingEntry[] = [];
   private pending: RankingEntry[] = [];
   private syncing?: Promise<boolean>;
+  private historyEntries: RankingEntry[] = [];
+  private savedIds = new Set<string>();
   constructor(private storage: () => Storage = () => globalThis.localStorage,
     private request: Request | undefined = typeof window !== 'undefined' && typeof fetch === 'function' ? fetch.bind(globalThis) : undefined,
     private endpoint=RANKING_ENDPOINT) {
@@ -32,18 +37,30 @@ export class RankingManager {
       // Migrate the previous local-only board once. Synced caches never become new submissions.
       this.pending=raw===null ? this.entries.map(e=>({...e})) : validEntries(JSON.parse(raw));
     } catch { this.pending=this.entries.map(e=>({...e})); }
+    try {
+      const history=JSON.parse(this.storage().getItem(HISTORY_KEY) ?? '{}');
+      this.historyEntries=validEntries(history.entries);
+      for(const id of history.ids ?? [])if(typeof id==='string')this.savedIds.add(id);
+    } catch { /* Existing board remains usable without history storage. */ }
+    for(const entry of [...this.historyEntries,...this.entries,...this.pending])this.savedIds.add(entry.runId);
+  }
+  history(): RankingEntry[] { return this.historyEntries.map(entry=>({...entry})); }
+  find(runId: string): RankingEntry | undefined { const entry=[...this.entries,...this.historyEntries,...this.pending].find(row=>row.runId===runId); return entry ? {...entry} : undefined; }
+  position(entry: RankingEntry): number {
+    const known=new Map([...this.historyEntries,...this.entries,...this.pending,entry].map(row=>[row.runId,row]));
+    return [...known.values()].sort(compareRankings).findIndex(row=>row.runId===entry.runId)+1;
   }
   list(mode?: DifficultyId): RankingEntry[] {
-    return this.entries.filter(e => !mode || e.difficulty === mode).sort((a,b) => b.score-a.score || b.stage-a.stage || b.kills-a.kills || b.seconds-a.seconds || a.runId.localeCompare(b.runId)).map(e => ({ ...e }));
+    return this.entries.filter(e => !mode || e.difficulty === mode).sort(compareRankings).map(e => ({ ...e }));
   }
   private persist() {
-    try { this.storage().setItem(PENDING_KEY,JSON.stringify(this.pending)); this.storage().setItem(KEY,JSON.stringify(this.entries)); } catch { /* Session fallback. */ }
+    try { this.storage().setItem(PENDING_KEY,JSON.stringify(this.pending)); this.storage().setItem(KEY,JSON.stringify(this.entries)); this.storage().setItem(HISTORY_KEY,JSON.stringify({entries:this.historyEntries,ids:[...this.savedIds]})); } catch { /* Session fallback. */ }
   }
   submit(entry: RankingEntry): boolean {
     const name = rankingName(entry.name);
-    if (!name || !entry.runId || [...this.entries,...this.pending].some(e => e.runId === entry.runId) || !['score','kills','bounty','stage','level','seconds'].every(k => Number.isFinite(entry[k as keyof RankingEntry]) && Number(entry[k as keyof RankingEntry]) >= 0)) return false;
-    const saved={ ...entry, name, difficulty: normalizeDifficulty(entry.difficulty) };
-    this.entries.push(saved); this.pending.push(saved);
+    if (!name || !entry.runId || this.savedIds.has(entry.runId) || !['score','kills','bounty','stage','level','seconds'].every(k => Number.isFinite(entry[k as keyof RankingEntry]) && Number(entry[k as keyof RankingEntry]) >= 0)) return false;
+    const saved={ ...entry, score:survivalScore(entry.kills,entry.seconds,entry.difficulty), name, difficulty: normalizeDifficulty(entry.difficulty) };
+    this.entries.push(saved); this.pending.push(saved); this.savedIds.add(saved.runId); this.historyEntries=[saved,...this.historyEntries].slice(0,500);
     this.entries = this.list().slice(0, 100); this.persist();
     void this.sync();
     return true;

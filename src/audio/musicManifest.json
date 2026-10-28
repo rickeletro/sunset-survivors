@@ -28,9 +28,9 @@
     {
       "stage": 4,
       "slug": "saloon",
-      "title": "Last Call Showdown",
+      "title": "Pursuit on Horseback",
       "bpm": 154,
-      "file": null,
+      "file": "assets/audio/Pursuit_on_Horseback.mp3",
       "prompt": "Raucous western saloon battle: tack piano and banjo riffs over driving rock drums, upright slap bass, short trumpet calls; playful but dangerous, E minor. Original instrumental game music, 154 BPM, Western Pulp 98, late-1990s arcade energy with warm acoustic textures. No vocals, no spoken words, no sound effects, no references to existing melodies. 2–3 minutes, immediate rhythmic opening, steady energy for repeated combat, no long breakdown, clean loop-friendly ending. Leave space for gunshots in the mix."
     },
     {
@@ -60,9 +60,9 @@
     {
       "stage": 8,
       "slug": "manor",
-      "title": "The Tyrant Falls at Sunset",
+      "title": "Departing into the Horizon",
       "bpm": 160,
-      "file": null,
+      "file": "assets/audio/departing_into_the_horizon.mp3",
       "prompt": "Final Victorian frontier manor assault: dramatic organ, twang distorted guitar, orchestral brass, relentless drums, thunderous bass, heroic answer melody; D minor. Original instrumental game music, 160 BPM, Western Pulp 98, late-1990s arcade energy with warm acoustic textures. No vocals, no spoken words, no sound effects, no references to existing melodies. 2–3 minutes, immediate rhythmic opening, steady energy for repeated combat, no long breakdown, clean loop-friendly ending. Leave space for gunshots in the mix."
     }
   ]

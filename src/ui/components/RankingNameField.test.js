@@ -17,3 +17,17 @@ it('fits the native name input to canvas scaling, isolates typing and cleans up 
   scene.events.emit('resume'); expect(input.style.display).toBe('');
   scene.events.emit('shutdown'); expect(input.remove).toHaveBeenCalledOnce(); expect(scene.scale.listenerCount('resize')).toBe(0); expect(windowHandlers.size).toBe(0); expect(scene.events.listenerCount('resume')).toBe(0);
 });
+it('places a right-panel field inside a 16:9 canvas and suppresses scene shortcuts only while typing',()=>{
+ const handlers=new Map(),windowHandlers=new Map();
+ const input={style:{},setAttribute:vi.fn(),addEventListener:(key,fn)=>handlers.set(key,fn),focus:vi.fn(),blur:vi.fn(),remove:vi.fn(),value:'BILLY',disabled:false};
+ vi.stubGlobal('document',{createElement:()=>input,body:{append:vi.fn()},activeElement:input});
+ vi.stubGlobal('window',{addEventListener:(key,fn)=>windowHandlers.set(key,fn),removeEventListener:key=>windowHandlers.delete(key)});
+ const scene={game:{canvas:{getBoundingClientRect:()=>({left:0,top:0,width:960,height:540})}},input:{keyboard:{enabled:true}},scale:Object.assign(new EventEmitter(),{width:1920,height:1080}),events:new EventEmitter()};
+ const field=new RankingNameField(scene,{x:960,y:540,scaleX:1,scaleY:1},262,vi.fn(),{x:330,width:568,height:54,fontSize:24,autoFocus:false});
+ expect(input.style.left).toBe('503px');expect(input.style.top).toBe('387.5px');expect(input.style.width).toBe('284px');expect(input.style.height).toBe('27px');
+ expect(input.focus).not.toHaveBeenCalled();expect(field.isFocused()).toBe(true);
+ handlers.get('focus')();expect(scene.input.keyboard.enabled).toBe(false);
+ handlers.get('blur')();expect(scene.input.keyboard.enabled).toBe(true);
+ handlers.get('focus')();field.disable();expect(input.disabled).toBe(true);
+ scene.events.emit('shutdown');expect(scene.input.keyboard.enabled).toBe(true);expect(windowHandlers.size).toBe(0);
+});
