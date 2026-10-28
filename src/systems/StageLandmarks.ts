@@ -3,7 +3,8 @@ import Phaser from 'phaser';
 import { sceneryChaseTarget, entersFootprint } from './SceneryNavigation';
 import type { PortalPoint } from './BuildingPath';
 import type { StageTheme } from '../data/stages';
-import { footprint, overlapsFootprint, resolveFootprint, SCENERY, sceneryScale, sceneryKey, stageLandmarks, worldDepth, type Footprint, type Landmark } from '../data/scenery';
+import { footprint, overlapsFootprint, resolveFootprint, SCENERY, sceneryRenderScale, sceneryKey, stageLandmarks, worldDepth, type Footprint, type Landmark } from '../data/scenery';
+import { worldScaleFor } from './WorldScale';
 
 interface SceneryInstance {
   image: Phaser.GameObjects.Image;
@@ -64,10 +65,16 @@ export class StageLandmarks {
       if (!entry) {
         const key = sceneryKey(prop.kind);
         if (!this.scene.textures.exists(key)) return;
-        const image = this.scene.add.image(prop.x, prop.y, key, '__BASE').setOrigin(0.5, 1).setScale(sceneryScale(prop.kind));
+        const scale = worldScaleFor(this.scene, key, sceneryRenderScale(prop.kind));
+        const image = this.scene.add.image(prop.x, prop.y, key, '__BASE').setOrigin(0.5, 1).setScale(scale);
         const shadow = new GroundShadow(this.scene, image, ['saloon', 'caboose', 'manor'].includes(this.theme));
+        const buildingW = SCENERY[prop.kind].width * scale;
+        const buildingH = SCENERY[prop.kind].height * scale;
         const glow = SCENERY[prop.kind].light
-          ? this.scene.add.image(prop.x, prop.y - 52, 'wm_glow').setBlendMode(Phaser.BlendModes.ADD).setDepth(17)
+          ? this.scene.add.image(prop.x, prop.y - buildingH * 0.45, 'wm_glow')
+              .setScale((buildingW * 1.15) / 96, (buildingH * 0.75) / 96)
+              .setBlendMode(Phaser.BlendModes.ADD)
+              .setDepth(17)
           : undefined;
         const rollingStock = ['locomotive', 'cargo-wagon', 'passenger-wagon'].includes(prop.kind);
         const track = rollingStock
@@ -84,7 +91,7 @@ export class StageLandmarks {
         // Street lighting belongs to facades, never randomly scattered through the wilderness.
         const litFacade = ['house', 'saloon', 'sheriff', 'general-store', 'frontier-saloon', 'gallery-saloon', 'hacienda', 'manor', 'rail-station'].includes(prop.kind);
         const poleScale = 68.5 / 188; // Visible alpha bounds: one Steve tall, uniformly scaled.
-        const poleX = prop.x + SCENERY[prop.kind].width * sceneryScale(prop.kind) / 2 + 28;
+        const poleX = prop.x + SCENERY[prop.kind].width * (image.scaleX ?? sceneryRenderScale(prop.kind)) / 2 + 28;
         const poleY = prop.y - 20;
         const pole = litFacade && this.scene.textures.exists('wm_lantern')
           ? this.scene.add.image(poleX, poleY, 'wm_lantern').setOrigin(0.5, 1).setScale(poleScale).setDepth(worldDepth(poleY))
@@ -94,7 +101,7 @@ export class StageLandmarks {
           : undefined;
         entry = { image, shadow, glow, track, smoke, pole, poleGlow }; this.active.set(index, entry);
       }
-      const native = SCENERY[prop.kind], scale = sceneryScale(prop.kind);
+      const native = SCENERY[prop.kind], scale = entry.image.scaleX ?? sceneryRenderScale(prop.kind);
       const shape = { width: native.width * scale, height: native.height * scale };
       const behindFacade = Math.abs(px - prop.x) < shape.width / 2 && py < prop.y && py > prop.y - shape.height;
       entry.image.setAlpha(behindFacade ? 0.55 : 1);

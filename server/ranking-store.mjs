@@ -1,3 +1,4 @@
+import { SURVIVAL_SCORE_SQL } from '../shared/ranking-score.js';
 import { DatabaseSync } from 'node:sqlite';
 import { mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -16,7 +17,7 @@ export function createRankingStore(path=process.env.RANKING_DB_PATH ?? '.data/ra
     );
     CREATE INDEX IF NOT EXISTS ranking_score ON rankings(score DESC,stage DESC,kills DESC,seconds DESC,runId ASC);`);
   const insert=db.prepare('INSERT INTO rankings (runId,name,score,kills,bounty,stage,level,seconds,character,difficulty) VALUES (?,?,?,?,?,?,?,?,?,?) ON CONFLICT(runId) DO NOTHING');
-  const select=db.prepare('SELECT runId,name,score,kills,bounty,stage,level,seconds,character,difficulty FROM rankings ORDER BY score DESC,stage DESC,kills DESC,seconds DESC,runId ASC LIMIT 100');
+  const select=db.prepare(`SELECT runId,name,${SURVIVAL_SCORE_SQL} AS score,kills,bounty,stage,level,seconds,character,difficulty FROM rankings ORDER BY score DESC,stage DESC,kills DESC,seconds DESC,runId ASC LIMIT 100`);
   return {
     list:()=>select.all().map(row=>({...row})),
     submitBatch(values) {

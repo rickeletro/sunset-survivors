@@ -110,7 +110,29 @@
     "hud_upgrade_blunderbuss_doom": "assets/hud/upgrades/blunderbuss_doom.png",
     "hud_upgrade_golden_repeater": "assets/hud/upgrades/golden_repeater.png",
     "hud_upgrade_hellfire_keg": "assets/hud/upgrades/hellfire_keg.png",
-    "hud_upgrade_cyclone_whip": "assets/hud/upgrades/cyclone_whip.png"
+    "hud_upgrade_cyclone_whip": "assets/hud/upgrades/cyclone_whip.png",
+    "drop_gold": "assets/drops/pixellab/drop_gold.png",
+    "drop_badge": "assets/drops/pixellab/drop_badge.png",
+    "drop_whiskey": "assets/drops/pixellab/drop_whiskey.png",
+    "drop_moneybag": "assets/drops/pixellab/drop_moneybag.png",
+    "stage_roast": "assets/drops/pixellab/stage_roast.png",
+    "wm_supply": "assets/drops/pixellab/wm_supply.png",
+    "proj_dynamite": "assets/projectiles/pixellab/proj_dynamite.png",
+    "proj_lasso": "assets/projectiles/pixellab/proj_lasso.png",
+    "stage_axe": "assets/projectiles/pixellab/stage_axe.png",
+    "chest_closed": "assets/drops/pixellab/chest_closed.png",
+    "chest_open": "assets/drops/pixellab/chest_open.png",
+    "cancan_dancer": "assets/ui/pulp/cancan_dancer.png",
+    "ground_iso_wood": "assets/scenery/pixellab/ground_iso_wood.png",
+    "ground_iso_canyon": "assets/scenery/pixellab/ground_iso_canyon.png",
+    "ground_iso_stone": "assets/scenery/pixellab/ground_iso_stone.png",
+    "ground_iso_railroad": "assets/scenery/pixellab/ground_iso_railroad.png",
+    "ground_iso_burning": "assets/scenery/pixellab/ground_iso_burning.png",
+    "ground_iso_mountain": "assets/scenery/pixellab/ground_iso_mountain.png",
+    "ground_iso_hacienda": "assets/scenery/pixellab/ground_iso_hacienda.png",
+    "iso_barrel_lantern": "assets/scenery/pixellab/iso_barrel_lantern.png",
+    "iso_crate_wheel": "assets/scenery/pixellab/iso_crate_wheel.png",
+    "iso_wanted_wall": "assets/scenery/pixellab/iso_wanted_wall.png"
   },
   "sheets": {
     "hero_steve": {
@@ -232,6 +254,76 @@
     },
     "enemy:rifle_guard": {
       "root": "assets/enemies/pixellab/rifle_guard/Idle/animations/move-attack",
+      "directions": [
+        "south",
+        "east",
+        "north",
+        "west"
+      ],
+      "frames": 4
+    },
+    "enemy:thief": {
+      "root": "assets/enemies/pixellab/thief/Idle/animations/walking-4-frames",
+      "directions": [
+        "south",
+        "east",
+        "north",
+        "west"
+      ],
+      "frames": 4
+    },
+    "enemy:drifter": {
+      "root": "assets/enemies/pixellab/drifter/Idle/animations/walking-4-frames",
+      "directions": [
+        "south",
+        "east",
+        "north",
+        "west"
+      ],
+      "frames": 4
+    },
+    "enemy:bow_scout": {
+      "root": "assets/enemies/pixellab/bow_scout/Idle/animations/walking-4-frames",
+      "directions": [
+        "south",
+        "east",
+        "north",
+        "west"
+      ],
+      "frames": 4
+    },
+    "enemy:outlaw_woman": {
+      "root": "assets/enemies/pixellab/outlaw_woman/Idle/animations/walking-4-frames",
+      "directions": [
+        "south",
+        "east",
+        "north",
+        "west"
+      ],
+      "frames": 4
+    },
+    "enemy:crow_rush": {
+      "root": "assets/enemies/pixellab/crow_rush/Idle/animations/walking-4-frames",
+      "directions": [
+        "south",
+        "east",
+        "north",
+        "west"
+      ],
+      "frames": 4
+    },
+    "enemy:heavy": {
+      "root": "assets/enemies/pixellab/heavy/Idle/animations/walking-4-frames",
+      "directions": [
+        "south",
+        "east",
+        "north",
+        "west"
+      ],
+      "frames": 4
+    },
+    "enemy:snake": {
+      "root": "assets/enemies/pixellab/snake/Idle/animations/walking-4-frames",
       "directions": [
         "south",
         "east",
@@ -435,6 +527,24 @@
     "ui_ribbon_new",
     "ui_ribbon_upgrade",
     "ui_pulp_paper",
-    "ui_pulp_wood"
+    "ui_pulp_wood",
+    "drop_gold",
+    "drop_badge",
+    "drop_whiskey",
+    "drop_moneybag",
+    "stage_roast",
+    "wm_supply",
+    "proj_dynamite",
+    "proj_lasso",
+    "stage_axe",
+    "chest_closed",
+    "chest_open",
+    "cancan_dancer",
+    "ground_iso_wood",
+    "ground_iso_canyon",
+    "ground_iso_stone",
+    "iso_barrel_lantern",
+    "iso_crate_wheel",
+    "iso_wanted_wall"
   ]
 }

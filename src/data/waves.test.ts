@@ -22,8 +22,9 @@ it('raises wave-2+ pressure mainly through admissions and composition, with mode
     for(const key of ['spawnRate','hp','damage','speed','target'] as const)expect(WAVES[i][key]).toBeGreaterThan(WAVES[i-1][key]);
   }
   expect(waveEnemyStats(ENEMY_DEFS.bandit,590,'hardcore').hp).toBe(Math.round(30*2.85*1.15));
-  expect(wavePool(140,{}).find(e=>e.kind==='coyote')!.weight).toBe(35);
-  expect(wavePool(500,{}).filter(e=>['rifle_guard','dynamiter','heavy','elite'].includes(e.kind)).reduce((s,e)=>s+e.weight,0)).toBe(80);
+  expect(wavePool(140,{}).find(e=>e.kind==='coyote')!.weight).toBe(30);
+  expect(wavePool(500,{}).filter(e=>['rifle_guard','dynamiter','heavy','elite'].includes(e.kind)).reduce((s,e)=>s+e.weight,0)).toBe(63);
+  expect(wavePool(500,{}).filter(e=>['drifter','bow_scout','outlaw_woman'].includes(e.kind)).reduce((s,e)=>s+e.weight,0)).toBe(21);
 });
 it('blends new stats, density, spawn rates and roster over 20 active seconds without a boundary spike',()=>{
   for(const at of [120,240,360,480]) {
@@ -35,8 +36,8 @@ it('blends new stats, density, spawn rates and roster over 20 active seconds wit
       expect(wavePressure(at+20.1)[key]).toBe(end[key]);
     }
   }
-  expect(wavePool(120,{}).map(e=>e.kind)).toEqual(['bandit','knife_bandit']);
-  expect(wavePool(130,{}).find(e=>e.kind==='coyote')!.weight).toBe(17.5);
+  expect(wavePool(120,{}).map(e=>e.kind)).toEqual(['bandit','knife_bandit','thief']);
+  expect(wavePool(130,{}).find(e=>e.kind==='coyote')!.weight).toBe(15);
 });
 it('uses human-scale approved frames for every mini-boss and every playable hero',()=>{
   for(const mini of MINI_BOSSES)for(const height of Object.values(MINI_HERO_HEIGHTS)) {

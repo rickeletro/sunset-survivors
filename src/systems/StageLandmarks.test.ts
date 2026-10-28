@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { StageLandmarks } from './StageLandmarks';
-import { SCENERY, sceneryScale, footprint, overlapsFootprint, sceneryKey, worldDepth } from '../data/scenery';
+import { SCENERY, footprint, overlapsFootprint, sceneryKey, worldDepth } from '../data/scenery';
 vi.stubGlobal('document', { createElement: () => ({ getContext: () => ({ canvas: {}, drawImage: vi.fn(), getImageData: () => ({ data: new Uint8ClampedArray(16 * 16 * 4).fill(255) }) }) }) });
 vi.mock('phaser', () => ({ default: { BlendModes: { ADD: 1 } } }));
 
@@ -67,7 +67,10 @@ describe('streamed PixelLab scenery', () => {
     if (theme === 'caboose') expect(poles).toHaveLength(1);
     else expect(poles.length).toBeGreaterThan(0);
     for (const pole of poles) {
-      const facade = scenery.placements.find(p => pole.x === p.x + SCENERY[p.kind].width * sceneryScale(p.kind) / 2 + 28 && pole.y === p.y - 20)!;
+      const facade = scenery.placements.find(p => {
+        const body = h.objects.find(o => o.key === sceneryKey(p.kind) && o.x === p.x && o.y === p.y);
+        return !!body && pole.x === p.x + SCENERY[p.kind].width * body.scaleX / 2 + 28 && pole.y === p.y - 20;
+      })!;
       expect(facade).toBeTruthy();
       expect(['house', 'saloon', 'sheriff', 'general-store', 'frontier-saloon', 'gallery-saloon', 'hacienda', 'manor', 'rail-station']).toContain(facade.kind);
       expect(188 * pole.scale).toBeCloseTo(68.5);

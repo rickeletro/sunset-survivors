@@ -7,9 +7,10 @@ import enemyFrameBounds from '../assets/enemyFrameBounds.json';
 export const COMBAT_DIRECTIONS = ['south', 'east', 'north', 'west'] as const;
 export type CombatDirection = typeof COMBAT_DIRECTIONS[number];
 export const ENEMY_ASSETS = {
-  bandit: 'rifle_guard', snake: 'coyote', heavy: 'rifle_guard', elite: 'rifle_guard',
+  bandit: 'rifle_guard', snake: 'snake', heavy: 'heavy', elite: 'heavy',
   knife_bandit: 'knife_bandit', knife_scout: 'knife_scout', coyote: 'coyote',
   dynamiter: 'dynamiter', longhorn: 'longhorn', rifle_guard: 'rifle_guard',
+  thief: 'thief', drifter: 'drifter', bow_scout: 'bow_scout', outlaw_woman: 'outlaw_woman',
 } as const satisfies Record<EnemyKind, keyof typeof enemyFrameBounds>;
 
 /** Keep the combat point at the torso and the feet at a fixed offset below it.

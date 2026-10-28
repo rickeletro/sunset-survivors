@@ -1,3 +1,4 @@
+import { WesternButton } from '../ui/components/WesternButton';
 import { heroPortrait } from '../ui/components/HeroPortrait';
 import { CATALOG, preloadImages, preloadHeroSheets } from '../assets/registry';
 import { preloadPulp, pulpText } from '../ui/layout/pulpSceneKit';
@@ -20,6 +21,7 @@ export interface UpgradeChoice {
 }
 
 export interface LevelUpData {
+  title?:string;
   choices: UpgradeChoice[];
   character?: CharacterData;
   level?: number;
@@ -27,6 +29,8 @@ export interface LevelUpData {
   maxHp?: number;
   gold?: number;
   kills?: number;
+  rerollsRemaining?:number;
+  onReroll?:()=>{choices:UpgradeChoice[];remaining:number}|undefined;
   onSelect: (choice: UpgradeChoice) => void;
 }
 
@@ -54,6 +58,7 @@ const ITEM_LORE: Record<string, { tagline: string; typeLabel: string }> = {
 
 export class LevelUpScene extends Phaser.Scene {
   private choices: UpgradeChoice[] = [];
+  private draftData!:LevelUpData;
   private onSelectCallback!: (choice: UpgradeChoice) => void;
   private character?: CharacterData;
   private playerLevel: number = 1;
@@ -83,6 +88,7 @@ export class LevelUpScene extends Phaser.Scene {
   }
 
   init(data: LevelUpData) {
+    this.draftData=data;
     this.choices = data.choices || [];
     this.onSelectCallback = data.onSelect;
     this.character = data.character;
@@ -136,6 +142,10 @@ export class LevelUpScene extends Phaser.Scene {
 
     // 8. Register Controls (Keyboard 1/2/3, Arrows, Enter, Space)
     this.setupControls();
+    if(this.draftData.onReroll){
+      const reroll=new WesternButton(this,{x:560,y:-350,width:310,height:64,text:`SECOND CHANCE [R]\n${this.draftData.rerollsRemaining??0} LEFT`,fontSize:'18px',presentation:'pulp',onClick:()=>this.rerollDraft()});
+      reroll.setEnabled((this.draftData.rerollsRemaining??0)>0);this.rootContainer.add(reroll);
+    }
 
     // 9. Initial selection focus
     this.updateCardSelection(0);
@@ -315,7 +325,7 @@ export class LevelUpScene extends Phaser.Scene {
     }
 
     headerContainer.add(pulpSurface(this, 0, -435, 630, 130, 'paper'));
-    const title = this.add.text(0, -435, 'LEVEL UP!', {
+    const title = this.add.text(0, -435, this.draftData.title??'LEVEL UP!', {
       fontFamily: THEME.typography.westernFont, fontSize: '46px', color: '#a51e16',
     }).setOrigin(0.5);
     headerContainer.add(title);
@@ -652,10 +662,18 @@ export class LevelUpScene extends Phaser.Scene {
   // -------------------------------------------------------------
   // CONTROLS: 1, 2, 3, Arrows, A/D, Enter, Space
   // -------------------------------------------------------------
+  private rerollDraft(){
+    if(this.hasSelected||(this.draftData.rerollsRemaining??0)<=0)return;
+    const result=this.draftData.onReroll?.();if(!result)return;
+    this.hasSelected=true;sounds.playShuffle();
+    this.scene.restart({...this.draftData,choices:result.choices,rerollsRemaining:result.remaining});
+  }
+
   private setupControls() {
     const handleKey = (event: KeyboardEvent) => {
-      if (this.hasSelected) return;
+      if (this.hasSelected || event.repeat) return;
 
+      if(event.key.toLowerCase()==='r'){this.rerollDraft();return;}
       if (event.key === '1' && this.choices[0]) {
         this.updateCardSelection(0);
         this.confirmUpgrade(this.choices[0]);

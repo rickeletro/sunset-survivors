@@ -1,5 +1,6 @@
+import { SURVIVAL_SCORE_SQL } from '../../shared/ranking-score.js';
 import { validateEntry } from '../ranking-validation.mjs';
-const SELECT='SELECT runId,name,score,kills,bounty,stage,level,seconds,character,difficulty FROM rankings ORDER BY score DESC,stage DESC,kills DESC,seconds DESC,runId ASC LIMIT 100';
+const SELECT=`SELECT runId,name,${SURVIVAL_SCORE_SQL} AS score,kills,bounty,stage,level,seconds,character,difficulty FROM rankings ORDER BY score DESC,stage DESC,kills DESC,seconds DESC,runId ASC LIMIT 100`;
 const INSERT='INSERT INTO rankings (runId,name,score,kills,bounty,stage,level,seconds,character,difficulty) VALUES (?,?,?,?,?,?,?,?,?,?) ON CONFLICT(runId) DO NOTHING';
 export default {
   async fetch(request,env) {

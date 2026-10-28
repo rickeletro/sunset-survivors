@@ -1,3 +1,8 @@
+import { GunslingerHUD } from '../ui/hud/GunslingerHUD';
+import { GunslingerStyle, HERO_STYLE } from '../data/gunslingerStyle';
+import { GAME_OVER_LAYOUT } from '../ui/GameOverView';
+import { artQaEnabled, artQaImageSize, exportGameOverScene } from '../../scripts/gameover-art-qa.js';
+import catalog from '../assets/catalog.json';
 import { statsManager } from '../data/GameStatsManager';
 import { ProgressScene } from './ProgressScene';
 import { FrontierCompass } from '../ui/hud/FrontierCompass';
@@ -37,14 +42,14 @@ const { Node } = vi.hoisted(() => {
     bringToTop(node: Node) { this.list = this.list.filter(n => n !== node); this.list.push(node); return this; }
     setY(y: number) { this.y = y; return this; }
     setVisible(visible: boolean) { this.visible = visible; return this; }
-    setOrigin() { return this; } setAlpha(alpha: number) { (this as any).alpha = alpha; return this; } setBlendMode() { return this; }
-    setDepth() { return this; } setStroke() { return this; } setColor() { return this; }
+    setOrigin(x=.5,y=x) { (this as any).originX=x;(this as any).originY=y;return this; } setAlpha(alpha: number) { (this as any).alpha = alpha; return this; } setBlendMode() { return this; }
+    setDepth() { return this; } setStroke(color:string,width:number) { (this as any).stroke=color;(this as any).strokeWidth=width;return this; } setColor(color:string) { (this as any).color=color;return this; }
     setTint() { return this; } setInteractive() { return this; }
   }
   return { Node };
 });
 vi.mock('phaser', () => ({ default: { Scene: class {}, BlendModes: { ADD: 1 }, GameObjects: { Container: Node } } }));
-vi.mock('../audio/SoundManager', () => ({ sounds: { getMusicVolume: vi.fn(() => .7), getSfxVolume: vi.fn(() => .4), setMusicVolume: vi.fn(), setSfxVolume: vi.fn(), getIsMuted: vi.fn(() => false), toggleMute: vi.fn(), playHospitalityGreeting: vi.fn(), playDealerGreeting: vi.fn(), stopFaroAudio: vi.fn(), playRevolver: vi.fn(), playIntroMusic: vi.fn(), stopBGM: vi.fn(), playHit: vi.fn(), playGunReload: vi.fn(), playGameplayMusic: vi.fn(), playLevelUp: vi.fn(), playHeroVoice: vi.fn(), playPistolShot: vi.fn(), playRicochet: vi.fn() } }));
+vi.mock('../audio/SoundManager', () => ({ sounds: { getMusicVolume: vi.fn(() => .7), getSfxVolume: vi.fn(() => .4), setMusicVolume: vi.fn(), setSfxVolume: vi.fn(), getIsMuted: vi.fn(() => false), toggleMute: vi.fn(), playHospitalityGreeting: vi.fn(), playDealerGreeting: vi.fn(), stopFaroAudio: vi.fn(), playRevolver: vi.fn(), playIntroMusic: vi.fn(), stopBGM: vi.fn(), playHit: vi.fn(), playGunReload: vi.fn(), playGameplayMusic: vi.fn(), playLevelUp: vi.fn(), playHeroVoice: vi.fn(), playPistolShot: vi.fn(), playShuffle: vi.fn(), playRicochet: vi.fn() } }));
 vi.mock('../data/GameStatsManager', () => ({ statsManager: { refresh: vi.fn(), isCharacterUnlocked: vi.fn((id: string) => id === 'steve' || id === 'billy'), buyCharacter: vi.fn(() => 'insufficient'), recordRun: vi.fn(), calculateRank: () => 'A', getStats: () => ({ bank: 500, unlockedCharacters: ['steve','billy'], totalScore: 100, totalKills: 20, goldCollected: 500, deaths: 2, bestStreak: 3, playTimeSeconds: 120, stagesCleared: 1, unlockedBosses: [1] }) } }));
 import { sounds } from '../audio/SoundManager';
 import { difficultySettings } from '../data/difficulty';
@@ -70,12 +75,16 @@ import { bindPulpMenu } from '../ui/layout/pulpSceneKit';
 function setup(Scene: any, data: any = {}) {
   const scene: any = new Scene(), objects: any[] = [];
   const node = (x = 0, y = 0) => { const n = new Node(scene, x, y); objects.push(n); return n; };
-  const graphics = () => new Proxy(node(), { get: (target, key: string, receiver) => key in target ? (target as any)[key] : () => receiver });
+  const graphics = () => {const g:any=node();g.draws=[];return new Proxy(g,{get:(target,key:string,receiver)=>key in target?target[key]:(...args:any[])=>{target.draws.push([key,...args]);return receiver;}});};
   Object.assign(scene, {
     add: {
       container: node, graphics, zone: (x: number, y: number, width: number, height: number) => Object.assign(node(x, y), { width, height }),
       existing: (n: any) => objects.push(n),
-      image: (x: number, y: number, key: string) => Object.assign(node(x, y), { key, width: key.startsWith('poster_') ? 330 : 1536, height: key.startsWith('poster_') ? 512 : 1024 }),
+      image: (x: number, y: number, key: string) => {
+        let width=key.startsWith('poster_')?330:1536,height=key.startsWith('poster_')?512:1024;
+        if(artQaEnabled && key in catalog.images){({width,height}=artQaImageSize(`public/${catalog.images[key as keyof typeof catalog.images]}`));}
+        return Object.assign(node(x,y),{key,width,height});
+      },
       sprite: (x: number, y: number) => Object.assign(node(x, y), { width: 128, height: 144 }),
       nineslice: (x: number, y: number, key: string, _frame: any, width: number, height: number) => Object.assign(node(x, y), { key, width, height }),
       text: (x: number, y: number, text: string, style: any) => Object.assign(node(x, y), { text, style, width: Math.max(...text.split('\n').map((s: string) => s.length)) * parseFloat(style.fontSize) * 0.55, height: parseFloat(style.fontSize) }),
@@ -86,7 +95,7 @@ function setup(Scene: any, data: any = {}) {
     time: { addEvent: () => ({ remove: vi.fn() }), delayedCall: (_delay: number, callback: () => void) => callback() },
     anims: { exists: () => false },
     tweens: { killTweensOf: vi.fn(), add: (config: any) => config.onComplete?.() },
-    scene: { start: vi.fn(), stop: vi.fn(), resume: vi.fn(), pause: vi.fn(), launch: vi.fn(), bringToTop: vi.fn() },
+    scene: { restart: vi.fn(), start: vi.fn(), stop: vi.fn(), resume: vi.fn(), pause: vi.fn(), launch: vi.fn(), bringToTop: vi.fn() },
   });
   scene.init?.(data);
   return { scene, objects, buttons: () => objects.filter(o => o instanceof WesternButton && o.active), labels: () => objects.filter(o => o.active && o.text).map(o => o.text) };
@@ -395,13 +404,14 @@ describe('unified menu and local hall of fame', () => {
     expect(game.setRunDifficulty).toHaveBeenCalledWith('easy'); expect(pause.difficulty).toBe('easy');
     expect(h.scene.scene.resume).toHaveBeenCalledWith('MenuScene');
   });
-  it('saves the actual death result once, including zeros, and returns from ranking directly to the title', () => {
+  it('saves the actual death result once, including zeros, and refreshes the inline hall of fame', () => {
     const h = setup(GameOverScene, { runId: 'ranking-test-death', kills: 0, bounty: 0, timeSurvivedSeconds: 0, stage: 4 }); h.scene.create();
-    h.scene.nameField = { value: () => '  THE KID  ' };
-    h.scene.openRanking(); h.scene.openRanking();
+    h.scene.nameField = { value: () => '  THE KID  ', disable:vi.fn() };
+    h.scene.saveRanking(); h.scene.saveRanking();
     const entries = rankings.list().filter(e => e.runId === 'ranking-test-death');
     expect(entries).toHaveLength(1); expect(entries[0]).toMatchObject({ name: 'THE KID', score: 0, seconds: 0, stage: 4 });
-    expect(h.scene.scene.start).toHaveBeenCalledExactlyOnceWith('RankingScene', { fromScene: 'TitleScene' });
+    expect(h.scene.scene.start).not.toHaveBeenCalled();
+    expect(h.scene.view.saveButton.enabled).toBe(false);
     expect(h.scene.scene.pause).not.toHaveBeenCalled();
     const r = setup(RankingScene, { fromScene: 'GameOverScene' }); r.scene.create(); r.scene.input.keyboard.emit('keydown-ESC');
     expect(r.scene.scene.start).toHaveBeenCalledWith('TitleScene'); expect(r.scene.scene.resume).not.toHaveBeenCalledWith('GameOverScene');
@@ -542,4 +552,86 @@ describe('persistent bank HUD on selection and returning to the title', () => {
       expect(selection.scene.bankHud.label.scaleX).toBeLessThanOrEqual(1);
     } finally {read.mockRestore();}
   });
+});
+
+describe('reference Game Over composition and inline ranking',()=>{
+ it.each([[1920,1080],[1536,864],[1280,720],[800,600]])('fits all four regions and name field at %sx%s',(width,height)=>{
+  const h=setup(GameOverScene,{runId:`layout-${width}`,character:CHARACTERS.cormano,stage:3,level:17,kills:1338,timeSurvivedSeconds:385,earnedBounty:60,bounty:6492,difficulty:'hardcore'});
+  h.scene.scale.width=width;h.scene.scale.height=height;h.scene.create();
+  const root=h.scene.view.root;expect(root.scaleX).toBe(Math.min(width/1920,height/1080));
+  for(const label of ['YOU DIED!','LAST STAND','HALL OF FAME','CORMANO','3 / 17','06:25','1,338','HARDCORE','+60','TOTAL BANK'])expect(h.labels()).toContain(label);
+  expect(h.objects.some(o=>o.key==='hud_avatar_cormano')).toBe(true);
+  const labels=h.labels();expect(labels).not.toContain('HIGH   $036,250');
+  for(const button of h.buttons()){
+    const parent=button.parentContainer;
+    const localX=button.x+(parent===root?0:parent.x),localY=button.y+(parent===root?0:parent.y);
+    expect(Math.abs(localX)+button.width/2).toBeLessThanOrEqual(960);
+    expect(Math.abs(localY)+button.height/2).toBeLessThanOrEqual(540);
+  }
+  expect(h.buttons()).toHaveLength(3);
+  const field=GAME_OVER_LAYOUT.input,save=h.scene.view.saveButton;
+  expect(field.y+field.height/2).toBeLessThan(save.y+save.parentContainer.y-save.height/2);
+ });
+ it('loads the board before name entry, highlights a saved score and keeps navigation single-shot',async()=>{
+  const sync=vi.spyOn(rankings,'sync').mockResolvedValue(false);
+  try {
+   const h=setup(GameOverScene,{runId:'inline-save-new',kills:20,timeSurvivedSeconds:245,earnedBounty:1,bounty:100000,difficulty:'normal'});h.scene.create();
+   expect(sync).toHaveBeenCalled();expect(h.labels()).toContain('YOUR NAME');
+   h.scene.nameField={value:()=>'',focus:vi.fn(),disable:vi.fn(),isFocused:()=>false};
+   expect(h.scene.saveRanking()).toBe(false);expect(h.scene.nameField.focus).toHaveBeenCalledOnce();
+   h.scene.nameField.value=()=> 'RED RIVER';expect(h.scene.saveRanking()).toBe(true);expect(h.scene.saveRanking()).toBe(true);
+   expect(rankings.find('inline-save-new')).toMatchObject({name:'RED RIVER',score:2490,bounty:1});
+   expect(h.labels()).toContain('RED RIVER');expect(h.scene.view.saveButton.enabled).toBe(false);
+   expect(h.scene.scene.start).not.toHaveBeenCalled();
+   h.scene.retry();h.scene.retry();expect(h.scene.scene.start).toHaveBeenCalledExactlyOnceWith('WantedScene',expect.objectContaining({stage:1,difficulty:'normal'}));
+   h.scene.events.emit('shutdown');await Promise.resolve();
+  } finally {sync.mockRestore();}
+ });
+ it('does not let gameplay shortcut keys interrupt a focused name field',()=>{
+  const h=setup(GameOverScene);h.scene.create();h.scene.nameField={isFocused:()=>true,value:()=>''};
+  h.scene.input.keyboard.emit('keydown-R');h.scene.input.keyboard.emit('keydown-ESC');expect(h.scene.scene.start).not.toHaveBeenCalled();
+  h.scene.nameField.isFocused=()=>false;h.scene.input.keyboard.emit('keydown-ESC');expect(h.scene.scene.start).toHaveBeenCalledExactlyOnceWith('TitleScene');
+ });
+});
+
+
+it.skipIf(!artQaEnabled)('exports an offline Game Over art composition from the scene graph',()=>{
+ const h=setup(GameOverScene,{runId:'offline-art-qa',character:CHARACTERS.steve,stage:1,level:16,kills:1338,timeSurvivedSeconds:385,earnedBounty:60,bounty:6492,difficulty:'normal'});
+ h.scene.scale.width=1920;h.scene.scale.height=1080;h.scene.textures.exists=()=>true;
+ h.scene.tweens.add=(config:any)=>{for(const target of Array.isArray(config.targets)?config.targets:[config.targets])for(const key of ['alpha','scaleX','scaleY','progress'])if(key in config)target[key]=config[key];config.onComplete?.();};
+ h.scene.create();
+ h.scene.view.renderRanking([
+  {runId:'sample-1',name:'WILD BILL',score:12450,stage:8},{runId:'sample-2',name:'BLACK JACK',score:10820,stage:7},
+  {runId:'sample-3',name:'ANNIE',score:8760,stage:6},{runId:'sample-4',name:'DOC',score:7320,stage:5},{runId:'sample-5',name:'THE KID',score:6180,stage:4},
+ ],{runId:'offline-art-qa',name:'YOUR NAME',score:5920,stage:3},6,false);
+ exportGameOverScene(h.scene.view.root);
+ h.scene.events.emit('shutdown');
+});
+
+
+describe('gunslinger progression presentation',()=>{
+ it.each(['steve','billy','bob','cormano'] as const)('explains %s signature style on character selection',hero=>{
+  const h=setup(CharacterSelectScene);h.scene.create();h.scene.selectIndex(['steve','billy','bob','cormano'].indexOf(hero),false);
+  expect(h.scene.styleLabel.text).toContain(HERO_STYLE[hero].name);expect(h.scene.styleLabel.text).toContain(HERO_STYLE[hero].description);
+ });
+ it('rerolls through the existing upgrade scene once without accepting a reward or duplicating callbacks',()=>{
+  const callback=vi.fn(()=>({choices:[{id:'rifle'}],remaining:0})),onSelect=vi.fn();
+  const h=setup(LevelUpScene,{choices:[{id:'revolver'}],rerollsRemaining:1,onReroll:callback,onSelect});
+  h.scene.rerollDraft();h.scene.rerollDraft();expect(callback).toHaveBeenCalledOnce();expect(onSelect).not.toHaveBeenCalled();
+  expect(h.scene.scene.restart).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({choices:[{id:'rifle'}],rerollsRemaining:0,onSelect}));
+ });
+ it('ignores held movement/selection keys when a new upgrade modal opens',()=>{
+  const h=setup(LevelUpScene,{choices:[{id:'revolver'}],onSelect:vi.fn()});h.scene.updateCardSelection=vi.fn();h.scene.confirmUpgrade=vi.fn();h.scene.setupControls();
+  h.scene.input.keyboard.emit('keydown',{key:'1',repeat:true});expect(h.scene.confirmUpgrade).not.toHaveBeenCalled();
+  h.scene.input.keyboard.emit('keydown',{key:'1',repeat:false});expect(h.scene.confirmUpgrade).toHaveBeenCalledOnce();
+ });
+ it.each([[1920,1080,false],[800,600,false],[800,450,true],[320,480,true]])('keeps the dodge HUD bounded at %sx%s, touch %s',(width,height,touch)=>{
+  const h=setup(PauseScene);h.scene.scale.width=width;h.scene.scale.height=height;h.scene.sys={game:{device:{input:{touch},os:{desktop:!touch}}}};
+  const style=new GunslingerStyle('billy'),dodge=vi.fn(),hud:any=new GunslingerHUD(h.scene,style,dodge);hud.setRoute('A VISIBLE BUILD ROUTE');
+  const count=h.objects.length;
+  for(let i=0;i<1000;i++){style.tick(i*16,16,true);hud.update(i*16,0,0);}
+  expect(h.objects.length).toBe(count);expect(hud.root.x+235*hud.root.scaleX).toBeLessThanOrEqual(width);
+  expect(hud.root.y+68*hud.root.scaleY).toBeLessThanOrEqual(height);
+  h.scene.events.emit('shutdown');expect(h.scene.scale.listeners.get('resize')).toHaveLength(0);
+ });
 });

@@ -16,7 +16,7 @@ it('supports static-host CORS/preflight and persists D1-compatible batches witho
     const options=await worker.fetch(request('OPTIONS'),env);expect(options.status).toBe(204);expect(options.headers.get('Access-Control-Allow-Origin')).toBe('https://game.example');
     const post=()=>worker.fetch(request('POST','https://game.example',JSON.stringify({entries:[entry]})),env);
     expect((await post()).status).toBe(200);expect((await post()).status).toBe(200);
-    const get=await worker.fetch(request(),env);const result=await get.json();expect(result.entries).toHaveLength(1);expect(result.entries[0].score).toBe(170);
+    const get=await worker.fetch(request(),env);const result=await get.json();expect(result.entries).toHaveLength(1);expect(result.entries[0].score).toBe(309);
     expect(get.headers.get('Access-Control-Allow-Origin')).toBe('https://game.example');
   }finally{db.close();}
 });

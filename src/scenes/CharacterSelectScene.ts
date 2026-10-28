@@ -1,3 +1,4 @@
+import { HERO_STYLE } from '../data/gunslingerStyle';
 import { BankHUD } from '../ui/hud/BankHUD';
 import { statsManager } from '../data/GameStatsManager';
 import { ECONOMY } from '../data/economy';
@@ -48,6 +49,7 @@ export class CharacterSelectScene extends Phaser.Scene {
   private isConfirmed: boolean = false;
   private lockOverlays: Phaser.GameObjects.Container[] = [];
   private bankHud!: BankHUD;
+  private styleLabel!: Phaser.GameObjects.Text;
   private rideLabel!: Phaser.GameObjects.Text;
 
   constructor() {
@@ -106,6 +108,7 @@ export class CharacterSelectScene extends Phaser.Scene {
     pulpText(this, this.rootContainer, 0, -305, '[← →] CHOOSE   •   [ENTER] RIDE OUT', 21);
 
     this.bankHud = new BankHUD(this, this.rootContainer);
+    this.styleLabel=pulpText(this,this.rootContainer,0,-282,'',16,'#ffc52a');
 
     // 4. Create the 4 Wanted Poster Character Cards
     this.createCharacterCards();
@@ -487,6 +490,7 @@ export class CharacterSelectScene extends Phaser.Scene {
     const selectedChar = CHARACTERS[charKey];
 
     // Character title with primary color accent
+    this.styleLabel.setText(`${HERO_STYLE[charKey].name} · ${HERO_STYLE[charKey].description}`);
     this.infoNameTitle.setText(selectedChar.name);
     this.infoSubtitle.setText(`— ${selectedChar.title}`);
     this.infoSubtitle.setX(this.infoNameTitle.x + this.infoNameTitle.width + 18);

@@ -7,7 +7,9 @@ describe('stage soundtrack routing', () => {
   it('resolves available files and uses a valid fallback for pending tracks', () => {
     for (let stage = 1; stage <= 8; stage++) expect(existsSync(`public/${stageMusicSource(stage)}`)).toBe(true);
     expect(stageMusicSource(2)).toContain('Frontier Pulse'); expect(stageMusicSource(6)).toContain('Dusty Frontier');
-    expect(stageMusicSource(8)).toBe(MUSIC_MANIFEST.fallback);
+    expect(stageMusicSource(4)).toBe('assets/audio/Pursuit_on_Horseback.mp3');
+    expect(stageMusicSource(8)).toBe('assets/audio/departing_into_the_horizon.mp3');
+    expect(stageMusicSource(3)).toBe(MUSIC_MANIFEST.fallback);
     expect(MUSIC_MANIFEST.stages.every(track => track.prompt.includes('No vocals'))).toBe(true);
   });
   it('loops and caches tracks, preserves volume, and recovers from a missing stage track', () => {

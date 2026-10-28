@@ -19,9 +19,12 @@ describe('detailed enemy presentation', () => {
     it('maps all legacy kinds to loaded detailed art without duplicating assets or animations', () => {
         const { scene, files, frames, animations } = fixture();
         preloadCombatSprites(scene, 1);
-        expect(files.size).toBe(96);
+        expect(files.size).toBe(192);
         expect(Object.keys(ENEMY_ASSETS).sort()).toEqual(Object.keys(ENEMY_DEFS).sort());
-        expect(ENEMY_ASSETS).toMatchObject({ bandit: 'rifle_guard', heavy: 'rifle_guard', elite: 'rifle_guard', snake: 'coyote' });
+        expect(ENEMY_ASSETS).toMatchObject({
+            bandit: 'rifle_guard', heavy: 'heavy', elite: 'heavy', snake: 'snake',
+            thief: 'thief', drifter: 'drifter', bow_scout: 'bow_scout', outlaw_woman: 'outlaw_woman',
+        });
         for (const kind of Object.keys(ENEMY_DEFS)) {
             const key = enemySpriteTexture(scene, kind);
             expect(key).toBe(`enemy_pl_${ENEMY_ASSETS[kind]}_south_0`);
@@ -33,10 +36,10 @@ describe('detailed enemy presentation', () => {
                 expect(sprite.setFlipX).toHaveBeenCalledWith(false);
             }
         }
-        expect(animations.size).toBe(24);
+        expect(animations.size).toBe(48);
         expect([...frames.values()].every(frame => frame.customPivot)).toBe(true);
     });
-    it('keeps the measured feet and horizontal silhouette center stable across all 96 frames', () => {
+    it('keeps the measured feet and horizontal silhouette center stable across all 192 frames', () => {
         // Bounds measured from nontransparent pixels of the existing PNGs, not their canvas size.
         for (const asset of new Set(Object.values(ENEMY_ASSETS))) {
             const data = bounds[asset];

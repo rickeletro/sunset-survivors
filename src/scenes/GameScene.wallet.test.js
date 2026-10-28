@@ -38,7 +38,7 @@ describe('shared persistent gameplay wallet',()=>{
   const death=new GameOverScene();death.init(data);death.init(data);
   expect(new GameStatsManager().getStats().bank).toBe(545);
   expect(statsManager.getStats().goldCollected).toBe(80);
-  expect(statsManager.getStats().totalScore).toBe(800);
+  expect(statsManager.getStats().totalScore).toBe(0);
   expect(game().bounty).toBe(545);
  });
  it('adds only the result bonus once, never a percentage of already saved cash',()=>{

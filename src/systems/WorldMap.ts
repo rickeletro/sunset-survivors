@@ -4,6 +4,7 @@ import { getStage, StageConfig } from '../data/stages';
 import { createStageScenery } from './StageScenery';
 import { StageLandmarks } from './StageLandmarks';
 import { worldDecorations, WorldDecoration } from '../data/worldDecorations';
+import { worldScaleFor } from './WorldScale';
 import { buildingPath, type PortalPoint } from './BuildingPath';
 
 /**
@@ -139,6 +140,8 @@ export class WorldMap {
               .image(o.x, o.y, `wm_${o.kind}`)
               .setOrigin(0.5, WORLD_PROPS[o.kind].h >= 100 ? 0.98 : 0.88)
               .setDepth(3 + o.y / WORLD_H);
+            const fixed = worldScaleFor(this.scene, `wm_${o.kind}`, 1);
+            if (fixed !== 1) o.sprite.setScale(fixed);
           }
         }
         for (const d of this.getDecorationChunk(cx, cy)) {

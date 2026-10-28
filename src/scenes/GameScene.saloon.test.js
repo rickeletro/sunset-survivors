@@ -251,8 +251,8 @@ it.each([1, 2, 3, 4, 5, 6, 7, 8])('passes the actual stage %s into its dedicated
 
 it('updates compass activity availability without a footer direction label', () => {
   const g=fixture(); g.frontierCompass={update:vi.fn()}; g.updateSaloonPrompt();
-  expect(g.frontierCompass.update).toHaveBeenCalledWith(g.saloonVisit,g.player.x,g.player.y,g.combatNow,false);
-  g.saloonOpen=true; g.updateSaloonPrompt(); expect(g.frontierCompass.update.mock.calls.at(-1).at(-1)).toBe(true);
+  expect(g.frontierCompass.update).toHaveBeenCalledWith(g.saloonVisit,g.player.x,g.player.y,g.combatNow,false,undefined);
+  g.saloonOpen=true; g.updateSaloonPrompt(); expect(g.frontierCompass.update.mock.calls.at(-1)[4]).toBe(true);
 });
 
 it('charges each paid field service once, freezes its active-time duration indoors and never stacks it', () => {
