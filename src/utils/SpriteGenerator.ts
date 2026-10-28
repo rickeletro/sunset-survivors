@@ -373,7 +373,7 @@ export class SpriteGenerator {
   // 4. Projectiles: Bullets, buckshot, dynamite, flame patch
   private static createProjectileTextures(scene: Phaser.Scene) {
     // Bullet (Yellow glowing tracer)
-    const cBullet = scene.textures.createCanvas('proj_bullet', 12, 6);
+    const cBullet = scene.textures.exists('proj_bullet') ? null : scene.textures.createCanvas('proj_bullet', 12, 6);
     if (cBullet) {
       const ctx = cBullet.getContext();
       ctx.fillStyle = '#f5c518';
@@ -384,7 +384,7 @@ export class SpriteGenerator {
     }
 
     // Shotgun Buckshot
-    const cPellet = scene.textures.createCanvas('proj_pellet', 8, 8);
+    const cPellet = scene.textures.exists('proj_pellet') ? null : scene.textures.createCanvas('proj_pellet', 8, 8);
     if (cPellet) {
       const ctx = cPellet.getContext();
       ctx.fillStyle = '#ef4444';
@@ -397,7 +397,7 @@ export class SpriteGenerator {
     }
 
     // Winchester Penetrator Bullet
-    const cRifle = scene.textures.createCanvas('proj_rifle', 18, 6);
+    const cRifle = scene.textures.exists('proj_rifle') ? null : scene.textures.createCanvas('proj_rifle', 18, 6);
     if (cRifle) {
       const ctx = cRifle.getContext();
       ctx.fillStyle = '#38bdf8';
@@ -408,7 +408,7 @@ export class SpriteGenerator {
     }
 
     // Lobbed TNT Stick
-    const cTnt = scene.textures.createCanvas('proj_dynamite', 16, 8);
+    const cTnt = scene.textures.exists('proj_dynamite') ? null : scene.textures.createCanvas('proj_dynamite', 16, 8);
     if (cTnt) {
       const ctx = cTnt.getContext();
       ctx.fillStyle = '#dc2626';
@@ -423,7 +423,7 @@ export class SpriteGenerator {
     }
 
     // Ground Fire Patch (Molotov)
-    const cFire = scene.textures.createCanvas('proj_fire', 36, 36);
+    const cFire = scene.textures.exists('proj_fire') ? null : scene.textures.createCanvas('proj_fire', 36, 36);
     if (cFire) {
       const ctx = cFire.getContext();
       const grad = ctx.createRadialGradient(18, 18, 2, 18, 18, 18);
@@ -439,7 +439,7 @@ export class SpriteGenerator {
     }
 
     // Spinning Lasso
-    const cLasso = scene.textures.createCanvas('proj_lasso', 28, 28);
+    const cLasso = scene.textures.exists('proj_lasso') ? null : scene.textures.createCanvas('proj_lasso', 28, 28);
     if (cLasso) {
       const ctx = cLasso.getContext();
       ctx.strokeStyle = '#d97706';
@@ -456,7 +456,7 @@ export class SpriteGenerator {
   // 5. Drops: Gold Nugget, Silver Badge, Whiskey Canteen
   private static createDropTextures(scene: Phaser.Scene) {
     // Gold Nugget (Small XP)
-    const cGold = scene.textures.createCanvas('drop_gold', 16, 16);
+    const cGold = scene.textures.exists('drop_gold') ? null : scene.textures.createCanvas('drop_gold', 16, 16);
     if (cGold) {
       const ctx = cGold.getContext();
       ctx.fillStyle = '#f5c518';
@@ -474,7 +474,7 @@ export class SpriteGenerator {
     }
 
     // Silver Sheriff Badge (Large XP)
-    const cBadge = scene.textures.createCanvas('drop_badge', 20, 20);
+    const cBadge = scene.textures.exists('drop_badge') ? null : scene.textures.createCanvas('drop_badge', 20, 20);
     if (cBadge) {
       const ctx = cBadge.getContext();
       ctx.fillStyle = '#38bdf8';
@@ -488,7 +488,7 @@ export class SpriteGenerator {
     }
 
     // Whiskey Canteen (Health Drop)
-    const cWhiskey = scene.textures.createCanvas('drop_whiskey', 18, 18);
+    const cWhiskey = scene.textures.exists('drop_whiskey') ? null : scene.textures.createCanvas('drop_whiskey', 18, 18);
     if (cWhiskey) {
       const ctx = cWhiskey.getContext();
       ctx.fillStyle = '#b45309';

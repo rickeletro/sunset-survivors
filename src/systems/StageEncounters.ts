@@ -13,7 +13,7 @@ export function insideHazard(shape: HazardShape, x: number, y: number): boolean 
     : Math.hypot(x - shape.x, y - shape.y) <= shape.radius;
 }
 interface Hazard extends HazardShape { age: number; warning: number; duration: number; damage: number; graphic: Phaser.GameObjects.Graphics; train?: Phaser.GameObjects.Image; }
-interface Supply { contract?:boolean; deadline?:number; x: number; y: number; progress: number; age: number; marker: Phaser.GameObjects.Image; text: Phaser.GameObjects.Text; }
+interface Supply { contract?:boolean; deadline?:number; x: number; y: number; progress: number; age: number; ring: Phaser.GameObjects.Graphics; marker: Phaser.GameObjects.Image; text: Phaser.GameObjects.Text; }
 interface EncounterHooks {
   position: () => { x: number; y: number };
   damage: (amount: number) => void;
@@ -55,9 +55,10 @@ export class StageEncounters {
     const p = this.hooks.position();
     const point = safeEventPoint(p.x, p.y, this.eventIndex++ * 2.4, 380);
     const clear = this.hooks.clearPoint(point.x, point.y);
+    const ring = this.scene.add.graphics().setDepth(4);
     const marker = this.scene.add.image(clear.x, clear.y, 'wm_supply').setDepth(5);
     const text = this.scene.add.text(clear.x, clear.y - 55, 'SUPPLIES\nSTAY IN THE CIRCLE', { fontFamily: THEME.typography.pixelFont, fontSize: '9px', color: '#ffc52a', stroke: '#120b08', strokeThickness: 3, align: 'center' }).setOrigin(0.5).setDepth(20);
-    this.supply = { ...clear, progress: 0, age: 0, marker, text };
+    this.supply = { ...clear, progress: 0, age: 0, ring, marker, text };
     marker.setInteractive({useHandCursor:true}).on('pointerdown',()=>this.acceptContract());
     this.hooks.banner(this.stage.objective, '#ffc52a');
     // Guarded objective: enter the camp, clear its guards, hold for 8 seconds.
@@ -143,9 +144,31 @@ export class StageEncounters {
       s.age += delta;
       const inside = Math.hypot(p.x - s.x, p.y - s.y) <= 80;
       const contested = this.hooks.contested(s.x, s.y);
-      s.progress = objectiveProgress(s.progress, inside && !contested, delta / 1000);
+      const charging = inside && !contested;
+      s.progress = objectiveProgress(s.progress, charging, delta / 1000);
+      const ratio = Math.min(1, s.progress / 8);
+      s.ring.clear()
+        .lineStyle(charging ? 3 : 2, charging ? 0xffc52a : (contested ? 0xe52b20 : 0xff791c), charging ? 0.95 : 0.55)
+        .fillStyle(charging ? 0xffc52a : 0xff791c, charging ? 0.14 + ratio * 0.16 : 0.06)
+        .fillCircle(s.x, s.y, 80)
+        .strokeCircle(s.x, s.y, 80);
+      if (ratio > 0) {
+        s.ring.lineStyle(4, 0xffc52a, 0.98).beginPath().arc(s.x, s.y, 74, -Math.PI / 2, -Math.PI / 2 + ratio * Math.PI * 2, false).strokePath();
+      }
+      if (charging) {
+        s.ring.fillStyle(0xffc52a, 0.92);
+        for (let k = 0; k < 6; k++) {
+          const sparkAngle = s.age * 0.004 + k * (Math.PI / 3);
+          const sparkDist = 24 + ((s.age * 0.04 + k * 11) % 40);
+          s.ring.fillCircle(s.x + Math.cos(sparkAngle) * sparkDist, s.y + Math.sin(sparkAngle) * sparkDist * 0.65 - ratio * 10, 2.5);
+        }
+        s.marker.setAngle(Math.sin(s.age / 35) * (2.5 + ratio * 5)).setScale(1 + Math.sin(s.age / 55) * (0.04 + ratio * 0.06));
+      } else {
+        s.marker.setAngle(0).setScale(1);
+      }
       s.marker.setAlpha(.86+Math.sin(s.age/300)*.14);
-      s.text.setText(s.contract?`HIGH STAKES · ${Math.max(0,Math.ceil(((s.deadline??0)-s.age)/1000))}s\n${contested?'CLEAR THE AREA':`${Math.floor(s.progress)} / 8s`}`:`${contested?'CLEAR THE AREA':'SUPPLIES'}\n${Math.floor(s.progress)} / 8s${!this.highStakesUsed?'\n[F] / CLICK: +4 GUARDS · 25s\nWIN: EXTRA UPGRADE':''}`);
+      const header = contested ? 'CLEAR THE AREA' : (charging ? 'STAY IN THE CIRCLE TO OPEN THE CHEST!' : 'SUPPLIES');
+      s.text.setText(s.contract?`HIGH STAKES · ${Math.max(0,Math.ceil(((s.deadline??0)-s.age)/1000))}s\n${contested?'CLEAR THE AREA':`${Math.floor(s.progress)} / 8s`}`:`${header}\n${Math.floor(s.progress)} / 8s${!this.highStakesUsed?'\n[F] / CLICK: +4 GUARDS · 25s\nWIN: EXTRA UPGRADE':''}`);
       if(s.contract&&s.age>(s.deadline??0)){this.clearSupply();this.hooks.banner('CONTRACT LOST · THE SUPPLIES ARE GONE', '#e52b20');}
       else if (s.progress >= 8) { const contract=s.contract;this.clearSupply();if(contract)this.hooks.reward(true);else this.hooks.reward(); this.hooks.banner(contract?'CONTRACT WON · EXTRA UPGRADE!':'SUPPLIES: XP + GOLD + HEAL!', '#ffc52a'); }
       else if (s.age >= 80000) { this.clearSupply(); this.hooks.banner('THE WAGON HAS LEFT — ANOTHER CHANCE SOON', '#f2d49a'); }
@@ -160,6 +183,6 @@ export class StageEncounters {
     const remaining=s.contract?Math.max(0,Math.ceil(((s.deadline??0)-s.age)/1000)):Math.max(0,80-Math.floor(s.age/1000));
     return `${s.contract?'CONTRACT':'SUPPLIES'} ${dir} ${Math.round(Math.hypot(dx,dy))}m • ${remaining}s`;
   }
-  private clearSupply(): void { this.supply?.marker.destroy(); this.supply?.text.destroy(); this.supply = undefined; }
+  private clearSupply(): void { this.supply?.ring.destroy(); this.supply?.marker.destroy(); this.supply?.text.destroy(); this.supply = undefined; }
   destroy(): void { this.clearSupply(); this.hazards.forEach(h => { h.train?.destroy(); h.graphic.destroy(); }); this.hazards = []; }
 }

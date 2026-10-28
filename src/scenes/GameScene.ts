@@ -72,6 +72,8 @@ import { bossSpriteTexture, enemySpriteTexture, playBossMovement, playEnemyMovem
 import { getEligibleEvolution, WEAPON_EVOLUTIONS } from '../data/evolutions';
 import { CrowRush, preloadCrowRush } from '../systems/CrowRush';
 import { FRONTIER_ENEMY_ROLES, isFrontierEnemy } from '../data/frontierEnemyRoles';
+import { rollChestReward, type ChestWheelSegment } from '../data/chestReward';
+import { ChestRewardEvent } from '../ui/ChestRewardEvent';
 
 export class GameScene extends Phaser.Scene {
   private character!: CharacterData;
@@ -92,6 +94,8 @@ export class GameScene extends Phaser.Scene {
   private saloonViews: { door: SaloonDoor; view: BuildingPortalView }[] = [];
   private saloonRestore?: () => void;
   private saloonOpen = false;
+  private chestEventOpen = false;
+  private chestRewardEvent?: ChestRewardEvent;
   private combatElapsedMs = 0;
   private lastDamageAt = -Infinity;
   private get combatNow(): number { return this.combatElapsedMs ?? this.time?.now ?? 0; }
@@ -203,6 +207,7 @@ export class GameScene extends Phaser.Scene {
   preload() {
     preloadSurfaces(this);
     preloadImages(this, UPGRADE_HUD_ASSETS);
+    preloadImages(this, ['drop_gold', 'drop_badge', 'drop_whiskey', 'drop_moneybag', 'stage_roast', 'wm_supply', 'proj_dynamite', 'proj_lasso', 'stage_axe', 'chest_closed', 'chest_open', 'cancan_dancer']);
     preloadImages(this, GALLERY_BOSS_KEYS);
     preloadChickens(this, this.stageConfig.theme);
     preloadCrowRush(this);
@@ -250,6 +255,8 @@ export class GameScene extends Phaser.Scene {
     this.combatElapsedMs = 0;
     this.lastDamageAt = -Infinity;
     this.saloonOpen = false;
+    this.chestEventOpen = false;
+    this.chestRewardEvent = undefined;
     this.choosingUpgrade = false;
     this.runId = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
     this.kills = 0;
@@ -332,12 +339,16 @@ export class GameScene extends Phaser.Scene {
         this.updateHpBar();
         sounds.playCoin();
         this.awardXp(80 + this.stage * 30);
+        this.openChestRewardEvent(!!contract);
       },
       banner: (message, color) => this.showBanner(message, color),
       contested: (x, y) => this.enemies.some(e => !e.dead && Math.hypot(e.sprite.x - x, e.sprite.y - y) < 100),
       clearPoint: (x, y) => this.worldMap.resolve(x, y, 82),
     });
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.chestRewardEvent?.destroy();
+      this.chestRewardEvent = undefined;
+      this.chestEventOpen = false;
       this.encounters.destroy();
       this.gameEvents.removeAllListeners();
     });
@@ -362,7 +373,7 @@ export class GameScene extends Phaser.Scene {
       this.events.once(Phaser.Scenes.Events.SHUTDOWN,()=>{this.input.keyboard?.off('keydown-SPACE',dodge);this.input.keyboard?.off('keydown-F',contract);});
       // ESC key to Pause
       this.input.keyboard.on('keydown-ESC', () => {
-        if (this.isGameOver || this.choosingUpgrade || this.saloonOpen || this.scene.isPaused('GameScene')) return;
+        if (this.isGameOver || this.choosingUpgrade || this.saloonOpen || this.chestEventOpen || this.scene.isPaused('GameScene')) return;
         this.scene.pause('GameScene');
         this.scene.launch('PauseScene', {
           developer: this.developerTest,
@@ -832,7 +843,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   update(_time: number, delta: number) {
-    if (this.isGameOver || this.bossDefeated || this.saloonOpen) return;
+    if (this.isGameOver || this.bossDefeated || this.saloonOpen || this.chestEventOpen) return;
     this.combatElapsedMs = (this.combatElapsedMs ?? 0) + delta;
     if (!this.onboarding?.blocking && !this.choosingUpgrade && this.currentXp >= this.xpToNextLevel) { this.addXp(0); return; }
     if(this.contractChoices>0&&!this.choosingUpgrade&&!this.onboarding?.blocking){this.contractChoices--;this.triggerLevelUp('CONTRACT WON!');return;}
@@ -884,7 +895,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private saloonBlocked(): boolean {
-    return this.isGameOver || this.bossSpawned || this.bossDefeated || this.choosingUpgrade || this.saloonOpen || !!this.onboarding?.visible;
+    return this.isGameOver || this.bossSpawned || this.bossDefeated || this.choosingUpgrade || this.saloonOpen || this.chestEventOpen || !!this.onboarding?.visible;
   }
 
   private createSaloonInteraction(): void {
@@ -1099,7 +1110,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private tryDodge():boolean {
-    const blocked=this.isGameOver||this.bossDefeated||this.saloonOpen||this.choosingUpgrade||!!this.onboarding?.blocking;
+    const blocked=this.isGameOver||this.bossDefeated||this.saloonOpen||this.chestEventOpen||this.choosingUpgrade||!!this.onboarding?.blocking;
     const held=this.readMovementIntent(),direction=held.x||held.y?held:this.moveIntent??{x:1,y:0};
     if(!this.gunslinger?.dodge(this.combatNow,direction.x,direction.y,blocked))return false;
     this.invulnUntil=Math.max(this.invulnUntil??0,this.combatNow+FRONTIER_FEEL.dash.invulnerable);
@@ -1840,7 +1851,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private damagePlayer(amount: number) {
-    if (this.isGameOver || this.bossDefeated || this.saloonOpen || this.choosingUpgrade || amount <= 0 || this.onboarding?.blocking) return;
+    if (this.isGameOver || this.bossDefeated || this.saloonOpen || this.chestEventOpen || this.choosingUpgrade || amount <= 0 || this.onboarding?.blocking) return;
     // Temporary invulnerability after taking a hit
     if (this.combatNow < this.invulnUntil) return;
     this.invulnUntil = this.combatNow + PLAYER_HIT_GRACE_MS;
@@ -1903,7 +1914,7 @@ export class GameScene extends Phaser.Scene {
 
   // Level Up Modal
   private triggerLevelUp(title='LEVEL UP!') {
-    if (this.choosingUpgrade || this.isGameOver || this.saloonOpen) return;
+    if (this.choosingUpgrade || this.isGameOver || this.saloonOpen || this.chestEventOpen) return;
     this.choosingUpgrade = true;
     this.scene.pause();
 
@@ -2058,6 +2069,39 @@ export class GameScene extends Phaser.Scene {
     }
     this.hud?.upgrades?.sync(this.activeWeapons, this.activePassives, choice.id);
     this.gunslingerHUD?.setRoute(evolutionTrail(this.activeWeapons,this.activePassives));
+  }
+
+  public openChestRewardEvent(contract = false, rng: () => number = Math.random): ChestRewardEvent | undefined {
+    if (this.chestEventOpen || this.isGameOver || this.bossDefeated || this.saloonOpen || !this.add?.container) return undefined;
+    const choices = this.generateUpgradeChoices();
+    const roll = rollChestReward(choices, this.stage, contract, rng);
+    this.chestEventOpen = true;
+    this.player?.anims?.stop?.();
+    this.chestRewardEvent = new ChestRewardEvent({
+      scene: this,
+      roll,
+      onGrantReward: winner => this.grantChestWheelWinner(winner),
+      onClose: () => {
+        this.chestEventOpen = false;
+        this.chestRewardEvent = undefined;
+        this.invulnUntil = Math.max(this.invulnUntil ?? 0, this.combatNow + PLAYER_HIT_GRACE_MS);
+      },
+    });
+    return this.chestRewardEvent;
+  }
+
+  private grantChestWheelWinner(winner: ChestWheelSegment): void {
+    if (this.isGameOver) return;
+    if (winner.kind === 'upgrade' && winner.choice) {
+      this.applyUpgrade(winner.choice);
+    } else if (winner.kind === 'bounty' && winner.bountyAmount) {
+      this.addBounty(winner.bountyAmount);
+    } else if (winner.kind === 'xp' && winner.xpAmount) {
+      this.awardXp(winner.xpAmount);
+    } else if (winner.kind === 'heal' && winner.healAmount) {
+      this.hp = Math.min(this.maxHp, this.hp + winner.healAmount);
+      this.updateHpBar();
+    }
   }
 
   private victory() {
