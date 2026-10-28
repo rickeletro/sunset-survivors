@@ -85,7 +85,7 @@ export class StageLandmarks {
         // Street lighting belongs to facades, never randomly scattered through the wilderness.
         const litFacade = ['house', 'saloon', 'sheriff', 'general-store', 'frontier-saloon', 'gallery-saloon', 'hacienda', 'manor', 'rail-station'].includes(prop.kind);
         const poleScale = 68.5 / 188; // Visible alpha bounds: one Steve tall, uniformly scaled.
-        const poleX = prop.x + SCENERY[prop.kind].width * sceneryScale(prop.kind) / 2 + 28;
+        const poleX = prop.x + SCENERY[prop.kind].width * (image.scaleX ?? sceneryScale(prop.kind)) / 2 + 28;
         const poleY = prop.y - 20;
         const pole = litFacade && this.scene.textures.exists('wm_lantern')
           ? this.scene.add.image(poleX, poleY, 'wm_lantern').setOrigin(0.5, 1).setScale(poleScale).setDepth(worldDepth(poleY))

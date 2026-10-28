@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import {
   BAKED_VISIBLE_HEIGHTS, classifyAsset, HERO_VISIBLE_WORLD_HEIGHT, normalizedScale, SCALE_RANGES, visibleBounds,
 } from './worldScale';
-import { sceneryScale, SCENERY } from './scenery';
 
 describe('world scale normalization', () => {
   it('measures visible alpha bounds, ignoring transparent margins and faint alpha', () => {
@@ -15,7 +14,8 @@ describe('world scale normalization', () => {
   });
 
   it('classifies known scenery and refuses to guess unknown keys', () => {
-    expect(classifyAsset('scenery_saloon')).toBe('building');
+    expect(classifyAsset('scenery_saloon')).toBe('saloon');
+    expect(classifyAsset('scenery_house')).toBe('building');
     expect(classifyAsset('wm_barrel')).toBe('small-container');
     expect(classifyAsset('hero_steve')).toBeNull();
     expect(classifyAsset('decor_skull')).toBeNull();
@@ -23,7 +23,7 @@ describe('world scale normalization', () => {
 
   it('corrects only out-of-range objects with a uniform scale and leaves the rest untouched', () => {
     const hero = HERO_VISIBLE_WORLD_HEIGHT;
-    expect(normalizedScale('small-container', 40, 1)).toBe(1); // 0.58x hero: fine
+    expect(normalizedScale('small-container', 40, 1.2)).toBe(1.2); // 0.70x hero: in range
     const giant = normalizedScale('small-container', 40, 3); // 1.75x hero: too big
     expect(40 * giant / hero).toBeCloseTo(SCALE_RANGES['small-container'].max);
     const tiny = normalizedScale('building', 141, 0.3);
@@ -32,13 +32,17 @@ describe('world scale normalization', () => {
     expect(normalizedScale('building', 0, 7)).toBe(7);
   });
 
-  it('keeps every shipped scenery asset inside its range at its current render scale (no-op on approved art)', () => {
+  it('brings every shipped scenery asset into its hero-relative range without distorting it', () => {
     for (const [key, height] of Object.entries(BAKED_VISIBLE_HEIGHTS)) {
       const category = classifyAsset(key)!;
       expect(category, key).not.toBeNull();
-      const kind = key.replace('scenery_', '') as keyof typeof SCENERY;
-      const base = key.startsWith('scenery_') ? sceneryScale(kind) : key === 'iso_barrel_lantern' || key === 'iso_crate_wheel' ? 0.65 : key === 'iso_wanted_wall' ? 0.85 : key === 'wm_lantern' ? 1 : 1;
-      expect(normalizedScale(category, height, base), key).toBe(base);
+      const scale = normalizedScale(category, height, 1);
+      const ratio = height * scale / HERO_VISIBLE_WORLD_HEIGHT;
+      expect(ratio, key).toBeGreaterThanOrEqual(SCALE_RANGES[category].min - 1e-9);
+      expect(ratio, key).toBeLessThanOrEqual(SCALE_RANGES[category].max + 1e-9);
     }
+    expect(normalizedScale('building', 141, 1)).toBeGreaterThan(1.4);
+    expect(normalizedScale('tower', 166, 1)).toBeGreaterThan(1.2);
+    expect(normalizedScale('wagon', 93, 1)).toBeGreaterThan(1.1);
   });
 });

@@ -9,20 +9,21 @@
 export const HERO_VISIBLE_WORLD_HEIGHT = 68.5;
 
 export type ScaleCategory =
-  | 'building' | 'rolling-stock' | 'wagon' | 'tower' | 'small-container' | 'furniture' | 'fence' | 'well'
+  | 'building' | 'saloon' | 'rolling-stock' | 'wagon' | 'tower' | 'small-container' | 'furniture' | 'fence' | 'well'
   | 'cactus' | 'tree' | 'dead-tree' | 'rock' | 'statue' | 'lamp-post' | 'tent' | 'ruin'
   | 'iso-lantern-barrel' | 'iso-crate-wheel' | 'iso-wanted-wall';
 
 export interface ScaleRange { min: number; max: number; }
 
 export const SCALE_RANGES: Record<ScaleCategory, ScaleRange> = {
-  building: { min: 1.8, max: 3.6 },
-  'rolling-stock': { min: 1.0, max: 2.5 },
-  wagon: { min: 0.9, max: 2.5 },
-  tower: { min: 1.8, max: 3.2 },
-  'small-container': { min: 0.3, max: 0.8 },
-  furniture: { min: 0.5, max: 0.95 },
-  fence: { min: 0.6, max: 1.2 },
+  building: { min: 3.0, max: 5.0 },
+  saloon: { min: 4.5, max: 7.0 },
+  'rolling-stock': { min: 1.4, max: 2.5 },
+  wagon: { min: 1.5, max: 2.5 },
+  tower: { min: 3.0, max: 4.5 },
+  'small-container': { min: 0.6, max: 0.8 },
+  furniture: { min: 0.6, max: 0.9 },
+  fence: { min: 0.7, max: 1.2 },
   well: { min: 0.9, max: 1.5 },
   cactus: { min: 1.4, max: 2.2 },
   tree: { min: 1.8, max: 3.0 },
@@ -43,7 +44,8 @@ const RULES: [RegExp, ScaleCategory][] = [
   [/^iso_wanted_wall$/, 'iso-wanted-wall'],
   [/^scenery_(locomotive|cargo-wagon|passenger-wagon)$/, 'rolling-stock'],
   [/^scenery_water-tower$/, 'tower'],
-  [/^scenery_(saloon|frontier-saloon|gallery-saloon|house|sheriff|general-store|barn|hacienda|manor|rail-station|mine-entrance)$/, 'building'],
+  [/^scenery_(saloon|frontier-saloon|gallery-saloon)$/, 'saloon'],
+  [/^scenery_(house|sheriff|general-store|barn|hacienda|manor|rail-station|mine-entrance)$/, 'building'],
   [/^scenery_supply-cart$|^wm_wagon$/, 'wagon'],
   [/^scenery_well$/, 'well'],
   [/^scenery_hitching-post$|^wm_barricade$/, 'fence'],
@@ -104,3 +106,5 @@ export const BAKED_VISIBLE_HEIGHTS: Record<string, number> = {
   wm_barrel: 40, wm_barricade: 44, wm_cactus: 128, wm_wagon: 79, wm_crate: 38, wm_deadtree: 99, wm_lantern: 188,
   wm_palm: 164, wm_pine: 152, wm_rock: 24, wm_ruin: 93, wm_statue: 116, wm_table: 48, wm_tent: 80,
 };
+
+

@@ -44,3 +44,4 @@ export function normalizeSceneryScale<T extends Phaser.GameObjects.Image>(scene:
   image.setData?.('worldScaled', true);
   return image;
 }
+
