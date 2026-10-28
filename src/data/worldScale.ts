@@ -16,11 +16,11 @@ export type ScaleCategory =
 export interface ScaleRange { min: number; max: number; }
 
 export const SCALE_RANGES: Record<ScaleCategory, ScaleRange> = {
-  building: { min: 3.0, max: 5.0 },
+  building: { min: 4.5, max: 7.5 },
   saloon: { min: 4.5, max: 7.0 },
   'rolling-stock': { min: 1.4, max: 2.5 },
-  wagon: { min: 1.5, max: 2.5 },
-  tower: { min: 3.0, max: 4.5 },
+  wagon: { min: 2.25, max: 3.75 },
+  tower: { min: 4.5, max: 6.75 },
   'small-container': { min: 0.6, max: 0.8 },
   furniture: { min: 0.6, max: 0.9 },
   fence: { min: 0.7, max: 1.2 },
