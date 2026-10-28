@@ -1,16 +1,16 @@
-# Frontier enemy family — PixelLab production brief
+# Frontier enemy family — PixelLab production record
 
-The PixelLab MCP is not connected in this Codex session. These briefs are the exact
-production record for the files that replace the temporary four-direction fallback
-aliases in `src/systems/PixellabCombat.ts`.
+All five frontier enemy/hazard assets and their 4-directional (`south`, `east`, `north`, `west`), 4-frame (`walking-4-frames`) animations have been generated via the PixelLab MCP and integrated into `src/assets/catalog.json`, `src/assets/enemyFrameBounds.json`, `src/systems/PixellabCombat.ts`, and `src/systems/CrowRush.ts`.
 
-All five assets use: low top-down view, 96 px source canvas, four cardinal directions
-(`south`, `east`, `north`, `west`), and a four-frame `walking-4-frames` cycle. Keep
-the feet on one baseline in every frame and direction. Use a charcoal `#120B08`
-outline, warm upper-left sunset light, purple mountain shadows `#572449`, transparent
-background, and no ground shadow. At the game's current 64/source-width scale, the
-visible humanoid height must be about 62–68 world pixels. Do not mirror east to make
-west; generate both views.
+| Asset ID | Role | PixelLab ID | Animation IDs | World Height (`compare_scale.py`) | Ratio vs Steve (`68.5px`) |
+|---|---|---|---|---|---|
+| `thief` | Coin Sneak | `34611e85-ba6b-4aca-9e0c-e1a5006c375b` | `c32e7c13-de7e-438d-b25e-882740987343` (`east/north/west`), `02718fd9-8a87-4cb9-83aa-7b3dddce6417` (`south`) | `57.6 px` | `0.84x` |
+| `drifter` | Dust Drifter | `92da2d11-e62c-4c89-96d1-e4f9bb3f6a0e` | `8f8f57df-0bbf-4c0d-bc7f-fa4abe37f3c5` | `67.2 px` | `0.98x` |
+| `bow_scout` | Plains Archer | `5fa39d9e-edcb-445d-aaa5-22c2236dd1b0` | `f3ff9a39-ead3-4d60-8d80-b3e6cbf4b591` | `63.3 px` | `0.92x` |
+| `outlaw_woman` | Silver Spur | `3068fb48-72a1-4817-bd3a-cf62267d200c` | `3fc85b49-bb39-4216-8c3a-bbceedb52b65` (`east/north/west`), `e926e704-8864-435b-80da-57731e00ab7c` (`south`) | `59.7 px` | `0.87x` |
+| `crow_rush` | Desert Crow Rush | `aea318b2-ed0f-42c4-a906-d232db4003b0` | `b9e4a355-5c9e-4388-ba61-e69de19894a9` | `18.8 px` | `0.27x` |
+
+All five assets use: low top-down view, four real cardinal directions (`south`, `east`, `north`, `west`), and a four-frame `walking-4-frames` cycle exported to `public/assets/enemies/pixellab/<id>/Idle/animations/walking-4-frames/<direction>/frame_000.png` through `frame_003.png`.
 
 ## Coin Sneak — `thief`
 

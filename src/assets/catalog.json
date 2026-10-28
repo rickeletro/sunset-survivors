@@ -240,6 +240,56 @@
       ],
       "frames": 4
     },
+    "enemy:thief": {
+      "root": "assets/enemies/pixellab/thief/Idle/animations/walking-4-frames",
+      "directions": [
+        "south",
+        "east",
+        "north",
+        "west"
+      ],
+      "frames": 4
+    },
+    "enemy:drifter": {
+      "root": "assets/enemies/pixellab/drifter/Idle/animations/walking-4-frames",
+      "directions": [
+        "south",
+        "east",
+        "north",
+        "west"
+      ],
+      "frames": 4
+    },
+    "enemy:bow_scout": {
+      "root": "assets/enemies/pixellab/bow_scout/Idle/animations/walking-4-frames",
+      "directions": [
+        "south",
+        "east",
+        "north",
+        "west"
+      ],
+      "frames": 4
+    },
+    "enemy:outlaw_woman": {
+      "root": "assets/enemies/pixellab/outlaw_woman/Idle/animations/walking-4-frames",
+      "directions": [
+        "south",
+        "east",
+        "north",
+        "west"
+      ],
+      "frames": 4
+    },
+    "enemy:crow_rush": {
+      "root": "assets/enemies/pixellab/crow_rush/Idle/animations/walking-4-frames",
+      "directions": [
+        "south",
+        "east",
+        "north",
+        "west"
+      ],
+      "frames": 4
+    },
     "boss:hawkeye-hank-hatfield": {
       "root": "assets/bosses/pixellab/hawkeye-hank-hatfield/Idle/animations/run-attack-eight-directions",
       "directions": [

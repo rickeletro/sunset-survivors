@@ -70,7 +70,7 @@ import { mergeLoot, takeLootPacket } from '../systems/LootBudget';
 import { StageEncounters } from '../systems/StageEncounters';
 import { bossSpriteTexture, enemySpriteTexture, playBossMovement, playEnemyMovement, preloadCombatSprites } from '../systems/PixellabCombat';
 import { getEligibleEvolution, WEAPON_EVOLUTIONS } from '../data/evolutions';
-import { CrowRush } from '../systems/CrowRush';
+import { CrowRush, preloadCrowRush } from '../systems/CrowRush';
 import { FRONTIER_ENEMY_ROLES, isFrontierEnemy } from '../data/frontierEnemyRoles';
 
 export class GameScene extends Phaser.Scene {
@@ -205,6 +205,7 @@ export class GameScene extends Phaser.Scene {
     preloadImages(this, UPGRADE_HUD_ASSETS);
     preloadImages(this, GALLERY_BOSS_KEYS);
     preloadChickens(this, this.stageConfig.theme);
+    preloadCrowRush(this);
     preloadImages(this, sceneryForStage(this.stageConfig.theme).map(sceneryKey));
     // The black doorway cut must not reveal the street while the interior loads.
     if (saloonDoors(this.stageConfig.theme).length) {
