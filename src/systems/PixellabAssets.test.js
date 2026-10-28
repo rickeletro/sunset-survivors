@@ -79,13 +79,13 @@ describe('campaign combat sprite files', () => {
       const scene = { textures: { exists: () => false }, load: { image: (key, path) => images.set(key, path) } };
       preloadCombatSprites(scene, stage);
       const bossFrames = stage === 1 ? 0 : stage === 4 ? 128 : 64;
-      expect(images.size).toBe(160 + bossFrames);
+      expect(images.size).toBe(192 + bossFrames);
       for (const path of images.values()) {
         expect(existsSync(new URL(`../../public/${path}`, import.meta.url)), path).toBe(true);
         allFiles.add(path);
       }
     }
-    expect(allFiles.size).toBe(160 + 512);
+    expect(allFiles.size).toBe(192 + 512);
   });
   it('selects screen directions correctly for enemies and mounted bosses', () => {
     expect(combatDirection(1, 0)).toBe('east');

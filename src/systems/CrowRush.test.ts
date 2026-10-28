@@ -8,7 +8,7 @@ function scene() {
 
 describe('CrowRush', () => {
   it('uses one bounded drawing surface and pulls only inside the flying flock corridor', () => {
-    const s = scene(), banner = vi.fn(), rush = new CrowRush(s as never, banner, () => 0.9);
+    const s = scene(), banner = vi.fn(), rush = new CrowRush(s as never, banner, () => 0.9, 185000);
     expect(rush.update(0, 184999, { x: 100, y: 100 }, false)).toBeUndefined();
     expect(rush.update(0, 185000, { x: 100, y: 100 }, false)).toBeUndefined();
     expect(rush.update(1500, 186500, { x: 100, y: 212 }, false)).toEqual({ x: 172.5, y: 0 });
@@ -17,8 +17,56 @@ describe('CrowRush', () => {
     expect(rush.update(100, 186600, { x: 100, y: 500 }, false)).toBeUndefined();
   });
   it('does not start or pull while combat is blocked', () => {
-    const rush = new CrowRush(scene() as never, vi.fn(), () => 0);
+    const rush = new CrowRush(scene() as never, vi.fn(), () => 0, 185000);
     expect(rush.update(100, 200000, { x: 0, y: 0 }, true)).toBeUndefined();
+  });
+  it('spawns early at 25s with increased appearance rate and recurs rapidly', () => {
+    const s = scene(), banner = vi.fn();
+    const rush = new CrowRush(s as never, banner, () => 0);
+    expect(rush.update(0, 24999, { x: 100, y: 100 }, false)).toBeUndefined();
+    expect(rush.update(0, 25000, { x: 100, y: 100 }, false)).toBeUndefined();
+    expect(banner).toHaveBeenCalledWith('CROW RUSH — BREAK FREE FROM THE FLOCK!');
+    expect(rush.isActive()).toBe(true);
+    // After flock ends, next flock is ready in 35s
+    rush.update(3000, 28000, { x: 100, y: 100 }, false);
+    expect(rush.isActive()).toBe(false);
+    expect(rush.update(0, 62999, { x: 100, y: 100 }, false)).toBeUndefined();
+    expect(rush.update(0, 63000, { x: 100, y: 100 }, false)).toBeUndefined();
+    expect(rush.isActive()).toBe(true);
+  });
+  it('allows eliminating crows one by one with projectiles and explosions and deals contact damage', () => {
+    const s = scene(), killed = vi.fn();
+    const rush = new CrowRush(s as never, vi.fn(), () => 0.9, 1000);
+    rush.onCrowKilled = killed;
+    rush.update(0, 1000, { x: 100, y: 100 }, false);
+    rush.update(500, 1500, { x: 100, y: 100 }, false);
+
+    const birds = rush.getAliveBirds();
+    expect(birds).toHaveLength(28);
+
+    // Hit the first bird with a projectile
+    const targetBird = birds[0];
+    const hit = rush.hit(targetBird.x - 5, targetBird.y, targetBird.x + 5, targetBird.y, 25);
+    expect(hit).toBe(true);
+    expect(targetBird.alive).toBe(false);
+    expect(killed).toHaveBeenCalledWith(targetBird.x, targetBird.y);
+    expect(rush.getAliveBirds()).toHaveLength(27);
+
+    // Blast a cluster of birds with an explosion
+    const nextBird = rush.getAliveBirds()[0];
+    const blastKills = rush.blast(nextBird.x, nextBird.y, 40, 50);
+    expect(blastKills).toBeGreaterThanOrEqual(1);
+    expect(rush.getAliveBirds().length).toBeLessThan(27);
+
+    // When the player collides with an alive crow, contact damage is inflicted
+    const aliveOne = rush.getAliveBirds()[0];
+    const pull = rush.update(16, 1600, { x: aliveOne.x, y: aliveOne.y }, false);
+    expect(pull?.damage).toBe(8);
+
+    // Eliminating all remaining crows disperses the flock early
+    rush.blast(aliveOne.x, aliveOne.y, 2000, 100);
+    expect(rush.getAliveBirds()).toHaveLength(0);
+    expect(rush.isActive()).toBe(false);
   });
   it('preloads 16 directional crow frames and animates the 28-bird sprite pool across all 4 directions', () => {
     const loaded = new Map<string, string>();

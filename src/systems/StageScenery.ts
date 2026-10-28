@@ -1,8 +1,10 @@
 import type Phaser from 'phaser';
+import { isometricStageProfile } from '../data/isometricWorld';
 import type { StageConfig } from '../data/stages';
 
 /** Small independent pixel textures, never a flattened stage background. */
 export function createStageScenery(scene: Phaser.Scene, stage: StageConfig): string {
+  const isoProfile = isometricStageProfile(stage.theme);
   const g = scene.make.graphics({ x: 0, y: 0 }, false);
   const texture = (key: string, width: number, height: number, draw: () => void) => {
     if (scene.textures.exists(key)) return;
@@ -79,5 +81,5 @@ export function createStageScenery(scene: Phaser.Scene, stage: StageConfig): str
   if (['railroad', 'caboose'].includes(stage.theme)) {
     for (let y = 160; y < 8000; y += 640) scene.add.tileSprite(0, y, 8000, 128, 'wm_rails').setOrigin(0, 0.5).setDepth(-4);
   }
-  return `stage_ground_${stage.id}`;
+  return scene.textures.exists(isoProfile.groundTexture) ? isoProfile.groundTexture : `stage_ground_${stage.id}`;
 }

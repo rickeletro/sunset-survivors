@@ -70,7 +70,7 @@ it('creates decoration once per active chunk and destroys it on chunk exit', () 
   world.landmarks.update = vi.fn();
   world.scene = { time: { now: 0 }, add: { image(x, y, key) {
     const image = { x, y, key, destroy: vi.fn() };
-    for (const method of ['setOrigin', 'setDepth', 'setBlendMode', 'setAlpha']) image[method] = () => image;
+    for (const method of ['setOrigin', 'setDepth', 'setBlendMode', 'setAlpha', 'setScale']) image[method] = () => image;
     images.push(image); return image;
   } } };
   world.update(4000, 4000);

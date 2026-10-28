@@ -1,30 +1,41 @@
 import type { StageTheme } from './stages';
+import { BAKED_VISIBLE_HEIGHTS, classifyAsset, normalizedScale } from './worldScale';
 
 /** Native pixels are retained; integer scales keep scenery crisp. Footprints describe ground contact. */
 export const SCENERY = {
-  'gallery-saloon': { width: 256, height: 256, halfWidth: 106, halfHeight: 40, light: true },
-  'rail-station': { width: 256, height: 192, halfWidth: 106, halfHeight: 32, light: true },
-  'mine-entrance': { width: 192, height: 192, halfWidth: 76, halfHeight: 32, light: false },
-  well: { width: 96, height: 96, halfWidth: 30, halfHeight: 16, light: false },
-  'hitching-post': { width: 128, height: 64, halfWidth: 52, halfHeight: 9, light: false },
-  locomotive: { width: 256, height: 128, halfWidth: 108, halfHeight: 27, light: false },
-  'cargo-wagon': { width: 256, height: 128, halfWidth: 108, halfHeight: 27, light: false },
-  'passenger-wagon': { width: 256, height: 128, halfWidth: 108, halfHeight: 27, light: true },
-  saloon: { width: 256, height: 256, halfWidth: 106, halfHeight: 40, light: true },
-  house: { width: 192, height: 192, halfWidth: 76, halfHeight: 32, light: true },
-  sheriff: { width: 192, height: 192, halfWidth: 76, halfHeight: 32, light: true },
-  'general-store': { width: 256, height: 192, halfWidth: 106, halfHeight: 32, light: true },
-  'water-tower': { width: 128, height: 192, halfWidth: 40, halfHeight: 27, light: false },
-  barn: { width: 256, height: 192, halfWidth: 106, halfHeight: 35, light: false },
-  hacienda: { width: 256, height: 256, halfWidth: 106, halfHeight: 40, light: true },
-  manor: { width: 256, height: 256, halfWidth: 106, halfHeight: 40, light: true },
-  'supply-cart': { width: 128, height: 128, halfWidth: 40, halfHeight: 24, light: false },
+  'gallery-saloon': { width: 256, height: 256, dx: 0, dy: 43, halfWidth: 111, halfHeight: 26, light: true },
+  'rail-station': { width: 256, height: 192, dx: -7, dy: 36, halfWidth: 82, halfHeight: 19, light: true },
+  'mine-entrance': { width: 192, height: 192, dx: 0, dy: 29, halfWidth: 80, halfHeight: 20, light: false },
+  well: { width: 96, height: 96, dx: 0, dy: 21, halfWidth: 24, halfHeight: 10, light: false },
+  'hitching-post': { width: 128, height: 64, dx: -3, dy: 12, halfWidth: 47, halfHeight: 7, light: false },
+  locomotive: { width: 256, height: 128, dx: 32, dy: 33, halfWidth: 86, halfHeight: 9, light: false },
+  'cargo-wagon': { width: 256, height: 128, dx: 0, dy: 29, halfWidth: 126, halfHeight: 11, light: false },
+  'passenger-wagon': { width: 256, height: 128, dx: 1, dy: 35, halfWidth: 116, halfHeight: 9, light: true },
+  saloon: { width: 256, height: 256, dx: 0, dy: 43, halfWidth: 111, halfHeight: 26, light: true },
+  house: { width: 192, height: 192, dx: -7, dy: 44, halfWidth: 72, halfHeight: 16, light: true },
+  sheriff: { width: 192, height: 192, dx: 0, dy: 40, halfWidth: 65, halfHeight: 17, light: true },
+  'general-store': { width: 256, height: 192, dx: -18, dy: 45, halfWidth: 78, halfHeight: 17, light: true },
+  'water-tower': { width: 128, height: 192, dx: -1, dy: 32, halfWidth: 43, halfHeight: 19, light: false },
+  barn: { width: 256, height: 192, dx: -5, dy: 25, halfWidth: 94, halfHeight: 21, light: false },
+  hacienda: { width: 256, height: 256, dx: 8, dy: 73, halfWidth: 106, halfHeight: 19, light: true },
+  manor: { width: 256, height: 256, dx: -3, dy: 60, halfWidth: 105, halfHeight: 24, light: true },
+  'supply-cart': { width: 128, height: 128, dx: -2, dy: 28, halfWidth: 39, halfHeight: 11, light: false },
   // Replaces one canyon barn visually, preserving that barn's exact ground footprint.
-  'frontier-saloon': { width: 256, height: 256, halfWidth: 106, halfHeight: 35, light: true },
+  'frontier-saloon': { width: 256, height: 256, dx: -5, dy: 25, halfWidth: 94, halfHeight: 21, light: true },
 } as const;
 export type SceneryKind = keyof typeof SCENERY;
 /** Uniform render scale is independent of source resolution and ground collision. */
 export const sceneryScale = (kind: SceneryKind): number => kind === 'house' ? 1.45 : 1;
+/** Hero-relative render scale (see worldScale.ts); equals the legacy scale when already in range. */
+export const sceneryRenderScale = (kind: SceneryKind): number => {
+  const key = sceneryKey(kind), height = BAKED_VISIBLE_HEIGHTS[key];
+  return height ? normalizedScale(classifyAsset(key), height, sceneryScale(kind)) : sceneryScale(kind);
+};
+/** How much bigger a building is drawn than its legacy art scale; collisions and door offsets grow with it. */
+export const sceneryGrowth = (kind: SceneryKind): number => {
+  if (kind === 'frontier-saloon') return sceneryGrowth('barn');
+  return sceneryRenderScale(kind) / sceneryScale(kind);
+};
 export interface Landmark { kind: SceneryKind; x: number; y: number; }
 export interface Footprint { x: number; y: number; halfWidth: number; halfHeight: number; }
 // Reserve 10–15 for y-sorted world actors and tall scenery, below effects and HUD.
@@ -52,29 +63,43 @@ export function stageLandmarks(theme: StageTheme): Landmark[] {
     if (rail) {
       // Parked rolling stock occupies sidings, never the active train hazard corridor.
       const y = 4000 + Math.round((cy - 4000) / 640) * 640 + 320;
-      for (let i = 0; i < 3; i++) landmarks.push({ kind: kit[i], x: cx - 300 + i * 300, y });
-      landmarks.push({ kind: 'water-tower', x: cx + 580, y: y + 180 });
+      const car_xs = (cx === 4000 && cy === 4000) ? [cx - 680, cx - 280, cx + 280] : [cx - 500, cx, cx + 500];
+      for (let i = 0; i < 3; i++) landmarks.push({ kind: kit[i], x: car_xs[i], y });
+      landmarks.push({ kind: 'water-tower', x: cx + 760, y: y + 180 });
       if (theme === 'railroad') {
-        landmarks.push({ kind: 'rail-station', x: cx - 530, y: y + 180 });
-        landmarks.push({ kind: 'frontier-saloon', x: cx + 180, y: y + 180 });
-        landmarks.push({ kind: 'house', x: cx - 180, y: y + 180 });
+        landmarks.push({ kind: 'rail-station', x: cx - 740, y: y + 180 });
+        landmarks.push({ kind: 'frontier-saloon', x: cx + 290, y: y + 180 });
+        landmarks.push({ kind: 'house', x: cx - 240, y: y + 180 });
       }
     } else {
-      landmarks.push({ kind: 'hitching-post', x: cx - 650, y: cy + 180 });
-      landmarks.push({ kind: 'well', x: cx + 650, y: cy + 180 });
+      landmarks.push({ kind: 'hitching-post', x: cx - 800, y: cy + 180 });
+      landmarks.push({ kind: 'well', x: cx + 800, y: cy + 180 });
       for (let i = 0; i < 6; i++) {
         const kind = theme === 'canyon' && cx === 4000 && cy === 4000 && i === 0 ? 'frontier-saloon' : kit[i % kit.length];
-        landmarks.push({ kind, x: cx + (i % 3 - 1) * 420, y: cy + (i < 3 ? -390 : 450) });
+        const col = (i % 3) - 1;
+        const row = i < 3 ? 0 : 1;
+        const posX = cx + col * 420;
+        let posY = row === 0 ? cy - 390 : cy + 490;
+        if (col === 0) posY += row === 0 ? -130 : 220;
+        else if (col === 1) posY += row === 0 ? 0 : 60;
+        landmarks.push({ kind, x: posX, y: posY });
       }
     }
   }
   // A dedicated central-hub range never replaces Faro or an existing courtesy door.
-  landmarks.push({ kind: 'gallery-saloon', x: 4840, y: rail ? 4500 : 3960 });
+  landmarks.push({ kind: 'gallery-saloon', x: rail ? 5060 : 4840, y: rail ? 4500 : 3960 });
   return landmarks;
 }
 export function footprint(landmark: Landmark): Footprint {
   const prop = SCENERY[landmark.kind];
-  return { x: landmark.x, y: landmark.y - prop.halfHeight, halfWidth: prop.halfWidth, halfHeight: prop.halfHeight };
+  const scale = landmark.kind === 'frontier-saloon' ? sceneryRenderScale('barn') : sceneryRenderScale(landmark.kind);
+  const halfWidth = prop.halfWidth * scale, halfHeight = prop.halfHeight * scale;
+  return {
+    x: landmark.x + prop.dx * scale,
+    y: landmark.y - prop.dy * scale,
+    halfWidth,
+    halfHeight,
+  };
 }
 export function overlapsFootprint(box: Footprint, x: number, y: number, radius: number): boolean {
   const dx = Math.max(Math.abs(x - box.x) - box.halfWidth, 0);
