@@ -368,7 +368,12 @@ export class GameScene extends Phaser.Scene {
         for (const enemy of [...this.enemies]) if (!enemy.dead && Math.hypot(enemy.sprite.x - x, enemy.sprite.y - y) <= radius) this.damageEnemy(enemy, damage);
       },
     });
-    this.crowRush = new CrowRush(this, text => this.showBanner(text, '#572449'));
+    this.crowRush = new CrowRush(this, text => this.showBanner(text, '#572449'), Math.random, 25000, 35000);
+    this.crowRush.onCrowKilled = () => {
+      this.kills++;
+      this.killsText?.setText?.(String(this.kills).padStart(4, '0'));
+      sounds.playHit();
+    };
     // Keyboard Inputs
     if (this.input.keyboard) {
       this.cursors = this.input.keyboard.createCursorKeys();
@@ -861,6 +866,9 @@ export class GameScene extends Phaser.Scene {
     if (crowPull) {
       const pulled = this.worldMap.resolve(this.player.x + crowPull.x, this.player.y + crowPull.y, 10);
       this.player.setPosition(pulled.x, pulled.y);
+      if (crowPull.damage && crowPull.damage > 0) {
+        this.damagePlayer(crowPull.damage);
+      }
     }
     this.gunslingerHUD?.update(this.combatNow,this.player.x,this.player.y,!!(this.onboarding?.visible||this.choosingUpgrade));
     this.updateSaloonPrompt();
@@ -1350,6 +1358,7 @@ export class GameScene extends Phaser.Scene {
     const radius = impactRadius ?? dynamiteRadius(this.areaMultiplier, isKeg);
     const scaledDamage = alreadyScaled ? damage : Math.round(damage * this.attackDamageMultiplier);
     this.getWeaponEffects().explosion(x, y, radius, isKeg ? 'hellfire' : alreadyScaled ? 'residue' : 'tnt');
+    this.crowRush?.blast(x, y, radius, scaledDamage);
 
     if (isKeg) {
       // Cria lago de fogo persistente
@@ -1384,7 +1393,16 @@ export class GameScene extends Phaser.Scene {
       p.sprite.x += (p.vx * delta) / 1000;
       p.sprite.y += (p.vy * delta) / 1000;
       p.life -= delta;
-      if (p.life > 0) { this.wildlife?.hit(previousX, previousY, p.sprite.x, p.sprite.y); if (!this.onboarding?.blocking && !this.bossSpawned) this.frontierEvents?.hit(previousX, previousY, p.sprite.x, p.sprite.y, p.damage); }
+      if (p.life > 0) {
+        this.wildlife?.hit(previousX, previousY, p.sprite.x, p.sprite.y);
+        if (!this.onboarding?.blocking && !this.bossSpawned) this.frontierEvents?.hit(previousX, previousY, p.sprite.x, p.sprite.y, p.damage);
+        if (this.crowRush?.hit(previousX, previousY, p.sprite.x, p.sprite.y, p.damage)) {
+          if (!p.shieldPiercing && p.pierce < 90) {
+            p.pierce--;
+            if (p.pierce <= 0) p.life = 0;
+          }
+        }
+      }
 
       // Ricochete de borda para sniper dourado (Golden Marshal)
       if (p.isBouncingSniper && (p.bouncesLeft ?? 0) > 0) {
@@ -1912,12 +1930,14 @@ export class GameScene extends Phaser.Scene {
   }
 
   private getNearestEnemies(range: number): Enemy[] {
-    return this.enemies
+    const crows = (this.crowRush?.activeTargets() ?? []) as unknown as Enemy[];
+    const all = crows.length > 0 ? [...this.enemies, ...crows] : this.enemies;
+    return all
       .map((e) => ({
         enemy: e,
         dist: Math.hypot(e.sprite.x - this.player.x, e.sprite.y - this.player.y),
       }))
-      .filter((item) => item.dist <= range)
+      .filter((item) => item.dist <= range && !item.enemy.dead)
       .sort((a, b) => a.dist - b.dist)
       .map((item) => item.enemy);
   }
