@@ -108,3 +108,9 @@ export const BAKED_VISIBLE_HEIGHTS: Record<string, number> = {
 };
 
 
+
+/** Render scale for a wm_<kind> world prop relative to the hero (1 when already in range or unknown). */
+export function worldPropScale(kind: string): number {
+  const key = `wm_${kind}`, height = BAKED_VISIBLE_HEIGHTS[key];
+  return height ? normalizedScale(classifyAsset(key), height, 1) : 1;
+}

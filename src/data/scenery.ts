@@ -1,4 +1,5 @@
 import type { StageTheme } from './stages';
+import { BAKED_VISIBLE_HEIGHTS, classifyAsset, normalizedScale } from './worldScale';
 
 /** Native pixels are retained; integer scales keep scenery crisp. Footprints describe ground contact. */
 export const SCENERY = {
@@ -25,6 +26,16 @@ export const SCENERY = {
 export type SceneryKind = keyof typeof SCENERY;
 /** Uniform render scale is independent of source resolution and ground collision. */
 export const sceneryScale = (kind: SceneryKind): number => kind === 'house' ? 1.45 : 1;
+/** Hero-relative render scale (see worldScale.ts); equals the legacy scale when already in range. */
+export const sceneryRenderScale = (kind: SceneryKind): number => {
+  const key = sceneryKey(kind), height = BAKED_VISIBLE_HEIGHTS[key];
+  return height ? normalizedScale(classifyAsset(key), height, sceneryScale(kind)) : sceneryScale(kind);
+};
+/** How much bigger a building is drawn than its legacy art scale; collisions and door offsets grow with it. */
+export const sceneryGrowth = (kind: SceneryKind): number => {
+  if (kind === 'frontier-saloon') return sceneryGrowth('barn');
+  return sceneryRenderScale(kind) / sceneryScale(kind);
+};
 export interface Landmark { kind: SceneryKind; x: number; y: number; }
 export interface Footprint { x: number; y: number; halfWidth: number; halfHeight: number; }
 // Reserve 10–15 for y-sorted world actors and tall scenery, below effects and HUD.
@@ -52,29 +63,37 @@ export function stageLandmarks(theme: StageTheme): Landmark[] {
     if (rail) {
       // Parked rolling stock occupies sidings, never the active train hazard corridor.
       const y = 4000 + Math.round((cy - 4000) / 640) * 640 + 320;
-      for (let i = 0; i < 3; i++) landmarks.push({ kind: kit[i], x: cx - 300 + i * 300, y });
-      landmarks.push({ kind: 'water-tower', x: cx + 580, y: y + 180 });
+      const car_xs = (cx === 4000 && cy === 4000) ? [cx - 680, cx - 280, cx + 280] : [cx - 500, cx, cx + 500];
+      for (let i = 0; i < 3; i++) landmarks.push({ kind: kit[i], x: car_xs[i], y });
+      landmarks.push({ kind: 'water-tower', x: cx + 760, y: y + 180 });
       if (theme === 'railroad') {
-        landmarks.push({ kind: 'rail-station', x: cx - 530, y: y + 180 });
-        landmarks.push({ kind: 'frontier-saloon', x: cx + 180, y: y + 180 });
-        landmarks.push({ kind: 'house', x: cx - 180, y: y + 180 });
+        landmarks.push({ kind: 'rail-station', x: cx - 740, y: y + 180 });
+        landmarks.push({ kind: 'frontier-saloon', x: cx + 290, y: y + 180 });
+        landmarks.push({ kind: 'house', x: cx - 240, y: y + 180 });
       }
     } else {
-      landmarks.push({ kind: 'hitching-post', x: cx - 650, y: cy + 180 });
-      landmarks.push({ kind: 'well', x: cx + 650, y: cy + 180 });
+      landmarks.push({ kind: 'hitching-post', x: cx - 800, y: cy + 180 });
+      landmarks.push({ kind: 'well', x: cx + 800, y: cy + 180 });
       for (let i = 0; i < 6; i++) {
         const kind = theme === 'canyon' && cx === 4000 && cy === 4000 && i === 0 ? 'frontier-saloon' : kit[i % kit.length];
-        landmarks.push({ kind, x: cx + (i % 3 - 1) * 420, y: cy + (i < 3 ? -390 : 450) });
+        const col = (i % 3) - 1;
+        const row = i < 3 ? 0 : 1;
+        const posX = cx + col * 420;
+        let posY = row === 0 ? cy - 390 : cy + 490;
+        if (col === 0) posY += row === 0 ? -130 : 220;
+        else if (col === 1) posY += row === 0 ? 0 : 60;
+        landmarks.push({ kind, x: posX, y: posY });
       }
     }
   }
   // A dedicated central-hub range never replaces Faro or an existing courtesy door.
-  landmarks.push({ kind: 'gallery-saloon', x: 4840, y: rail ? 4500 : 3960 });
+  landmarks.push({ kind: 'gallery-saloon', x: rail ? 5060 : 4840, y: rail ? 4500 : 3960 });
   return landmarks;
 }
 export function footprint(landmark: Landmark): Footprint {
-  const prop = SCENERY[landmark.kind];
-  return { x: landmark.x, y: landmark.y - prop.halfHeight, halfWidth: prop.halfWidth, halfHeight: prop.halfHeight };
+  const prop = SCENERY[landmark.kind], grow = sceneryGrowth(landmark.kind);
+  const halfWidth = prop.halfWidth * grow, halfHeight = prop.halfHeight * grow;
+  return { x: landmark.x, y: landmark.y - halfHeight, halfWidth, halfHeight };
 }
 export function overlapsFootprint(box: Footprint, x: number, y: number, radius: number): boolean {
   const dx = Math.max(Math.abs(x - box.x) - box.halfWidth, 0);

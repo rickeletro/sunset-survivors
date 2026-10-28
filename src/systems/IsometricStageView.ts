@@ -56,8 +56,8 @@ export class IsometricStageView {
     const postFX = scene.cameras?.main?.postFX;
     if (postFX) {
       const profile = isometricStageProfile(theme);
-      // Smooth radial lens vignette + subtle tilt-shift bokeh blur on the world camera edges
-      this.vignetteFx = postFX.addVignette?.(0.5, 0.5, 0.74, profile.vignetteAlpha * 0.75);
+      // Soft radial lens vignette + subtle tilt-shift bokeh blur on the outer world camera edges
+      this.vignetteFx = postFX.addVignette?.(0.5, 0.5, 0.92, profile.vignetteAlpha * 0.30);
       this.tiltShiftFx = postFX.addTiltShift?.(0.25, 0.55, 0.12, 0.75, 0.75, 0.48);
     }
 
