@@ -8,6 +8,7 @@ import {
 } from '../data/isometricWorld';
 import { worldDepth } from '../data/scenery';
 import type { StageTheme } from '../data/stages';
+import { worldScaleFor } from './WorldScale';
 
 interface ActiveIsoClusterProp {
   spec: IsometricPropPlacement;
@@ -155,7 +156,7 @@ export class IsometricStageView {
         const sprite = this.scene.add
           .image(spec.x, spec.y, spec.key)
           .setOrigin?.(0.5, 0.92)
-          .setScale?.(spec.scale)
+          .setScale?.(worldScaleFor(this.scene, spec.key, spec.scale))
           .setFlipX?.(!!spec.flipX)
           .setDepth?.(worldDepth(spec.y));
 

@@ -4,6 +4,7 @@ import { sceneryChaseTarget, entersFootprint } from './SceneryNavigation';
 import type { PortalPoint } from './BuildingPath';
 import type { StageTheme } from '../data/stages';
 import { footprint, overlapsFootprint, resolveFootprint, SCENERY, sceneryScale, sceneryKey, stageLandmarks, worldDepth, type Footprint, type Landmark } from '../data/scenery';
+import { worldScaleFor } from './WorldScale';
 
 interface SceneryInstance {
   image: Phaser.GameObjects.Image;
@@ -64,7 +65,7 @@ export class StageLandmarks {
       if (!entry) {
         const key = sceneryKey(prop.kind);
         if (!this.scene.textures.exists(key)) return;
-        const image = this.scene.add.image(prop.x, prop.y, key, '__BASE').setOrigin(0.5, 1).setScale(sceneryScale(prop.kind));
+        const image = this.scene.add.image(prop.x, prop.y, key, '__BASE').setOrigin(0.5, 1).setScale(worldScaleFor(this.scene, key, sceneryScale(prop.kind)));
         const shadow = new GroundShadow(this.scene, image, ['saloon', 'caboose', 'manor'].includes(this.theme));
         const glow = SCENERY[prop.kind].light
           ? this.scene.add.image(prop.x, prop.y - 52, 'wm_glow').setBlendMode(Phaser.BlendModes.ADD).setDepth(17)
@@ -94,7 +95,7 @@ export class StageLandmarks {
           : undefined;
         entry = { image, shadow, glow, track, smoke, pole, poleGlow }; this.active.set(index, entry);
       }
-      const native = SCENERY[prop.kind], scale = sceneryScale(prop.kind);
+      const native = SCENERY[prop.kind], scale = entry.image.scaleX ?? sceneryScale(prop.kind);
       const shape = { width: native.width * scale, height: native.height * scale };
       const behindFacade = Math.abs(px - prop.x) < shape.width / 2 && py < prop.y && py > prop.y - shape.height;
       entry.image.setAlpha(behindFacade ? 0.55 : 1);
