@@ -32,7 +32,9 @@ export class IsometricStageView {
   private readonly activeProps = new Map<number, ActiveIsoClusterProp>();
   private readonly activePlazas = new Map<number, ActiveIsoPlaza>();
   private readonly vignetteGfx?: Phaser.GameObjects.Graphics;
+  public readonly uiCamera?: Phaser.Cameras.Scene2D.Camera;
   private readonly resizeHandler: () => void;
+  private readonly preRenderHandler: () => void;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -41,14 +43,51 @@ export class IsometricStageView {
     this.clusters = stageIsometricClusters(theme);
     this.plazas = stageBoardwalkPatches(theme);
 
+    if (scene.cameras?.add) {
+      const w = scene.scale?.width || 1920;
+      const h = scene.scale?.height || 1080;
+      this.uiCamera = scene.cameras.add(0, 0, w, h, false, 'uiCamera');
+      this.uiCamera.setZoom?.(1);
+      this.uiCamera.setScroll?.(0, 0);
+    }
+
     if (scene.add?.graphics) {
       this.vignetteGfx = scene.add.graphics().setScrollFactor?.(0).setDepth?.(19);
       this.drawVignette();
     }
 
-    this.resizeHandler = () => this.drawVignette();
+    this.resizeHandler = () => {
+      if (this.uiCamera && this.scene.scale) {
+        this.uiCamera.setSize?.(this.scene.scale.width, this.scene.scale.height);
+      }
+      this.drawVignette();
+    };
+    this.preRenderHandler = () => this.syncCameraLayers();
     scene.scale?.on?.('resize', this.resizeHandler);
+    scene.events?.on?.('prerender', this.preRenderHandler);
     scene.events?.once?.('shutdown', () => this.destroy());
+  }
+
+  /**
+   * Routes fixed HUD/overlay elements (scrollFactor === 0) exclusively to `uiCamera` (zoom 1.0)
+   * and world elements (scrollFactor !== 0) exclusively to `cameras.main` (zoom 1.42).
+   */
+  public syncCameraLayers(): void {
+    const mainCam = this.scene.cameras?.main;
+    const uiCam = this.uiCamera;
+    const list = (this.scene.children as { list?: any[] } | undefined)?.list;
+    if (!mainCam?.ignore || !uiCam?.ignore || !Array.isArray(list)) return;
+
+    for (let i = 0; i < list.length; i++) {
+      const child = list[i];
+      if (!child) continue;
+      const isHud = child.scrollFactorX === 0 && child.scrollFactorY === 0;
+      if (isHud) {
+        mainCam.ignore(child);
+      } else {
+        uiCam.ignore(child);
+      }
+    }
   }
 
   private drawVignette(): void {
@@ -175,10 +214,16 @@ export class IsometricStageView {
         entry.floorLight?.setAlpha?.(flicker * 0.65);
       }
     });
+
+    this.syncCameraLayers();
   }
 
   public destroy(): void {
     this.scene.scale?.off?.('resize', this.resizeHandler);
+    this.scene.events?.off?.('prerender', this.preRenderHandler);
+    if (this.uiCamera && this.scene.cameras?.remove) {
+      this.scene.cameras.remove(this.uiCamera, true);
+    }
     this.vignetteGfx?.destroy?.();
     for (const plaza of this.activePlazas.values()) {
       plaza.tile.destroy?.();
@@ -193,3 +238,4 @@ export class IsometricStageView {
     this.activeProps.clear();
   }
 }
+

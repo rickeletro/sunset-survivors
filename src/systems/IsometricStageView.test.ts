@@ -48,7 +48,13 @@ function createHarness() {
         obj.alpha = a;
         return obj;
       }),
-      setScrollFactor: vi.fn(() => obj),
+      scrollFactorX: 1,
+      scrollFactorY: 1,
+      setScrollFactor: vi.fn((fx: number, fy = fx) => {
+        obj.scrollFactorX = fx;
+        obj.scrollFactorY = fy;
+        return obj;
+      }),
       clear: vi.fn(() => obj),
       fillStyle: vi.fn(() => obj),
       fillRect: vi.fn(() => obj),
@@ -72,7 +78,24 @@ function createHarness() {
     textures: {
       exists: vi.fn(() => true),
     },
+    cameras: {
+      main: {
+        ignore: vi.fn(),
+      },
+      add: vi.fn(() => ({
+        setZoom: vi.fn(),
+        setScroll: vi.fn(),
+        setSize: vi.fn(),
+        ignore: vi.fn(),
+      })),
+      remove: vi.fn(),
+    },
+    children: {
+      list: created,
+    },
     events: {
+      on: vi.fn(),
+      off: vi.fn(),
       once: vi.fn((_ev: string, fn: () => void) => {
         onShutdown = fn;
       }),
@@ -143,7 +166,11 @@ describe('Isometric 2.5D / 3/4 Oblique World & Stage View', () => {
 
     // Re-enter hub and then trigger scene shutdown
     view.update(4000, 4000, 1500);
+    expect(view.uiCamera).toBeDefined();
+    expect((h.scene.cameras.main.ignore as any)).toHaveBeenCalled();
+    expect((view.uiCamera!.ignore as any)).toHaveBeenCalled();
     h.shutdown();
     expect(h.created.every(o => o.destroyed)).toBe(true);
   });
 });
+
