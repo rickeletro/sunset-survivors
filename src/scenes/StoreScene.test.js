@@ -185,7 +185,7 @@ describe('StoreScene Integration', () => {
     scene.create();
 
     expect(sounds.playDealerGreeting).toHaveBeenCalled();
-    expect(scene.balanceText.text).toBe('WALLET: $2,000');
+    expect(scene.balanceText.text).toBe('★ WALLET: $2,000 ★');
     expect(scene.itemCards.size).toBe(6);
   });
 

@@ -3,7 +3,7 @@ import { sounds } from '../audio/SoundManager';
 import { statsManager } from '../data/GameStatsManager';
 import { CONSUMABLE_ITEMS, CONSUMABLE_ORDER, type ConsumableId } from '../data/consumables';
 import { createMenuRoot } from '../ui/layout/menuLayout';
-import { bindPulpKeys, preloadPulp, pulpBackdrop, pulpButton, pulpHeading, pulpPaper, pulpText, pulpWood } from '../ui/layout/pulpSceneKit';
+import { bindPulpKeys, preloadPulp, pulpBackdrop, pulpButton, pulpHeading, pulpText } from '../ui/layout/pulpSceneKit';
 import { preloadImages } from '../assets/registry';
 
 export class StoreScene extends Phaser.Scene {
@@ -11,7 +11,7 @@ export class StoreScene extends Phaser.Scene {
   private rootContainer!: Phaser.GameObjects.Container;
   private balanceText!: Phaser.GameObjects.Text;
   private speechText!: Phaser.GameObjects.Text;
-  private shopkeeperSprite!: Phaser.GameObjects.Image;
+  private shopkeeperSprite?: Phaser.GameObjects.Image;
   private itemCards: Map<ConsumableId, { countText: Phaser.GameObjects.Text; buyBtn: ReturnType<typeof pulpButton> }> = new Map();
 
   constructor() {
@@ -25,46 +25,63 @@ export class StoreScene extends Phaser.Scene {
   preload() {
     preloadPulp(this);
     preloadImages(this, [
+      'store_bkg',
+      'store_header_sign',
+      'shopkeeper_barnaby',
       'shopkeeper',
-      'faro_dealer',
+      'consumable_magnet',
+      'consumable_boots',
+      'consumable_tonic',
+      'consumable_dynamite',
+      'consumable_highnoon',
+      'consumable_bullets',
       'card_magnet',
       'card_spurs',
       'card_whiskey',
       'card_dynamite',
       'card_desperado_fury',
       'card_golden_repeater',
-      'hud_upgrade_magnet',
-      'hud_upgrade_spurs',
-      'hud_upgrade_whiskey',
-      'hud_upgrade_dynamite',
-      'hud_upgrade_desperado_fury',
-      'hud_upgrade_golden_repeater',
-      'wm_barrel',
-      'wm_crate',
-      'wm_lantern',
     ]);
   }
 
   create() {
     this.rootContainer = createMenuRoot(this);
-    pulpBackdrop(this, this.rootContainer, true);
+
+    // 1. Atmospheric Store Background
+    if (this.textures.exists('store_bkg')) {
+      const bg = this.add.image(0, 0, 'store_bkg').setOrigin(0.5, 0.5);
+      bg.setScale(1.78);
+      this.rootContainer.add(bg);
+    } else {
+      pulpBackdrop(this, this.rootContainer, true);
+    }
 
     // Saloon greeting
     sounds.playDealerGreeting();
 
-    // 1. Header Banner
-    pulpHeading(this, this.rootContainer, "BARNABY'S GENERAL STORE", -420, 1340, 68, true);
-    pulpText(this, this.rootContainer, 0, -360, '★ PROVISIONS, CONTRABAND & ONE-USE POWER-UPS ★', 22, '#ffc52a');
+    // 2. Ambient Lantern Lighting (ADD Blend Mode)
+    this.createLanternAura(-620, -290);
+    this.createLanternAura(570, -290);
 
-    // 2. Shopkeeper & Counter Section (Left / Center)
+    // 3. Top Header Sign
+    if (this.textures.exists('store_header_sign')) {
+      const header = this.add.image(0, -425, 'store_header_sign').setOrigin(0.5, 0.5);
+      header.setScale(1.75);
+      this.rootContainer.add(header);
+    } else {
+      pulpHeading(this, this.rootContainer, "BARNABY'S GENERAL STORE", -420, 1340, 68, true);
+      pulpText(this, this.rootContainer, 0, -360, '★ PROVISIONS, CONTRABAND & ONE-USE POWER-UPS ★', 22, '#ffc52a');
+    }
+
+    // 4. Shopkeeper & Counter Section (Left Column)
     this.createShopkeeperSection();
 
-    // 3. Merchandise Display Grid (Right / Center Shelves)
+    // 5. Merchandise Display Grid (Right Area: 2 rows x 3 columns)
     this.createMerchandiseGrid();
 
-    // 4. Bottom Controls & Return Button
-    pulpButton(this, this.rootContainer, 0, 450, 'RETURN TO THE TRAIL', () => this.leaveStore(), 480);
-    pulpText(this, this.rootContainer, 0, 498, '[CLICK ITEM TO BUY]   •   [ESC] RETURN', 18, '#f2d49a');
+    // 6. Bottom Controls & Return Button
+    pulpButton(this, this.rootContainer, 0, 400, '★ RETURN TO THE TRAIL ★', () => this.leaveStore(), 460);
+    pulpText(this, this.rootContainer, 0, 450, '✥ [ESC] RETURN ✥', 15, '#ffc52a');
 
     // Setup Keyboard Bindings
     bindPulpKeys(this, {
@@ -80,29 +97,55 @@ export class StoreScene extends Phaser.Scene {
     this.refreshUI();
   }
 
+  private createLanternAura(x: number, y: number): void {
+    const glow = this.add.graphics();
+    for (let r = 90; r > 10; r -= 10) {
+      glow.fillStyle(0xffaa2a, 0.025).fillCircle(x, y, r);
+    }
+    glow.setBlendMode(Phaser.BlendModes.ADD);
+    this.rootContainer.add(glow);
+
+    this.tweens.add({
+      targets: glow,
+      alpha: 0.65,
+      scaleX: 1.05,
+      scaleY: 1.05,
+      duration: 850 + Math.random() * 300,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
+  }
+
   private createShopkeeperSection(): void {
-    const section = this.add.container(-470, -110);
+    const section = this.add.container(-485, -120);
     this.rootContainer.add(section);
 
-    // Ambient lantern glow behind the counter
-    const lanternGlow = this.add.graphics();
-    for (let r = 90; r > 10; r -= 10) {
-      lanternGlow.fillStyle(0xffa32a, 0.018).fillCircle(0, -60, r);
-    }
-    lanternGlow.setBlendMode(Phaser.BlendModes.ADD);
-    section.add(lanternGlow);
-    this.tweens.add({ targets: lanternGlow, alpha: 0.6, duration: 900, yoyo: true, repeat: -1 });
-
-    // Shopkeeper Portrait / Sprite
-    if (this.textures.exists('shopkeeper')) {
-      this.shopkeeperSprite = this.add.image(0, -60, 'shopkeeper').setOrigin(0.5, 0.5);
-      this.shopkeeperSprite.setScale(2.1);
+    // Barnaby Character Sprite
+    const shopTexture = this.textures.exists('shopkeeper_barnaby') ? 'shopkeeper_barnaby' : 'shopkeeper';
+    if (this.textures.exists(shopTexture)) {
+      this.shopkeeperSprite = this.add.image(0, -35, shopTexture).setOrigin(0.5, 0.5);
+      this.shopkeeperSprite.setScale(1.85);
       section.add(this.shopkeeperSprite);
+
+      // Interactive Click: Barnaby gives tips
+      this.shopkeeperSprite.setInteractive({ useHandCursor: true });
+      this.shopkeeperSprite.on('pointerdown', () => {
+        sounds.playHospitalityGreeting();
+        const tips = [
+          'Cash on the barrelhead!\nFinest supplies in the entire\nterritory.',
+          'Nothing like Nitro Dynamite\nto clear out a bad bunch of bandits!',
+          'Every bullet counts, partner,\nbut silver ones hit four times harder!',
+          'Run fast enough with them boots\nand even lead cannot catch ya!',
+        ];
+        this.speechText.setText(tips[Math.floor(Math.random() * tips.length)]);
+        this.cameras.main.flash(40, 255, 197, 42, false);
+      });
 
       // Subtle breathing motion
       this.tweens.add({
         targets: this.shopkeeperSprite,
-        y: -56,
+        y: -31,
         duration: 1400,
         yoyo: true,
         repeat: -1,
@@ -110,124 +153,171 @@ export class StoreScene extends Phaser.Scene {
       });
     }
 
-    // Wooden Counter
-    pulpWood(this, section, 0, 80, 440, 52);
-    // Brass nails & detail on counter
-    const brassTrim = this.add.graphics();
-    brassTrim.fillStyle(0xffc52a, 0.9);
-    for (let x = -190; x <= 190; x += 38) brassTrim.fillCircle(x, 80, 3.5);
-    section.add(brassTrim);
+    // Dialogue Plaque
+    const dialoguePlaque = this.add.graphics();
+    this.drawWesternPlaque(dialoguePlaque, 0, 115, 340, 96, false);
+    section.add(dialoguePlaque);
 
-    // Decorative barrel and crate next to counter
-    if (this.textures.exists('wm_barrel')) {
-      const barrel = this.add.image(-160, 115, 'wm_barrel').setScale(0.95);
-      section.add(barrel);
-    }
-    if (this.textures.exists('wm_crate')) {
-      const crate = this.add.image(160, 115, 'wm_crate').setScale(0.9);
-      section.add(crate);
-    }
+    this.speechText = this.add.text(0, 115, 'Cash on the barrelhead!\nFinest supplies in the entire\nterritory.', {
+      fontFamily: 'serif',
+      fontSize: '15px',
+      color: '#f2d49a',
+      align: 'center',
+      lineSpacing: 4,
+    }).setOrigin(0.5, 0.5);
+    section.add(this.speechText);
 
-    // Speech Plaque
-    pulpPaper(this, section, 0, 185, 450, 78);
-    this.speechText = pulpText(
-      this,
-      section,
-      0,
-      185,
-      '"CASH ON THE BARRELHEAD, STRANGER!\nFINEST SUPPLIES IN THE ENTIRE WEST!"',
-      16,
-      '#120b08'
-    );
+    // Wallet Plaque
+    const walletPlaque = this.add.graphics();
+    this.drawWesternPlaque(walletPlaque, 0, 195, 340, 50, false);
+    section.add(walletPlaque);
 
-    // Live Wallet Display
-    pulpWood(this, section, 0, 260, 440, 48);
-    this.balanceText = pulpText(this, section, 0, 260, 'WALLET: $0', 23, '#ffc52a');
+    this.balanceText = this.add.text(0, 195, '★ WALLET: $0 ★', {
+      fontFamily: '"Press Start 2P", monospace',
+      fontSize: '16px',
+      color: '#ffc52a',
+    }).setOrigin(0.5, 0.5);
+    section.add(this.balanceText);
   }
 
   private createMerchandiseGrid(): void {
-    const gridX = 140;
-    const gridY = -120;
-    const colWidth = 360;
-    const rowHeight = 270;
+    const colXs = [-120, +200, +520];
+    const rowYs = [-145, +145];
+    const cardW = 295;
+    const cardH = 255;
 
     CONSUMABLE_ORDER.forEach((id, index) => {
       const col = index % 3;
       const row = Math.floor(index / 3);
-      const x = gridX + (col - 1) * colWidth;
-      const y = gridY + row * rowHeight;
+      const x = colXs[col];
+      const y = rowYs[row];
 
-      this.createItemCard(id, x, y);
+      this.createItemCard(id, x, y, cardW, cardH);
     });
   }
 
-  private createItemCard(id: ConsumableId, x: number, y: number): void {
+  private createItemCard(id: ConsumableId, x: number, y: number, cardW: number, cardH: number): void {
     const def = CONSUMABLE_ITEMS[id];
     const card = this.add.container(x, y);
     this.rootContainer.add(card);
 
-    // Paper card background
-    pulpPaper(this, card, 0, 0, 340, 250);
+    // 1. Ornate Western Card Parchment Plaque
+    const plaqueGfx = this.add.graphics();
+    this.drawWesternPlaque(plaqueGfx, 0, 0, cardW, cardH, true);
+    card.add(plaqueGfx);
 
-    // Red Western Frame for Single-Use Power-Up
-    const redBorder = this.add.graphics();
-    redBorder.lineStyle(3, 0xe52b20, 0.85);
-    redBorder.strokeRect(-166, -121, 332, 242);
-    redBorder.lineStyle(1, 0xffc52a, 0.6);
-    redBorder.strokeRect(-162, -117, 324, 234);
-    card.add(redBorder);
+    // 2. Icon Box (top-left)
+    const iconGfx = this.add.graphics();
+    iconGfx.fillStyle(0x000000, 0.4);
+    iconGfx.fillRect(-122, -100, 68, 68);
+    iconGfx.fillStyle(0x120b08, 1);
+    iconGfx.fillRect(-124, -102, 68, 68);
+    iconGfx.lineStyle(2, 0xffc52a, 0.9);
+    iconGfx.strokeRect(-124, -102, 68, 68);
+    iconGfx.lineStyle(1, 0xa51e16, 0.8);
+    iconGfx.strokeRect(-121, -99, 62, 62);
+    card.add(iconGfx);
 
-    // Item Icon Container
-    const iconBox = this.add.container(-105, -55);
-    card.add(iconBox);
-
-    const iconBg = this.add.graphics();
-    iconBg.fillStyle(0x120b08, 0.95);
-    iconBg.fillRect(-36, -36, 72, 72);
-    iconBg.lineStyle(2, 0xe52b20, 1);
-    iconBg.strokeRect(-36, -36, 72, 72);
-    iconBox.add(iconBg);
-
-    if (this.textures.exists(def.hudTexture)) {
-      const icon = this.add.image(0, 0, def.hudTexture);
+    // Icon Texture
+    const iconTexture = this.textures.exists(def.cardTexture) ? def.cardTexture : def.hudTexture;
+    if (this.textures.exists(iconTexture)) {
+      const icon = this.add.image(-90, -68, iconTexture);
       icon.setScale(Math.min(56 / icon.width, 56 / icon.height));
-      iconBox.add(icon);
-    } else if (this.textures.exists(def.cardTexture)) {
-      const icon = this.add.image(0, 0, def.cardTexture);
-      icon.setScale(Math.min(56 / icon.width, 56 / icon.height));
-      iconBox.add(icon);
+      card.add(icon);
     }
 
-    // Title & Rarity
-    pulpText(this, card, 25, -78, def.name, 19, '#a51e16');
-    pulpText(this, card, 25, -54, def.subtitle, 13, '#603719');
+    // 3. Red Ribbon Title Banner (top-right)
+    const ribbonGfx = this.add.graphics();
+    this.drawRedRibbon(ribbonGfx, 42, -88, 175, 26);
+    card.add(ribbonGfx);
 
-    // Description text (wrapped)
-    const desc = this.add.text(0, 5, def.description, {
+    const titleText = this.add.text(42, -88, def.name, {
+      fontFamily: '"Press Start 2P", monospace',
+      fontSize: '11px',
+      color: '#ffffff',
+    }).setOrigin(0.5, 0.5);
+    card.add(titleText);
+
+    // 4. Description Text (below ribbon)
+    const desc = this.add.text(42, -45, def.description, {
       fontFamily: 'serif',
-      fontSize: '14px',
-      color: '#321b10',
-      align: 'center',
-      wordWrap: { width: 310 },
-      lineSpacing: 3,
+      fontSize: '13px',
+      color: '#26130b',
+      align: 'left',
+      wordWrap: { width: 172 },
+      lineSpacing: 2,
     }).setOrigin(0.5, 0.5);
     card.add(desc);
 
-    // Saddlebag owned count
-    const countText = pulpText(this, card, -70, 78, 'OWNED: 0', 16, '#603719');
+    // 5. IN BAG count (centered)
+    const countText = this.add.text(0, 36, 'IN BAG: 0', {
+      fontFamily: '"Press Start 2P", monospace',
+      fontSize: '12px',
+      color: '#26130b',
+    }).setOrigin(0.5, 0.5);
+    card.add(countText);
 
-    // Buy Button
+    // 6. BUY Button (bottom)
     const buyBtn = pulpButton(
       this,
       card,
-      80,
-      78,
+      0,
+      82,
       `BUY $${def.price}`,
       () => this.tryBuy(id),
-      150
+      210
     );
 
     this.itemCards.set(id, { countText, buyBtn });
+  }
+
+  private drawWesternPlaque(graphics: Phaser.GameObjects.Graphics, x: number, y: number, w: number, h: number, isParchment = false): void {
+    const hw = w / 2;
+    const hh = h / 2;
+
+    // Drop shadow
+    graphics.fillStyle(0x000000, 0.45);
+    graphics.fillRoundedRect(x - hw + 3, y - hh + 4, w, h, 6);
+
+    // Outer dark wood frame
+    graphics.fillStyle(0x321b10, 1);
+    graphics.fillRoundedRect(x - hw, y - hh, w, h, 6);
+
+    // Gold beveled border line
+    graphics.lineStyle(2, 0xffc52a, 0.85);
+    graphics.strokeRoundedRect(x - hw + 2, y - hh + 2, w - 4, h - 4, 5);
+
+    // Inner surface fill
+    graphics.fillStyle(isParchment ? 0xf4dcac : 0x160c07, 1);
+    graphics.fillRoundedRect(x - hw + 5, y - hh + 5, w - 10, h - 10, 4);
+
+    // Inner contour border
+    graphics.lineStyle(1, isParchment ? 0x8c5e31 : 0x603719, 0.7);
+    graphics.strokeRoundedRect(x - hw + 7, y - hh + 7, w - 14, h - 14, 3);
+
+    // Brass corner studs
+    graphics.fillStyle(0xffc52a, 0.95);
+    graphics.fillCircle(x - hw + 9, y - hh + 9, 3);
+    graphics.fillCircle(x + hw - 9, y - hh + 9, 3);
+    graphics.fillCircle(x - hw + 9, y + hh - 9, 3);
+    graphics.fillCircle(x + hw - 9, y + hh - 9, 3);
+  }
+
+  private drawRedRibbon(graphics: Phaser.GameObjects.Graphics, x: number, y: number, w: number, h: number): void {
+    const hw = w / 2;
+    const hh = h / 2;
+
+    // Ribbon drop shadow
+    graphics.fillStyle(0x000000, 0.35);
+    graphics.fillRect(x - hw + 2, y - hh + 2, w, h);
+
+    // Vibrant Red Banner
+    graphics.fillStyle(0xa51e16, 1);
+    graphics.fillRect(x - hw, y - hh, w, h);
+
+    // Golden accent border
+    graphics.lineStyle(1.5, 0xffc52a, 0.8);
+    graphics.strokeRect(x - hw, y - hh, w, h);
   }
 
   private tryBuy(id: ConsumableId): void {
@@ -239,22 +329,22 @@ export class StoreScene extends Phaser.Scene {
       sounds.playCoin();
       this.cameras.main.flash(70, 255, 197, 42, false);
       const quotes = [
-        `"MIGHTY FINE! THAT ${item.name} IS WORTH EVERY PENNY!"`,
-        `"PACK IT IN YOUR SADDLEBAG! READY FOR WHEN BULLETS FLY!"`,
-        `"PLEASURE DOING BUSINESS! USE IT WISELY OUT ON THE TRAIL!"`,
+        `Pleasure doing business!\nThat ${item.name} is worth every penny.`,
+        'Pack it in your saddlebag!\nReady for when bullets fly.',
+        'Finest quality in the territory!\nUse it wisely out on the trail.',
       ];
       this.speechText.setText(quotes[Math.floor(Math.random() * quotes.length)]);
       this.refreshUI();
     } else if (result === 'insufficient') {
       sounds.playReload();
       this.cameras.main.shake(120, 0.005);
-      this.speechText.setText(`"NOT ENOUGH CASH FOR THAT, PARTNER!\nIT COSTS $${item.price}!"`);
+      this.speechText.setText(`Not enough cash for that, partner!\nIt costs $${item.price}.`);
     }
   }
 
   private refreshUI(): void {
     const stats = statsManager.getStats();
-    this.balanceText.setText(`WALLET: $${stats.bank.toLocaleString()}`);
+    this.balanceText.setText(`★ WALLET: $${stats.bank.toLocaleString()} ★`);
 
     for (const [id, ui] of this.itemCards.entries()) {
       const def = CONSUMABLE_ITEMS[id];
