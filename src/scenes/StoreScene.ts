@@ -196,14 +196,14 @@ export class StoreScene extends Phaser.Scene {
 
     // Ambient counter backdrop glow
     const ambientGlow = this.add.graphics();
-    ambientGlow.fillStyle(0xffa32a, 0.07).fillCircle(0, -25, 125);
+    ambientGlow.fillStyle(0xffa32a, 0.08).fillCircle(0, -65, 155);
     ambientGlow.setBlendMode(Phaser.BlendModes.ADD);
     section.add(ambientGlow);
 
-    // Shopkeeper Sprite (Enlarged size: 2.4x)
+    // Shopkeeper Sprite (Heroic arcade portrait: 3.3x scale)
     if (this.textures.exists('shopkeeper')) {
-      this.shopkeeperSprite = this.add.image(0, -25, 'shopkeeper').setOrigin(0.5, 0.5);
-      this.shopkeeperSprite.setScale(2.4);
+      this.shopkeeperSprite = this.add.image(0, -65, 'shopkeeper').setOrigin(0.5, 0.5);
+      this.shopkeeperSprite.setScale(3.3);
       section.add(this.shopkeeperSprite);
 
       // Interactive Click: Barnaby speaks
@@ -223,7 +223,7 @@ export class StoreScene extends Phaser.Scene {
       // Subtle breathing motion
       this.tweens.add({
         targets: this.shopkeeperSprite,
-        y: -20,
+        y: -60,
         duration: 1400,
         yoyo: true,
         repeat: -1,
