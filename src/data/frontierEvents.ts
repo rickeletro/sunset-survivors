@@ -3,7 +3,7 @@ import type { StageTheme } from './stages';
 export type FrontierEventKind = 'ambush' | 'thief' | 'cargo' | 'powder';
 export interface FrontierEvent { kind: FrontierEventKind; x: number; y: number; phase: 'idle' | 'warning' | 'active' | 'done'; age: number; hp: number; }
 export function frontierEvents(theme: StageTheme): FrontierEvent[] {
-  const buildings = stageLandmarks(theme).filter(p => ['saloon', 'frontier-saloon', 'general-store', 'rail-station', 'barn', 'hacienda', 'manor', 'mine-entrance'].includes(p.kind));
+  const buildings = stageLandmarks(theme).filter(p => ['saloon', 'frontier-saloon', 'general-store', 'rail-station', 'barn', 'hacienda', 'manor', 'mine-entrance', 'general-store-se', 'rail-station-se', 'barn-se', 'manor-se'].includes(p.kind));
   const hubs: Landmark[] = [];
   for (const p of buildings) if (!hubs.some(h => Math.hypot(h.x - p.x, h.y - p.y) < 900)) hubs.push(p);
   return hubs.slice(0, 5).flatMap(p => [

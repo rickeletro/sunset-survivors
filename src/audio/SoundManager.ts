@@ -65,7 +65,7 @@ class SoundManager {
    * Music is intentionally controlled by its own channel. */
   private recordedSfx(): HTMLAudioElement[] {
     return [
-      ...this.sfxPistolPool, ...this.heroVoiceAudios.values(), ...this.faroAudio.values(),
+      ...this.sfxPistolPool, ...this.sfxImpactPool, ...this.heroVoiceAudios.values(), ...this.faroAudio.values(),
       ...[this.pistolAudio, this.reloadAudio, this.sfxScreamAudio].filter(
         (clip): clip is HTMLAudioElement => clip !== null),
     ];
@@ -78,6 +78,7 @@ class SoundManager {
   public setSfxVolume(vol: number) {
     this.sfxVolume = Math.max(0, Math.min(1, vol));
     for (const clip of this.recordedSfx()) clip.volume = this.sfxVolume;
+    for (const clip of this.sfxImpactPool) clip.volume = Math.max(0, Math.min(1, this.sfxVolume * 0.40));
     try {
       if (typeof localStorage !== 'undefined') {
         localStorage.setItem('sunset_survivors_sfx_volume', this.sfxVolume.toString());
@@ -475,6 +476,9 @@ class SoundManager {
   private reloadAudio: HTMLAudioElement | null = null;
   private sfxPistolPool: HTMLAudioElement[] = [];
   private sfxPistolPoolIndex: number = 0;
+  private sfxImpactPool: HTMLAudioElement[] = [];
+  private sfxImpactPoolIndex: number = 0;
+  private lastImpactTime: number = 0;
   private sfxScreamAudio: HTMLAudioElement | null = null;
   private heroVoiceAudios: Map<string, HTMLAudioElement> = new Map();
 
@@ -546,6 +550,33 @@ class SoundManager {
       this.sfxScreamAudio.volume = this.sfxVolume;
       this.sfxScreamAudio.play().catch(() => {});
     } catch {}
+  }
+
+  // Impacto de tiro no corpo do inimigo (public/assets/audio/sfx/fast-body-impact.mp3) com volume médio suave
+  public playBodyImpact() {
+    if (this.isMuted) return;
+    const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
+    // Throttle suave (30ms) para polifonia confortável sem sobreposição excessiva
+    if (now - this.lastImpactTime < 30) return;
+    this.lastImpactTime = now;
+    try {
+      if (this.sfxImpactPool.length === 0) {
+        for (let i = 0; i < 6; i++) {
+          const a = new Audio('assets/audio/sfx/fast-body-impact.mp3');
+          a.volume = Math.max(0, Math.min(1, this.sfxVolume * 0.40));
+          this.sfxImpactPool.push(a);
+        }
+      }
+      const audio = this.sfxImpactPool[this.sfxImpactPoolIndex];
+      this.sfxImpactPoolIndex = (this.sfxImpactPoolIndex + 1) % this.sfxImpactPool.length;
+      audio.currentTime = 0;
+      audio.volume = Math.max(0, Math.min(1, this.sfxVolume * 0.40));
+      audio.play().catch(() => {
+        this.playHit();
+      });
+    } catch {
+      this.playHit();
+    }
   }
 
   private faroAudio = new Map<string, HTMLAudioElement>();

@@ -45,7 +45,7 @@ const RULES: [RegExp, ScaleCategory][] = [
   [/^scenery_(locomotive|cargo-wagon|passenger-wagon)$/, 'rolling-stock'],
   [/^scenery_water-tower$/, 'tower'],
   [/^scenery_(saloon|frontier-saloon|gallery-saloon)$/, 'saloon'],
-  [/^scenery_(house|sheriff|general-store|barn|hacienda|manor|rail-station|mine-entrance)$/, 'building'],
+  [/^scenery_(house|sheriff|general-store|barn|hacienda|manor|rail-station|mine-entrance|general-store-se|barn-se|manor-se|rail-station-se)$/, 'building'],
   [/^scenery_supply-cart$|^wm_wagon$/, 'wagon'],
   [/^scenery_well$/, 'well'],
   [/^scenery_hitching-post$|^wm_barricade$/, 'fence'],
@@ -98,9 +98,9 @@ export function normalizedScale(
 
 /** Native visible heights measured from the shipped PNGs; used when canvas pixel access is unavailable. */
 export const BAKED_VISIBLE_HEIGHTS: Record<string, number> = {
-  scenery_barn: 183, 'scenery_cargo-wagon': 91, 'scenery_general-store': 152, scenery_hacienda: 170,
-  'scenery_hitching-post': 54, scenery_house: 141, scenery_locomotive: 71, scenery_manor: 212,
-  'scenery_mine-entrance': 171, 'scenery_passenger-wagon': 73, 'scenery_rail-station': 165, scenery_saloon: 228,
+  scenery_barn: 183, 'scenery_barn-se': 183, 'scenery_cargo-wagon': 91, 'scenery_general-store': 152, 'scenery_general-store-se': 152, scenery_hacienda: 170,
+  'scenery_hitching-post': 54, scenery_house: 141, scenery_locomotive: 71, scenery_manor: 212, 'scenery_manor-se': 212,
+  'scenery_mine-entrance': 171, 'scenery_passenger-wagon': 73, 'scenery_rail-station': 165, 'scenery_rail-station-se': 165, scenery_saloon: 228,
   'scenery_frontier-saloon': 228, 'scenery_gallery-saloon': 228, scenery_sheriff: 149, 'scenery_supply-cart': 93,
   'scenery_water-tower': 166, scenery_well: 80, iso_barrel_lantern: 79, iso_crate_wheel: 100, iso_wanted_wall: 122,
   wm_barrel: 40, wm_barricade: 44, wm_cactus: 128, wm_wagon: 79, wm_crate: 38, wm_deadtree: 99, wm_lantern: 188,

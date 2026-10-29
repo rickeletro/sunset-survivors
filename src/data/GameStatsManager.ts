@@ -29,6 +29,7 @@ export interface CumulativeGameStats {
   bestStreak: number;
   unlockedBosses: number[];
   unlockedCharacters: string[];
+  consumables?: Record<string, number>;
 }
 
 const STORAGE_KEY = 'sunset_survivors_stats_v1';
@@ -57,6 +58,14 @@ export class GameStatsManager {
       }
       migrated.unlockedBosses = Array.isArray(parsed.unlockedBosses) ? parsed.unlockedBosses.filter((id: unknown) => Number.isInteger(id) && Number(id) >= 1 && Number(id) <= 8) : [1];
       migrated.recordedRunIds = Array.isArray(parsed.recordedRunIds) ? parsed.recordedRunIds.filter((id: unknown) => typeof id === 'string') : [];
+      const rawConsumables = parsed.consumables && typeof parsed.consumables === 'object' ? parsed.consumables : {};
+      const validConsumables: Record<string, number> = {};
+      for (const [key, qty] of Object.entries(rawConsumables)) {
+        if (typeof qty === 'number' && Number.isFinite(qty) && qty > 0) {
+          validConsumables[key] = Math.floor(qty);
+        }
+      }
+      migrated.consumables = validConsumables;
       if (parsed.economyVersion !== 1) {
         // Former builds auto-granted all heroes. No hero purchases existed; credit past earned cash once instead.
         migrated.bank = Math.floor(migrated.goldCollected * ECONOMY.bank.cashFraction);
@@ -91,7 +100,55 @@ export class GameStatsManager {
     } catch { return 'invalid'; }
   }
   public getStats(): CumulativeGameStats {
-    return { ...this.stats, unlockedCharacters: [...this.stats.unlockedCharacters], unlockedBosses: [...this.stats.unlockedBosses], recordedRunIds: [...this.stats.recordedRunIds ?? []] };
+    return {
+      ...this.stats,
+      unlockedCharacters: [...this.stats.unlockedCharacters],
+      unlockedBosses: [...this.stats.unlockedBosses],
+      recordedRunIds: [...(this.stats.recordedRunIds ?? [])],
+      consumables: { ...(this.stats.consumables ?? {}) },
+    };
+  }
+
+  public getConsumables(): Record<string, number> {
+    this.refresh();
+    return { ...(this.stats.consumables ?? {}) };
+  }
+
+  public getConsumableCount(id: string): number {
+    this.refresh();
+    return this.stats.consumables?.[id] ?? 0;
+  }
+
+  public buyConsumable(id: string, price: number): 'bought' | 'insufficient' | 'save-failed' {
+    this.refresh();
+    if (this.stats.bank < price) return 'insufficient';
+    const previous = this.getStats();
+    this.stats.bank -= price;
+    this.stats.consumables ??= {};
+    this.stats.consumables[id] = (this.stats.consumables[id] ?? 0) + 1;
+    if (!this.saveStats()) {
+      this.stats = previous;
+      return 'save-failed';
+    }
+    return 'bought';
+  }
+
+  public useConsumable(id: string): boolean {
+    this.refresh();
+    const count = this.stats.consumables?.[id] ?? 0;
+    if (count <= 0) return false;
+    const previous = this.getStats();
+    this.stats.consumables ??= {};
+    if (count <= 1) {
+      delete this.stats.consumables[id];
+    } else {
+      this.stats.consumables[id] = count - 1;
+    }
+    if (!this.saveStats()) {
+      this.stats = previous;
+      return false;
+    }
+    return true;
   }
   public isCharacterUnlocked(id: string): boolean { this.refresh(); return this.stats.unlockedCharacters.includes(id); }
   public buyCharacter(id: string): 'bought' | 'owned' | 'insufficient' | 'save-failed' | 'invalid' {

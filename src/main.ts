@@ -14,6 +14,7 @@ import { GameScene } from './scenes/GameScene';
 import { LevelUpScene } from './scenes/LevelUpScene';
 import { PauseScene } from './scenes/PauseScene';
 import { SaloonScene } from './scenes/SaloonScene';
+import { StoreScene } from './scenes/StoreScene';
 import { BuildingTransitionScene } from './scenes/BuildingTransitionScene';
 import { StageClearScene } from './scenes/StageClearScene';
 import { StageIntroScene } from './scenes/StageIntroScene';
@@ -37,6 +38,7 @@ const allScenes: (typeof Phaser.Scene)[] = [
   LevelUpScene,
   PauseScene,
   SaloonScene,
+  StoreScene,
   BuildingTransitionScene,
   StageClearScene,
   GameOverScene,
@@ -58,6 +60,8 @@ const sceneMap: Record<string, typeof Phaser.Scene> = {
   select: CharacterSelectScene,
   game: GameScene,
   pause: PauseScene,
+  saloon: SaloonScene,
+  store: StoreScene,
   clear: StageClearScene,
   gameover: GameOverScene,
   complete: GameCompleteScene,
