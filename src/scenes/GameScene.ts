@@ -1,6 +1,7 @@
 import { FRONTIER_FEEL, GunslingerStyle, evolutionTrail } from '../data/gunslingerStyle';
 import { GunslingerHUD } from '../ui/hud/GunslingerHUD';
 import { statsManager } from '../data/GameStatsManager';
+import type { ConsumableId } from '../data/consumables';
 import { SpriteGenerator } from '../utils/SpriteGenerator';
 import { ENEMY_CAP, HORDE_CAP, MAIN_BOSS_AT, STAGE_SECONDS, WaveTimeline, waveAt, waveEnemyStats } from '../data/waves';
 import { MINI_BOSSES, MINI_HERO_HEIGHTS, miniBossProfile, miniBossScale, miniBossFootOffset, shieldMultiplier } from '../data/miniBosses';
@@ -137,6 +138,12 @@ export class GameScene extends Phaser.Scene {
   private bounty: number = 0;
   private specialRoundsUntil = 0;
   private gunOilUntil = 0;
+  private bootsUntil = 0;
+  private megaDynamiteUntil = 0;
+  private megaDynamiteTimer = 0;
+  private omniShotUntil = 0;
+  private omniShotTimer = 0;
+  private silverBulletUntil = 0;
   private lastPickupChimeAt = -Infinity;
   private kills: number = 0;
   private choosingUpgrade = false;
@@ -533,7 +540,7 @@ export class GameScene extends Phaser.Scene {
     this.hud = new CombatHUD(this, {
       characterId: this.character.id, hp: this.hp, maxHp: this.maxHp, currentXp: this.currentXp,
       xpToNextLevel: this.xpToNextLevel, level: this.level, bounty: this.bounty, kills: this.kills,
-    }, getBossForStage(this.stage).name);
+    }, getBossForStage(this.stage).name, (id) => this.activateConsumable(id));
     this.levelText = this.hud.levelText;
     this.bountyText = this.hud.bountyText;
     this.timeText = this.hud.timeText;
@@ -898,6 +905,7 @@ export class GameScene extends Phaser.Scene {
         this.updateProjectiles(delta);
         this.weaponEffects?.update(delta, this.projectiles);
         this.updateBloodParticles(delta);
+        this.updateConsumableEffects(delta);
         this.updateFireZones(delta);
       }
       return;
@@ -907,6 +915,7 @@ export class GameScene extends Phaser.Scene {
     this.updateProjectiles(delta);
     this.weaponEffects?.update(delta, this.projectiles);
     this.updateBloodParticles(delta);
+    this.updateConsumableEffects(delta);
     this.updateEnemies(delta);
     this.drawMiniBosses();
     this.player.setDepth(worldDepth(this.player.y));
@@ -1084,7 +1093,8 @@ export class GameScene extends Phaser.Scene {
       const len = Math.hypot(dx, dy);
       const nx = dx / len;
       const ny = dy / len;
-      const step = dash?Math.hypot(dash.x,dash.y):(this.moveSpeed * delta) / 1000;
+      const curSpeed = this.moveSpeed * (this.combatNow < this.bootsUntil ? 1.8 : 1.0);
+      const step = dash ? Math.hypot(dash.x, dash.y) : (curSpeed * delta) / 1000;
       // Substeps preserve building collision during the fast dodge, including a slow frame.
       if(dash){
         const steps=Math.max(1,Math.ceil(step/8));
@@ -1780,8 +1790,10 @@ export class GameScene extends Phaser.Scene {
     if (enemy.type === 'boss' && this.stage === 5 && this.combatNow > (enemy.vulnerableUntil ?? 0)) dmg *= 0.45;
 
     // Critical Hit Roll
-    const isCrit = Math.random() < Math.min(1,this.critChance+(this.gunslinger?.crit??0));
-    const finalDamage = isCrit ? Math.round(dmg * this.critMultiplier) : dmg;
+    const silverActive = this.combatNow < this.silverBulletUntil;
+    const isCrit = silverActive || Math.random() < Math.min(1,this.critChance+(this.gunslinger?.crit??0));
+    let finalDamage = isCrit ? Math.round(dmg * this.critMultiplier) : dmg;
+    if (silverActive) finalDamage = Math.round(finalDamage * 4.0);
 
     enemy.hp -= finalDamage;
 
@@ -2030,6 +2042,107 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.bloodParticles = remaining;
+  }
+
+  private activateConsumable(id: ConsumableId): void {
+    if (this.isGameOver || this.bossDefeated || this.choosingUpgrade) return;
+    if (!statsManager.useConsumable(id)) return;
+
+    switch (id) {
+      case 'golden_magnet': {
+        sounds.playCoin();
+        this.cameras?.main?.flash?.(100, 255, 197, 42, false);
+        this.showBanner('★ DESERT MAGNET! ALL LOOT DRAWN! ★', '#ffc52a');
+        for (const drop of this.drops) {
+          drop.attracted = true;
+        }
+        break;
+      }
+      case 'seven_league_boots': {
+        sounds.playReload();
+        this.bootsUntil = this.combatNow + 30000;
+        this.showBanner('★ SEVEN-LEAGUE BOOTS! +80% SPEED FOR 30s! ★', '#ff791c');
+        this.cameras?.main?.flash?.(80, 255, 121, 28, false);
+        break;
+      }
+      case 'miracle_elixir': {
+        sounds.playCoin();
+        this.hp = this.maxHp;
+        this.updateHpBar();
+        this.invulnUntil = Math.max(this.invulnUntil, this.combatNow + 6000);
+        this.showBanner('★ MIRACLE TONIC! FULL HEAL & 6s INVULN! ★', '#f2d49a');
+        this.cameras?.main?.flash?.(100, 242, 212, 154, false);
+        break;
+      }
+      case 'mega_dynamite': {
+        sounds.playExplosion();
+        this.megaDynamiteUntil = this.combatNow + 30000;
+        this.megaDynamiteTimer = 0;
+        this.showBanner('★ NITRO DYNAMITE! MASSIVE BLASTS FOR 30s! ★', '#e52b20');
+        this.cameras?.main?.shake?.(100, 0.008);
+        break;
+      }
+      case 'omni_shot': {
+        sounds.playRevolver();
+        this.omniShotUntil = this.combatNow + 30000;
+        this.omniShotTimer = 0;
+        this.showBanner('★ HIGH NOON 360°! BULLET STORM FOR 30s! ★', '#e52b20');
+        this.cameras?.main?.shake?.(80, 0.006);
+        break;
+      }
+      case 'silver_bullet': {
+        sounds.playRifle();
+        this.silverBulletUntil = this.combatNow + 30000;
+        this.showBanner('★ SILVER BULLETS! 400% CRIT DAMAGE FOR 30s! ★', '#ffffff');
+        this.cameras?.main?.flash?.(100, 255, 255, 255, false);
+        break;
+      }
+    }
+    this.hud?.consumables?.refresh();
+  }
+
+  private updateConsumableEffects(delta: number): void {
+    if (this.isGameOver || this.bossDefeated || this.choosingUpgrade) return;
+
+    // 1. High Noon 360° Bullet Storm
+    if (this.combatNow < this.omniShotUntil) {
+      this.omniShotTimer += delta;
+      if (this.omniShotTimer >= 220) {
+        this.omniShotTimer = 0;
+        sounds.playPlayerGunshot?.();
+        const count = 12;
+        const baseDmg = Math.round(45 * this.attackDamageMultiplier);
+        for (let i = 0; i < count; i++) {
+          const angle = (i * 2 * Math.PI) / count + (this.combatNow / 400);
+          const sprite = this.add.sprite(this.player.x, this.player.y, 'proj_bullet').setDepth(8).setTint(0xff791c).setScale(1.3);
+          sprite.setRotation(angle);
+          this.projectiles.push({
+            sprite,
+            vx: Math.cos(angle) * 520,
+            vy: Math.sin(angle) * 520,
+            damage: baseDmg,
+            pierce: 2,
+            shieldPiercing: true,
+            hits: new Set(),
+            life: 900,
+            isExplosiveBullet: true,
+          });
+        }
+      }
+    }
+
+    // 2. Nitro Dynamite Clustered Explosions
+    if (this.combatNow < this.megaDynamiteUntil) {
+      this.megaDynamiteTimer += delta;
+      if (this.megaDynamiteTimer >= 750) {
+        this.megaDynamiteTimer = 0;
+        const targets = this.getNearestEnemies(380);
+        const target = targets[0];
+        const tx = target ? target.sprite.x : this.player.x + (Math.random() - 0.5) * 180;
+        const ty = target ? target.sprite.y : this.player.y + (Math.random() - 0.5) * 180;
+        this.explodeDynamite(tx, ty, Math.round(180 * this.attackDamageMultiplier), true, true);
+      }
+    }
   }
 
   private getNearestEnemies(range: number): Enemy[] {

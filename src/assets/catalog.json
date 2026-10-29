@@ -88,6 +88,7 @@
     "ui_pulp_paper": "assets/ui/materials/paper.png",
     "ui_pulp_wood": "assets/ui/materials/wood.png",
     "faro_dealer": "assets/characters/dealer/faro-dealer.png",
+    "shopkeeper": "assets/characters/shopkeeper/shopkeeper.png",
     "card_desperado_fury": "assets/powerup/evolutions/desperado_fury.png",
     "card_blunderbuss_doom": "assets/powerup/evolutions/blunderbuss_doom.png",
     "card_golden_repeater": "assets/powerup/evolutions/golden_repeater.png",
