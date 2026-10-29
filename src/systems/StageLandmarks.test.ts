@@ -10,7 +10,7 @@ function harness() {
   const image = (x: number, y: number, key: string, requestedFrame?: string) => {
     const obj: any = { x, y, key, requestedFrame, texture: { key }, originX: 0.5, originY: 1, scaleX: 1, scaleY: 1, flipX: false,
       frame: { realWidth: 16, realHeight: 16, cutWidth: 16, cutHeight: 16, cutX: 0, cutY: 0, x: 0, y: 0, source: { image: {} } }, destroyed: false, alpha: 1, depth: 0 };
-    for (const method of ['setOrigin', 'setBlendMode', 'setPosition', 'setVisible', 'clear', 'fillStyle', 'fillEllipse', 'fillPoints']) obj[method] = () => obj;
+    for (const method of ['setOrigin', 'setBlendMode', 'setPosition', 'setVisible', 'clear', 'fillStyle', 'fillEllipse', 'fillPoints', 'setTexture', 'setTint', 'clearTint', 'play', 'once']) obj[method] = vi.fn(() => obj);
     obj.setScale = (scale: number) => { obj.scale = scale; obj.scaleX = obj.scaleY = scale; return obj; };
     obj.setDepth = (depth: number) => { obj.depth = depth; return obj; };
     obj.setAlpha = (alpha: number) => { obj.alpha = alpha; return obj; };
@@ -19,7 +19,11 @@ function harness() {
   };
   const scene: any = {
     textures: { exists: () => true }, events: { once: (_event: string, fn: () => void) => { shutdown = fn; } },
-    add: { image, graphics: () => image(0, 0, 'shadow-graphic'), tileSprite: (x: number, y: number, _w: number, _h: number, key: string) => image(x, y, key), particles: image },
+    add: { image, sprite: image, graphics: () => image(0, 0, 'shadow-graphic'), tileSprite: (x: number, y: number, _w: number, _h: number, key: string) => image(x, y, key), particles: image },
+    anims: { exists: () => false, create: vi.fn() },
+    cameras: { main: { shake: vi.fn() } },
+    time: { delayedCall: vi.fn((_ms: number, cb: () => void) => cb?.()) },
+    tweens: { add: vi.fn() },
   };
   return { scene, objects, shutdown: () => shutdown() };
 }
@@ -72,7 +76,7 @@ describe('streamed PixelLab scenery', () => {
         return !!body && pole.x === p.x + SCENERY[p.kind].width * body.scaleX / 2 + 28 && pole.y === p.y - 20;
       })!;
       expect(facade).toBeTruthy();
-      expect(['house', 'saloon', 'sheriff', 'general-store', 'frontier-saloon', 'gallery-saloon', 'hacienda', 'manor', 'rail-station']).toContain(facade.kind);
+      expect(['house', 'saloon', 'sheriff', 'general-store', 'frontier-saloon', 'gallery-saloon', 'hacienda', 'manor', 'rail-station', 'general-store-se', 'manor-se', 'rail-station-se']).toContain(facade.kind);
       expect(188 * pole.scale).toBeCloseTo(68.5);
       expect(pole.depth).toBe(worldDepth(pole.y));
     }
@@ -95,6 +99,6 @@ describe('streamed PixelLab scenery', () => {
   it('uses finite, bounded scenery depths below effects and the HUD', () => {
     expect(worldDepth(-100)).toBe(10);
     expect(worldDepth(9000)).toBe(15);
-    expect(Object.keys(SCENERY)).toHaveLength(18);
+    expect(Object.keys(SCENERY)).toHaveLength(22);
   });
 });

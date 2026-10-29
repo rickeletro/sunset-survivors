@@ -6,6 +6,7 @@ import { StageLandmarks } from './StageLandmarks';
 import { worldDecorations, WorldDecoration } from '../data/worldDecorations';
 import { worldScaleFor } from './WorldScale';
 import { buildingPath, type PortalPoint } from './BuildingPath';
+import type { Landmark } from '../data/scenery';
 
 /**
  * Mundo grande e contínuo dividido em chunks.
@@ -66,9 +67,10 @@ export class WorldMap {
     private safeY: number,
     private safeRadius = 260,
     private stage: StageConfig = getStage(1),
+    onStoreClick?: (prop: Landmark) => void,
   ) {
     this.groundTexture = createStageScenery(scene, stage);
-    this.landmarks = new StageLandmarks(scene, stage.theme);
+    this.landmarks = new StageLandmarks(scene, stage.theme, onStoreClick ?? ((prop) => (scene as any).openStoreFromBuilding?.(prop)));
   }
 
   private key(cx: number, cy: number) {
@@ -170,6 +172,14 @@ export class WorldMap {
 
   chaseTarget(x: number, y: number, targetX: number, targetY: number, radius: number): { x: number; y: number } {
     return this.landmarks.chaseTarget(x, y, targetX, targetY, radius);
+  }
+
+  hitScenery(ax: number, ay: number, bx: number, by: number, damage: number, onDrop?: (loot: import('./SupplyCart').SupplyCartDrop) => void): boolean {
+    return this.landmarks.hit(ax, ay, bx, by, damage, onDrop);
+  }
+
+  blastScenery(x: number, y: number, radius: number, damage: number, onDrop?: (loot: import('./SupplyCart').SupplyCartDrop) => void): boolean {
+    return this.landmarks.blast(x, y, radius, damage, onDrop);
   }
 
   /** Exact swept-circle checks for short cinematic approaches. Physics radii stay unchanged. */

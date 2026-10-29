@@ -2,6 +2,8 @@ import { heroPortrait } from '../components/HeroPortrait';
 import type Phaser from 'phaser';
 import { THEME } from '../theme/tokens';
 import { UpgradeRack } from './UpgradeRack';
+import { ConsumableRack } from './ConsumableRack';
+import type { ConsumableId } from '../../data/consumables';
 
 export interface CombatHudState {
   characterId: string; hp: number; maxHp: number; currentXp: number; xpToNextLevel: number;
@@ -10,6 +12,7 @@ export interface CombatHudState {
 /** Rendering only: combat and progression rules remain with gameplay systems. */
 export class CombatHUD {
   readonly upgrades: UpgradeRack;
+  readonly consumables: ConsumableRack;
   private xpBarFill!: Phaser.GameObjects.Graphics;
   private hpBarFill!: Phaser.GameObjects.Graphics;
   private hpText!: Phaser.GameObjects.Text;
@@ -21,8 +24,9 @@ export class CombatHUD {
   private bossHpFill!: Phaser.GameObjects.Graphics;
   readonly stageStatus!: Phaser.GameObjects.Text;
   readonly objectiveStatus!: Phaser.GameObjects.Text;
-  constructor(private scene: Phaser.Scene, private state: CombatHudState, bossName: string) {
+  constructor(private scene: Phaser.Scene, private state: CombatHudState, bossName: string, onUseConsumable?: (id: ConsumableId) => void) {
     this.upgrades = new UpgradeRack(scene);
+    this.consumables = new ConsumableRack(scene, (id) => onUseConsumable?.(id));
     const { width } = this.scene.scale;
 
     // 1. Top XP Bar Frame (madeira escura no topo)

@@ -9,6 +9,7 @@ describe('SoundManager - Western Pulp 98 Audio', () => {
     expect(typeof sounds.playBossDefeatedScream).toBe('function');
     expect(typeof sounds.playHeroVoice).toBe('function');
     expect(typeof sounds.stopHeroVoice).toBe('function');
+    expect(typeof sounds.playBodyImpact).toBe('function');
   });
 
   it('permite alternar mute sem quebrar as chamadas de som', () => {
@@ -20,6 +21,7 @@ describe('SoundManager - Western Pulp 98 Audio', () => {
     expect(() => sounds.playPistolShot()).not.toThrow();
     expect(() => sounds.playPlayerGunshot()).not.toThrow();
     expect(() => sounds.playBossDefeatedScream()).not.toThrow();
+    expect(() => sounds.playBodyImpact()).not.toThrow();
     expect(() => sounds.playHeroVoice('steve')).not.toThrow();
     expect(() => sounds.playHeroVoice('billy')).not.toThrow();
     expect(() => sounds.playHeroVoice('bob')).not.toThrow();

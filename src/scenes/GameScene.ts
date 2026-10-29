@@ -1,6 +1,7 @@
 import { FRONTIER_FEEL, GunslingerStyle, evolutionTrail } from '../data/gunslingerStyle';
 import { GunslingerHUD } from '../ui/hud/GunslingerHUD';
 import { statsManager } from '../data/GameStatsManager';
+import type { ConsumableId } from '../data/consumables';
 import { SpriteGenerator } from '../utils/SpriteGenerator';
 import { ENEMY_CAP, HORDE_CAP, MAIN_BOSS_AT, STAGE_SECONDS, WaveTimeline, waveAt, waveEnemyStats } from '../data/waves';
 import { MINI_BOSSES, MINI_HERO_HEIGHTS, miniBossProfile, miniBossScale, miniBossFootOffset, shieldMultiplier } from '../data/miniBosses';
@@ -22,10 +23,11 @@ import { FirstRunTutorial, tutorialProgress } from '../systems/FirstRunTutorial'
 import { FirstRunTutorialView } from '../ui/hud/FirstRunTutorialView';
 import { sceneryForStage, sceneryKey, worldDepth } from '../data/scenery';
 import { WORLD_DECORATION_KEYS } from '../data/worldDecorations';
-import { SaloonVisit, saloonDoors, buildingDistance, SALOON_ENTRY_RADIUS, type SaloonDoor } from '../data/saloon';
+import { SaloonVisit, saloonDoors, storeDoors, buildingDistance, SALOON_ENTRY_RADIUS, type SaloonDoor } from '../data/saloon';
 import { BuildingPortalView } from '../ui/BuildingPortalView';
 import type { BuildingTransitionData } from './BuildingTransitionScene';
 import { samplePath, pathLength, type PortalPoint } from '../systems/BuildingPath';
+import { preloadSupplyCart, createSupplyCartAnim, type SupplyCartDrop } from '../systems/SupplyCart';
 import { canRegenerate, HEAL_DROP_CHANCE, HEAL_DROP_HP, PLAYER_HIT_GRACE_MS } from '../data/sustain';
 import { HostileProjectiles } from '../systems/HostileProjectiles';
 import type { Projectile, Enemy, Drop, FireZone } from '../game/entities';
@@ -107,6 +109,8 @@ export class GameScene extends Phaser.Scene {
   private waveTimeline?: WaveTimeline;
   private rareLootGlow?: Phaser.GameObjects.Graphics;
   private miniBossVisuals?: Phaser.GameObjects.Graphics;
+  private bloodGraphics?: Phaser.GameObjects.Graphics;
+  private bloodParticles: { x: number; y: number; vx: number; vy: number; gravity: number; life: number; maxLife: number; size: number; color: number }[] = [];
   private bossMembers: Enemy[] = [];
   private bossDefeated = false;
 
@@ -135,6 +139,12 @@ export class GameScene extends Phaser.Scene {
   private bounty: number = 0;
   private specialRoundsUntil = 0;
   private gunOilUntil = 0;
+  private bootsUntil = 0;
+  private megaDynamiteUntil = 0;
+  private megaDynamiteTimer = 0;
+  private omniShotUntil = 0;
+  private omniShotTimer = 0;
+  private silverBulletUntil = 0;
   private lastPickupChimeAt = -Infinity;
   private kills: number = 0;
   private choosingUpgrade = false;
@@ -215,6 +225,7 @@ export class GameScene extends Phaser.Scene {
     preloadImages(this, GALLERY_BOSS_KEYS);
     preloadChickens(this, this.stageConfig.theme);
     preloadCrowRush(this);
+    preloadSupplyCart(this);
     preloadImages(this, sceneryForStage(this.stageConfig.theme).map(sceneryKey));
     // The black doorway cut must not reveal the street while the interior loads.
     if (saloonDoors(this.stageConfig.theme).length) {
@@ -239,6 +250,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   create() {
+    createSupplyCartAnim(this);
     SpriteGenerator.createEconomyDrops(this);
     this.rareLootGlow = this.add.graphics().setDepth(3);
     this.onboardingView = undefined;
@@ -369,10 +381,13 @@ export class GameScene extends Phaser.Scene {
       },
     });
     this.crowRush = new CrowRush(this, text => this.showBanner(text, '#572449'), Math.random, 25000, 35000);
-    this.crowRush.onCrowKilled = () => {
+    this.crowRush.onCrowKilled = (cx?: number, cy?: number) => {
       this.kills++;
       this.killsText?.setText?.(String(this.kills).padStart(4, '0'));
-      sounds.playHit();
+      sounds.playBodyImpact?.();
+      if (cx !== undefined && cy !== undefined) {
+        this.spawnBloodSplatter(cx, cy, false, 5);
+      }
     };
     // Keyboard Inputs
     if (this.input.keyboard) {
@@ -406,6 +421,21 @@ export class GameScene extends Phaser.Scene {
     this.gunslingerHUD=new GunslingerHUD(this,this.gunslinger!,()=>this.tryDodge());
     this.gunslingerHUD.setRoute(evolutionTrail(this.activeWeapons,this.activePassives));
     this.miniBossVisuals = this.add.graphics().setDepth(23);
+    this.bloodGraphics = this.add.graphics().setDepth(20);
+    this.events.once('shutdown', () => {
+      this.bloodGraphics?.destroy();
+      this.bloodParticles = [];
+    });
+    this.events.on(Phaser.Scenes.Events.RESUME, () => {
+      this.time.paused = false;
+      this.tweens.paused = false;
+      this.saloonOpen = false;
+      statsManager.refresh();
+      this.bounty = statsManager.getStats().bank;
+      this.bountyText?.setText(`$${String(this.bounty).padStart(6, '0')}`);
+      this.hud?.consumables?.refresh();
+      this.invulnUntil = Math.max(this.invulnUntil, this.combatNow + PLAYER_HIT_GRACE_MS);
+    });
     this.createOnboarding();
     this.createSaloonInteraction();
     this.frontierCompass = new FrontierCompass(this);
@@ -523,7 +553,7 @@ export class GameScene extends Phaser.Scene {
     this.hud = new CombatHUD(this, {
       characterId: this.character.id, hp: this.hp, maxHp: this.maxHp, currentXp: this.currentXp,
       xpToNextLevel: this.xpToNextLevel, level: this.level, bounty: this.bounty, kills: this.kills,
-    }, getBossForStage(this.stage).name);
+    }, getBossForStage(this.stage).name, (id) => this.activateConsumable(id));
     this.levelText = this.hud.levelText;
     this.bountyText = this.hud.bountyText;
     this.timeText = this.hud.timeText;
@@ -887,6 +917,8 @@ export class GameScene extends Phaser.Scene {
         this.handleWeaponsAutoFire(delta);
         this.updateProjectiles(delta);
         this.weaponEffects?.update(delta, this.projectiles);
+        this.updateBloodParticles(delta);
+        this.updateConsumableEffects(delta);
         this.updateFireZones(delta);
       }
       return;
@@ -895,6 +927,8 @@ export class GameScene extends Phaser.Scene {
     this.handleWeaponsAutoFire(delta);
     this.updateProjectiles(delta);
     this.weaponEffects?.update(delta, this.projectiles);
+    this.updateBloodParticles(delta);
+    this.updateConsumableEffects(delta);
     this.updateEnemies(delta);
     this.drawMiniBosses();
     this.player.setDepth(worldDepth(this.player.y));
@@ -917,9 +951,15 @@ export class GameScene extends Phaser.Scene {
   }
 
   private createSaloonInteraction(): void {
-    this.saloonVisit = new SaloonVisit(saloonDoors(this.stageConfig.theme), this.stageConfig.id === 2 ? { healthFraction: 0.2, bounty: 0 } : undefined, true, this.stageConfig.id === 2);
+    const doors = [...saloonDoors(this.stageConfig.theme), ...storeDoors(this.stageConfig.theme)];
+    this.saloonVisit = new SaloonVisit(doors, this.stageConfig.id === 2 ? { healthFraction: 0.2, bounty: 0 } : undefined, true, this.stageConfig.id === 2);
     this.saloonViews = this.saloonVisit.doors.flatMap(door => door.portal ? [{ door,
-      view: new BuildingPortalView(this, door.portal, door.activity === 'gallery' ? `${galleryProfile(this.stageConfig.id).name.toUpperCase()} • TARGET PRACTICE` : door.activity === 'hospitality' ? 'HOSPITALITY • PAID REST & SUPPLIES' : this.stageConfig.id === 2 ? 'SALOON • FARO • $ + ITEMS' : 'SALOON • PAID REST & SUPPLIES', () => this.openSaloon(door)) }] : []);
+      view: new BuildingPortalView(this, door.portal,
+        door.activity === 'gallery' ? `${galleryProfile(this.stageConfig.id).name.toUpperCase()} • TARGET PRACTICE` :
+        door.activity === 'hospitality' ? 'HOSPITALITY • PAID REST & SUPPLIES' :
+        door.activity === 'store' ? "BARNABY'S STORE • 2X OUTPOST SURCHARGE" :
+        this.stageConfig.id === 2 ? 'SALOON • FARO • $ + ITEMS' : 'SALOON • PAID REST & SUPPLIES',
+        () => this.openSaloon(door)) }] : []);
     const enter = () => this.openSaloon();
     this.input.keyboard?.on('keydown-E', enter);
     this.events.once('shutdown', () => {
@@ -951,11 +991,28 @@ export class GameScene extends Phaser.Scene {
     } else this.player.setFlipX(dx < 0);
   }
 
+  public openStoreFromBuilding(_landmark?: unknown): void {
+    if (this.saloonBlocked()) return;
+    this.saloonOpen = true;
+    this.time.paused = true;
+    this.tweens.paused = true;
+    this.player.anims?.stop();
+    this.scene.pause('GameScene');
+    this.scene.launch('StoreScene', {
+      fromScene: 'GameScene',
+      priceMultiplier: 2,
+    });
+  }
+
   private openSaloon(requested?: SaloonDoor): void {
     const visit = this.saloonVisit, blocked = this.saloonBlocked();
     const door = requested ?? visit?.nearby(this.player.x, this.player.y, blocked);
     if (!visit || blocked || visit.used || !door?.portal || !visit.doors.includes(door) ||
       buildingDistance(door, this.player.x, this.player.y) > SALOON_ENTRY_RADIUS) return;
+    if (door.activity === 'store') {
+      this.openStoreFromBuilding();
+      return;
+    }
     if (this.stageConfig.id === 2 && (door.activity ?? 'saloon') === 'saloon' && this.bounty < FARO_MIN_STAKE) {
       this.showBanner('FARO: COLLECT AT LEAST $2 IN BOUNTY TO PLAY', '#ffc52a'); return;
     }
@@ -1072,7 +1129,8 @@ export class GameScene extends Phaser.Scene {
       const len = Math.hypot(dx, dy);
       const nx = dx / len;
       const ny = dy / len;
-      const step = dash?Math.hypot(dash.x,dash.y):(this.moveSpeed * delta) / 1000;
+      const curSpeed = this.moveSpeed * (this.combatNow < this.bootsUntil ? 1.8 : 1.0);
+      const step = dash ? Math.hypot(dash.x, dash.y) : (curSpeed * delta) / 1000;
       // Substeps preserve building collision during the fast dodge, including a slow frame.
       if(dash){
         const steps=Math.max(1,Math.ceil(step/8));
@@ -1359,6 +1417,7 @@ export class GameScene extends Phaser.Scene {
     const scaledDamage = alreadyScaled ? damage : Math.round(damage * this.attackDamageMultiplier);
     this.getWeaponEffects().explosion(x, y, radius, isKeg ? 'hellfire' : alreadyScaled ? 'residue' : 'tnt');
     this.crowRush?.blast(x, y, radius, scaledDamage);
+    this.worldMap?.blastScenery?.(x, y, radius, scaledDamage, loot => this.spawnCartDrop(loot));
 
     if (isKeg) {
       // Cria lago de fogo persistente
@@ -1402,6 +1461,12 @@ export class GameScene extends Phaser.Scene {
             if (p.pierce <= 0) p.life = 0;
           }
         }
+        if (p.life > 0 && this.worldMap?.hitScenery?.(previousX, previousY, p.sprite.x, p.sprite.y, p.damage, loot => this.spawnCartDrop(loot))) {
+          if (!p.shieldPiercing && p.pierce < 90) {
+            p.pierce--;
+            if (p.pierce <= 0) p.life = 0;
+          }
+        }
       }
 
       // Ricochete de borda para sniper dourado (Golden Marshal)
@@ -1426,7 +1491,7 @@ export class GameScene extends Phaser.Scene {
         const dist = Math.hypot(enemy.sprite.x - p.sprite.x, enemy.sprite.y - p.sprite.y);
         if (dist < 26) {
           p.hits.add(enemy);
-          this.damageEnemy(enemy, p.damage, enemy.miniWave === 4 ? {x:previousX,y:previousY,bypassShield:(p.shieldPiercing ?? (p.pierce > 1)) || p.isExplosiveBullet} : undefined);
+          this.damageEnemy(enemy, p.damage, { x: previousX, y: previousY, bypassShield: (p.shieldPiercing ?? (p.pierce > 1)) || p.isExplosiveBullet });
 
           // Explosão residual do Desperado Fury
           if (p.isExplosiveBullet) {
@@ -1768,10 +1833,44 @@ export class GameScene extends Phaser.Scene {
     if (enemy.type === 'boss' && this.stage === 5 && this.combatNow > (enemy.vulnerableUntil ?? 0)) dmg *= 0.45;
 
     // Critical Hit Roll
-    const isCrit = Math.random() < Math.min(1,this.critChance+(this.gunslinger?.crit??0));
-    const finalDamage = isCrit ? Math.round(dmg * this.critMultiplier) : dmg;
+    const silverActive = this.combatNow < this.silverBulletUntil;
+    const isCrit = silverActive || Math.random() < Math.min(1,this.critChance+(this.gunslinger?.crit??0));
+    let finalDamage = isCrit ? Math.round(dmg * this.critMultiplier) : dmg;
+    if (silverActive) finalDamage = Math.round(finalDamage * 4.0);
 
     enemy.hp -= finalDamage;
+
+    // Game juice: Body impact SFX with soft medium volume
+    sounds.playBodyImpact?.();
+
+    // Game juice: Upward blood particle burst (Western Pulp '98 palette)
+    this.spawnBloodSplatter(enemy.sprite.x, enemy.sprite.y - 12, isCrit, isCrit ? 10 : 6);
+
+    // Game juice: Directional knockback impulse on non-boss enemies
+    if (enemy.type !== 'boss') {
+      const pushDist = isCrit ? 8 : 4;
+      const sx = source?.x ?? this.player.x;
+      const sy = source?.y ?? this.player.y;
+      let kx = enemy.sprite.x - sx;
+      let ky = enemy.sprite.y - sy;
+      const len = Math.hypot(kx, ky);
+      if (len > 0.001) {
+        kx /= len;
+        ky /= len;
+        const pushed = this.worldMap.resolve(enemy.sprite.x + kx * pushDist, enemy.sprite.y + ky * pushDist, 10);
+        if (typeof enemy.sprite.setPosition === 'function') {
+          enemy.sprite.setPosition(pushed.x, pushed.y);
+        } else {
+          enemy.sprite.x = pushed.x;
+          enemy.sprite.y = pushed.y;
+        }
+      }
+    }
+
+    // Game juice: Micro screen shake punch on critical hits
+    if (isCrit) {
+      this.cameras?.main?.shake?.(45, 0.003);
+    }
 
     // Flash hit white
     enemy.sprite.setTintFill(0xffffff);
@@ -1795,6 +1894,7 @@ export class GameScene extends Phaser.Scene {
 
   private killEnemy(enemy: Enemy) {
     if (enemy.dead) return;
+    this.spawnBloodSplatter(enemy.sprite.x, enemy.sprite.y - 10, true, 12);
     enemy.dead = true;
     const idx = this.enemies.indexOf(enemy);
     if (idx !== -1) {
@@ -1878,6 +1978,26 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  private spawnCartDrop(loot: SupplyCartDrop) {
+    const texture = loot.type === 'gold' ? 'drop_gold'
+      : loot.type === 'moneybag' ? 'drop_moneybag'
+      : loot.type === 'badge' ? 'drop_badge'
+      : 'drop_whiskey';
+    const targetX = loot.x + Phaser.Math.Between(-36, 36);
+    const targetY = loot.y + Phaser.Math.Between(-24, 24);
+    if (!mergeLoot(this.drops, { type: loot.type, x: targetX, y: targetY, val: loot.val, bounty: loot.bounty })) {
+      const dropSprite = this.add.sprite(loot.x, loot.y - 14, texture).setScale(1.25).setDepth(4);
+      this.drops.push({ sprite: dropSprite, type: loot.type, val: loot.val, bounty: loot.bounty });
+      this.tweens?.add?.({
+        targets: dropSprite,
+        x: targetX,
+        y: targetY,
+        duration: 380,
+        ease: 'Back.easeOut',
+      });
+    }
+  }
+
   private damagePlayer(amount: number) {
     if (this.isGameOver || this.bossDefeated || this.saloonOpen || this.chestEventOpen || this.choosingUpgrade || amount <= 0 || this.onboarding?.blocking) return;
     // Temporary invulnerability after taking a hit
@@ -1927,6 +2047,165 @@ export class GameScene extends Phaser.Scene {
       duration: isCrit ? 750 : 550,
       onComplete: () => txt.destroy(),
     });
+  }
+
+  private spawnBloodSplatter(x: number, y: number, isCrit = false, count = 6): void {
+    if (!this.bloodGraphics || this.bloodParticles.length > 200) return;
+    const colors = isCrit
+      ? [0xe52b20, 0xa51e16, 0xff791c, 0xffc52a]
+      : [0xe52b20, 0xa51e16, 0x572449, 0xa51e16];
+
+    for (let i = 0; i < count; i++) {
+      const angle = -Math.PI / 2 + (Math.random() - 0.5) * 1.1;
+      const speed = isCrit ? (90 + Math.random() * 140) : (60 + Math.random() * 90);
+      const life = 0.22 + Math.random() * 0.22;
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      const size = isCrit ? (Math.random() < 0.4 ? 3 : 2) : (Math.random() < 0.6 ? 2 : 1.5);
+
+      this.bloodParticles.push({
+        x: x + (Math.random() - 0.5) * 6,
+        y: y + (Math.random() - 0.5) * 6,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        gravity: 420 + Math.random() * 120,
+        life,
+        maxLife: life,
+        size,
+        color,
+      });
+    }
+  }
+
+  private updateBloodParticles(delta: number): void {
+    if (!this.bloodGraphics) return;
+    this.bloodGraphics.clear();
+    if (this.bloodParticles.length === 0) return;
+
+    const dt = delta / 1000;
+    const remaining: typeof this.bloodParticles = [];
+
+    for (const p of this.bloodParticles) {
+      p.life -= dt;
+      if (p.life <= 0) continue;
+
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vy += p.gravity * dt;
+
+      const alpha = Math.max(0, p.life / p.maxLife);
+      this.bloodGraphics.fillStyle(p.color, alpha);
+      this.bloodGraphics.fillRect(
+        Math.round(p.x - p.size / 2),
+        Math.round(p.y - p.size / 2),
+        p.size,
+        p.size
+      );
+
+      remaining.push(p);
+    }
+
+    this.bloodParticles = remaining;
+  }
+
+  private activateConsumable(id: ConsumableId): void {
+    if (this.isGameOver || this.bossDefeated || this.choosingUpgrade) return;
+    if (!statsManager.useConsumable(id)) return;
+
+    switch (id) {
+      case 'golden_magnet': {
+        sounds.playCoin();
+        this.cameras?.main?.flash?.(100, 255, 197, 42, false);
+        this.showBanner('★ DESERT MAGNET! ALL LOOT DRAWN! ★', '#ffc52a');
+        for (const drop of this.drops) {
+          drop.attracted = true;
+        }
+        break;
+      }
+      case 'seven_league_boots': {
+        sounds.playReload();
+        this.bootsUntil = this.combatNow + 30000;
+        this.showBanner('★ SEVEN-LEAGUE BOOTS! +80% SPEED FOR 30s! ★', '#ff791c');
+        this.cameras?.main?.flash?.(80, 255, 121, 28, false);
+        break;
+      }
+      case 'miracle_elixir': {
+        sounds.playCoin();
+        this.hp = this.maxHp;
+        this.updateHpBar();
+        this.invulnUntil = Math.max(this.invulnUntil, this.combatNow + 6000);
+        this.showBanner('★ MIRACLE TONIC! FULL HEAL & 6s INVULN! ★', '#f2d49a');
+        this.cameras?.main?.flash?.(100, 242, 212, 154, false);
+        break;
+      }
+      case 'mega_dynamite': {
+        sounds.playExplosion();
+        this.megaDynamiteUntil = this.combatNow + 30000;
+        this.megaDynamiteTimer = 0;
+        this.showBanner('★ NITRO DYNAMITE! MASSIVE BLASTS FOR 30s! ★', '#e52b20');
+        this.cameras?.main?.shake?.(100, 0.008);
+        break;
+      }
+      case 'omni_shot': {
+        sounds.playRevolver();
+        this.omniShotUntil = this.combatNow + 30000;
+        this.omniShotTimer = 0;
+        this.showBanner('★ HIGH NOON 360°! BULLET STORM FOR 30s! ★', '#e52b20');
+        this.cameras?.main?.shake?.(80, 0.006);
+        break;
+      }
+      case 'silver_bullet': {
+        sounds.playRifle();
+        this.silverBulletUntil = this.combatNow + 30000;
+        this.showBanner('★ SILVER BULLETS! 400% CRIT DAMAGE FOR 30s! ★', '#ffffff');
+        this.cameras?.main?.flash?.(100, 255, 255, 255, false);
+        break;
+      }
+    }
+    this.hud?.consumables?.refresh();
+  }
+
+  private updateConsumableEffects(delta: number): void {
+    if (this.isGameOver || this.bossDefeated || this.choosingUpgrade) return;
+
+    // 1. High Noon 360° Bullet Storm
+    if (this.combatNow < this.omniShotUntil) {
+      this.omniShotTimer += delta;
+      if (this.omniShotTimer >= 220) {
+        this.omniShotTimer = 0;
+        sounds.playPlayerGunshot?.();
+        const count = 12;
+        const baseDmg = Math.round(45 * this.attackDamageMultiplier);
+        for (let i = 0; i < count; i++) {
+          const angle = (i * 2 * Math.PI) / count + (this.combatNow / 400);
+          const sprite = this.add.sprite(this.player.x, this.player.y, 'proj_bullet').setDepth(8).setTint(0xff791c).setScale(1.3);
+          sprite.setRotation(angle);
+          this.projectiles.push({
+            sprite,
+            vx: Math.cos(angle) * 520,
+            vy: Math.sin(angle) * 520,
+            damage: baseDmg,
+            pierce: 2,
+            shieldPiercing: true,
+            hits: new Set(),
+            life: 900,
+            isExplosiveBullet: true,
+          });
+        }
+      }
+    }
+
+    // 2. Nitro Dynamite Clustered Explosions
+    if (this.combatNow < this.megaDynamiteUntil) {
+      this.megaDynamiteTimer += delta;
+      if (this.megaDynamiteTimer >= 750) {
+        this.megaDynamiteTimer = 0;
+        const targets = this.getNearestEnemies(380);
+        const target = targets[0];
+        const tx = target ? target.sprite.x : this.player.x + (Math.random() - 0.5) * 180;
+        const ty = target ? target.sprite.y : this.player.y + (Math.random() - 0.5) * 180;
+        this.explodeDynamite(tx, ty, Math.round(180 * this.attackDamageMultiplier), true, true);
+      }
+    }
   }
 
   private getNearestEnemies(range: number): Enemy[] {

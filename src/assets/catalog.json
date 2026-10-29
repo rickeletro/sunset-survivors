@@ -55,12 +55,16 @@
     "scenery_house": "assets/scenery/pixellab/house.png",
     "scenery_sheriff": "assets/scenery/pixellab/sheriff.png",
     "scenery_general-store": "assets/scenery/pixellab/general-store.png",
+    "scenery_general-store-se": "assets/scenery/pixellab/general-store-se.png",
     "scenery_water-tower": "assets/scenery/pixellab/water-tower.png",
     "scenery_barn": "assets/scenery/pixellab/barn.png",
+    "scenery_barn-se": "assets/scenery/pixellab/barn-se.png",
     "scenery_hacienda": "assets/scenery/pixellab/hacienda.png",
     "scenery_manor": "assets/scenery/pixellab/manor.png",
+    "scenery_manor-se": "assets/scenery/pixellab/manor-se.png",
     "scenery_supply-cart": "assets/scenery/pixellab/supply-cart.png",
     "scenery_rail-station": "assets/scenery/pixellab/rail-station.png",
+    "scenery_rail-station-se": "assets/scenery/pixellab/rail-station-se.png",
     "scenery_mine-entrance": "assets/scenery/pixellab/mine-entrance.png",
     "scenery_well": "assets/scenery/pixellab/well.png",
     "scenery_hitching-post": "assets/scenery/pixellab/hitching-post.png",
@@ -88,6 +92,7 @@
     "ui_pulp_paper": "assets/ui/materials/paper.png",
     "ui_pulp_wood": "assets/ui/materials/wood.png",
     "faro_dealer": "assets/characters/dealer/faro-dealer.png",
+    "shopkeeper": "assets/characters/shopkeeper/shopkeeper.png",
     "card_desperado_fury": "assets/powerup/evolutions/desperado_fury.png",
     "card_blunderbuss_doom": "assets/powerup/evolutions/blunderbuss_doom.png",
     "card_golden_repeater": "assets/powerup/evolutions/golden_repeater.png",
@@ -483,6 +488,13 @@
         "south-east",
         "south-west",
         "west"
+      ],
+      "frames": 9
+    },
+    "scenery:supply-cart-break": {
+      "root": "assets/scenery/pixellab/supply-cart/break",
+      "directions": [
+        ""
       ],
       "frames": 9
     }
