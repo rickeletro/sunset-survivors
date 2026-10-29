@@ -107,6 +107,8 @@ export class GameScene extends Phaser.Scene {
   private waveTimeline?: WaveTimeline;
   private rareLootGlow?: Phaser.GameObjects.Graphics;
   private miniBossVisuals?: Phaser.GameObjects.Graphics;
+  private bloodGraphics?: Phaser.GameObjects.Graphics;
+  private bloodParticles: { x: number; y: number; vx: number; vy: number; gravity: number; life: number; maxLife: number; size: number; color: number }[] = [];
   private bossMembers: Enemy[] = [];
   private bossDefeated = false;
 
@@ -369,10 +371,13 @@ export class GameScene extends Phaser.Scene {
       },
     });
     this.crowRush = new CrowRush(this, text => this.showBanner(text, '#572449'), Math.random, 25000, 35000);
-    this.crowRush.onCrowKilled = () => {
+    this.crowRush.onCrowKilled = (cx?: number, cy?: number) => {
       this.kills++;
       this.killsText?.setText?.(String(this.kills).padStart(4, '0'));
-      sounds.playHit();
+      sounds.playBodyImpact?.();
+      if (cx !== undefined && cy !== undefined) {
+        this.spawnBloodSplatter(cx, cy, false, 5);
+      }
     };
     // Keyboard Inputs
     if (this.input.keyboard) {
@@ -406,6 +411,11 @@ export class GameScene extends Phaser.Scene {
     this.gunslingerHUD=new GunslingerHUD(this,this.gunslinger!,()=>this.tryDodge());
     this.gunslingerHUD.setRoute(evolutionTrail(this.activeWeapons,this.activePassives));
     this.miniBossVisuals = this.add.graphics().setDepth(23);
+    this.bloodGraphics = this.add.graphics().setDepth(20);
+    this.events.once('shutdown', () => {
+      this.bloodGraphics?.destroy();
+      this.bloodParticles = [];
+    });
     this.createOnboarding();
     this.createSaloonInteraction();
     this.frontierCompass = new FrontierCompass(this);
@@ -887,6 +897,7 @@ export class GameScene extends Phaser.Scene {
         this.handleWeaponsAutoFire(delta);
         this.updateProjectiles(delta);
         this.weaponEffects?.update(delta, this.projectiles);
+        this.updateBloodParticles(delta);
         this.updateFireZones(delta);
       }
       return;
@@ -895,6 +906,7 @@ export class GameScene extends Phaser.Scene {
     this.handleWeaponsAutoFire(delta);
     this.updateProjectiles(delta);
     this.weaponEffects?.update(delta, this.projectiles);
+    this.updateBloodParticles(delta);
     this.updateEnemies(delta);
     this.drawMiniBosses();
     this.player.setDepth(worldDepth(this.player.y));
@@ -1426,7 +1438,7 @@ export class GameScene extends Phaser.Scene {
         const dist = Math.hypot(enemy.sprite.x - p.sprite.x, enemy.sprite.y - p.sprite.y);
         if (dist < 26) {
           p.hits.add(enemy);
-          this.damageEnemy(enemy, p.damage, enemy.miniWave === 4 ? {x:previousX,y:previousY,bypassShield:(p.shieldPiercing ?? (p.pierce > 1)) || p.isExplosiveBullet} : undefined);
+          this.damageEnemy(enemy, p.damage, { x: previousX, y: previousY, bypassShield: (p.shieldPiercing ?? (p.pierce > 1)) || p.isExplosiveBullet });
 
           // Explosão residual do Desperado Fury
           if (p.isExplosiveBullet) {
@@ -1773,6 +1785,38 @@ export class GameScene extends Phaser.Scene {
 
     enemy.hp -= finalDamage;
 
+    // Game juice: Body impact SFX with soft medium volume
+    sounds.playBodyImpact?.();
+
+    // Game juice: Upward blood particle burst (Western Pulp '98 palette)
+    this.spawnBloodSplatter(enemy.sprite.x, enemy.sprite.y - 12, isCrit, isCrit ? 10 : 6);
+
+    // Game juice: Directional knockback impulse on non-boss enemies
+    if (enemy.type !== 'boss') {
+      const pushDist = isCrit ? 8 : 4;
+      const sx = source?.x ?? this.player.x;
+      const sy = source?.y ?? this.player.y;
+      let kx = enemy.sprite.x - sx;
+      let ky = enemy.sprite.y - sy;
+      const len = Math.hypot(kx, ky);
+      if (len > 0.001) {
+        kx /= len;
+        ky /= len;
+        const pushed = this.worldMap.resolve(enemy.sprite.x + kx * pushDist, enemy.sprite.y + ky * pushDist, 10);
+        if (typeof enemy.sprite.setPosition === 'function') {
+          enemy.sprite.setPosition(pushed.x, pushed.y);
+        } else {
+          enemy.sprite.x = pushed.x;
+          enemy.sprite.y = pushed.y;
+        }
+      }
+    }
+
+    // Game juice: Micro screen shake punch on critical hits
+    if (isCrit) {
+      this.cameras?.main?.shake?.(45, 0.003);
+    }
+
     // Flash hit white
     enemy.sprite.setTintFill(0xffffff);
     this.time.delayedCall(70, () => {
@@ -1795,6 +1839,7 @@ export class GameScene extends Phaser.Scene {
 
   private killEnemy(enemy: Enemy) {
     if (enemy.dead) return;
+    this.spawnBloodSplatter(enemy.sprite.x, enemy.sprite.y - 10, true, 12);
     enemy.dead = true;
     const idx = this.enemies.indexOf(enemy);
     if (idx !== -1) {
@@ -1927,6 +1972,64 @@ export class GameScene extends Phaser.Scene {
       duration: isCrit ? 750 : 550,
       onComplete: () => txt.destroy(),
     });
+  }
+
+  private spawnBloodSplatter(x: number, y: number, isCrit = false, count = 6): void {
+    if (!this.bloodGraphics || this.bloodParticles.length > 200) return;
+    const colors = isCrit
+      ? [0xe52b20, 0xa51e16, 0xff791c, 0xffc52a]
+      : [0xe52b20, 0xa51e16, 0x572449, 0xa51e16];
+
+    for (let i = 0; i < count; i++) {
+      const angle = -Math.PI / 2 + (Math.random() - 0.5) * 1.1;
+      const speed = isCrit ? (90 + Math.random() * 140) : (60 + Math.random() * 90);
+      const life = 0.22 + Math.random() * 0.22;
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      const size = isCrit ? (Math.random() < 0.4 ? 3 : 2) : (Math.random() < 0.6 ? 2 : 1.5);
+
+      this.bloodParticles.push({
+        x: x + (Math.random() - 0.5) * 6,
+        y: y + (Math.random() - 0.5) * 6,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        gravity: 420 + Math.random() * 120,
+        life,
+        maxLife: life,
+        size,
+        color,
+      });
+    }
+  }
+
+  private updateBloodParticles(delta: number): void {
+    if (!this.bloodGraphics) return;
+    this.bloodGraphics.clear();
+    if (this.bloodParticles.length === 0) return;
+
+    const dt = delta / 1000;
+    const remaining: typeof this.bloodParticles = [];
+
+    for (const p of this.bloodParticles) {
+      p.life -= dt;
+      if (p.life <= 0) continue;
+
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vy += p.gravity * dt;
+
+      const alpha = Math.max(0, p.life / p.maxLife);
+      this.bloodGraphics.fillStyle(p.color, alpha);
+      this.bloodGraphics.fillRect(
+        Math.round(p.x - p.size / 2),
+        Math.round(p.y - p.size / 2),
+        p.size,
+        p.size
+      );
+
+      remaining.push(p);
+    }
+
+    this.bloodParticles = remaining;
   }
 
   private getNearestEnemies(range: number): Enemy[] {
