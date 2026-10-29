@@ -111,3 +111,4 @@ export const CONSUMABLE_ORDER: ConsumableId[] = [
   'omni_shot',
   'silver_bullet',
 ];
+
