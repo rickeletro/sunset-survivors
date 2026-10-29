@@ -89,7 +89,7 @@ export class StageLandmarks {
           : undefined;
         image.setDepth(worldDepth(prop.y));
         // Street lighting belongs to facades, never randomly scattered through the wilderness.
-        const litFacade = ['house', 'saloon', 'sheriff', 'general-store', 'frontier-saloon', 'gallery-saloon', 'hacienda', 'manor', 'rail-station'].includes(prop.kind);
+        const litFacade = ['house', 'saloon', 'sheriff', 'general-store', 'frontier-saloon', 'gallery-saloon', 'hacienda', 'manor', 'rail-station', 'general-store-se', 'manor-se', 'rail-station-se'].includes(prop.kind);
         const poleScale = 68.5 / 188; // Visible alpha bounds: one Steve tall, uniformly scaled.
         const poleX = prop.x + SCENERY[prop.kind].width * (image.scaleX ?? sceneryRenderScale(prop.kind)) / 2 + 28;
         const poleY = prop.y - 20;

@@ -17,11 +17,15 @@ export const SCENERY = {
   'general-store': { width: 256, height: 192, dx: -18, dy: 45, halfWidth: 78, halfHeight: 17, light: true },
   'water-tower': { width: 128, height: 192, dx: -1, dy: 32, halfWidth: 43, halfHeight: 19, light: false },
   barn: { width: 256, height: 192, dx: -5, dy: 25, halfWidth: 94, halfHeight: 21, light: false },
+  'barn-se': { width: 256, height: 192, dx: 5, dy: 25, halfWidth: 94, halfHeight: 21, light: false },
   hacienda: { width: 256, height: 256, dx: 8, dy: 73, halfWidth: 106, halfHeight: 19, light: true },
   manor: { width: 256, height: 256, dx: -3, dy: 60, halfWidth: 105, halfHeight: 24, light: true },
+  'manor-se': { width: 256, height: 256, dx: 3, dy: 60, halfWidth: 105, halfHeight: 24, light: true },
   'supply-cart': { width: 128, height: 128, dx: -2, dy: 28, halfWidth: 39, halfHeight: 11, light: false },
   // Replaces one canyon barn visually, preserving that barn's exact ground footprint.
   'frontier-saloon': { width: 256, height: 256, dx: -5, dy: 25, halfWidth: 94, halfHeight: 21, light: true },
+  'general-store-se': { width: 256, height: 192, dx: 18, dy: 45, halfWidth: 78, halfHeight: 17, light: true },
+  'rail-station-se': { width: 256, height: 192, dx: 7, dy: 36, halfWidth: 82, halfHeight: 19, light: true },
 } as const;
 export type SceneryKind = keyof typeof SCENERY;
 /** Uniform render scale is independent of source resolution and ground collision. */
@@ -41,6 +45,33 @@ export interface Footprint { x: number; y: number; halfWidth: number; halfHeight
 // Reserve 10–15 for y-sorted world actors and tall scenery, below effects and HUD.
 export const worldDepth = (y: number): number => 10 + Math.max(0, Math.min(8000, y)) / 8000 * 5;
 export const sceneryKey = (kind: SceneryKind): string => `scenery_${kind}`;
+
+const VILLAGE_KITS: Record<Exclude<StageTheme, 'railroad' | 'caboose'>, { sw: readonly SceneryKind[]; se: readonly SceneryKind[] }> = {
+  canyon: {
+    sw: ['barn', 'water-tower', 'house'],
+    se: ['barn-se', 'general-store-se', 'barn-se'],
+  },
+  'burning-town': {
+    sw: ['house', 'saloon', 'sheriff'],
+    se: ['general-store-se', 'barn-se', 'general-store-se'],
+  },
+  saloon: {
+    sw: ['saloon', 'general-store', 'sheriff'],
+    se: ['general-store-se', 'manor-se', 'barn-se'],
+  },
+  mountain: {
+    sw: ['mine-entrance', 'house', 'supply-cart'],
+    se: ['general-store-se', 'barn-se', 'general-store-se'],
+  },
+  hacienda: {
+    sw: ['hacienda', 'supply-cart', 'house'],
+    se: ['barn-se', 'manor-se', 'barn-se'],
+  },
+  manor: {
+    sw: ['manor', 'house', 'sheriff'],
+    se: ['manor-se', 'general-store-se', 'barn-se'],
+  },
+};
 
 const KITS: Record<StageTheme, readonly SceneryKind[]> = {
   canyon: ['barn', 'house', 'supply-cart', 'water-tower'],
@@ -68,21 +99,23 @@ export function stageLandmarks(theme: StageTheme): Landmark[] {
       landmarks.push({ kind: 'water-tower', x: cx + 760, y: y + 180 });
       if (theme === 'railroad') {
         landmarks.push({ kind: 'rail-station', x: cx - 740, y: y + 180 });
+        landmarks.push({ kind: 'rail-station-se', x: cx - 1140, y: y + 180 });
         landmarks.push({ kind: 'frontier-saloon', x: cx + 290, y: y + 180 });
         landmarks.push({ kind: 'house', x: cx - 240, y: y + 180 });
       }
     } else {
       landmarks.push({ kind: 'hitching-post', x: cx - 800, y: cy + 180 });
       landmarks.push({ kind: 'well', x: cx + 800, y: cy + 180 });
-      for (let i = 0; i < 6; i++) {
-        const kind = theme === 'canyon' && cx === 4000 && cy === 4000 && i === 0 ? 'frontier-saloon' : kit[i % kit.length];
-        const col = (i % 3) - 1;
-        const row = i < 3 ? 0 : 1;
+      const village = VILLAGE_KITS[theme as keyof typeof VILLAGE_KITS];
+      for (let col = -1; col <= 1; col++) {
         const posX = cx + col * 420;
-        let posY = row === 0 ? cy - 390 : cy + 490;
-        if (col === 0) posY += row === 0 ? -130 : 220;
-        else if (col === 1) posY += row === 0 ? 0 : 60;
-        landmarks.push({ kind, x: posX, y: posY });
+        // North side of street: aligned SW buildings facing down-left into the street
+        const swKind = theme === 'canyon' && col === -1
+          ? (cx === 4000 && cy === 4000 ? 'frontier-saloon' : 'barn')
+          : village.sw[col + 1];
+        landmarks.push({ kind: swKind, x: posX, y: cy - 390 });
+        // South side of street: aligned SE buildings facing down-right into the street
+        landmarks.push({ kind: village.se[col + 1], x: posX, y: cy + 450 });
       }
     }
   }
