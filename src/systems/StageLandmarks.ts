@@ -32,7 +32,11 @@ export class StageLandmarks {
   private readonly boxes: readonly Footprint[];
   private active = new Map<number, SceneryInstance>();
   private supplyCarts: SupplyCartSystem;
-  constructor(private scene: Phaser.Scene, private theme: StageTheme) {
+  constructor(
+    private scene: Phaser.Scene,
+    private theme: StageTheme,
+    private onStoreClick?: (prop: Landmark) => void
+  ) {
     this.placements = stageLandmarks(theme);
     this.boxes = this.placements.map(footprint);
     this.supplyCarts = new SupplyCartSystem(scene);
@@ -89,6 +93,17 @@ export class StageLandmarks {
         const image = ((this.scene.add as any).sprite ?? this.scene.add.image).call(this.scene.add, prop.x, prop.y, key, '__BASE').setOrigin(0.5, 1).setScale(scale);
         if (prop.kind === 'supply-cart') {
           this.supplyCarts.linkSprite(index, image);
+        }
+        if (prop.kind === 'general-store' || prop.kind === 'general-store-se') {
+          image.setInteractive?.({ useHandCursor: true });
+          image.on?.('pointerdown', (_pointer: Phaser.Input.Pointer, _localX: number, _localY: number, event?: Phaser.Types.Input.EventData) => {
+            event?.stopPropagation?.();
+            if (this.onStoreClick) {
+              this.onStoreClick(prop);
+            } else if (typeof (this.scene as any).openStoreFromBuilding === 'function') {
+              (this.scene as any).openStoreFromBuilding(prop);
+            }
+          });
         }
         const shadow = new GroundShadow(this.scene, image, ['saloon', 'caboose', 'manor'].includes(this.theme));
         const buildingW = SCENERY[prop.kind].width * scale;

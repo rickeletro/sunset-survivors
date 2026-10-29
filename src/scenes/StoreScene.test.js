@@ -218,6 +218,40 @@ describe('StoreScene Integration', () => {
     expect(scenePlugin.stop).toHaveBeenCalledWith('StoreScene');
     expect(scenePlugin.resume).toHaveBeenCalledWith('MenuScene');
   });
+
+  it('doubles prices and requires 2x cash when accessed with priceMultiplier = 2', () => {
+    const { scene, camera } = setupStore();
+    scene.init({ fromScene: 'GameScene', priceMultiplier: 2 });
+    scene.create();
+
+    // Verify speech text indicates outpost rush surcharge
+    expect(scene.speechText.text).toContain('Outpost rush prices');
+
+    // Desert Magnet base price is $350 -> doubled is $700
+    const magnetCard = scene.itemCards.get('golden_magnet');
+    expect(magnetCard.buyBtn.text).toBe('BUY $700');
+
+    // Player with $500 cannot buy (500 < 700)
+    statsManager.changeBalance(500);
+    scene.refreshUI();
+    expect(magnetCard.buyBtn.enabled).toBe(false);
+
+    scene.tryBuy('golden_magnet');
+    expect(sounds.playReload).toHaveBeenCalled();
+    expect(camera.shake).toHaveBeenCalled();
+    expect(scene.speechText.text).toContain('costs $700');
+    expect(statsManager.getConsumableCount('golden_magnet')).toBe(0);
+
+    // Player with $1000 can buy ($1000 >= $700)
+    statsManager.changeBalance(500); // balance is now 1000
+    scene.refreshUI();
+    expect(magnetCard.buyBtn.enabled).toBe(true);
+
+    scene.tryBuy('golden_magnet');
+    expect(sounds.playCoin).toHaveBeenCalled();
+    expect(statsManager.getConsumableCount('golden_magnet')).toBe(1);
+    expect(statsManager.getStats().bank).toBe(300); // 1000 - 700
+  });
 });
 
 describe('In-Game Consumable Power-up Activation in GameScene', () => {
@@ -311,5 +345,46 @@ describe('In-Game Consumable Power-up Activation in GameScene', () => {
     expect(g.hp).toBe(100);
     expect(g.invulnUntil).toBeGreaterThanOrEqual(1000 + 6000);
     expect(statsManager.getConsumableCount('miracle_elixir')).toBe(0);
+  });
+
+  it('opens StoreScene with priceMultiplier: 2 from in-game armazem and equips items on resume', () => {
+    const g = setupGame();
+    Object.assign(g, {
+      saloonOpen: false,
+      saloonBlocked: vi.fn(() => false),
+      time: { paused: false },
+      tweens: { paused: false },
+      player: { anims: { stop: vi.fn() } },
+      scene: { pause: vi.fn(), launch: vi.fn(), resume: vi.fn() },
+      hud: {
+        updateBounty: vi.fn(),
+        consumables: { refresh: vi.fn() },
+      },
+    });
+
+    // Player enters the store from general store building
+    g.openStoreFromBuilding({ kind: 'general-store' });
+
+    expect(g.saloonOpen).toBe(true);
+    expect(g.scene.pause).toHaveBeenCalledWith('GameScene');
+    expect(g.scene.launch).toHaveBeenCalledWith('StoreScene', {
+      fromScene: 'GameScene',
+      priceMultiplier: 2,
+    });
+
+    // Player buys an item inside StoreScene (mega dynamite costs 780 * 2 = 1560)
+    statsManager.changeBalance(2000);
+    statsManager.buyConsumable('mega_dynamite', CONSUMABLE_ITEMS.mega_dynamite.price * 2);
+    expect(statsManager.getConsumableCount('mega_dynamite')).toBe(1);
+
+    // On resume event, HUD consumables are immediately refreshed
+    g.saloonOpen = false;
+    statsManager.refresh();
+    g.bounty = statsManager.getStats().bank;
+    g.hud.updateBounty(g.bounty);
+    g.hud.consumables.refresh();
+
+    expect(g.hud.consumables.refresh).toHaveBeenCalled();
+    expect(statsManager.getConsumableCount('mega_dynamite')).toBe(1);
   });
 });

@@ -23,7 +23,7 @@ import { FirstRunTutorial, tutorialProgress } from '../systems/FirstRunTutorial'
 import { FirstRunTutorialView } from '../ui/hud/FirstRunTutorialView';
 import { sceneryForStage, sceneryKey, worldDepth } from '../data/scenery';
 import { WORLD_DECORATION_KEYS } from '../data/worldDecorations';
-import { SaloonVisit, saloonDoors, buildingDistance, SALOON_ENTRY_RADIUS, type SaloonDoor } from '../data/saloon';
+import { SaloonVisit, saloonDoors, storeDoors, buildingDistance, SALOON_ENTRY_RADIUS, type SaloonDoor } from '../data/saloon';
 import { BuildingPortalView } from '../ui/BuildingPortalView';
 import type { BuildingTransitionData } from './BuildingTransitionScene';
 import { samplePath, pathLength, type PortalPoint } from '../systems/BuildingPath';
@@ -425,6 +425,16 @@ export class GameScene extends Phaser.Scene {
     this.events.once('shutdown', () => {
       this.bloodGraphics?.destroy();
       this.bloodParticles = [];
+    });
+    this.events.on(Phaser.Scenes.Events.RESUME, () => {
+      this.time.paused = false;
+      this.tweens.paused = false;
+      this.saloonOpen = false;
+      statsManager.refresh();
+      this.bounty = statsManager.getStats().bank;
+      this.bountyText?.setText(`$${String(this.bounty).padStart(6, '0')}`);
+      this.hud?.consumables?.refresh();
+      this.invulnUntil = Math.max(this.invulnUntil, this.combatNow + PLAYER_HIT_GRACE_MS);
     });
     this.createOnboarding();
     this.createSaloonInteraction();
@@ -941,9 +951,15 @@ export class GameScene extends Phaser.Scene {
   }
 
   private createSaloonInteraction(): void {
-    this.saloonVisit = new SaloonVisit(saloonDoors(this.stageConfig.theme), this.stageConfig.id === 2 ? { healthFraction: 0.2, bounty: 0 } : undefined, true, this.stageConfig.id === 2);
+    const doors = [...saloonDoors(this.stageConfig.theme), ...storeDoors(this.stageConfig.theme)];
+    this.saloonVisit = new SaloonVisit(doors, this.stageConfig.id === 2 ? { healthFraction: 0.2, bounty: 0 } : undefined, true, this.stageConfig.id === 2);
     this.saloonViews = this.saloonVisit.doors.flatMap(door => door.portal ? [{ door,
-      view: new BuildingPortalView(this, door.portal, door.activity === 'gallery' ? `${galleryProfile(this.stageConfig.id).name.toUpperCase()} • TARGET PRACTICE` : door.activity === 'hospitality' ? 'HOSPITALITY • PAID REST & SUPPLIES' : this.stageConfig.id === 2 ? 'SALOON • FARO • $ + ITEMS' : 'SALOON • PAID REST & SUPPLIES', () => this.openSaloon(door)) }] : []);
+      view: new BuildingPortalView(this, door.portal,
+        door.activity === 'gallery' ? `${galleryProfile(this.stageConfig.id).name.toUpperCase()} • TARGET PRACTICE` :
+        door.activity === 'hospitality' ? 'HOSPITALITY • PAID REST & SUPPLIES' :
+        door.activity === 'store' ? "BARNABY'S STORE • 2X OUTPOST SURCHARGE" :
+        this.stageConfig.id === 2 ? 'SALOON • FARO • $ + ITEMS' : 'SALOON • PAID REST & SUPPLIES',
+        () => this.openSaloon(door)) }] : []);
     const enter = () => this.openSaloon();
     this.input.keyboard?.on('keydown-E', enter);
     this.events.once('shutdown', () => {
@@ -975,11 +991,28 @@ export class GameScene extends Phaser.Scene {
     } else this.player.setFlipX(dx < 0);
   }
 
+  public openStoreFromBuilding(_landmark?: unknown): void {
+    if (this.saloonBlocked()) return;
+    this.saloonOpen = true;
+    this.time.paused = true;
+    this.tweens.paused = true;
+    this.player.anims?.stop();
+    this.scene.pause('GameScene');
+    this.scene.launch('StoreScene', {
+      fromScene: 'GameScene',
+      priceMultiplier: 2,
+    });
+  }
+
   private openSaloon(requested?: SaloonDoor): void {
     const visit = this.saloonVisit, blocked = this.saloonBlocked();
     const door = requested ?? visit?.nearby(this.player.x, this.player.y, blocked);
     if (!visit || blocked || visit.used || !door?.portal || !visit.doors.includes(door) ||
       buildingDistance(door, this.player.x, this.player.y) > SALOON_ENTRY_RADIUS) return;
+    if (door.activity === 'store') {
+      this.openStoreFromBuilding();
+      return;
+    }
     if (this.stageConfig.id === 2 && (door.activity ?? 'saloon') === 'saloon' && this.bounty < FARO_MIN_STAKE) {
       this.showBanner('FARO: COLLECT AT LEAST $2 IN BOUNTY TO PLAY', '#ffc52a'); return;
     }

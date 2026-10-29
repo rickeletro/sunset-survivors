@@ -6,6 +6,7 @@ import { StageLandmarks } from './StageLandmarks';
 import { worldDecorations, WorldDecoration } from '../data/worldDecorations';
 import { worldScaleFor } from './WorldScale';
 import { buildingPath, type PortalPoint } from './BuildingPath';
+import type { Landmark } from '../data/scenery';
 
 /**
  * Mundo grande e contínuo dividido em chunks.
@@ -66,9 +67,10 @@ export class WorldMap {
     private safeY: number,
     private safeRadius = 260,
     private stage: StageConfig = getStage(1),
+    onStoreClick?: (prop: Landmark) => void,
   ) {
     this.groundTexture = createStageScenery(scene, stage);
-    this.landmarks = new StageLandmarks(scene, stage.theme);
+    this.landmarks = new StageLandmarks(scene, stage.theme, onStoreClick ?? ((prop) => (scene as any).openStoreFromBuilding?.(prop)));
   }
 
   private key(cx: number, cy: number) {

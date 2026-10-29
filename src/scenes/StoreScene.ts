@@ -9,18 +9,24 @@ import { THEME } from '../ui/theme/tokens';
 
 export class StoreScene extends Phaser.Scene {
   private fromScene = 'MenuScene';
+  private priceMultiplier = 1;
   private rootContainer!: Phaser.GameObjects.Container;
   private balanceText!: Phaser.GameObjects.Text;
   private speechText!: Phaser.GameObjects.Text;
   private shopkeeperSprite?: Phaser.GameObjects.Image;
   private itemCards: Map<ConsumableId, { countText: Phaser.GameObjects.Text; buyBtn: ReturnType<typeof pulpButton> }> = new Map();
 
+  private get priceMultiplierValue(): number {
+    return Number.isFinite(this.priceMultiplier) && this.priceMultiplier > 0 ? this.priceMultiplier : 1;
+  }
+
   constructor() {
     super('StoreScene');
   }
 
-  init(data?: { fromScene?: string }) {
+  init(data?: { fromScene?: string; priceMultiplier?: number }) {
     this.fromScene = data?.fromScene ?? 'MenuScene';
+    this.priceMultiplier = Math.max(1, data?.priceMultiplier ?? 1);
   }
 
   preload() {
@@ -160,9 +166,13 @@ export class StoreScene extends Phaser.Scene {
     ribbonGfx.fillRect(rhw, ry - rh / 2 + 4, 14, rh - 8);
     headerContainer.add(ribbonGfx);
 
-    const subText = this.add.text(0, ry, 'PROVISIONS, CONTRABAND & ONE-USE POWER-UPS', {
+    const bannerSubtitle = this.priceMultiplierValue > 1
+      ? 'PROVISIONS, CONTRABAND & ONE-USE POWER-UPS (OUTPOST 2X)'
+      : 'PROVISIONS, CONTRABAND & ONE-USE POWER-UPS';
+
+    const subText = this.add.text(0, ry, bannerSubtitle, {
       fontFamily: '"Press Start 2P", monospace',
-      fontSize: '13px',
+      fontSize: this.priceMultiplierValue > 1 ? '11px' : '13px',
       color: '#f2d49a',
       fontStyle: 'bold',
     }).setOrigin(0.5, 0.5);
@@ -260,7 +270,11 @@ export class StoreScene extends Phaser.Scene {
     this.drawWesternPlaque(dialoguePlaque, 0, 162, 350, 94, false);
     section.add(dialoguePlaque);
 
-    this.speechText = this.add.text(0, 162, 'Cash on the barrelhead!\nFinest supplies in the entire\nterritory.', {
+    const initialSpeech = this.priceMultiplierValue > 1
+      ? "Outpost rush prices, partner!\nSupplies cost double out on the trail,\nbut they'll save your hide right now!"
+      : 'Cash on the barrelhead!\nFinest supplies in the entire\nterritory.';
+
+    this.speechText = this.add.text(0, 162, initialSpeech, {
       fontFamily: THEME.typography.narrativeFont,
       fontSize: '16px',
       fontStyle: 'bold',
@@ -362,12 +376,13 @@ export class StoreScene extends Phaser.Scene {
     card.add(countText);
 
     // 6. BUY Button (bottom)
+    const price = Math.round(def.price * this.priceMultiplierValue);
     const buyBtn = pulpButton(
       this,
       card,
       0,
       82,
-      `BUY $${def.price}`,
+      `BUY $${price}`,
       () => this.tryBuy(id),
       210
     );
@@ -428,7 +443,8 @@ export class StoreScene extends Phaser.Scene {
     const item = CONSUMABLE_ITEMS[id];
     if (!item) return;
 
-    const result = statsManager.buyConsumable(id, item.price);
+    const price = Math.round(item.price * this.priceMultiplierValue);
+    const result = statsManager.buyConsumable(id, price);
     if (result === 'bought') {
       sounds.playCoin();
       this.cameras.main.flash(70, 255, 197, 42, false);
@@ -442,7 +458,7 @@ export class StoreScene extends Phaser.Scene {
     } else if (result === 'insufficient') {
       sounds.playReload();
       this.cameras.main.shake(120, 0.005);
-      this.speechText.setText(`Not enough cash for that, partner!\nIt costs $${item.price}.`);
+      this.speechText.setText(`Not enough cash for that, partner!\nIt costs $${price}.`);
     }
   }
 
@@ -452,9 +468,11 @@ export class StoreScene extends Phaser.Scene {
 
     for (const [id, ui] of this.itemCards.entries()) {
       const def = CONSUMABLE_ITEMS[id];
+      const price = Math.round(def.price * this.priceMultiplierValue);
       const count = statsManager.getConsumableCount(id);
       ui.countText.setText(`IN BAG: ${count}`);
-      ui.buyBtn.setEnabled(stats.bank >= def.price);
+      ui.buyBtn.setText?.(`BUY $${price}`);
+      ui.buyBtn.setEnabled(stats.bank >= price);
     }
   }
 
