@@ -378,13 +378,22 @@ describe('unified menu and local hall of fame', () => {
     expect(h.scene.scene.bringToTop).toHaveBeenCalledWith(key);
     expect(h.scene.scene.launch.mock.invocationCallOrder[0]).toBeLessThan(h.scene.scene.bringToTop.mock.invocationCallOrder[0]);
   });
-  it('shows only one auxiliary MENU button on the title and opens a paused overlay', () => {
+  it('shows auxiliary MENU and STORE buttons on the title and opens paused overlays', () => {
     const h = setup(TitleScene); h.scene.rootContainer = h.scene.add.container(0,0);
     h.scene.createAuxiliaryMenu();
-    expect(h.buttons()).toHaveLength(1); expect(h.labels()).toContain('MENU');
+    expect(h.buttons()).toHaveLength(2);
+    expect(h.labels()).toContain('MENU');
+    expect(h.labels()).toContain('STORE');
+
+    // Menu button opens MenuScene
     h.buttons()[0].activate();
     expect(h.scene.scene.pause).toHaveBeenCalledWith('TitleScene');
     expect(h.scene.scene.launch).toHaveBeenCalledWith('MenuScene', { fromScene: 'TitleScene' });
+
+    // Store button opens StoreScene
+    h.buttons()[1].activate();
+    expect(h.scene.scene.pause).toHaveBeenCalledWith('TitleScene');
+    expect(h.scene.scene.launch).toHaveBeenCalledWith('StoreScene', { fromScene: 'TitleScene', priceMultiplier: 1 });
   });
   it('keeps the pause menu and game suspended when opening audio, then returns to its owner', () => {
     const h = setup(MenuScene, { fromScene: 'PauseScene' }); h.scene.create();

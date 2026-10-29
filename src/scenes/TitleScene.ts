@@ -415,8 +415,12 @@ export class TitleScene extends Phaser.Scene {
 
   private createAuxiliaryMenu() {
     this.rootContainer.add(new WesternButton(this, {
-      x: 0, y: 420, width: 360, height: 62, presentation: 'pulp', text: 'MENU',
+      x: -190, y: 420, width: 340, height: 62, presentation: 'pulp', text: 'MENU',
       variant: 'wood', fontSize: '27px', onClick: () => this.openMainMenu(),
+    }));
+    this.rootContainer.add(new WesternButton(this, {
+      x: 190, y: 420, width: 340, height: 62, presentation: 'pulp', text: 'STORE',
+      variant: 'wood', fontSize: '27px', onClick: () => this.openStore(),
     }));
   }
 
@@ -424,6 +428,13 @@ export class TitleScene extends Phaser.Scene {
     if (this.isAdvancing) return;
     sounds.playRevolver();
     this.scene.pause('TitleScene'); this.scene.launch('MenuScene', { fromScene: 'TitleScene' });
+  }
+
+  private openStore() {
+    if (this.isAdvancing) return;
+    sounds.playRevolver();
+    this.scene.pause('TitleScene');
+    this.scene.launch('StoreScene', { fromScene: 'TitleScene', priceMultiplier: 1 });
   }
 
   private openDeveloper(): void {
@@ -442,6 +453,7 @@ export class TitleScene extends Phaser.Scene {
       ESC: () => this.openMainMenu(),
       F2: () => this.openDeveloper(),
       M: () => this.openMainMenu(),
+      S: () => this.openStore(),
     });
   }
 
