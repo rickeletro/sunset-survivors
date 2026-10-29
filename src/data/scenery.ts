@@ -48,15 +48,15 @@ export const sceneryKey = (kind: SceneryKind): string => `scenery_${kind}`;
 
 const VILLAGE_KITS: Record<Exclude<StageTheme, 'railroad' | 'caboose'>, { sw: readonly SceneryKind[]; se: readonly SceneryKind[] }> = {
   canyon: {
-    sw: ['barn', 'water-tower', 'house'],
+    sw: ['barn', 'supply-cart', 'house'],
     se: ['barn-se', 'general-store-se', 'barn-se'],
   },
   'burning-town': {
-    sw: ['house', 'saloon', 'sheriff'],
+    sw: ['house', 'saloon', 'general-store'],
     se: ['general-store-se', 'barn-se', 'general-store-se'],
   },
   saloon: {
-    sw: ['saloon', 'general-store', 'sheriff'],
+    sw: ['saloon', 'supply-cart', 'sheriff'],
     se: ['general-store-se', 'manor-se', 'barn-se'],
   },
   mountain: {
@@ -68,7 +68,7 @@ const VILLAGE_KITS: Record<Exclude<StageTheme, 'railroad' | 'caboose'>, { sw: re
     se: ['barn-se', 'manor-se', 'barn-se'],
   },
   manor: {
-    sw: ['manor', 'house', 'sheriff'],
+    sw: ['manor', 'supply-cart', 'sheriff'],
     se: ['manor-se', 'general-store-se', 'barn-se'],
   },
 };

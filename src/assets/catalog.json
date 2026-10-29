@@ -490,6 +490,13 @@
         "west"
       ],
       "frames": 9
+    },
+    "scenery:supply-cart-break": {
+      "root": "assets/scenery/pixellab/supply-cart/break",
+      "directions": [
+        ""
+      ],
+      "frames": 9
     }
   },
   "titleImages": [

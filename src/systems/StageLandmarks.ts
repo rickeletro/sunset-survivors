@@ -5,6 +5,7 @@ import type { PortalPoint } from './BuildingPath';
 import type { StageTheme } from '../data/stages';
 import { footprint, overlapsFootprint, resolveFootprint, SCENERY, sceneryRenderScale, sceneryKey, stageLandmarks, worldDepth, type Footprint, type Landmark } from '../data/scenery';
 import { worldScaleFor } from './WorldScale';
+import { SupplyCartSystem, type SupplyCartDrop } from './SupplyCart';
 
 interface SceneryInstance {
   image: Phaser.GameObjects.Image;
@@ -30,9 +31,14 @@ export class StageLandmarks {
   readonly placements: readonly Landmark[];
   private readonly boxes: readonly Footprint[];
   private active = new Map<number, SceneryInstance>();
+  private supplyCarts: SupplyCartSystem;
   constructor(private scene: Phaser.Scene, private theme: StageTheme) {
     this.placements = stageLandmarks(theme);
     this.boxes = this.placements.map(footprint);
+    this.supplyCarts = new SupplyCartSystem(scene);
+    this.placements.forEach((prop, index) => {
+      if (prop.kind === 'supply-cart') this.supplyCarts.register(index, prop.x, prop.y);
+    });
     scene.events.once('shutdown', () => this.destroy());
   }
   chaseTarget(x: number, y: number, targetX: number, targetY: number, radius: number): { x: number; y: number } {
@@ -46,19 +52,33 @@ export class StageLandmarks {
       halfWidth: box.halfWidth + radius, halfHeight: box.halfHeight + radius }, a, b));
   }
   resolve(x: number, y: number, radius: number): { x: number; y: number } {
-    for (const prop of this.placements) {
+    for (let i = 0; i < this.placements.length; i++) {
+      const prop = this.placements[i];
+      if (prop.kind === 'supply-cart' && this.supplyCarts.isBroken(i)) continue;
       const box = footprint(prop);
       if (Math.abs(x - box.x) > box.halfWidth + radius || Math.abs(y - box.y) > box.halfHeight + radius) continue;
       ({ x, y } = resolveFootprint(box, x, y, radius));
     }
     return { x, y };
   }
+  hit(ax: number, ay: number, bx: number, by: number, damage: number, onDrop?: (loot: SupplyCartDrop) => void): boolean {
+    return this.supplyCarts.hit(ax, ay, bx, by, damage, onDrop);
+  }
+  blast(x: number, y: number, radius: number, damage: number, onDrop?: (loot: SupplyCartDrop) => void): boolean {
+    return this.supplyCarts.blast(x, y, radius, damage, onDrop);
+  }
+  getSupplyCarts(): SupplyCartSystem {
+    return this.supplyCarts;
+  }
   update(px: number, py: number, time: number): void {
     this.placements.forEach((prop, index) => {
       const near = Math.abs(prop.x - px) < 1800 && Math.abs(prop.y - py) < 1800;
       let entry = this.active.get(index);
       if (!near) {
-        if (entry) dispose(entry);
+        if (entry) {
+          if (prop.kind === 'supply-cart') this.supplyCarts.unlinkSprite(index);
+          dispose(entry);
+        }
         this.active.delete(index);
         return;
       }
@@ -66,7 +86,10 @@ export class StageLandmarks {
         const key = sceneryKey(prop.kind);
         if (!this.scene.textures.exists(key)) return;
         const scale = worldScaleFor(this.scene, key, sceneryRenderScale(prop.kind));
-        const image = this.scene.add.image(prop.x, prop.y, key, '__BASE').setOrigin(0.5, 1).setScale(scale);
+        const image = ((this.scene.add as any).sprite ?? this.scene.add.image).call(this.scene.add, prop.x, prop.y, key, '__BASE').setOrigin(0.5, 1).setScale(scale);
+        if (prop.kind === 'supply-cart') {
+          this.supplyCarts.linkSprite(index, image);
+        }
         const shadow = new GroundShadow(this.scene, image, ['saloon', 'caboose', 'manor'].includes(this.theme));
         const buildingW = SCENERY[prop.kind].width * scale;
         const buildingH = SCENERY[prop.kind].height * scale;

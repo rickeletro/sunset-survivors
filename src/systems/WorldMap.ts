@@ -172,6 +172,14 @@ export class WorldMap {
     return this.landmarks.chaseTarget(x, y, targetX, targetY, radius);
   }
 
+  hitScenery(ax: number, ay: number, bx: number, by: number, damage: number, onDrop?: (loot: import('./SupplyCart').SupplyCartDrop) => void): boolean {
+    return this.landmarks.hit(ax, ay, bx, by, damage, onDrop);
+  }
+
+  blastScenery(x: number, y: number, radius: number, damage: number, onDrop?: (loot: import('./SupplyCart').SupplyCartDrop) => void): boolean {
+    return this.landmarks.blast(x, y, radius, damage, onDrop);
+  }
+
   /** Exact swept-circle checks for short cinematic approaches. Physics radii stay unchanged. */
   entrySegmentClear(a: PortalPoint, b: PortalPoint, radius = 10): boolean {
     if ([a, b].some(p => p.x < WORLD_MARGIN || p.y < WORLD_MARGIN || p.x > WORLD_W - WORLD_MARGIN || p.y > WORLD_H - WORLD_MARGIN)) return false;

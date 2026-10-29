@@ -27,6 +27,7 @@ import { SaloonVisit, saloonDoors, buildingDistance, SALOON_ENTRY_RADIUS, type S
 import { BuildingPortalView } from '../ui/BuildingPortalView';
 import type { BuildingTransitionData } from './BuildingTransitionScene';
 import { samplePath, pathLength, type PortalPoint } from '../systems/BuildingPath';
+import { preloadSupplyCart, createSupplyCartAnim, type SupplyCartDrop } from '../systems/SupplyCart';
 import { canRegenerate, HEAL_DROP_CHANCE, HEAL_DROP_HP, PLAYER_HIT_GRACE_MS } from '../data/sustain';
 import { HostileProjectiles } from '../systems/HostileProjectiles';
 import type { Projectile, Enemy, Drop, FireZone } from '../game/entities';
@@ -224,6 +225,7 @@ export class GameScene extends Phaser.Scene {
     preloadImages(this, GALLERY_BOSS_KEYS);
     preloadChickens(this, this.stageConfig.theme);
     preloadCrowRush(this);
+    preloadSupplyCart(this);
     preloadImages(this, sceneryForStage(this.stageConfig.theme).map(sceneryKey));
     // The black doorway cut must not reveal the street while the interior loads.
     if (saloonDoors(this.stageConfig.theme).length) {
@@ -248,6 +250,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   create() {
+    createSupplyCartAnim(this);
     SpriteGenerator.createEconomyDrops(this);
     this.rareLootGlow = this.add.graphics().setDepth(3);
     this.onboardingView = undefined;
@@ -1381,6 +1384,7 @@ export class GameScene extends Phaser.Scene {
     const scaledDamage = alreadyScaled ? damage : Math.round(damage * this.attackDamageMultiplier);
     this.getWeaponEffects().explosion(x, y, radius, isKeg ? 'hellfire' : alreadyScaled ? 'residue' : 'tnt');
     this.crowRush?.blast(x, y, radius, scaledDamage);
+    this.worldMap?.blastScenery?.(x, y, radius, scaledDamage, loot => this.spawnCartDrop(loot));
 
     if (isKeg) {
       // Cria lago de fogo persistente
@@ -1419,6 +1423,12 @@ export class GameScene extends Phaser.Scene {
         this.wildlife?.hit(previousX, previousY, p.sprite.x, p.sprite.y);
         if (!this.onboarding?.blocking && !this.bossSpawned) this.frontierEvents?.hit(previousX, previousY, p.sprite.x, p.sprite.y, p.damage);
         if (this.crowRush?.hit(previousX, previousY, p.sprite.x, p.sprite.y, p.damage)) {
+          if (!p.shieldPiercing && p.pierce < 90) {
+            p.pierce--;
+            if (p.pierce <= 0) p.life = 0;
+          }
+        }
+        if (p.life > 0 && this.worldMap?.hitScenery?.(previousX, previousY, p.sprite.x, p.sprite.y, p.damage, loot => this.spawnCartDrop(loot))) {
           if (!p.shieldPiercing && p.pierce < 90) {
             p.pierce--;
             if (p.pierce <= 0) p.life = 0;
@@ -1932,6 +1942,26 @@ export class GameScene extends Phaser.Scene {
       } else {
         this.victory();
       }
+    }
+  }
+
+  private spawnCartDrop(loot: SupplyCartDrop) {
+    const texture = loot.type === 'gold' ? 'drop_gold'
+      : loot.type === 'moneybag' ? 'drop_moneybag'
+      : loot.type === 'badge' ? 'drop_badge'
+      : 'drop_whiskey';
+    const targetX = loot.x + Phaser.Math.Between(-36, 36);
+    const targetY = loot.y + Phaser.Math.Between(-24, 24);
+    if (!mergeLoot(this.drops, { type: loot.type, x: targetX, y: targetY, val: loot.val, bounty: loot.bounty })) {
+      const dropSprite = this.add.sprite(loot.x, loot.y - 14, texture).setScale(1.25).setDepth(4);
+      this.drops.push({ sprite: dropSprite, type: loot.type, val: loot.val, bounty: loot.bounty });
+      this.tweens?.add?.({
+        targets: dropSprite,
+        x: targetX,
+        y: targetY,
+        duration: 380,
+        ease: 'Back.easeOut',
+      });
     }
   }
 
