@@ -5,6 +5,7 @@ import { CONSUMABLE_ITEMS, CONSUMABLE_ORDER, type ConsumableId } from '../data/c
 import { createMenuRoot } from '../ui/layout/menuLayout';
 import { bindPulpKeys, preloadPulp, pulpBackdrop, pulpButton, pulpText } from '../ui/layout/pulpSceneKit';
 import { preloadImages } from '../assets/registry';
+import { THEME } from '../ui/theme/tokens';
 
 export class StoreScene extends Phaser.Scene {
   private fromScene = 'MenuScene';
@@ -259,8 +260,9 @@ export class StoreScene extends Phaser.Scene {
     section.add(dialoguePlaque);
 
     this.speechText = this.add.text(0, 130, 'Cash on the barrelhead!\nFinest supplies in the entire\nterritory.', {
-      fontFamily: 'serif',
-      fontSize: '15px',
+      fontFamily: THEME.typography.narrativeFont,
+      fontSize: '16px',
+      fontStyle: 'bold',
       color: '#f2d49a',
       align: 'center',
       lineSpacing: 4,
@@ -339,13 +341,14 @@ export class StoreScene extends Phaser.Scene {
     card.add(titleText);
 
     // 4. Description Text (below ribbon)
-    const desc = this.add.text(42, -45, def.description, {
-      fontFamily: 'serif',
-      fontSize: '13px',
-      color: '#26130b',
+    const desc = this.add.text(42, -42, def.description, {
+      fontFamily: THEME.typography.narrativeFont,
+      fontSize: '15px',
+      fontStyle: 'bold',
+      color: '#120b08',
       align: 'left',
-      wordWrap: { width: 172 },
-      lineSpacing: 2,
+      wordWrap: { width: 178 },
+      lineSpacing: 3,
     }).setOrigin(0.5, 0.5);
     card.add(desc);
 
@@ -353,7 +356,7 @@ export class StoreScene extends Phaser.Scene {
     const countText = this.add.text(0, 36, 'IN BAG: 0', {
       fontFamily: '"Press Start 2P", monospace',
       fontSize: '12px',
-      color: '#26130b',
+      color: '#120b08',
     }).setOrigin(0.5, 0.5);
     card.add(countText);
 
