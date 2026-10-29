@@ -372,38 +372,91 @@ export class SpriteGenerator {
 
   // 4. Projectiles: Bullets, buckshot, dynamite, flame patch
   private static createProjectileTextures(scene: Phaser.Scene) {
-    // Bullet (Yellow glowing tracer)
-    const cBullet = scene.textures.exists('proj_bullet') ? null : scene.textures.createCanvas('proj_bullet', 12, 6);
+    // Player Bullet: 18x8 high-contrast golden tracer with dark charcoal outline
+    const cBullet = scene.textures.exists('proj_bullet') ? null : scene.textures.createCanvas('proj_bullet', 18, 8);
     if (cBullet) {
       const ctx = cBullet.getContext();
-      ctx.fillStyle = '#f5c518';
-      ctx.fillRect(0, 1, 12, 4);
+      ctx.fillStyle = '#120b08';
+      ctx.fillRect(0, 0, 18, 8);
+      ctx.fillStyle = '#ff791c';
+      ctx.fillRect(1, 1, 16, 6);
+      ctx.fillStyle = '#ffc52a';
+      ctx.fillRect(2, 2, 14, 4);
       ctx.fillStyle = '#ffffff';
-      ctx.fillRect(4, 2, 6, 2);
+      ctx.fillRect(5, 3, 11, 2);
       cBullet.refresh();
     }
 
-    // Shotgun Buckshot
-    const cPellet = scene.textures.exists('proj_pellet') ? null : scene.textures.createCanvas('proj_pellet', 8, 8);
+    // Enemy Bullet (Sunset Riders arcade style: 16x16 glowing spherical orb with thick charcoal outline)
+    const cEnemyBullet = scene.textures.exists('proj_enemy_bullet') ? null : scene.textures.createCanvas('proj_enemy_bullet', 16, 16);
+    if (cEnemyBullet) {
+      const ctx = cEnemyBullet.getContext();
+      // Thick charcoal outline (r = 8)
+      ctx.fillStyle = '#120b08';
+      ctx.beginPath();
+      ctx.arc(8, 8, 8, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Outer sunset amber ring (r = 6.5)
+      ctx.fillStyle = '#ff791c';
+      ctx.beginPath();
+      ctx.arc(8, 8, 6.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Main golden yellow body (r = 5)
+      ctx.fillStyle = '#ffc52a';
+      ctx.beginPath();
+      ctx.arc(8, 8, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Bright canary core (r = 3.5)
+      ctx.fillStyle = '#fff033';
+      ctx.beginPath();
+      ctx.arc(8, 8, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Incandescent white specular center (r = 2)
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(7.5, 7.5, 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      cEnemyBullet.refresh();
+    }
+
+    // Shotgun Buckshot: 10x10 with dark outline and amber center
+    const cPellet = scene.textures.exists('proj_pellet') ? null : scene.textures.createCanvas('proj_pellet', 10, 10);
     if (cPellet) {
       const ctx = cPellet.getContext();
-      ctx.fillStyle = '#ef4444';
+      ctx.fillStyle = '#120b08';
       ctx.beginPath();
-      ctx.arc(4, 4, 3, 0, Math.PI * 2);
+      ctx.arc(5, 5, 5, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillStyle = '#fef08a';
-      ctx.fillRect(3, 3, 2, 2);
+      ctx.fillStyle = '#ff791c';
+      ctx.beginPath();
+      ctx.arc(5, 5, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffc52a';
+      ctx.beginPath();
+      ctx.arc(5, 5, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(4, 4, 2, 2);
       cPellet.refresh();
     }
 
-    // Winchester Penetrator Bullet
-    const cRifle = scene.textures.exists('proj_rifle') ? null : scene.textures.createCanvas('proj_rifle', 18, 6);
+    // Winchester Penetrator Bullet: 22x8 with dark outline and vibrant sky-blue/white beam
+    const cRifle = scene.textures.exists('proj_rifle') ? null : scene.textures.createCanvas('proj_rifle', 22, 8);
     if (cRifle) {
       const ctx = cRifle.getContext();
+      ctx.fillStyle = '#120b08';
+      ctx.fillRect(0, 0, 22, 8);
+      ctx.fillStyle = '#0284c7';
+      ctx.fillRect(1, 1, 20, 6);
       ctx.fillStyle = '#38bdf8';
-      ctx.fillRect(0, 1, 18, 4);
+      ctx.fillRect(2, 2, 18, 4);
       ctx.fillStyle = '#ffffff';
-      ctx.fillRect(4, 2, 12, 2);
+      ctx.fillRect(6, 3, 14, 2);
       cRifle.refresh();
     }
 
