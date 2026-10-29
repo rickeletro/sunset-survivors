@@ -3,7 +3,7 @@ import { sounds } from '../audio/SoundManager';
 import { statsManager } from '../data/GameStatsManager';
 import { CONSUMABLE_ITEMS, CONSUMABLE_ORDER, type ConsumableId } from '../data/consumables';
 import { createMenuRoot } from '../ui/layout/menuLayout';
-import { bindPulpKeys, preloadPulp, pulpBackdrop, pulpButton, pulpHeading, pulpText } from '../ui/layout/pulpSceneKit';
+import { bindPulpKeys, preloadPulp, pulpBackdrop, pulpButton, pulpText } from '../ui/layout/pulpSceneKit';
 import { preloadImages } from '../assets/registry';
 
 export class StoreScene extends Phaser.Scene {
@@ -25,53 +25,40 @@ export class StoreScene extends Phaser.Scene {
   preload() {
     preloadPulp(this);
     preloadImages(this, [
-      'store_bkg',
-      'store_header_sign',
-      'shopkeeper_barnaby',
       'shopkeeper',
-      'consumable_magnet',
-      'consumable_boots',
-      'consumable_tonic',
-      'consumable_dynamite',
-      'consumable_highnoon',
-      'consumable_bullets',
       'card_magnet',
       'card_spurs',
       'card_whiskey',
       'card_dynamite',
       'card_desperado_fury',
       'card_golden_repeater',
+      'hud_upgrade_magnet',
+      'hud_upgrade_spurs',
+      'hud_upgrade_whiskey',
+      'hud_upgrade_dynamite',
+      'hud_upgrade_desperado_fury',
+      'hud_upgrade_golden_repeater',
+      'wm_barrel',
+      'wm_crate',
+      'wm_lantern',
     ]);
   }
 
   create() {
     this.rootContainer = createMenuRoot(this);
 
-    // 1. Atmospheric Store Background
-    if (this.textures.exists('store_bkg')) {
-      const bg = this.add.image(0, 0, 'store_bkg').setOrigin(0.5, 0.5);
-      bg.setScale(1.78);
-      this.rootContainer.add(bg);
-    } else {
-      pulpBackdrop(this, this.rootContainer, true);
-    }
+    // 1. Existing Authentic Western Saloon Backdrop
+    pulpBackdrop(this, this.rootContainer, true);
 
     // Saloon greeting
     sounds.playDealerGreeting();
 
     // 2. Ambient Lantern Lighting (ADD Blend Mode)
-    this.createLanternAura(-620, -290);
-    this.createLanternAura(570, -290);
+    this.createLanternAura(-620, -300);
+    this.createLanternAura(600, -300);
 
-    // 3. Top Header Sign
-    if (this.textures.exists('store_header_sign')) {
-      const header = this.add.image(0, -425, 'store_header_sign').setOrigin(0.5, 0.5);
-      header.setScale(1.75);
-      this.rootContainer.add(header);
-    } else {
-      pulpHeading(this, this.rootContainer, "BARNABY'S GENERAL STORE", -420, 1340, 68, true);
-      pulpText(this, this.rootContainer, 0, -360, '★ PROVISIONS, CONTRABAND & ONE-USE POWER-UPS ★', 22, '#ffc52a');
-    }
+    // 3. Top Header: Ornate Wooden Plaque + Red Ribbon Banner
+    this.createHeaderBanner();
 
     // 4. Shopkeeper & Counter Section (Left Column)
     this.createShopkeeperSection();
@@ -80,8 +67,8 @@ export class StoreScene extends Phaser.Scene {
     this.createMerchandiseGrid();
 
     // 6. Bottom Controls & Return Button
-    pulpButton(this, this.rootContainer, 0, 400, '★ RETURN TO THE TRAIL ★', () => this.leaveStore(), 460);
-    pulpText(this, this.rootContainer, 0, 450, '✥ [ESC] RETURN ✥', 15, '#ffc52a');
+    pulpButton(this, this.rootContainer, 0, 405, '★ RETURN TO THE TRAIL ★', () => this.leaveStore(), 460);
+    pulpText(this, this.rootContainer, 0, 455, '✥ [ESC] RETURN ✥', 15, '#ffc52a');
 
     // Setup Keyboard Bindings
     bindPulpKeys(this, {
@@ -95,6 +82,90 @@ export class StoreScene extends Phaser.Scene {
     });
 
     this.refreshUI();
+  }
+
+  private createHeaderBanner(): void {
+    const headerContainer = this.add.container(0, -420);
+    this.rootContainer.add(headerContainer);
+
+    // Header Plaque Graphics
+    const plaqueGfx = this.add.graphics();
+    const w = 1020;
+    const h = 76;
+    const hw = w / 2;
+    const hh = h / 2;
+
+    // Drop shadow
+    plaqueGfx.fillStyle(0x000000, 0.55);
+    plaqueGfx.fillRoundedRect(-hw + 4, -hh + 5, w, h, 8);
+
+    // Outer Dark Wood
+    plaqueGfx.fillStyle(0x321b10, 1);
+    plaqueGfx.fillRoundedRect(-hw, -hh, w, h, 8);
+
+    // Gold Outer Rim
+    plaqueGfx.lineStyle(3, 0xffc52a, 0.95);
+    plaqueGfx.strokeRoundedRect(-hw + 3, -hh + 3, w - 6, h - 6, 7);
+
+    // Inner Dark Wood Inset
+    plaqueGfx.fillStyle(0x1a0d06, 1);
+    plaqueGfx.fillRoundedRect(-hw + 6, -hh + 6, w - 12, h - 12, 5);
+
+    // Inner Gold Accent Line
+    plaqueGfx.lineStyle(1, 0xa51e16, 0.85);
+    plaqueGfx.strokeRoundedRect(-hw + 8, -hh + 8, w - 16, h - 16, 4);
+
+    // Brass corner studs
+    plaqueGfx.fillStyle(0xffc52a, 1);
+    [-hw + 14, hw - 14].forEach((cx) => {
+      [-hh + 14, hh - 14].forEach((cy) => {
+        plaqueGfx.fillCircle(cx, cy, 4);
+      });
+    });
+    headerContainer.add(plaqueGfx);
+
+    // Main Store Title Text
+    const titleText = this.add.text(0, -2, "★  BARNABY'S GENERAL STORE  ★", {
+      fontFamily: 'Rye, "Roboto Slab", serif',
+      fontSize: '34px',
+      color: '#ffc52a',
+      stroke: '#120b08',
+      strokeThickness: 5,
+    }).setOrigin(0.5, 0.5);
+    headerContainer.add(titleText);
+
+    // Red Ribbon Banner directly below the plaque
+    const ribbonGfx = this.add.graphics();
+    const rw = 720;
+    const rh = 34;
+    const rhw = rw / 2;
+    const ry = 48;
+
+    // Ribbon drop shadow
+    ribbonGfx.fillStyle(0x000000, 0.45);
+    ribbonGfx.fillRect(-rhw + 3, ry - rh / 2 + 3, rw, rh);
+
+    // Red Ribbon Fill
+    ribbonGfx.fillStyle(0xa51e16, 1);
+    ribbonGfx.fillRect(-rhw, ry - rh / 2, rw, rh);
+
+    // Ribbon Gold Border
+    ribbonGfx.lineStyle(2, 0xffc52a, 0.9);
+    ribbonGfx.strokeRect(-rhw, ry - rh / 2, rw, rh);
+
+    // Decorative notched ends / side accents
+    ribbonGfx.fillStyle(0x75120c, 1);
+    ribbonGfx.fillRect(-rhw - 14, ry - rh / 2 + 4, 14, rh - 8);
+    ribbonGfx.fillRect(rhw, ry - rh / 2 + 4, 14, rh - 8);
+    headerContainer.add(ribbonGfx);
+
+    const subText = this.add.text(0, ry, 'PROVISIONS, CONTRABAND & ONE-USE POWER-UPS', {
+      fontFamily: '"Press Start 2P", monospace',
+      fontSize: '13px',
+      color: '#f2d49a',
+      fontStyle: 'bold',
+    }).setOrigin(0.5, 0.5);
+    headerContainer.add(subText);
   }
 
   private createLanternAura(x: number, y: number): void {
@@ -121,14 +192,19 @@ export class StoreScene extends Phaser.Scene {
     const section = this.add.container(-485, -120);
     this.rootContainer.add(section);
 
-    // Barnaby Character Sprite
-    const shopTexture = this.textures.exists('shopkeeper_barnaby') ? 'shopkeeper_barnaby' : 'shopkeeper';
-    if (this.textures.exists(shopTexture)) {
-      this.shopkeeperSprite = this.add.image(0, -35, shopTexture).setOrigin(0.5, 0.5);
+    // Ambient counter backdrop glow
+    const ambientGlow = this.add.graphics();
+    ambientGlow.fillStyle(0xffa32a, 0.06).fillCircle(0, -40, 95);
+    ambientGlow.setBlendMode(Phaser.BlendModes.ADD);
+    section.add(ambientGlow);
+
+    // Existing Shopkeeper Sprite from catalog
+    if (this.textures.exists('shopkeeper')) {
+      this.shopkeeperSprite = this.add.image(0, -40, 'shopkeeper').setOrigin(0.5, 0.5);
       this.shopkeeperSprite.setScale(1.85);
       section.add(this.shopkeeperSprite);
 
-      // Interactive Click: Barnaby gives tips
+      // Interactive Click: Barnaby speaks
       this.shopkeeperSprite.setInteractive({ useHandCursor: true });
       this.shopkeeperSprite.on('pointerdown', () => {
         sounds.playHospitalityGreeting();
@@ -145,7 +221,7 @@ export class StoreScene extends Phaser.Scene {
       // Subtle breathing motion
       this.tweens.add({
         targets: this.shopkeeperSprite,
-        y: -31,
+        y: -36,
         duration: 1400,
         yoyo: true,
         repeat: -1,
@@ -153,12 +229,36 @@ export class StoreScene extends Phaser.Scene {
       });
     }
 
+    // Wooden Counter below the Shopkeeper
+    const counterGfx = this.add.graphics();
+    counterGfx.fillStyle(0x321b10, 1);
+    counterGfx.fillRoundedRect(-180, 42, 360, 26, 4);
+    counterGfx.lineStyle(2, 0xffc52a, 0.85);
+    counterGfx.strokeRoundedRect(-180, 42, 360, 26, 4);
+
+    // Brass rivets on counter
+    counterGfx.fillStyle(0xffc52a, 1);
+    for (let bx = -160; bx <= 160; bx += 32) {
+      counterGfx.fillCircle(bx, 55, 3);
+    }
+    section.add(counterGfx);
+
+    // Decorative barrel and crate flanking the counter
+    if (this.textures.exists('wm_barrel')) {
+      const barrel = this.add.image(-150, 85, 'wm_barrel').setScale(0.85);
+      section.add(barrel);
+    }
+    if (this.textures.exists('wm_crate')) {
+      const crate = this.add.image(150, 85, 'wm_crate').setScale(0.8);
+      section.add(crate);
+    }
+
     // Dialogue Plaque
     const dialoguePlaque = this.add.graphics();
-    this.drawWesternPlaque(dialoguePlaque, 0, 115, 340, 96, false);
+    this.drawWesternPlaque(dialoguePlaque, 0, 130, 340, 96, false);
     section.add(dialoguePlaque);
 
-    this.speechText = this.add.text(0, 115, 'Cash on the barrelhead!\nFinest supplies in the entire\nterritory.', {
+    this.speechText = this.add.text(0, 130, 'Cash on the barrelhead!\nFinest supplies in the entire\nterritory.', {
       fontFamily: 'serif',
       fontSize: '15px',
       color: '#f2d49a',
@@ -169,10 +269,10 @@ export class StoreScene extends Phaser.Scene {
 
     // Wallet Plaque
     const walletPlaque = this.add.graphics();
-    this.drawWesternPlaque(walletPlaque, 0, 195, 340, 50, false);
+    this.drawWesternPlaque(walletPlaque, 0, 210, 340, 50, false);
     section.add(walletPlaque);
 
-    this.balanceText = this.add.text(0, 195, '★ WALLET: $0 ★', {
+    this.balanceText = this.add.text(0, 210, '★ WALLET: $0 ★', {
       fontFamily: '"Press Start 2P", monospace',
       fontSize: '16px',
       color: '#ffc52a',
@@ -218,11 +318,11 @@ export class StoreScene extends Phaser.Scene {
     iconGfx.strokeRect(-121, -99, 62, 62);
     card.add(iconGfx);
 
-    // Icon Texture
-    const iconTexture = this.textures.exists(def.cardTexture) ? def.cardTexture : def.hudTexture;
+    // Icon Texture: uses approved hudTexture or cardTexture from catalog
+    const iconTexture = this.textures.exists(def.hudTexture) ? def.hudTexture : def.cardTexture;
     if (this.textures.exists(iconTexture)) {
       const icon = this.add.image(-90, -68, iconTexture);
-      icon.setScale(Math.min(56 / icon.width, 56 / icon.height));
+      icon.setScale(Math.min(54 / icon.width, 54 / icon.height));
       card.add(icon);
     }
 
