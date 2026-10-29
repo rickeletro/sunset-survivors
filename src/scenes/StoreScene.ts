@@ -190,19 +190,20 @@ export class StoreScene extends Phaser.Scene {
   }
 
   private createShopkeeperSection(): void {
-    const section = this.add.container(-485, -120);
+    // Left column centered at x = -485, positioned so the wallet aligns with the bottom of item cards
+    const section = this.add.container(-485, 0);
     this.rootContainer.add(section);
 
     // Ambient counter backdrop glow
     const ambientGlow = this.add.graphics();
-    ambientGlow.fillStyle(0xffa32a, 0.06).fillCircle(0, -40, 95);
+    ambientGlow.fillStyle(0xffa32a, 0.07).fillCircle(0, -25, 125);
     ambientGlow.setBlendMode(Phaser.BlendModes.ADD);
     section.add(ambientGlow);
 
-    // Existing Shopkeeper Sprite from catalog
+    // Shopkeeper Sprite (Enlarged size: 2.4x)
     if (this.textures.exists('shopkeeper')) {
-      this.shopkeeperSprite = this.add.image(0, -40, 'shopkeeper').setOrigin(0.5, 0.5);
-      this.shopkeeperSprite.setScale(1.85);
+      this.shopkeeperSprite = this.add.image(0, -25, 'shopkeeper').setOrigin(0.5, 0.5);
+      this.shopkeeperSprite.setScale(2.4);
       section.add(this.shopkeeperSprite);
 
       // Interactive Click: Barnaby speaks
@@ -222,7 +223,7 @@ export class StoreScene extends Phaser.Scene {
       // Subtle breathing motion
       this.tweens.add({
         targets: this.shopkeeperSprite,
-        y: -36,
+        y: -20,
         duration: 1400,
         yoyo: true,
         repeat: -1,
@@ -233,33 +234,33 @@ export class StoreScene extends Phaser.Scene {
     // Wooden Counter below the Shopkeeper
     const counterGfx = this.add.graphics();
     counterGfx.fillStyle(0x321b10, 1);
-    counterGfx.fillRoundedRect(-180, 42, 360, 26, 4);
+    counterGfx.fillRoundedRect(-185, 78, 370, 28, 4);
     counterGfx.lineStyle(2, 0xffc52a, 0.85);
-    counterGfx.strokeRoundedRect(-180, 42, 360, 26, 4);
+    counterGfx.strokeRoundedRect(-185, 78, 370, 28, 4);
 
     // Brass rivets on counter
     counterGfx.fillStyle(0xffc52a, 1);
-    for (let bx = -160; bx <= 160; bx += 32) {
-      counterGfx.fillCircle(bx, 55, 3);
+    for (let bx = -165; bx <= 165; bx += 33) {
+      counterGfx.fillCircle(bx, 92, 3);
     }
     section.add(counterGfx);
 
     // Decorative barrel and crate flanking the counter
     if (this.textures.exists('wm_barrel')) {
-      const barrel = this.add.image(-150, 85, 'wm_barrel').setScale(0.85);
+      const barrel = this.add.image(-155, 105, 'wm_barrel').setScale(0.9);
       section.add(barrel);
     }
     if (this.textures.exists('wm_crate')) {
-      const crate = this.add.image(150, 85, 'wm_crate').setScale(0.8);
+      const crate = this.add.image(155, 105, 'wm_crate').setScale(0.85);
       section.add(crate);
     }
 
     // Dialogue Plaque
     const dialoguePlaque = this.add.graphics();
-    this.drawWesternPlaque(dialoguePlaque, 0, 130, 340, 96, false);
+    this.drawWesternPlaque(dialoguePlaque, 0, 162, 350, 94, false);
     section.add(dialoguePlaque);
 
-    this.speechText = this.add.text(0, 130, 'Cash on the barrelhead!\nFinest supplies in the entire\nterritory.', {
+    this.speechText = this.add.text(0, 162, 'Cash on the barrelhead!\nFinest supplies in the entire\nterritory.', {
       fontFamily: THEME.typography.narrativeFont,
       fontSize: '16px',
       fontStyle: 'bold',
@@ -269,12 +270,12 @@ export class StoreScene extends Phaser.Scene {
     }).setOrigin(0.5, 0.5);
     section.add(this.speechText);
 
-    // Wallet Plaque
+    // Wallet Plaque - Bottom aligns with the bottom of the last row of item cards (Y = +272)
     const walletPlaque = this.add.graphics();
-    this.drawWesternPlaque(walletPlaque, 0, 210, 340, 50, false);
+    this.drawWesternPlaque(walletPlaque, 0, 246, 350, 52, false);
     section.add(walletPlaque);
 
-    this.balanceText = this.add.text(0, 210, '★ WALLET: $0 ★', {
+    this.balanceText = this.add.text(0, 246, '★ WALLET: $0 ★', {
       fontFamily: '"Press Start 2P", monospace',
       fontSize: '16px',
       color: '#ffc52a',
