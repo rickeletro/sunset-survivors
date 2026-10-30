@@ -11,7 +11,7 @@ import { THEME } from '../ui/theme/tokens';
 import type Phaser from 'phaser';
 import { objectiveProgress, safeEventPoint, StageConfig } from '../data/stages';
 import type { EnemyKind } from '../data/enemies';
-import { t } from '../i18n';
+import { t, getStageHazard, getStageObjective } from '../i18n';
 
 export interface HazardShape { x: number; y: number; radius: number; width?: number; height?: number; }
 export function insideHazard(shape: HazardShape, x: number, y: number): boolean {
@@ -92,10 +92,10 @@ export class StageEncounters {
           .setDepth(20);
       }
     }
-    const text = this.scene.add.text(clear.x + (bannerIcon ? 14 : 0), clear.y - 78, 'SUPPLIES\nSTAY IN THE CIRCLE', { fontFamily: THEME.typography.pixelFont, fontSize: '9px', color: '#ffc52a', stroke: '#120b08', strokeThickness: 3, align: 'center' }).setOrigin(0.5).setDepth(20);
+    const text = this.scene.add.text(clear.x + (bannerIcon ? 14 : 0), clear.y - 78, t('combat.suppliesInCircle'), { fontFamily: THEME.typography.pixelFont, fontSize: '9px', color: '#ffc52a', stroke: '#120b08', strokeThickness: 3, align: 'center' }).setOrigin(0.5).setDepth(20);
     this.supply = { ...clear, progress: 0, age: 0, ring, marker, bannerIcon, diorama, text };
     marker.setInteractive({useHandCursor:true}).on('pointerdown',()=>this.acceptContract());
-    this.hooks.banner(this.stage.objective, '#ffc52a');
+    this.hooks.banner(getStageObjective(this.stage.id, this.stage.objective), '#ffc52a');
     // Guarded objective: enter the camp, clear its guards, hold for 8 seconds.
     for (let i = 0; i < 5; i++) {
       const a = i * Math.PI * 2 / 5;
@@ -112,13 +112,13 @@ export class StageEncounters {
       const angle=i*Math.PI*2/FRONTIER_FEEL.contract.extraGuards;
       this.hooks.spawn('knife_bandit',s.x+Math.cos(angle)*130,s.y+Math.sin(angle)*130);
     }
-    this.hooks.banner('HIGH STAKES: CLEAR + HOLD IN 25s · EXTRA UPGRADE', '#ff791c');
+    this.hooks.banner(t('combat.contractHighStakes'), '#ff791c');
     return true;
   }
   private environmentalEvent(): void {
     const p = this.hooks.position();
     const index = this.eventIndex++;
-    this.hooks.banner(this.stage.hazardLabel, '#ff791c');
+    this.hooks.banner(getStageHazard(this.stage.id, this.stage.hazardLabel), '#ff791c');
     switch (this.stage.hazard) {
       case 'stampede': {
         // Leave both ends open; charging animals can also be killed for XP.
@@ -240,9 +240,9 @@ export class StageEncounters {
       s.marker.setAlpha(.86+Math.sin(s.age/300)*.14);
       const header = contested ? 'CLEAR THE AREA' : (charging ? 'STAY IN THE CIRCLE TO OPEN THE CHEST!' : 'SUPPLIES');
       s.text.setText(s.contract?`HIGH STAKES · ${Math.max(0,Math.ceil(((s.deadline??0)-s.age)/1000))}s\n${contested?'CLEAR THE AREA':`${Math.floor(s.progress)} / 8s`}`:`${header}\n${Math.floor(s.progress)} / 8s${!this.highStakesUsed?'\n[F] / CLICK: +4 GUARDS · 25s\nWIN: EXTRA UPGRADE':''}`);
-      if(s.contract&&s.age>(s.deadline??0)){this.clearSupply();this.hooks.banner('CONTRACT LOST · THE SUPPLIES ARE GONE', '#e52b20');}
-      else if (s.progress >= 8) { const contract=s.contract;this.clearSupply();if(contract)this.hooks.reward(true);else this.hooks.reward(); this.hooks.banner(contract?'CONTRACT WON · EXTRA UPGRADE!':'SUPPLIES: XP + GOLD + HEAL!', '#ffc52a'); }
-      else if (s.age >= 80000) { this.clearSupply(); this.hooks.banner('THE WAGON HAS LEFT — ANOTHER CHANCE SOON', '#f2d49a'); }
+      if(s.contract&&s.age>(s.deadline??0)){this.clearSupply();this.hooks.banner(t('combat.contractLost'), '#e52b20');}
+      else if (s.progress >= 8) { const contract=s.contract;this.clearSupply();if(contract)this.hooks.reward(true);else this.hooks.reward(); this.hooks.banner(contract?t('combat.contractWonExtra'):t('combat.suppliesWon'), '#ffc52a'); }
+      else if (s.age >= 80000) { this.clearSupply(); this.hooks.banner(t('combat.wagonDeparted'), '#f2d49a'); }
     }
   }
   get objectivePoint():Readonly<Pick<Supply,'x'|'y'|'contract'>>|undefined{return this.supply;}

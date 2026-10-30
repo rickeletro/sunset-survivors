@@ -118,3 +118,65 @@ export const getLocale = () => i18n.getLocale();
 export const setLocale = (locale: Locale) => i18n.setLocale(locale);
 export const toggleLocale = () => i18n.toggleLocale();
 export const onLocaleChange = (listener: (locale: Locale) => void) => i18n.onLocaleChange(listener);
+
+export function getStageTitle(stageId: number, fallback = ''): string {
+  const key = `stages.stage${stageId}Title` as TranslationKey;
+  const res = t(key);
+  return res === key ? fallback : res;
+}
+
+export function getStageHazard(stageId: number, fallback = ''): string {
+  const key = `stages.stage${stageId}Hazard` as TranslationKey;
+  const res = t(key);
+  return res === key ? fallback : res;
+}
+
+export function getStageObjective(stageId: number, fallback = ''): string {
+  const key = `stages.stage${stageId}Objective` as TranslationKey;
+  const res = t(key);
+  return res === key ? fallback : res;
+}
+
+export function getConsumableCopy(id: string): { name: string; desc: string; banner: string } {
+  const nameKey = `consumables.${id}Name` as TranslationKey;
+  const descKey = `consumables.${id}Desc` as TranslationKey;
+  const bannerKey = `consumables.${id}Banner` as TranslationKey;
+  return {
+    name: t(nameKey),
+    desc: t(descKey),
+    banner: t(bannerKey),
+  };
+}
+
+export function getCharacterCopy(charKey: string): {
+  name: string;
+  title: string;
+  bio: string;
+  quote: string;
+  specialBonus: string;
+  styleName: string;
+  styleDesc: string;
+} {
+  return {
+    name: t(`characterSelect.${charKey}Name` as TranslationKey),
+    title: t(`characterSelect.${charKey}Title` as TranslationKey),
+    bio: t(`characterSelect.${charKey}Bio` as TranslationKey),
+    quote: t(`characterSelect.${charKey}Quote` as TranslationKey),
+    specialBonus: t(`characterSelect.${charKey}Bonus` as TranslationKey),
+    styleName: t(`characterSelect.${charKey}StyleName` as TranslationKey),
+    styleDesc: t(`characterSelect.${charKey}StyleDesc` as TranslationKey),
+  };
+}
+
+export function getUpgradeName(id: string, fallback = ''): string {
+  const key = `upgrades.${id}Name` as TranslationKey;
+  const res = t(key);
+  return res === key ? fallback : res;
+}
+
+export function getUpgradeDesc(id: string, fallback = ''): string {
+  const cap = id.charAt(0).toUpperCase() + id.slice(1);
+  const key = `upgrades.desc${cap}` as TranslationKey;
+  const res = t(key);
+  return res === key ? fallback : res;
+}

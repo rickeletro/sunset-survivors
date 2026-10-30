@@ -646,7 +646,7 @@ export class LevelUpScene extends Phaser.Scene {
         this.detailStatsText.setText([
           `${lore.typeLabel} • ${t('common.damage')} ${lvl.damage} • ${t('common.cooldown')} ${lvl.cooldownMs} ms`,
           `${t('common.projectiles')} ${lvl.projectileCount} • ${t('common.pierce')} ${lvl.pierce}`,
-          lvl.description,
+          choice.description,
         ].join('\n'));
       } else {
         this.detailStatsText.setText(`${t('levelUp.description')} : ${choice.description}`);

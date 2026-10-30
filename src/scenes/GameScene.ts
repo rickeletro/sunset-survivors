@@ -21,7 +21,7 @@ import { molotovFootprint, dynamiteRadius, insideBlast, lobPose } from '../data/
 import { ECONOMY, servicePrice, type RunServiceId, BUILD_LIMITS, cooldownMultiplier, stageClearBonus, xpForLevel } from '../data/economy';
 import { FirstRunTutorial, tutorialProgress } from '../systems/FirstRunTutorial';
 import { FirstRunTutorialView } from '../ui/hud/FirstRunTutorialView';
-import { t } from '../i18n';
+import { t, getStageTitle, getConsumableCopy, getUpgradeName, getUpgradeDesc } from '../i18n';
 import { sceneryForStage, sceneryKey, worldDepth } from '../data/scenery';
 import { WORLD_DECORATION_KEYS } from '../data/worldDecorations';
 import { SaloonVisit, saloonDoors, storeDoors, buildingDistance, SALOON_ENTRY_RADIUS, type SaloonDoor } from '../data/saloon';
@@ -459,7 +459,7 @@ export class GameScene extends Phaser.Scene {
       fontFamily: THEME.typography.pixelFont, fontSize: '12px', color: '#ffc52a', backgroundColor: '#321b10', padding: { x: 10, y: 6 },
     }).setOrigin(0.5).setScrollFactor(0).setDepth(60);
     this.updateStageStatus();
-    if (!this.onboarding?.blocking) this.showBanner(t('combat.stageBanner', { stage: this.stage, title: this.stageConfig.title }), '#ffc52a');
+    if (!this.onboarding?.blocking) this.showBanner(t('combat.stageBanner', { stage: this.stage, title: getStageTitle(this.stage, this.stageConfig.title) }), '#ffc52a');
     sounds.startBGM(this.stage);
   }
 
@@ -492,7 +492,7 @@ export class GameScene extends Phaser.Scene {
     this.fireZones = [];
     this.weaponTimers.forEach((_timer, key) => this.weaponTimers.set(key, 0));
     sounds.playLevelUp();
-    this.showBanner(t('combat.stageBanner', { stage: this.stage, title: this.stageConfig.title }), '#ffc52a');
+    this.showBanner(t('combat.stageBanner', { stage: this.stage, title: getStageTitle(this.stage, this.stageConfig.title) }), '#ffc52a');
   }
 
 
@@ -2101,7 +2101,7 @@ export class GameScene extends Phaser.Scene {
       case 'golden_magnet': {
         sounds.playCoin();
         this.cameras?.main?.flash?.(100, 255, 197, 42, false);
-        this.showBanner('★ DESERT MAGNET! ALL LOOT DRAWN! ★', '#ffc52a');
+        this.showBanner(getConsumableCopy('golden_magnet').banner, '#ffc52a');
         for (const drop of this.drops) {
           drop.attracted = true;
         }
@@ -2110,7 +2110,7 @@ export class GameScene extends Phaser.Scene {
       case 'seven_league_boots': {
         sounds.playReload();
         this.bootsUntil = this.combatNow + 30000;
-        this.showBanner('★ SEVEN-LEAGUE BOOTS! +80% SPEED FOR 30s! ★', '#ff791c');
+        this.showBanner(getConsumableCopy('seven_league_boots').banner, '#ff791c');
         this.cameras?.main?.flash?.(80, 255, 121, 28, false);
         break;
       }
@@ -2119,7 +2119,7 @@ export class GameScene extends Phaser.Scene {
         this.hp = this.maxHp;
         this.updateHpBar();
         this.invulnUntil = Math.max(this.invulnUntil, this.combatNow + 6000);
-        this.showBanner('★ MIRACLE TONIC! FULL HEAL & 6s INVULN! ★', '#f2d49a');
+        this.showBanner(getConsumableCopy('miracle_elixir').banner, '#f2d49a');
         this.cameras?.main?.flash?.(100, 242, 212, 154, false);
         break;
       }
@@ -2127,7 +2127,7 @@ export class GameScene extends Phaser.Scene {
         sounds.playExplosion();
         this.megaDynamiteUntil = this.combatNow + 30000;
         this.megaDynamiteTimer = 0;
-        this.showBanner('★ NITRO DYNAMITE! MASSIVE BLASTS FOR 30s! ★', '#e52b20');
+        this.showBanner(getConsumableCopy('mega_dynamite').banner, '#e52b20');
         this.cameras?.main?.shake?.(100, 0.008);
         break;
       }
@@ -2135,14 +2135,14 @@ export class GameScene extends Phaser.Scene {
         sounds.playRevolver();
         this.omniShotUntil = this.combatNow + 30000;
         this.omniShotTimer = 0;
-        this.showBanner('★ HIGH NOON 360°! BULLET STORM FOR 30s! ★', '#e52b20');
+        this.showBanner(getConsumableCopy('omni_shot').banner, '#e52b20');
         this.cameras?.main?.shake?.(80, 0.006);
         break;
       }
       case 'silver_bullet': {
         sounds.playRifle();
         this.silverBulletUntil = this.combatNow + 30000;
-        this.showBanner('★ SILVER BULLETS! 400% CRIT DAMAGE FOR 30s! ★', '#ffffff');
+        this.showBanner(getConsumableCopy('silver_bullet').banner, '#ffffff');
         this.cameras?.main?.flash?.(100, 255, 255, 255, false);
         break;
       }
@@ -2273,11 +2273,11 @@ export class GameScene extends Phaser.Scene {
         list.push({
           type: 'weapon',
           id: wepId,
-          name: def.name,
+          name: getUpgradeName(wepId, def.name),
           icon: def.icon,
           currentLevel: curLvl,
           nextLevel: curLvl + 1,
-          description: nextInfo.description,
+          description: getUpgradeDesc(wepId, nextInfo.description),
         });
       }
     });
@@ -2291,11 +2291,11 @@ export class GameScene extends Phaser.Scene {
         list.push({
           type: 'passive',
           id: pasId,
-          name: def.name,
+          name: getUpgradeName(pasId, def.name),
           icon: def.icon,
           currentLevel: curLvl,
           nextLevel: curLvl + 1,
-          description: nextInfo.description,
+          description: getUpgradeDesc(pasId, nextInfo.description),
         });
       }
     });

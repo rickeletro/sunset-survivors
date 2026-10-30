@@ -6,7 +6,7 @@ import { createMenuRoot } from '../ui/layout/menuLayout';
 import { bindPulpKeys, preloadPulp, pulpBackdrop, pulpButton, pulpText } from '../ui/layout/pulpSceneKit';
 import { preloadImages } from '../assets/registry';
 import { THEME } from '../ui/theme/tokens';
-import { t } from '../i18n';
+import { t, getConsumableCopy } from '../i18n';
 
 export class StoreScene extends Phaser.Scene {
   private fromScene = 'MenuScene';
@@ -349,7 +349,8 @@ export class StoreScene extends Phaser.Scene {
     this.drawRedRibbon(ribbonGfx, 42, -88, 175, 26);
     card.add(ribbonGfx);
 
-    const titleText = this.add.text(42, -88, def.name, {
+    const itemCopy = getConsumableCopy(id);
+    const titleText = this.add.text(42, -88, itemCopy.name || def.name, {
       fontFamily: '"Press Start 2P", monospace',
       fontSize: '11px',
       color: '#ffffff',
@@ -357,7 +358,7 @@ export class StoreScene extends Phaser.Scene {
     card.add(titleText);
 
     // 4. Description Text (below ribbon)
-    const desc = this.add.text(42, -42, def.description, {
+    const desc = this.add.text(42, -42, itemCopy.desc || def.description, {
       fontFamily: THEME.typography.narrativeFont,
       fontSize: '15px',
       fontStyle: 'bold',
@@ -450,9 +451,9 @@ export class StoreScene extends Phaser.Scene {
       sounds.playCoin();
       this.cameras.main.flash(70, 255, 197, 42, false);
       const quotes = [
-        `Pleasure doing business!\nThat ${item.name} is worth every penny.`,
-        'Pack it in your saddlebag!\nReady for when bullets fly.',
-        'Finest quality in the territory!\nUse it wisely out on the trail.',
+        t('store.buyQuote1'),
+        t('store.buyQuote2'),
+        t('store.buyQuote3'),
       ];
       this.speechText.setText(quotes[Math.floor(Math.random() * quotes.length)]);
       this.refreshUI();

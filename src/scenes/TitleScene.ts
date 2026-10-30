@@ -11,6 +11,7 @@ import { SpriteGenerator } from '../utils/SpriteGenerator';
 import { WesternButton } from '../ui/components/WesternButton';
 import { preloadPixellabHeroes } from '../systems/PixellabHeroes';
 import { preloadGreedwell } from '../systems/GreedwellSprites';
+import { preloadSurfaces, pulpSurface } from '../ui/components/PulpSurface';
 import { getLocale, toggleLocale, t } from '../i18n';
 
 export class TitleScene extends Phaser.Scene {
@@ -29,6 +30,8 @@ export class TitleScene extends Phaser.Scene {
   private langButton?: WesternButton;
   private menuButton?: WesternButton;
   private storeButton?: WesternButton;
+  private startBtnText?: Phaser.GameObjects.Text;
+  private startBtnSubText?: Phaser.GameObjects.Text;
   private copyrightText?: Phaser.GameObjects.Text;
 
   constructor() {
@@ -36,6 +39,7 @@ export class TitleScene extends Phaser.Scene {
   }
 
   preload() {
+    preloadSurfaces(this);
     preloadImages(this, CATALOG.titleImages);
     preloadHeroSheets(this);
     preloadPixellabHeroes(this);
@@ -241,21 +245,46 @@ export class TitleScene extends Phaser.Scene {
     this.startBtnContainer = this.add.container(0, btnY);
     this.startBtnContainer.setAlpha(0);
 
-    // Dark base plaque
-    const darkBtn = this.add.image(0, 0, 'intro_btn_dark').setDisplaySize(btnW, btnH);
-    this.startBtnContainer.add(darkBtn);
+    // Dark wood base plaque
+    const darkWood = pulpSurface(this, 0, 0, btnW, btnH, 'wood');
+    this.startBtnContainer.add(darkWood);
 
-    // Borda brilhante arcade pulsante (sem trocar de imagem ou piscar brusco)
+    // Inner dark carved plate
+    const innerPlate = this.add.graphics();
+    innerPlate.fillStyle(0x180b05, 0.92);
+    innerPlate.fillRoundedRect(-btnW / 2 + 10, -btnH / 2 + 10, btnW - 20, btnH - 20, 10);
+    this.startBtnContainer.add(innerPlate);
+
+    // Borda brilhante arcade pulsante
     this.startBtnBorderGlow = this.add.graphics();
-    const borderRadius = 16;
+    const borderRadius = 14;
     // Borda dourada brilhante
     this.startBtnBorderGlow.lineStyle(4, 0xffc52a, 0.95);
-    this.startBtnBorderGlow.strokeRoundedRect(-btnW / 2 + 4, -btnH / 2 + 4, btnW - 8, btnH - 8, borderRadius);
+    this.startBtnBorderGlow.strokeRoundedRect(-btnW / 2 + 6, -btnH / 2 + 6, btnW - 12, btnH - 12, borderRadius);
     // Borda interna âmbar de acabamento
     this.startBtnBorderGlow.lineStyle(2, 0xff791c, 0.7);
-    this.startBtnBorderGlow.strokeRoundedRect(-btnW / 2 + 8, -btnH / 2 + 8, btnW - 16, btnH - 16, borderRadius - 4);
+    this.startBtnBorderGlow.strokeRoundedRect(-btnW / 2 + 10, -btnH / 2 + 10, btnW - 20, btnH - 20, borderRadius - 3);
     this.startBtnBorderGlow.setAlpha(0.3);
     this.startBtnContainer.add(this.startBtnBorderGlow);
+
+    // Localized typography: PRESS START / PRESSIONE START
+    this.startBtnText = this.add.text(0, -10, t('menu.pressStart'), {
+      fontFamily: THEME.typography.pixelFont,
+      fontSize: '28px',
+      color: '#ffe066',
+      stroke: '#120b08',
+      strokeThickness: 5,
+    }).setOrigin(0.5);
+    this.startBtnContainer.add(this.startBtnText);
+
+    this.startBtnSubText = this.add.text(0, 32, t('menu.pressStartSub'), {
+      fontFamily: THEME.typography.pixelFont,
+      fontSize: '12px',
+      color: '#f2d49a',
+      stroke: '#120b08',
+      strokeThickness: 3,
+    }).setOrigin(0.5);
+    this.startBtnContainer.add(this.startBtnSubText);
 
     // Pulso suave e elegante da borda brilhante
     this.tweens.add({
@@ -346,6 +375,12 @@ export class TitleScene extends Phaser.Scene {
     }
     if (this.storeButton) {
       this.storeButton.setText(t('common.store'));
+    }
+    if (this.startBtnText) {
+      this.startBtnText.setText(t('menu.pressStart'));
+    }
+    if (this.startBtnSubText) {
+      this.startBtnSubText.setText(t('menu.pressStartSub'));
     }
     if (this.copyrightText) {
       this.copyrightText.setText(t('common.copyright'));
