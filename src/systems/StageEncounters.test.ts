@@ -1,7 +1,8 @@
 import type Phaser from 'phaser';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { getStage } from '../data/stages';
 import { insideHazard, StageEncounters } from './StageEncounters';
+import { setLocale } from '../i18n';
 
 function fixture(stage = 1) {
   const chain = (): unknown => new Proxy({}, { get: (_, key) => key === 'destroy' ? vi.fn() : () => chain() });
@@ -15,6 +16,9 @@ function fixture(stage = 1) {
 }
 
 describe('telegraphed hazards and optional supply camps', () => {
+  beforeEach(() => {
+    setLocale('en');
+  });
   it('does not damage during the warning and expires the danger', () => {
     const { encounters, hooks } = fixture();
     encounters.warn({ x: 4000, y: 4000, radius: 60 }, 1000, 500, 22);

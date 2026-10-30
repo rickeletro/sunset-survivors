@@ -131,6 +131,19 @@ export function isometricStageProfile(theme: StageTheme): IsometricStageProfile 
   return ISOMETRIC_STAGE_PROFILES[theme] ?? ISOMETRIC_STAGE_PROFILES.canyon;
 }
 
+/** Returns only the ground texture and set-pieces needed for the given theme, reducing memory churn. */
+export function isometricAssetsForTheme(theme: StageTheme): readonly (IsometricGroundKey | IsometricSetPieceKey)[] {
+  const profile = isometricStageProfile(theme);
+  const textures = new Set<IsometricGroundKey | IsometricSetPieceKey>([
+    profile.groundTexture,
+    profile.plazaTexture,
+    'iso_barrel_lantern',
+    'iso_crate_wheel',
+    'iso_wanted_wall',
+  ]);
+  return Array.from(textures);
+}
+
 /** Projects a ground circle of radius `r` into an isometric 2.5D ellipse `{ width, height }`. */
 export function isometricEllipse(radius: number): { width: number; height: number } {
   const safeR = Math.max(0, radius);

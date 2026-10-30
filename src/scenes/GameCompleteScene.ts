@@ -6,6 +6,7 @@ import Phaser from 'phaser';
 import { sounds } from '../audio/SoundManager';
 import { CharacterData, CHARACTERS } from '../data/characters';
 import { statsManager } from '../data/GameStatsManager';
+import { t } from '../i18n';
 
 export interface GameCompleteData {
   character: CharacterData;
@@ -41,8 +42,8 @@ export class GameCompleteScene extends Phaser.Scene {
     sounds.playIntroMusic();
     this.rootContainer = createMenuRoot(this);
     pulpBackdrop(this, this.rootContainer, false);
-    pulpHeading(this, this.rootContainer, 'GAME COMPLETE!', -345, 1400, 124);
-    pulpText(this, this.rootContainer, 0, -240, `${this.dataReceived.character.name} • ${difficultyProfile(this.dataReceived.difficulty).label} • THE FRONTIER IS SAVED`, 24);
+    pulpHeading(this, this.rootContainer, t('gameComplete.title'), -345, 1400, 124);
+    pulpText(this, this.rootContainer, 0, -240, `${this.dataReceived.character.name} • ${difficultyProfile(this.dataReceived.difficulty).label} • ${t('gameComplete.subtitle')}`, 24);
     const heroes = this.add.image(-340, 110, 'menu_ending');
     heroes.setScale(Math.min(790 / heroes.width, 620 / heroes.height));
     this.rootContainer.add(heroes);
@@ -52,16 +53,16 @@ export class GameCompleteScene extends Phaser.Scene {
     const minutes = Math.floor(allStats.playTimeSeconds / 60);
     const seconds = Math.floor(allStats.playTimeSeconds % 60);
     pulpStats(this, card, [
-      { label: 'FINAL SCORE', value: finalScore },
-      { label: 'TOTAL KILLS', value: allStats.totalKills },
-      { label: 'STAGES CLEARED', value: '8 / 8' },
-      { label: 'PLAY TIME', value: `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}` },
+      { label: t('stats.totalScore'), value: finalScore },
+      { label: t('stats.totalKills'), value: allStats.totalKills },
+      { label: t('stats.stagesCleared'), value: '8 / 8' },
+      { label: t('stats.playTime'), value: `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}` },
     ], 500, -185, true, 72);
-    pulpText(this, card, -245, 145, 'RANK', 32, '#120b08', 'left');
+    pulpText(this, card, -245, 145, t('common.rank'), 32, '#120b08', 'left');
     const rank = pulpText(this, card, 160, 145, 'S', 142, '#a51e16'); rank.setStroke('#ffc52a', 6);
-    const back = pulpButton(this, this.rootContainer, 410, 405, 'BACK TO TITLE', () => this.returnToTitle(), 620, true);
+    const back = pulpButton(this, this.rootContainer, 410, 405, t('common.backToTitle'), () => this.returnToTitle(), 620, true);
     bindPulpMenu(this, [back]);
-    pulpText(this, this.rootContainer, -345, 423, 'CONGRATULATIONS,\nGUNSLINGER!', 30, '#ffc52a');
+    pulpText(this, this.rootContainer, -345, 423, t('gameComplete.victoryMessage'), 24, '#ffc52a');
   }
 
   private returnToTitle() {

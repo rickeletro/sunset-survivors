@@ -11,6 +11,8 @@ import { SpriteGenerator } from '../utils/SpriteGenerator';
 import { WesternButton } from '../ui/components/WesternButton';
 import { preloadPixellabHeroes } from '../systems/PixellabHeroes';
 import { preloadGreedwell } from '../systems/GreedwellSprites';
+import { preloadSurfaces, pulpSurface } from '../ui/components/PulpSurface';
+import { getLocale, toggleLocale, t } from '../i18n';
 
 export class TitleScene extends Phaser.Scene {
   private rootContainer!: Phaser.GameObjects.Container;
@@ -25,12 +27,19 @@ export class TitleScene extends Phaser.Scene {
   private startBtnBorderGlow!: Phaser.GameObjects.Graphics;
   private lanternGlows: Phaser.GameObjects.Image[] = [];
   private sunGlowGraphics!: Phaser.GameObjects.Graphics;
+  public langButton?: any;
+  private menuButton?: WesternButton;
+  private storeButton?: WesternButton;
+  private startBtnText?: Phaser.GameObjects.Text;
+  private startBtnSubText?: Phaser.GameObjects.Text;
+  private copyrightText?: Phaser.GameObjects.Text;
 
   constructor() {
     super('TitleScene');
   }
 
   preload() {
+    preloadSurfaces(this);
     preloadImages(this, CATALOG.titleImages);
     preloadHeroSheets(this);
     preloadPixellabHeroes(this);
@@ -73,6 +82,7 @@ export class TitleScene extends Phaser.Scene {
     this.createLogotype();
     this.createStartButton();
     this.createAuxiliaryMenu();
+    this.createLanguageSelector();
     this.createArcadeHUD();
     this.createAmbientEffects();
 
@@ -235,21 +245,46 @@ export class TitleScene extends Phaser.Scene {
     this.startBtnContainer = this.add.container(0, btnY);
     this.startBtnContainer.setAlpha(0);
 
-    // Dark base plaque
-    const darkBtn = this.add.image(0, 0, 'intro_btn_dark').setDisplaySize(btnW, btnH);
-    this.startBtnContainer.add(darkBtn);
+    // Dark wood base plaque
+    const darkWood = pulpSurface(this, 0, 0, btnW, btnH, 'wood');
+    this.startBtnContainer.add(darkWood);
 
-    // Borda brilhante arcade pulsante (sem trocar de imagem ou piscar brusco)
+    // Inner dark carved plate
+    const innerPlate = this.add.graphics();
+    innerPlate.fillStyle(0x180b05, 0.92);
+    innerPlate.fillRoundedRect(-btnW / 2 + 10, -btnH / 2 + 10, btnW - 20, btnH - 20, 10);
+    this.startBtnContainer.add(innerPlate);
+
+    // Borda brilhante arcade pulsante
     this.startBtnBorderGlow = this.add.graphics();
-    const borderRadius = 16;
+    const borderRadius = 14;
     // Borda dourada brilhante
     this.startBtnBorderGlow.lineStyle(4, 0xffc52a, 0.95);
-    this.startBtnBorderGlow.strokeRoundedRect(-btnW / 2 + 4, -btnH / 2 + 4, btnW - 8, btnH - 8, borderRadius);
+    this.startBtnBorderGlow.strokeRoundedRect(-btnW / 2 + 6, -btnH / 2 + 6, btnW - 12, btnH - 12, borderRadius);
     // Borda interna âmbar de acabamento
     this.startBtnBorderGlow.lineStyle(2, 0xff791c, 0.7);
-    this.startBtnBorderGlow.strokeRoundedRect(-btnW / 2 + 8, -btnH / 2 + 8, btnW - 16, btnH - 16, borderRadius - 4);
+    this.startBtnBorderGlow.strokeRoundedRect(-btnW / 2 + 10, -btnH / 2 + 10, btnW - 20, btnH - 20, borderRadius - 3);
     this.startBtnBorderGlow.setAlpha(0.3);
     this.startBtnContainer.add(this.startBtnBorderGlow);
+
+    // Localized typography: PRESS START / PRESSIONE START
+    this.startBtnText = this.add.text(0, -10, t('menu.pressStart'), {
+      fontFamily: THEME.typography.pixelFont,
+      fontSize: '28px',
+      color: '#ffe066',
+      stroke: '#120b08',
+      strokeThickness: 5,
+    }).setOrigin(0.5);
+    this.startBtnContainer.add(this.startBtnText);
+
+    this.startBtnSubText = this.add.text(0, 32, t('menu.pressStartSub'), {
+      fontFamily: THEME.typography.pixelFont,
+      fontSize: '12px',
+      color: '#f2d49a',
+      stroke: '#120b08',
+      strokeThickness: 3,
+    }).setOrigin(0.5);
+    this.startBtnContainer.add(this.startBtnSubText);
 
     // Pulso suave e elegante da borda brilhante
     this.tweens.add({
@@ -303,14 +338,225 @@ export class TitleScene extends Phaser.Scene {
     this.rootContainer.add(cr);
 
     // Bottom Copyright / Project info
-    const copyright = this.add.text(0, 484, 'TM © 2026 SUNSET SURVIVORS. A FAN GAME INSPIRED BY SUNSET RIDERS.', {
+    this.copyrightText = this.add.text(0, 484, t('common.copyright'), {
       fontFamily: THEME.typography.pixelFont,
       fontSize: '10px',
       color: '#f2d49a',
       stroke: '#000000',
       strokeThickness: 3,
     }).setOrigin(0.5);
-    this.rootContainer.add(copyright);
+    this.rootContainer.add(this.copyrightText);
+  }
+
+  public createLanguageSelector() {
+    SpriteGenerator.createFlagTextures(this);
+
+    const container = this.add.container(565, -430) as any;
+    const w = 216;
+    const h = 54;
+
+    // Plaque Background
+    const plaque = this.add.graphics();
+    plaque.fillStyle(0x000000, 0.45);
+    plaque.fillRoundedRect(-w / 2 + 2, -h / 2 + 3, w, h, 8);
+    plaque.fillStyle(0x23140a, 1);
+    plaque.fillRoundedRect(-w / 2, -h / 2, w, h, 8);
+    plaque.lineStyle(2, 0x8a5d10, 0.85);
+    plaque.strokeRoundedRect(-w / 2 + 2, -h / 2 + 2, w - 4, h - 4, 7);
+    plaque.lineStyle(1.5, 0xffc52a, 0.95);
+    plaque.strokeRoundedRect(-w / 2 + 4, -h / 2 + 4, w - 8, h - 8, 5);
+
+    // Corner brass rivets
+    const rivets = [
+      { x: -w / 2 + 9, y: -h / 2 + 9 },
+      { x: w / 2 - 9, y: -h / 2 + 9 },
+      { x: -w / 2 + 9, y: h / 2 - 9 },
+      { x: w / 2 - 9, y: h / 2 - 9 },
+    ];
+    rivets.forEach(r => {
+      plaque.fillStyle(0xffc52a, 1);
+      plaque.fillCircle(r.x, r.y, 2.5);
+      plaque.fillStyle(0x120b08, 1);
+      plaque.fillCircle(r.x, r.y, 1);
+    });
+
+    // Center divider
+    plaque.lineStyle(1.5, 0x5a341a, 0.9);
+    plaque.lineBetween(0, -18, 0, 18);
+    plaque.lineStyle(1, 0xffc52a, 0.4);
+    plaque.lineBetween(1, -18, 1, 18);
+    container.add(plaque);
+
+    // 1. Brazil Flag Item (Left)
+    const brGroup = this.add.container(-52, 0);
+    const brGlow = this.add.graphics();
+    brGroup.add(brGlow);
+
+    let brFlag: Phaser.GameObjects.GameObject;
+    if (this.textures.exists('flag_br')) {
+      brFlag = this.add.image(0, -3, 'flag_br').setDisplaySize(42, 28);
+    } else {
+      const g = this.add.graphics();
+      this.drawVectorFlagBR(g, 0, -3, 42, 28);
+      brFlag = g;
+    }
+    brGroup.add(brFlag);
+
+    const brLabel = this.add.text(0, 16, 'PT-BR', {
+      fontFamily: THEME.typography.pixelFont,
+      fontSize: '9px',
+      color: '#ffc52a',
+      stroke: '#120b08',
+      strokeThickness: 2,
+    }).setOrigin(0.5);
+    brGroup.add(brLabel);
+
+    const brHit = this.add.zone(0, 0, 96, 48).setInteractive({ useHandCursor: true });
+    brHit.on('pointerdown', (_p: unknown, _x: unknown, _y: unknown, event: any) => {
+      event?.stopPropagation?.();
+      if (getLocale() !== 'pt') this.toggleLanguage();
+    });
+    brGroup.add(brHit);
+    container.add(brGroup);
+
+    // 2. USA Flag Item (Right)
+    const usGroup = this.add.container(52, 0);
+    const usGlow = this.add.graphics();
+    usGroup.add(usGlow);
+
+    let usFlag: Phaser.GameObjects.GameObject;
+    if (this.textures.exists('flag_us')) {
+      usFlag = this.add.image(0, -3, 'flag_us').setDisplaySize(42, 28);
+    } else {
+      const g = this.add.graphics();
+      this.drawVectorFlagUS(g, 0, -3, 42, 28);
+      usFlag = g;
+    }
+    usGroup.add(usFlag);
+
+    const usLabel = this.add.text(0, 16, 'EN', {
+      fontFamily: THEME.typography.pixelFont,
+      fontSize: '9px',
+      color: '#f2d49a',
+      stroke: '#120b08',
+      strokeThickness: 2,
+    }).setOrigin(0.5);
+    usGroup.add(usLabel);
+
+    const usHit = this.add.zone(0, 0, 96, 48).setInteractive({ useHandCursor: true });
+    usHit.on('pointerdown', (_p: unknown, _x: unknown, _y: unknown, event: any) => {
+      event?.stopPropagation?.();
+      if (getLocale() !== 'en') this.toggleLanguage();
+    });
+    usGroup.add(usHit);
+    container.add(usGroup);
+
+    const refreshFlags = () => {
+      const isPT = getLocale() === 'pt';
+
+      // Brazil highlight
+      brGlow.clear();
+      if (isPT) {
+        brGlow.lineStyle(3, 0xffc52a, 1);
+        brGlow.strokeRoundedRect(-24, -19, 48, 32, 4);
+        brGlow.lineStyle(1.5, 0xff791c, 0.8);
+        brGlow.strokeRoundedRect(-26, -21, 52, 36, 6);
+        brGroup.setScale(1.05);
+        brGroup.setAlpha(1.0);
+        brLabel.setColor('#ffe066');
+      } else {
+        brGroup.setScale(0.96);
+        brGroup.setAlpha(0.48);
+        brLabel.setColor('#a89078');
+      }
+
+      // USA highlight
+      usGlow.clear();
+      if (!isPT) {
+        usGlow.lineStyle(3, 0xffc52a, 1);
+        usGlow.strokeRoundedRect(-24, -19, 48, 32, 4);
+        usGlow.lineStyle(1.5, 0xff791c, 0.8);
+        usGlow.strokeRoundedRect(-26, -21, 52, 36, 6);
+        usGroup.setScale(1.05);
+        usGroup.setAlpha(1.0);
+        usLabel.setColor('#ffe066');
+      } else {
+        usGroup.setScale(0.96);
+        usGroup.setAlpha(0.48);
+        usLabel.setColor('#a89078');
+      }
+    };
+
+    container.getText = () => (getLocale() === 'pt' ? 'IDIOMA: PT-BR' : 'LANG: EN');
+    container.setText = (_text: string) => refreshFlags();
+    container.refresh = () => refreshFlags();
+
+    refreshFlags();
+
+    this.langButton = container;
+    this.rootContainer.add(container);
+  }
+
+  private drawVectorFlagBR(g: Phaser.GameObjects.Graphics, cx: number, cy: number, w: number, h: number): void {
+    g.clear();
+    g.fillStyle(0x00843d, 1);
+    g.fillRect(cx - w / 2, cy - h / 2, w, h);
+    g.fillStyle(0xffcc00, 1);
+    g.beginPath();
+    g.moveTo(cx, cy - h / 2 + 3);
+    g.lineTo(cx + w / 2 - 3, cy);
+    g.lineTo(cx, cy + h / 2 - 3);
+    g.lineTo(cx - w / 2 + 3, cy);
+    g.closePath();
+    g.fill();
+    g.fillStyle(0x002776, 1);
+    g.fillCircle(cx, cy, 6);
+    g.lineStyle(1.5, 0xffffff, 1);
+    g.strokeCircle(cx, cy + 2, 6);
+  }
+
+  private drawVectorFlagUS(g: Phaser.GameObjects.Graphics, cx: number, cy: number, w: number, h: number): void {
+    g.clear();
+    const sh = h / 7;
+    for (let i = 0; i < 7; i++) {
+      g.fillStyle(i % 2 === 0 ? 0xb22234 : 0xffffff, 1);
+      g.fillRect(cx - w / 2, cy - h / 2 + i * sh, w, sh);
+    }
+    g.fillStyle(0x3c3b6e, 1);
+    g.fillRect(cx - w / 2, cy - h / 2, w * 0.48, h * 0.58);
+    g.fillStyle(0xffffff, 1);
+    g.fillCircle(cx - w / 2 + 5, cy - h / 2 + 4, 1.2);
+    g.fillCircle(cx - w / 2 + 11, cy - h / 2 + 4, 1.2);
+    g.fillCircle(cx - w / 2 + 8, cy - h / 2 + 8, 1.2);
+    g.fillCircle(cx - w / 2 + 14, cy - h / 2 + 8, 1.2);
+    g.fillCircle(cx - w / 2 + 5, cy - h / 2 + 12, 1.2);
+    g.fillCircle(cx - w / 2 + 11, cy - h / 2 + 12, 1.2);
+  }
+
+  public toggleLanguage() {
+    const next = toggleLocale();
+    sounds.playCoin();
+    this.cameras.main.flash(70, 255, 197, 42, false);
+    if (this.langButton?.refresh) {
+      this.langButton.refresh();
+    } else if (this.langButton?.setText) {
+      this.langButton.setText(next === 'pt' ? 'IDIOMA: PT-BR' : 'LANG: EN');
+    }
+    if (this.menuButton) {
+      this.menuButton.setText(t('common.menu'));
+    }
+    if (this.storeButton) {
+      this.storeButton.setText(t('common.store'));
+    }
+    if (this.startBtnText) {
+      this.startBtnText.setText(t('menu.pressStart'));
+    }
+    if (this.startBtnSubText) {
+      this.startBtnSubText.setText(t('menu.pressStartSub'));
+    }
+    if (this.copyrightText) {
+      this.copyrightText.setText(t('common.copyright'));
+    }
   }
 
   // -------------------------------------------------------------
@@ -414,16 +660,28 @@ export class TitleScene extends Phaser.Scene {
   }
 
   private createAuxiliaryMenu() {
-    this.rootContainer.add(new WesternButton(this, {
-      x: 0, y: 420, width: 360, height: 62, presentation: 'pulp', text: 'MENU',
+    this.menuButton = new WesternButton(this, {
+      x: -190, y: 420, width: 340, height: 62, presentation: 'pulp', text: t('common.menu'),
       variant: 'wood', fontSize: '27px', onClick: () => this.openMainMenu(),
-    }));
+    });
+    this.storeButton = new WesternButton(this, {
+      x: 190, y: 420, width: 340, height: 62, presentation: 'pulp', text: t('common.store'),
+      variant: 'wood', fontSize: '27px', onClick: () => this.openStore(),
+    });
+    this.rootContainer.add([this.menuButton, this.storeButton]);
   }
 
   private openMainMenu() {
     if (this.isAdvancing) return;
     sounds.playRevolver();
     this.scene.pause('TitleScene'); this.scene.launch('MenuScene', { fromScene: 'TitleScene' });
+  }
+
+  private openStore() {
+    if (this.isAdvancing) return;
+    sounds.playRevolver();
+    this.scene.pause('TitleScene');
+    this.scene.launch('StoreScene', { fromScene: 'TitleScene', priceMultiplier: 1 });
   }
 
   private openDeveloper(): void {
@@ -442,6 +700,8 @@ export class TitleScene extends Phaser.Scene {
       ESC: () => this.openMainMenu(),
       F2: () => this.openDeveloper(),
       M: () => this.openMainMenu(),
+      S: () => this.openStore(),
+      L: () => this.toggleLanguage(),
     });
   }
 

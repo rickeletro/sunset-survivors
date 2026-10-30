@@ -10,6 +10,7 @@ import { getStage } from '../data/stages';
 import { THEME } from '../ui/theme/tokens';
 import { WesternPanel } from '../ui/components/WesternPanel';
 import { WesternTitle } from '../ui/components/WesternTitle';
+import { getStageTitle, getStageHazard } from '../i18n';
 
 export class StageIntroScene extends Phaser.Scene {
   private character!: CharacterData;
@@ -65,7 +66,7 @@ export class StageIntroScene extends Phaser.Scene {
       x: 0,
       y: -380,
       title: `★ STAGE ${this.stage} ★`,
-      subtitle: this.bossData.stageTitle,
+      subtitle: getStageTitle(this.stage, this.bossData.stageTitle),
       width: 680,
       fontSize: '28px',
     });
@@ -141,7 +142,7 @@ export class StageIntroScene extends Phaser.Scene {
     const stage = getStage(this.stage);
     parchmentContainer.add(this.add.text(0, 48,
       `SURVIVE ${Math.floor(stage.duration / 60)}:${String(stage.duration % 60).padStart(2, '0')} + BOSS
-${stage.hazardLabel}
+${getStageHazard(this.stage, stage.hazardLabel)}
 OPTIONAL SUPPLIES: CLEAR THE AREA AND HOLD FOR 8s`, {
         fontFamily: THEME.typography.pixelFont, fontSize: '10px', color: '#a51e16',
         align: 'center', lineSpacing: 8, wordWrap: { width: 800 },

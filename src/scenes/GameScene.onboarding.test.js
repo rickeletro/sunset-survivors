@@ -8,7 +8,6 @@ vi.mock('../audio/SoundManager', () => ({ sounds: { playLevelUp: vi.fn() } }));
 
 function fixture() {
   const game = Object.create(GameScene.prototype);
-  const training = { type: 'bandit', training: true, pooled: true, sprite: {} };
   Object.assign(game, {
     onboarding: new FirstRunTutorial(false, 'keyboard', vi.fn()), practiceActive: true,
     player: { x: 4000, y: 4000, setDepth: vi.fn() }, time: { now: 0 },
@@ -17,16 +16,15 @@ function fixture() {
     enemyPool: { release: vi.fn() }, enemyHash: { rebuild: vi.fn() }, weaponTimers: new Map([['revolver', 300]]),
     timeText: { setText: vi.fn() }, director: { tick: vi.fn(() => []), waveOrders: vi.fn(() => []) },
     encounters: { tick: vi.fn(), update: vi.fn() }, worldMap: { update: vi.fn() },
-    onboardingView: { update: vi.fn() }, updateStageStatus: vi.fn(), runSpawnOrders: vi.fn(),
+    onboardingView: { update: vi.fn(), dismiss: vi.fn() }, updateStageStatus: vi.fn(), runSpawnOrders: vi.fn(),
     handlePlayerMovement: vi.fn(), handleWeaponsAutoFire: vi.fn(() => game.onboarding.fired()), updateProjectiles: vi.fn(),
     updateEnemies: vi.fn(), updateDrops: vi.fn(), updateFireZones: vi.fn(), showBanner: vi.fn(),
-    spawnPracticeBandit: vi.fn(() => game.enemies.push(training)),
   });
-  return { game, training };
+  return { game };
 }
 
-describe('practice integrated with the campaign', () => {
-  it('freezes campaign seconds, wave orders and damage until practice finishes', () => {
+describe('stage 1 movement instruction integrated with campaign', () => {
+  it('freezes campaign seconds, wave orders and damage until movement instruction finishes', () => {
     const { game } = fixture();
     for (let i = 0; i < 30; i++) { game.onSecondTick(); game.spawnWave(); game.damagePlayer(50); }
     expect(game.gameTimeSeconds).toBe(0); expect(game.hp).toBe(100);
@@ -35,28 +33,22 @@ describe('practice integrated with the campaign', () => {
     expect(game.gameTimeSeconds).toBe(1); expect(game.director.tick).toHaveBeenCalledTimes(1);
     expect(game.director.waveOrders).toHaveBeenCalledTimes(1);
   });
-  it('spawns exactly one practice target after movement, updates its collision hash and cleans up before combat', () => {
-    const { game, training } = fixture();
+
+  it('completes movement instruction as soon as player moves and transitions to active combat', () => {
+    const { game } = fixture();
     game.update(0, 16);
-    expect(game.handleWeaponsAutoFire).not.toHaveBeenCalled(); expect(game.enemies).toHaveLength(0);
-    game.handlePlayerMovement.mockImplementationOnce(() => { game.player.x += 56; });
-    game.update(16, 16);
-    expect(game.spawnPracticeBandit).toHaveBeenCalledTimes(1);
-    expect(game.enemyHash.rebuild).toHaveBeenCalledWith([training]);
-    expect(game.updateProjectiles).toHaveBeenCalled(); expect(game.updateEnemies).not.toHaveBeenCalled();
-    const bullet = { sprite: { destroy: vi.fn() } }; game.projectiles.push(bullet);
-    game.update(2216, 2200);
-    expect(game.practiceActive).toBe(false); expect(game.enemies).toHaveLength(0);
-    expect(game.enemyPool.release).toHaveBeenCalledWith(training.sprite); expect(bullet.sprite.destroy).toHaveBeenCalledTimes(1);
-    expect(game.updateEnemies).toHaveBeenCalledTimes(1); expect(game.spawnPracticeBandit).toHaveBeenCalledTimes(1);
-  });
-  it('does not award kills, gold, drops or director events for practice targets', () => {
-    const { game, training } = fixture(); game.enemies.push(training);
-    game.killsText = { setText: vi.fn() }; game.addBounty = vi.fn(); game.gameEvents = { emitEnemyKilled: vi.fn() };
-    game.killEnemy(training); game.killEnemy(training);
-    expect(game.kills).toBe(0); expect(game.addBounty).not.toHaveBeenCalled();
-    expect(game.gameEvents.emitEnemyKilled).not.toHaveBeenCalled(); expect(game.drops).toHaveLength(0);
-    expect(game.enemyPool.release).toHaveBeenCalledTimes(1);
+    expect(game.onboarding.blocking).toBe(true);
+    expect(game.handleWeaponsAutoFire).not.toHaveBeenCalled();
+
+    // Player moves 40 units after reading prompt
+    game.handlePlayerMovement.mockImplementationOnce(() => { game.player.x += 40; });
+    game.update(350, 350);
+    expect(game.onboarding.blocking).toBe(false);
+    expect(game.showBanner).toHaveBeenCalled();
+
+    // Subsequent updates run combat
+    game.update(32, 16);
+    expect(game.handleWeaponsAutoFire).toHaveBeenCalled();
   });
 });
 

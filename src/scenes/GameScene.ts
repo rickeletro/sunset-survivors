@@ -21,6 +21,7 @@ import { molotovFootprint, dynamiteRadius, insideBlast, lobPose } from '../data/
 import { ECONOMY, servicePrice, type RunServiceId, BUILD_LIMITS, cooldownMultiplier, stageClearBonus, xpForLevel } from '../data/economy';
 import { FirstRunTutorial, tutorialProgress } from '../systems/FirstRunTutorial';
 import { FirstRunTutorialView } from '../ui/hud/FirstRunTutorialView';
+import { t, getStageTitle, getConsumableCopy, getUpgradeName, getUpgradeDesc } from '../i18n';
 import { sceneryForStage, sceneryKey, worldDepth } from '../data/scenery';
 import { WORLD_DECORATION_KEYS } from '../data/worldDecorations';
 import { SaloonVisit, saloonDoors, storeDoors, buildingDistance, SALOON_ENTRY_RADIUS, type SaloonDoor } from '../data/saloon';
@@ -41,6 +42,7 @@ import { WEAPONS, WeaponDef } from '../data/weapons';
 import { bossHealth, difficultyProfile, difficultySettings, incomingDamage, normalizeDifficulty, type DifficultyId } from '../data/difficulty';
 import { THEME } from '../ui/theme/tokens';
 import { UpgradeChoice } from './LevelUpScene';
+import { PerformanceMonitor } from '../systems/PerformanceMonitor';
 import { getBossForStage } from '../data/bosses';
 import {
   createPixellabAnims,
@@ -74,7 +76,7 @@ import { bossSpriteTexture, enemySpriteTexture, playBossMovement, playEnemyMovem
 import { getEligibleEvolution, WEAPON_EVOLUTIONS } from '../data/evolutions';
 import { CrowRush, preloadCrowRush } from '../systems/CrowRush';
 import { FRONTIER_ENEMY_ROLES, isFrontierEnemy } from '../data/frontierEnemyRoles';
-import { ISOMETRIC_ASSET_KEYS, ISOMETRIC_PLANE, isometricStageProfile } from '../data/isometricWorld';
+import { ISOMETRIC_PLANE, isometricAssetsForTheme, isometricStageProfile } from '../data/isometricWorld';
 import { rollChestReward, type ChestWheelSegment } from '../data/chestReward';
 import { IsometricStageView } from '../systems/IsometricStageView';
 import { ChestRewardEvent } from '../ui/ChestRewardEvent';
@@ -185,6 +187,9 @@ export class GameScene extends Phaser.Scene {
   private hud!: CombatHUD;
   private weaponEffects?: WeaponEffects;
   private hostileProjectiles?: HostileProjectiles;
+  private perfMonitor?: PerformanceMonitor;
+  private stageLoadStart = 0;
+  private stageLoadTimeMs = 0;
   private onboarding?: FirstRunTutorial;
   private onboardingView?: FirstRunTutorialView;
   private practiceActive = false;
@@ -218,11 +223,14 @@ export class GameScene extends Phaser.Scene {
   }
 
   preload() {
+    this.stageLoadStart = typeof performance !== 'undefined' ? performance.now() : Date.now();
     preloadSurfaces(this);
     preloadImages(this, UPGRADE_HUD_ASSETS);
-    preloadImages(this, ['drop_gold', 'drop_badge', 'drop_whiskey', 'drop_moneybag', 'stage_roast', 'wm_supply', 'proj_dynamite', 'proj_lasso', 'stage_axe', 'chest_closed', 'chest_open', 'cancan_dancer']);
-    preloadImages(this, ISOMETRIC_ASSET_KEYS);
-    preloadImages(this, GALLERY_BOSS_KEYS);
+    preloadImages(this, ['drop_gold', 'drop_badge', 'drop_whiskey', 'drop_moneybag', 'stage_roast', 'wm_supply', 'proj_dynamite', 'proj_lasso', 'stage_axe', 'chest_closed', 'chest_open', 'cancan_dancer', 'decor_skull']);
+    preloadImages(this, isometricAssetsForTheme(this.stageConfig.theme));
+    if (saloonDoors(this.stageConfig.theme).some(d => d.activity === 'gallery')) {
+      preloadImages(this, GALLERY_BOSS_KEYS);
+    }
     preloadChickens(this, this.stageConfig.theme);
     preloadCrowRush(this);
     preloadSupplyCart(this);
@@ -346,7 +354,7 @@ export class GameScene extends Phaser.Scene {
     this.enemyPool = new SpritePool(this, 5);
     this.enemyHash = new SpatialHash<Enemy>(64);
     this.gameEvents.on(GameEventNames.SpecialWave, (e: SpecialWaveEvent) => this.showBanner(e.label, '#ffc52a'));
-    this.gameEvents.on(GameEventNames.EliteSpawned, () => this.showBanner('★ ELITE BOUNTY HUNTER ★', '#ff791c'));
+    this.gameEvents.on(GameEventNames.EliteSpawned, () => this.showBanner(t('combat.eliteBountyHunter'), '#ff791c'));
 
     this.encounters = new StageEncounters(this, this.stageConfig, {
       position: () => ({ x: this.player.x, y: this.player.y }),
@@ -440,7 +448,10 @@ export class GameScene extends Phaser.Scene {
     this.createSaloonInteraction();
     this.frontierCompass = new FrontierCompass(this);
 
-    // Game Timer Loop (Seconds)
+    // Diagnostic Performance Monitor (F3 to toggle)
+    this.stageLoadTimeMs = (typeof performance !== 'undefined' ? performance.now() : Date.now()) - (this.stageLoadStart || 0);
+    this.perfMonitor = new PerformanceMonitor(this);
+    if (this.developerTest) this.perfMonitor.setVisible(true);
     this.time.addEvent({
       delay: 1000,
       callback: () => this.onSecondTick(),
@@ -458,17 +469,18 @@ export class GameScene extends Phaser.Scene {
       fontFamily: THEME.typography.pixelFont, fontSize: '12px', color: '#ffc52a', backgroundColor: '#321b10', padding: { x: 10, y: 6 },
     }).setOrigin(0.5).setScrollFactor(0).setDepth(60);
     this.updateStageStatus();
-    if (!this.onboarding?.blocking) this.showBanner(`STAGE ${this.stage} — ${this.stageConfig.title}`, '#ffc52a');
+    if (!this.onboarding?.blocking) this.showBanner(t('combat.stageBanner', { stage: this.stage, title: getStageTitle(this.stage, this.stageConfig.title) }), '#ffc52a');
     sounds.startBGM(this.stage);
   }
 
   private createOnboarding(): void {
     const device = this.sys.game.device;
     const touch = device.input.touch && !device.os.desktop;
-    this.onboarding = new FirstRunTutorial(this.developerTest || this.stage !== 1 || tutorialProgress.hasCompleted(), touch ? 'touch' : 'keyboard', () => tutorialProgress.complete());
-    if (this.developerTest) this.onboarding.skip();
+    const skipTutorial = this.developerTest || this.stage !== 1;
+    this.onboarding = new FirstRunTutorial(skipTutorial, touch ? 'touch' : 'keyboard', () => tutorialProgress.complete());
+    if (skipTutorial) this.onboarding.skip();
     this.practiceActive = this.onboarding.blocking;
-    this.onboardingView = new FirstRunTutorialView(this, this.onboarding, () => {
+    this.onboardingView = new FirstRunTutorialView(this, this.onboarding, this.character.id, () => {
       if (!this.onboarding?.blocking) return;
       this.onboarding.skip(); this.finishPractice();
     });
@@ -476,7 +488,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private finishPractice(): void {
-    if (!this.practiceActive) return;
+    if (!this.practiceActive && !this.onboarding) return;
     this.practiceActive = false;
     for (const enemy of this.enemies.filter(enemy => enemy.training)) {
       enemy.dead = true;
@@ -490,15 +502,9 @@ export class GameScene extends Phaser.Scene {
     this.fireZones = [];
     this.weaponTimers.forEach((_timer, key) => this.weaponTimers.set(key, 0));
     sounds.playLevelUp();
-    this.showBanner(`STAGE ${this.stage} — YOUR TURN, PARTNER!`, '#ffc52a');
+    this.showBanner(t('combat.stageBanner', { stage: this.stage, title: getStageTitle(this.stage, this.stageConfig.title) }), '#ffc52a');
   }
 
-  private spawnPracticeBandit(): void {
-    const point = this.worldMap.resolve(this.player.x + 130, this.player.y, 16);
-    const enemy = this.spawnEnemy('bandit', point.x, point.y);
-    if (!enemy) return;
-    enemy.training = true; enemy.damage = 0; enemy.speed = 0;
-  }
 
   private setupTouchControls() {
     this.input.on('pointerdown', (pointer: Phaser.Input.Pointer, over: Phaser.GameObjects.GameObject[] = []) => {
@@ -737,7 +743,7 @@ export class GameScene extends Phaser.Scene {
     const profile = miniBossProfile(wave, this.stage, this.difficulty);
     const point = this.worldMap.spawnPointAround(this.player.x, this.player.y, 480, 560);
     const enemy = this.spawnEnemy(profile.kind, point.x, point.y, profile);
-    if (enemy) { sounds.playBossWarning(); this.showBanner(`WAVE ${wave} CAPTAIN — ${profile.name}`, '#ffc52a'); }
+    if (enemy) { sounds.playBossWarning(); this.showBanner(t('combat.waveCaptain', { wave, name: profile.name }), '#ffc52a'); }
     return enemy;
   }
 
@@ -860,14 +866,14 @@ export class GameScene extends Phaser.Scene {
       case 'whip':
         e.vulnerableUntil = this.combatNow + 1300;
         this.encounters.warn({ x: x + Math.cos(angle) * 100, y: y + Math.sin(angle) * 100, radius: 145 }, 1000, 350, bossAttackDamage(30));
-        this.showBanner('WHIP! STRIKE WHEN THE SHIELD DROPS', '#ffc52a');
+        this.showBanner(t('combat.whipShieldDrop'), '#ffc52a');
         break;
       case 'axes':
         for (const offset of [-0.45, 0, 0.45]) this.fireHostileBullet(x, y, angle + offset, bossAttackDamage(25), 620, true);
         this.encounters.warn({ x, y, radius: 100 }, 850, 450, bossAttackDamage(25));
         break;
       case 'gatling':
-        this.showBanner('GATLING — AIM LOCK INCOMING!', '#ff791c');
+        this.showBanner(t('combat.gatlingAimLock'), '#ff791c');
         this.encounters.warn({ x: this.player.x, y: this.player.y, radius: 50 }, 1000, 100, 0);
         for (let i = 0; i < 10; i++) this.time.delayedCall(1000 + i * 90, () => {
           if (!e.dead && !this.isGameOver && !this.bossDefeated) { sounds.playRevolver(); this.fireHostileBullet(e.sprite.x, e.sprite.y, angle + (i - 4.5) * 0.075, bossAttackDamage(18), 850); }
@@ -903,24 +909,14 @@ export class GameScene extends Phaser.Scene {
     this.gunslingerHUD?.update(this.combatNow,this.player.x,this.player.y,!!(this.onboarding?.visible||this.choosingUpgrade));
     this.updateSaloonPrompt();
     this.atmosphere?.update();
-    const previousPhase = this.onboarding?.phase;
+    const wasBlocking = !!this.onboarding?.blocking;
     this.onboarding?.tick(delta, Math.hypot(this.player.x - oldX, this.player.y - oldY));
-    if (previousPhase === 'move' && this.onboarding?.phase === 'shoot') this.spawnPracticeBandit();
-    if (this.practiceActive && !this.onboarding?.blocking) this.finishPractice();
+    if (wasBlocking && !this.onboarding?.blocking) this.finishPractice();
     this.onboardingView?.update(this.player.x, this.player.y, this.time.now);
     if (this.onboarding?.blocking) {
       this.player.setDepth(worldDepth(this.player.y));
       this.worldMap.update(this.player.x, this.player.y);
       this.isometricView?.update(this.player.x, this.player.y, this.time.now);
-      if (this.onboarding.phase === 'shoot') {
-        this.enemyHash.rebuild(this.enemies);
-        this.handleWeaponsAutoFire(delta);
-        this.updateProjectiles(delta);
-        this.weaponEffects?.update(delta, this.projectiles);
-        this.updateBloodParticles(delta);
-        this.updateConsumableEffects(delta);
-        this.updateFireZones(delta);
-      }
       return;
     }
     // Keep the existing combat order after the isolated practice session.
@@ -944,6 +940,12 @@ export class GameScene extends Phaser.Scene {
     this.updateFireZones(delta);
     this.encounters.update(delta);
     this.frontierEvents?.update(delta, this.player.x, this.player.y, this.bossSpawned || this.bossDefeated || this.choosingUpgrade);
+    this.perfMonitor?.update(delta, {
+      enemies: this.enemies.length,
+      projectiles: this.projectiles.length,
+      particles: this.bloodParticles.length,
+      loadTimeMs: this.stageLoadTimeMs,
+    });
   }
 
   private saloonBlocked(): boolean {
@@ -955,10 +957,10 @@ export class GameScene extends Phaser.Scene {
     this.saloonVisit = new SaloonVisit(doors, this.stageConfig.id === 2 ? { healthFraction: 0.2, bounty: 0 } : undefined, true, this.stageConfig.id === 2);
     this.saloonViews = this.saloonVisit.doors.flatMap(door => door.portal ? [{ door,
       view: new BuildingPortalView(this, door.portal,
-        door.activity === 'gallery' ? `${galleryProfile(this.stageConfig.id).name.toUpperCase()} • TARGET PRACTICE` :
-        door.activity === 'hospitality' ? 'HOSPITALITY • PAID REST & SUPPLIES' :
-        door.activity === 'store' ? "BARNABY'S STORE • 2X OUTPOST SURCHARGE" :
-        this.stageConfig.id === 2 ? 'SALOON • FARO • $ + ITEMS' : 'SALOON • PAID REST & SUPPLIES',
+        door.activity === 'gallery' ? t('saloon.portalGallery', { name: galleryProfile(this.stageConfig.id).name.toUpperCase() }) :
+        door.activity === 'hospitality' ? t('saloon.portalHospitality') :
+        door.activity === 'store' ? t('saloon.portalStore') :
+        this.stageConfig.id === 2 ? t('saloon.portalSaloonFaro') : t('saloon.portalSaloon'),
         () => this.openSaloon(door)) }] : []);
     const enter = () => this.openSaloon();
     this.input.keyboard?.on('keydown-E', enter);
@@ -1014,11 +1016,11 @@ export class GameScene extends Phaser.Scene {
       return;
     }
     if (this.stageConfig.id === 2 && (door.activity ?? 'saloon') === 'saloon' && this.bounty < FARO_MIN_STAKE) {
-      this.showBanner('FARO: COLLECT AT LEAST $2 IN BOUNTY TO PLAY', '#ffc52a'); return;
+      this.showBanner(t('saloon.faroNeedBounty'), '#ffc52a'); return;
     }
     const isFaro = this.stageConfig.id === 2 && (door.activity ?? 'saloon') === 'saloon';
     const offeredPrize = isFaro ? chooseFaroPrize(this.generateUpgradeChoices()) : undefined;
-    if (isFaro && !offeredPrize) { this.showBanner('FARO: YOUR ARSENAL IS ALREADY AT ITS LIMIT', '#ffc52a'); return; }
+    if (isFaro && !offeredPrize) { this.showBanner(t('saloon.faroArsenalFull'), '#ffc52a'); return; }
     const portal = door.portal;
     const path = this.worldMap.buildingPath(this.player, portal.threshold);
     if (!path) { sounds.playRicochet(); return; } // No free safety/consumed visit when the door is unreachable.
@@ -1540,23 +1542,31 @@ export class GameScene extends Phaser.Scene {
       }
 
       if (!e.fleeGoal) this.updateEnemyTactics(e, dx, dy, dist, delta);
+      const isNearCamera = dist < 950;
+      if (typeof e.sprite.setVisible === 'function' && e.sprite.visible !== isNearCamera) {
+        e.sprite.setVisible(isNearCamera);
+      }
+
       // During a charge, the sprite must face the locked movement direction too.
       const charging = (e.chargeWindup ?? 0) > 0 || (e.chargeRemaining ?? 0) > 0;
       const faceX = e.miniWindup! > 0 ? Math.cos(e.miniAim!) : charging ? e.chargeX ?? dx : e.dirX ?? dx;
       const faceY = e.miniWindup! > 0 ? Math.sin(e.miniAim!) : charging ? e.chargeY ?? dy : e.dirY ?? dy;
-      if (e.bossSlug) playBossMovement(e.sprite, e.bossSlug, faceX, faceY);
-      else if (e.combatSprite && e.type !== 'boss') playEnemyMovement(e.sprite, e.type, faceX, faceY);
-      else if (e.usesPixellab) {
-        if (e.animLock && e.animLock > 0) {
-          e.animLock -= delta;
-        } else {
-          const runKey = greedwellAnimKey(dx < 0 ? 'run_west' : 'run_east');
-          if (e.sprite.anims.currentAnim?.key !== runKey || !e.sprite.anims.isPlaying) {
-            e.sprite.play(runKey);
+
+      if (isNearCamera || e.type === 'boss') {
+        if (e.bossSlug) playBossMovement(e.sprite, e.bossSlug, faceX, faceY);
+        else if (e.combatSprite && e.type !== 'boss') playEnemyMovement(e.sprite, e.type, faceX, faceY);
+        else if (e.usesPixellab) {
+          if (e.animLock && e.animLock > 0) {
+            e.animLock -= delta;
+          } else {
+            const runKey = greedwellAnimKey(dx < 0 ? 'run_west' : 'run_east');
+            if (e.sprite.anims.currentAnim?.key !== runKey || !e.sprite.anims.isPlaying) {
+              e.sprite.play(runKey);
+            }
           }
+        } else if (refresh) {
+          e.sprite.setFlipX(dx < 0);
         }
-      } else if (refresh) {
-        e.sprite.setFlipX(dx < 0);
       }
 
       if (e.dirX !== undefined && e.dirY !== undefined) {
@@ -1754,7 +1764,7 @@ export class GameScene extends Phaser.Scene {
           if (exhausted) { d.sprite.destroy(); this.drops.splice(i,1); }
           for (const item of this.drops) item.attracted=true;
           sounds.playMagnet(); this.getWeaponEffects().explosion(this.player.x,this.player.y,170,'magnet');
-          this.showBanner('RARE MAGNET — ALL LOOT INBOUND!', '#ffc52a');
+          this.showBanner(t('combat.rareMagnet'), '#ffc52a');
           continue;
         }
         // Drain original packets in a bounded batch, preserving XP rounding and every upgrade pause.
@@ -1788,7 +1798,7 @@ export class GameScene extends Phaser.Scene {
     if(this.walletActive) {
       const balance=statsManager.changeBalance(delta);
       if(balance===undefined) {
-        this.showBanner('GOLD NOT SAVED — CHECK BROWSER STORAGE', '#e52b20');
+        this.showBanner(t('combat.goldNotSaved'), '#e52b20');
         return false;
       }
       this.bounty=balance;
@@ -1907,7 +1917,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.kills++;
-    if(this.gunslinger?.kill(this.combatNow)){this.showBanner('HOT STREAK! 8s OF FAST LEAD','#ffc52a');sounds.playCoin();}
+    if(this.gunslinger?.kill(this.combatNow)){this.showBanner(t('combat.hotStreak'),'#ffc52a');sounds.playCoin();}
     this.killsText.setText(String(this.kills).padStart(4, '0'));
     this.gameEvents.emitEnemyKilled({ kind: enemy.type, x: enemy.sprite.x, y: enemy.sprite.y });
 
@@ -2082,9 +2092,10 @@ export class GameScene extends Phaser.Scene {
     if (this.bloodParticles.length === 0) return;
 
     const dt = delta / 1000;
-    const remaining: typeof this.bloodParticles = [];
+    let writeIdx = 0;
 
-    for (const p of this.bloodParticles) {
+    for (let i = 0; i < this.bloodParticles.length; i++) {
+      const p = this.bloodParticles[i];
       p.life -= dt;
       if (p.life <= 0) continue;
 
@@ -2101,10 +2112,10 @@ export class GameScene extends Phaser.Scene {
         p.size
       );
 
-      remaining.push(p);
+      this.bloodParticles[writeIdx++] = p;
     }
 
-    this.bloodParticles = remaining;
+    this.bloodParticles.length = writeIdx;
   }
 
   private activateConsumable(id: ConsumableId): void {
@@ -2115,7 +2126,7 @@ export class GameScene extends Phaser.Scene {
       case 'golden_magnet': {
         sounds.playCoin();
         this.cameras?.main?.flash?.(100, 255, 197, 42, false);
-        this.showBanner('★ DESERT MAGNET! ALL LOOT DRAWN! ★', '#ffc52a');
+        this.showBanner(getConsumableCopy('golden_magnet').banner, '#ffc52a');
         for (const drop of this.drops) {
           drop.attracted = true;
         }
@@ -2124,7 +2135,7 @@ export class GameScene extends Phaser.Scene {
       case 'seven_league_boots': {
         sounds.playReload();
         this.bootsUntil = this.combatNow + 30000;
-        this.showBanner('★ SEVEN-LEAGUE BOOTS! +80% SPEED FOR 30s! ★', '#ff791c');
+        this.showBanner(getConsumableCopy('seven_league_boots').banner, '#ff791c');
         this.cameras?.main?.flash?.(80, 255, 121, 28, false);
         break;
       }
@@ -2133,7 +2144,7 @@ export class GameScene extends Phaser.Scene {
         this.hp = this.maxHp;
         this.updateHpBar();
         this.invulnUntil = Math.max(this.invulnUntil, this.combatNow + 6000);
-        this.showBanner('★ MIRACLE TONIC! FULL HEAL & 6s INVULN! ★', '#f2d49a');
+        this.showBanner(getConsumableCopy('miracle_elixir').banner, '#f2d49a');
         this.cameras?.main?.flash?.(100, 242, 212, 154, false);
         break;
       }
@@ -2141,7 +2152,7 @@ export class GameScene extends Phaser.Scene {
         sounds.playExplosion();
         this.megaDynamiteUntil = this.combatNow + 30000;
         this.megaDynamiteTimer = 0;
-        this.showBanner('★ NITRO DYNAMITE! MASSIVE BLASTS FOR 30s! ★', '#e52b20');
+        this.showBanner(getConsumableCopy('mega_dynamite').banner, '#e52b20');
         this.cameras?.main?.shake?.(100, 0.008);
         break;
       }
@@ -2149,14 +2160,14 @@ export class GameScene extends Phaser.Scene {
         sounds.playRevolver();
         this.omniShotUntil = this.combatNow + 30000;
         this.omniShotTimer = 0;
-        this.showBanner('★ HIGH NOON 360°! BULLET STORM FOR 30s! ★', '#e52b20');
+        this.showBanner(getConsumableCopy('omni_shot').banner, '#e52b20');
         this.cameras?.main?.shake?.(80, 0.006);
         break;
       }
       case 'silver_bullet': {
         sounds.playRifle();
         this.silverBulletUntil = this.combatNow + 30000;
-        this.showBanner('★ SILVER BULLETS! 400% CRIT DAMAGE FOR 30s! ★', '#ffffff');
+        this.showBanner(getConsumableCopy('silver_bullet').banner, '#ffffff');
         this.cameras?.main?.flash?.(100, 255, 255, 255, false);
         break;
       }
@@ -2209,16 +2220,30 @@ export class GameScene extends Phaser.Scene {
   }
 
   private getNearestEnemies(range: number): Enemy[] {
+    const px = this.player?.x ?? 0;
+    const py = this.player?.y ?? 0;
     const crows = (this.crowRush?.activeTargets() ?? []) as unknown as Enemy[];
-    const all = crows.length > 0 ? [...this.enemies, ...crows] : this.enemies;
-    return all
-      .map((e) => ({
-        enemy: e,
-        dist: Math.hypot(e.sprite.x - this.player.x, e.sprite.y - this.player.y),
-      }))
-      .filter((item) => item.dist <= range && !item.enemy.dead)
-      .sort((a, b) => a.dist - b.dist)
-      .map((item) => item.enemy);
+
+    // Reutiliza o SpatialHash para consultar apenas candidatos locais O(K), evitando O(N log N)
+    const candidates = this.enemyHash ? this.enemyHash.query(px, py, range) : this.enemies;
+    const pool = crows.length > 0 ? [...candidates, ...crows] : candidates;
+
+    const inRange: { enemy: Enemy; dist2: number }[] = [];
+    const r2 = range * range;
+
+    for (let i = 0; i < pool.length; i++) {
+      const e = pool[i];
+      if (e.dead) continue;
+      const dx = e.sprite.x - px;
+      const dy = e.sprite.y - py;
+      const d2 = dx * dx + dy * dy;
+      if (d2 <= r2) {
+        inRange.push({ enemy: e, dist2: d2 });
+      }
+    }
+
+    inRange.sort((a, b) => a.dist2 - b.dist2);
+    return inRange.map(item => item.enemy);
   }
 
   // Level Up Modal
@@ -2287,11 +2312,11 @@ export class GameScene extends Phaser.Scene {
         list.push({
           type: 'weapon',
           id: wepId,
-          name: def.name,
+          name: getUpgradeName(wepId, def.name),
           icon: def.icon,
           currentLevel: curLvl,
           nextLevel: curLvl + 1,
-          description: nextInfo.description,
+          description: getUpgradeDesc(wepId, nextInfo.description),
         });
       }
     });
@@ -2305,11 +2330,11 @@ export class GameScene extends Phaser.Scene {
         list.push({
           type: 'passive',
           id: pasId,
-          name: def.name,
+          name: getUpgradeName(pasId, def.name),
           icon: def.icon,
           currentLevel: curLvl,
           nextLevel: curLvl + 1,
-          description: nextInfo.description,
+          description: getUpgradeDesc(pasId, nextInfo.description),
         });
       }
     });
@@ -2349,7 +2374,7 @@ export class GameScene extends Phaser.Scene {
 
       // The equipment badge provides localized evolution feedback.
       sounds.playLevelUp();
-      this.showBanner(`★ WEAPON EVOLVED: ${choice.name.toUpperCase()}! ★`, '#ffc52a');
+      this.showBanner(t('combat.weaponEvolved', { name: choice.name.toUpperCase() }), '#ffc52a');
     } else if (choice.type === 'weapon') {
       const newLvl = (this.activeWeapons.get(choice.id) || 0) + 1;
       this.activeWeapons.set(choice.id, newLvl);

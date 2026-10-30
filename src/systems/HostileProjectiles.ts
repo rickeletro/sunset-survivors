@@ -13,9 +13,14 @@ export class HostileProjectiles {
   constructor(private scene: Phaser.Scene, private hooks: ProjectileHooks) {}
   fire(x: number, y: number, angle: number, damage: number, options: ShotOptions = {}): void {
     if (!this.hooks.active()) return;
-    const { range = 680, axe = false, arrow = false, duration = range / 0.3, hitRadius = arrow ? 16 : 20, tint = axe ? 0xf2d49a : arrow ? 0xf2d49a : 0xe52b20 } = options;
-    const bullet = this.scene.add.sprite(x, y, axe ? 'stage_axe' : arrow ? 'proj_rifle' : 'proj_bullet').setDepth(8).setTint(tint).setRotation(angle);
-    if (arrow) bullet.setScale(.58);
+    const { range = 680, axe = false, arrow = false, duration = Math.round(range / 0.22), hitRadius = arrow ? 16 : 22, tint } = options;
+    const bulletTexture = axe ? 'stage_axe' : arrow ? 'proj_rifle' : (this.scene.textures?.exists?.('proj_enemy_bullet') ? 'proj_enemy_bullet' : 'proj_bullet');
+    const bullet = this.scene.add.sprite(x, y, bulletTexture).setDepth(8).setRotation(angle);
+    const finalTint = tint ?? (axe || arrow ? 0xf2d49a : undefined);
+    if (finalTint !== undefined && bullet.setTint) {
+      bullet.setTint(finalTint);
+    }
+    if (arrow && bullet.setScale) bullet.setScale(.58);
     this.scene.tweens.add({
       targets: bullet, x: x + Math.cos(angle) * range, y: y + Math.sin(angle) * range,
       rotation: axe ? angle + Math.PI * 5 : angle, duration,
@@ -36,6 +41,6 @@ export class HostileProjectiles {
   simonBarrage(x: number, y: number, damage = 18): void {
     if (!this.hooks.active()) return;
     sounds.playRevolver();
-    for (let i = 0; i < 8; i++) this.fire(x, y, i * Math.PI / 4, damage, { range: 380, duration: 900, hitRadius: 22, tint: 0xef4444 });
+    for (let i = 0; i < 8; i++) this.fire(x, y, i * Math.PI / 4, damage, { range: 450, duration: 1800, hitRadius: 22 });
   }
 }
