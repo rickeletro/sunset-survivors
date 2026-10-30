@@ -11,6 +11,7 @@ import Phaser from 'phaser';
 import { sounds } from '../audio/SoundManager';
 import { CHARACTERS } from '../data/characters';
 import { THEME } from '../ui/theme/tokens';
+import { t, getCharacterCopy } from '../i18n';
 
 // Selection-only firing poses; avoid cycling through back-facing travel frames.
 const PREVIEW_FRAMES = { steve: [0, 1, 3, 4], billy: [0, 2, 3, 5], bob: [4, 5, 6, 7], cormano: [0, 1, 2, 3] };
@@ -104,8 +105,8 @@ export class CharacterSelectScene extends Phaser.Scene {
     this.rootContainer = createMenuRoot(this);
 
     pulpBackdrop(this, this.rootContainer, false);
-    pulpHeading(this, this.rootContainer, 'SELECT YOUR PLAYER', -390, 1120, 58, true);
-    pulpText(this, this.rootContainer, 0, -305, '[← →] CHOOSE   •   [ENTER] RIDE OUT', 21);
+    pulpHeading(this, this.rootContainer, t('characterSelect.selectHero'), -390, 1120, 58, true);
+    pulpText(this, this.rootContainer, 0, -305, t('characterSelect.navHint'), 21);
 
     this.bankHud = new BankHUD(this, this.rootContainer);
     this.styleLabel=pulpText(this,this.rootContainer,0,-282,'',16,'#ffc52a');
@@ -180,7 +181,7 @@ export class CharacterSelectScene extends Phaser.Scene {
       tagContainer.add(tagGfx);
       this.tagGraphics.push(tagGfx);
 
-      const tagText = this.add.text(0, 0, '★ 1UP READY ★', {
+      const tagText = this.add.text(0, 0, t('characterSelect.ready1UP'), {
         fontFamily: THEME.typography.pixelFont,
         fontSize: '11px',
         color: '#ffe066',
@@ -202,7 +203,7 @@ export class CharacterSelectScene extends Phaser.Scene {
       plate.fillStyle(0x120b08).fillCircle(-92,8,3).fillRect(-94,8,4,9);
       locked.add(plate);
       const cost = key === 'bob' || key === 'cormano' ? ECONOMY.characters[key] : 0;
-      locked.add(this.add.text(23,-17,'LOCKED',{fontFamily:THEME.typography.pixelFont,fontSize:'12px',color:'#ffc52a'}).setOrigin(.5));
+      locked.add(this.add.text(23,-17,t('characterSelect.locked'),{fontFamily:THEME.typography.pixelFont,fontSize:'12px',color:'#ffc52a'}).setOrigin(.5));
       locked.add(this.add.text(23,14,`$${cost.toLocaleString()}`,{fontFamily:THEME.typography.westernFont,fontSize:'30px',color:'#f2d49a'}).setOrigin(.5));
       locked.setVisible(!statsManager.isCharacterUnlocked(key)); container.add(locked); this.lockOverlays.push(locked);
 
@@ -273,8 +274,8 @@ export class CharacterSelectScene extends Phaser.Scene {
     const labelStyle = {
       fontFamily: THEME.typography.narrativeFont, fontSize: '18px', fontStyle: 'bold', color: '#a51e16',
     };
-    panelContainer.add(this.add.text(-635, -29, 'STARTER WEAPON', labelStyle));
-    panelContainer.add(this.add.text(-635, 13, 'SPECIAL TRAIT', labelStyle));
+    panelContainer.add(this.add.text(-635, -29, t('characterSelect.starterWeapon'), labelStyle));
+    panelContainer.add(this.add.text(-635, 13, t('characterSelect.specialTrait'), labelStyle));
     const valueStyle = {
       fontFamily: THEME.typography.narrativeFont, fontSize: '21px', fontStyle: 'bold', color: '#120b08',
       wordWrap: { width: 550, useAdvancedWrap: true }, lineSpacing: 3,
@@ -313,7 +314,7 @@ export class CharacterSelectScene extends Phaser.Scene {
     const btnH = 120;
 
     panelContainer.add(pulpSurface(this, btnCenterX, 0, btnW + 16, 152, 'wood'));
-    const rideLabel = this.rideLabel = this.add.text(btnCenterX, -8, 'PRESS ENTER\nTO RIDE OUT!', {
+    const rideLabel = this.rideLabel = this.add.text(btnCenterX, -8, t('characterSelect.rideOut'), {
       fontFamily: THEME.typography.westernFont, fontSize: '25px', color: '#ffc52a',
       align: 'center', lineSpacing: 9, stroke: '#120b08', strokeThickness: 2,
     }).setOrigin(0.5);
@@ -488,18 +489,21 @@ export class CharacterSelectScene extends Phaser.Scene {
 
     // Update Bottom Panel info with character data
     const selectedChar = CHARACTERS[charKey];
+    const heroCopy = getCharacterCopy(charKey);
 
     // Character title with primary color accent
-    this.styleLabel.setText(`${HERO_STYLE[charKey].name} · ${HERO_STYLE[charKey].description}`);
-    this.infoNameTitle.setText(selectedChar.name);
-    this.infoSubtitle.setText(`— ${selectedChar.title}`);
+    const styleName = heroCopy.styleName || HERO_STYLE[charKey].name;
+    const styleDesc = heroCopy.styleDesc || HERO_STYLE[charKey].description;
+    this.styleLabel.setText(`${styleName} · ${styleDesc}`);
+    this.infoNameTitle.setText(heroCopy.name || selectedChar.name);
+    this.infoSubtitle.setText(`— ${heroCopy.title || selectedChar.title}`);
     this.infoSubtitle.setX(this.infoNameTitle.x + this.infoNameTitle.width + 18);
     this.infoWeaponVal.setText(selectedChar.subtitle);
-    this.infoTraitVal.setText(selectedChar.specialBonus);
-    this.infoQuote.setText(selectedChar.quote);
+    this.infoTraitVal.setText(heroCopy.specialBonus || selectedChar.specialBonus);
+    this.infoQuote.setText(heroCopy.quote || selectedChar.quote);
     const unlocked = statsManager.isCharacterUnlocked(charKey);
     const price = charKey === 'bob' || charKey === 'cormano' ? ECONOMY.characters[charKey] : 0;
-    this.rideLabel.setText(unlocked ? 'PRESS ENTER\nTO RIDE OUT!' : `UNLOCK ${selectedChar.name}\n$${price.toLocaleString()}`);
+    this.rideLabel.setText(unlocked ? t('characterSelect.rideOut') : t('characterSelect.unlockHero', { name: heroCopy.name || selectedChar.name, price: price.toLocaleString() }));
     this.rideLabel.setAlpha(unlocked || statsManager.getStats().bank >= price ? 1 : .45);
     this.bankHud.refresh();
 

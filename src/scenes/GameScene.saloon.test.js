@@ -1,15 +1,20 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { EventEmitter } from 'node:events';
 import { createRequire } from 'node:module';
 import { getStage } from '../data/stages';
 import { CHARACTERS } from '../data/characters';
 import { GameScene } from './GameScene';
 import { SaloonVisit, saloonDoors } from '../data/saloon';
+import { setLocale } from '../i18n';
 vi.mock('phaser', () => ({ default: { Scene: class {}, Events: { EventEmitter: class {} } } }));
 vi.mock('../audio/SoundManager', () => ({ sounds: { playReload: vi.fn(), playCoin: vi.fn(), playHit: vi.fn(), playRicochet: vi.fn() } }));
 vi.mock('../ui/BuildingPortalView', () => ({ BuildingPortalView: class {
   constructor(_scene, portal, label, enter) { Object.assign(this, { portal, label, enter, update: vi.fn(), destroy: vi.fn() }); }
 } }));
+
+beforeEach(() => {
+  setLocale('en');
+});
 
 function fixture() {
   const g = Object.create(GameScene.prototype), door = saloonDoors('canyon')[0];

@@ -6,6 +6,7 @@ import { createMenuRoot } from '../ui/layout/menuLayout';
 import Phaser from 'phaser';
 import { sounds } from '../audio/SoundManager';
 import { CharacterData, CHARACTERS } from '../data/characters';
+import { t } from '../i18n';
 
 export interface PauseSceneData {
   developer?: boolean;
@@ -44,18 +45,18 @@ export class PauseScene extends Phaser.Scene {
     const art = this.add.image(-400, 110, 'menu_desk');
     art.setScale(Math.min(740 / art.width, 680 / art.height));
     this.rootContainer.add(art);
-    pulpHeading(this, this.rootContainer, 'PAUSED', -365, 1180, 86, true);
+    pulpHeading(this, this.rootContainer, t('menu.paused'), -365, 1180, 86, true);
     this.difficultyLabel = pulpText(this, this.rootContainer, 0, -265, `STAGE ${this.stage}  /  ${this.character.name}  /  ${difficultyProfile(this.difficulty).label}`, 23);
     const buttons = [
-      pulpButton(this, this.rootContainer, 330, -135, 'CONTINUE', () => this.resumeGame(), 580, true),
-      pulpButton(this, this.rootContainer, 330, -25, 'MENU', () => this.openMenu(), 580),
-      pulpButton(this, this.rootContainer, 330, 85, 'RESTART STAGE', () => this.restartStage(), 580),
-      pulpButton(this, this.rootContainer, 330, 195, this.developer ? 'TEST PANEL' : 'RETURN TO TITLE', () => this.returnToTitle(), 580),
+      pulpButton(this, this.rootContainer, 330, -135, t('common.continue'), () => this.resumeGame(), 580, true),
+      pulpButton(this, this.rootContainer, 330, -25, t('common.menu'), () => this.openMenu(), 580),
+      pulpButton(this, this.rootContainer, 330, 85, t('common.restartStage'), () => this.restartStage(), 580),
+      pulpButton(this, this.rootContainer, 330, 195, this.developer ? t('menu.testPanel') : t('menu.backToTitle'), () => this.returnToTitle(), 580),
     ];
     bindPulpMenu(this, buttons);
     if (this.audit) pulpText(this, this.rootContainer, 0, 320,
       `KILLS ${this.audit.kills} • XP BASE ${this.audit.rawXp} • XP EARNED ${this.audit.earnedXp}\nBADGE ${this.audit.badge}/5 • DAMAGE TAKEN ${Math.round(this.audit.damageTaken)} • BOSS ${this.audit.bossSeconds ?? 0}s`, 19);
-    pulpText(this, this.rootContainer, 180, 405, '[↑ ↓] SELECT     [ENTER] CONFIRM     [ESC] RESUME', 22);
+    pulpText(this, this.rootContainer, 180, 405, t('menu.navHint'), 22);
     bindPulpKeys(this, { ESC: () => this.resumeGame() });
   }
 

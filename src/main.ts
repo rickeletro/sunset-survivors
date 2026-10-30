@@ -96,6 +96,10 @@ const config: Phaser.Types.Core.GameConfig = {
       debug: false,
     },
   },
+  render: {
+    powerPreference: 'high-performance',
+    failIfMajorPerformanceCaveat: false,
+  },
   scene: allScenes,
 };
 
