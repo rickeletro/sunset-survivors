@@ -11,6 +11,7 @@ import { SpriteGenerator } from '../utils/SpriteGenerator';
 import { WesternButton } from '../ui/components/WesternButton';
 import { preloadPixellabHeroes } from '../systems/PixellabHeroes';
 import { preloadGreedwell } from '../systems/GreedwellSprites';
+import { getLocale, toggleLocale, t } from '../i18n';
 
 export class TitleScene extends Phaser.Scene {
   private rootContainer!: Phaser.GameObjects.Container;
@@ -25,6 +26,8 @@ export class TitleScene extends Phaser.Scene {
   private startBtnBorderGlow!: Phaser.GameObjects.Graphics;
   private lanternGlows: Phaser.GameObjects.Image[] = [];
   private sunGlowGraphics!: Phaser.GameObjects.Graphics;
+  private langButton?: WesternButton;
+  private copyrightText?: Phaser.GameObjects.Text;
 
   constructor() {
     super('TitleScene');
@@ -73,6 +76,7 @@ export class TitleScene extends Phaser.Scene {
     this.createLogotype();
     this.createStartButton();
     this.createAuxiliaryMenu();
+    this.createLanguageSelector();
     this.createArcadeHUD();
     this.createAmbientEffects();
 
@@ -303,14 +307,41 @@ export class TitleScene extends Phaser.Scene {
     this.rootContainer.add(cr);
 
     // Bottom Copyright / Project info
-    const copyright = this.add.text(0, 484, 'TM © 2026 SUNSET SURVIVORS. A FAN GAME INSPIRED BY SUNSET RIDERS.', {
+    this.copyrightText = this.add.text(0, 484, t('common.copyright'), {
       fontFamily: THEME.typography.pixelFont,
       fontSize: '10px',
       color: '#f2d49a',
       stroke: '#000000',
       strokeThickness: 3,
     }).setOrigin(0.5);
-    this.rootContainer.add(copyright);
+    this.rootContainer.add(this.copyrightText);
+  }
+
+  private createLanguageSelector() {
+    this.langButton = new WesternButton(this, {
+      x: 565,
+      y: -430,
+      width: 220,
+      height: 50,
+      presentation: 'pulp',
+      text: getLocale() === 'pt' ? 'IDIOMA: PT-BR' : 'LANG: EN',
+      variant: 'gold',
+      fontSize: '13px',
+      onClick: () => this.toggleLanguage(),
+    });
+    this.rootContainer.add(this.langButton);
+  }
+
+  public toggleLanguage() {
+    const next = toggleLocale();
+    sounds.playCoin();
+    this.cameras.main.flash(70, 255, 197, 42, false);
+    if (this.langButton) {
+      this.langButton.setText(next === 'pt' ? 'IDIOMA: PT-BR' : 'LANG: EN');
+    }
+    if (this.copyrightText) {
+      this.copyrightText.setText(t('common.copyright'));
+    }
   }
 
   // -------------------------------------------------------------
@@ -454,6 +485,7 @@ export class TitleScene extends Phaser.Scene {
       F2: () => this.openDeveloper(),
       M: () => this.openMainMenu(),
       S: () => this.openStore(),
+      L: () => this.toggleLanguage(),
     });
   }
 

@@ -1,7 +1,11 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { FirstRunTutorial, TutorialProgress } from './FirstRunTutorial';
+import { setLocale } from '../i18n';
 
 describe('stage 1 movement instruction', () => {
+  beforeEach(() => {
+    setLocale('pt');
+  });
   it('waits for actual player movement, then finishes and remembers completion', () => {
     const remember = vi.fn();
     const tutorial = new FirstRunTutorial(false, 'keyboard', remember);
@@ -56,9 +60,14 @@ describe('stage 1 movement instruction', () => {
     const tutorial = new FirstRunTutorial(false, 'keyboard', vi.fn());
     expect(tutorial.copy.body).toContain('W, A, S, D');
     tutorial.setInput('touch');
+    expect(tutorial.copy.body).toContain('ARRASTE');
+
+    setLocale('en');
     expect(tutorial.copy.body).toContain('DRAG');
     tutorial.setInput('keyboard');
     expect(tutorial.copy.body).toContain('W, A, S, D');
+
+    setLocale('pt');
     tutorial.tick(NaN, NaN);
     tutorial.tick(-50, -100);
     expect(tutorial.phase).toBe('move');

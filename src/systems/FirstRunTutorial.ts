@@ -1,3 +1,5 @@
+import { t } from '../i18n';
+
 export type TutorialPhase = 'move' | 'shoot' | 'ready' | 'reminder' | 'loot' | 'idle';
 export type TutorialInput = 'keyboard' | 'touch';
 interface ProgressStorage { getItem(key: string): string | null; setItem(key: string, value: string): void; }
@@ -61,10 +63,10 @@ export class FirstRunTutorial {
 
   get copy(): { title: string; body: string; keys: string; step: string } {
     return {
-      title: 'HOW TO MOVE',
-      body: this.mode === 'touch' ? 'DRAG TO MOVE YOUR CHARACTER' : 'USE W, A, S, D TO MOVE\nYOUR CHARACTER',
-      keys: this.mode === 'touch' ? 'DRAG TO MOVE' : 'W   A   S   D',
-      step: '★ CONTROLS ★',
+      title: t('tutorial.howToMove'),
+      body: this.mode === 'touch' ? t('tutorial.bodyTouch') : t('tutorial.bodyKeyboard'),
+      keys: this.mode === 'touch' ? t('tutorial.keysTouch') : t('tutorial.keysKeyboard'),
+      step: t('tutorial.stepBadge'),
     };
   }
 }

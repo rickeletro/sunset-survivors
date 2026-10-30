@@ -11,6 +11,7 @@ import Phaser from 'phaser';
 import { sounds } from '../audio/SoundManager';
 import { CHARACTERS } from '../data/characters';
 import { THEME } from '../ui/theme/tokens';
+import { t } from '../i18n';
 
 // Selection-only firing poses; avoid cycling through back-facing travel frames.
 const PREVIEW_FRAMES = { steve: [0, 1, 3, 4], billy: [0, 2, 3, 5], bob: [4, 5, 6, 7], cormano: [0, 1, 2, 3] };
@@ -104,8 +105,8 @@ export class CharacterSelectScene extends Phaser.Scene {
     this.rootContainer = createMenuRoot(this);
 
     pulpBackdrop(this, this.rootContainer, false);
-    pulpHeading(this, this.rootContainer, 'SELECT YOUR PLAYER', -390, 1120, 58, true);
-    pulpText(this, this.rootContainer, 0, -305, '[← →] CHOOSE   •   [ENTER] RIDE OUT', 21);
+    pulpHeading(this, this.rootContainer, t('characterSelect.selectHero'), -390, 1120, 58, true);
+    pulpText(this, this.rootContainer, 0, -305, t('characterSelect.navHint'), 21);
 
     this.bankHud = new BankHUD(this, this.rootContainer);
     this.styleLabel=pulpText(this,this.rootContainer,0,-282,'',16,'#ffc52a');
@@ -313,7 +314,7 @@ export class CharacterSelectScene extends Phaser.Scene {
     const btnH = 120;
 
     panelContainer.add(pulpSurface(this, btnCenterX, 0, btnW + 16, 152, 'wood'));
-    const rideLabel = this.rideLabel = this.add.text(btnCenterX, -8, 'PRESS ENTER\nTO RIDE OUT!', {
+    const rideLabel = this.rideLabel = this.add.text(btnCenterX, -8, t('characterSelect.rideOut'), {
       fontFamily: THEME.typography.westernFont, fontSize: '25px', color: '#ffc52a',
       align: 'center', lineSpacing: 9, stroke: '#120b08', strokeThickness: 2,
     }).setOrigin(0.5);

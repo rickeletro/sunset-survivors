@@ -1,6 +1,7 @@
 import type Phaser from 'phaser';
 import type { FirstRunTutorial } from '../../systems/FirstRunTutorial';
 import { THEME } from '../theme/tokens';
+import { t } from '../../i18n';
 
 type KeyName = 'W' | 'A' | 'S' | 'D';
 
@@ -109,7 +110,7 @@ export class FirstRunTutorialView {
       fontSize: '20px',
       color: '#ffc52a',
     }).setOrigin(0.5);
-    this.title = scene.add.text(0, -145, 'HOW TO MOVE', {
+    this.title = scene.add.text(0, -145, t('tutorial.howToMove'), {
       fontFamily: THEME.typography.westernFont,
       fontSize: '32px',
       color: '#fff1c7',
@@ -160,7 +161,7 @@ export class FirstRunTutorialView {
     skipGfx.lineStyle(2, 0xffc52a).strokeRoundedRect(-82, -24, 164, 48, 6);
     this.skipButton.add(skipGfx);
 
-    this.skipLabel = scene.add.text(0, 0, this.model.mode === 'touch' ? 'SKIP' : 'SKIP [T]', {
+    this.skipLabel = scene.add.text(0, 0, this.model.mode === 'touch' ? t('common.skip') : t('common.skipKey'), {
       fontFamily: THEME.typography.pixelFont,
       fontSize: '12px',
       color: '#f2d49a',
@@ -212,7 +213,7 @@ export class FirstRunTutorialView {
 
       this.body.setFontSize(Math.max(16, Math.ceil(15 / scale)));
       this.skipButton.setPosition(sw - 94, sh - 30);
-      this.skipLabel.setText(compact || this.model.mode === 'touch' ? 'SKIP' : 'SKIP [T]');
+      this.skipLabel.setText(compact || this.model.mode === 'touch' ? t('common.skip') : t('common.skipKey'));
     };
 
     this.resize();
