@@ -9,11 +9,11 @@ describe('stage 1 movement instruction', () => {
     expect(tutorial.blocking).toBe(true);
     expect(tutorial.visible).toBe(true);
 
-    tutorial.tick(100, 2);
+    tutorial.tick(200, 16);
     expect(tutorial.phase).toBe('move');
     expect(tutorial.blocking).toBe(true);
 
-    tutorial.tick(100, 2); // total distance 4
+    tutorial.tick(200, 16); // total distance 32, age 400ms
     expect(tutorial.phase).toBe('idle');
     expect(tutorial.blocking).toBe(false);
     expect(tutorial.visible).toBe(false);

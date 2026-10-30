@@ -465,8 +465,9 @@ export class GameScene extends Phaser.Scene {
   private createOnboarding(): void {
     const device = this.sys.game.device;
     const touch = device.input.touch && !device.os.desktop;
-    this.onboarding = new FirstRunTutorial(this.developerTest || this.stage !== 1 || tutorialProgress.hasCompleted(), touch ? 'touch' : 'keyboard', () => tutorialProgress.complete());
-    if (this.developerTest || this.stage !== 1) this.onboarding.skip();
+    const skipTutorial = this.developerTest || this.stage !== 1;
+    this.onboarding = new FirstRunTutorial(skipTutorial, touch ? 'touch' : 'keyboard', () => tutorialProgress.complete());
+    if (skipTutorial) this.onboarding.skip();
     this.practiceActive = this.onboarding.blocking;
     this.onboardingView = new FirstRunTutorialView(this, this.onboarding, this.character.id, () => {
       if (!this.onboarding?.blocking) return;

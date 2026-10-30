@@ -34,6 +34,7 @@ export class FirstRunTutorialView {
   private heroId: string;
   private onSkip: () => void;
   private isDismissing = false;
+  private createdAt = 0;
   private keycaps: Record<KeyName, KeycapVisual>;
   private arrows: Record<KeyName, Phaser.GameObjects.Graphics>;
   private keySequenceTimer?: Phaser.Time.TimerEvent;
@@ -58,6 +59,7 @@ export class FirstRunTutorialView {
       this.onSkip = () => {};
     }
 
+    this.createdAt = scene.time?.now ?? 0;
     const { width, height } = scene.scale;
 
     // 1. Backdrop: slightly darkens the stage underneath, keeping gameplay visible
@@ -590,13 +592,9 @@ export class FirstRunTutorialView {
   }
 
   private bindKeyboardControls(): void {
-    const dismissKeys = ['W', 'A', 'S', 'D', 'UP', 'DOWN', 'LEFT', 'RIGHT', 'SPACE', 'ESC', 'T'];
-    for (const k of dismissKeys) {
-      const eventName = `keydown-${k}`;
-      const fn = () => this.dismiss();
-      this.boundKeyListeners.push({ event: eventName, fn });
-      this.scene.input.keyboard?.on(eventName, fn);
-    }
+    const fn = () => this.dismiss();
+    this.boundKeyListeners.push({ event: 'keydown-T', fn });
+    this.scene.input.keyboard?.on('keydown-T', fn);
   }
 
   public update(_playerX: number, _playerY: number, _time: number): void {
@@ -610,8 +608,9 @@ export class FirstRunTutorialView {
     }
   }
 
-  public dismiss(): void {
+  public dismiss(force = false): void {
     if (this.isDismissing) return;
+    if (!force && this.scene.time && (this.scene.time.now - this.createdAt < 200)) return;
     this.isDismissing = true;
 
     this.keySequenceTimer?.remove();

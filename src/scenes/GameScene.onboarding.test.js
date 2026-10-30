@@ -40,9 +40,9 @@ describe('stage 1 movement instruction integrated with campaign', () => {
     expect(game.onboarding.blocking).toBe(true);
     expect(game.handleWeaponsAutoFire).not.toHaveBeenCalled();
 
-    // Player moves 10 units
-    game.handlePlayerMovement.mockImplementationOnce(() => { game.player.x += 10; });
-    game.update(16, 16);
+    // Player moves 40 units after reading prompt
+    game.handlePlayerMovement.mockImplementationOnce(() => { game.player.x += 40; });
+    game.update(350, 350);
     expect(game.onboarding.blocking).toBe(false);
     expect(game.showBanner).toHaveBeenCalled();
 

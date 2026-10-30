@@ -41,7 +41,7 @@ export class FirstRunTutorial {
     const dt = Number.isFinite(delta) ? Math.max(0, delta) : 0;
     this.age += dt;
     this.distance += Number.isFinite(moved) ? Math.max(0, moved) : 0;
-    if (this.distance >= 4 || this.age >= 6000) {
+    if ((this.distance >= 32 && this.age >= 300) || this.age >= 6000) {
       this.finish();
     }
   }
