@@ -180,3 +180,20 @@ export function getUpgradeDesc(id: string, fallback = ''): string {
   const res = t(key);
   return res === key ? fallback : res;
 }
+
+export function getServiceName(id: string, fallback = ''): string {
+  switch (id) {
+    case 'hospitality_rest':
+      return t('saloon.serviceRoomRest');
+    case 'saloon_rest':
+      return t('saloon.serviceSaloonTonic');
+    case 'special_rounds':
+      return t('saloon.serviceSpecialRounds');
+    case 'gun_oil':
+      return t('saloon.serviceGunOil');
+    case 'gallery':
+      return t('saloon.serviceGallery');
+    default:
+      return fallback || id;
+  }
+}

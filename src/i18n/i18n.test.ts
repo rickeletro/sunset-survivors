@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { en } from './locales/en';
 import { pt } from './locales/pt';
-import { getLocale, onLocaleChange, setLocale, t, toggleLocale } from './index';
+import { getLocale, onLocaleChange, setLocale, t, toggleLocale, getServiceName } from './index';
 
 describe('i18n internationalization manager', () => {
   beforeEach(() => {
@@ -56,6 +56,22 @@ describe('i18n internationalization manager', () => {
 
     setLocale('en');
     expect(t('combat.stageBanner', { stage: 1, title: 'Dusty Gulch' })).toBe('STAGE 1 — Dusty Gulch');
+  });
+
+  it('translates hospitality and saloon service names and building signs', () => {
+    setLocale('pt');
+    expect(getServiceName('hospitality_rest')).toBe('QUARTO & DESCANSO');
+    expect(getServiceName('special_rounds')).toBe('MUNIÇÃO ESPECIAL');
+    expect(getServiceName('gun_oil')).toBe('ÓLEO DE ARMA');
+    expect(t('saloon.walletBalance', { bounty: '$100' })).toBe('CARTEIRA $100 • SALVO ENTRE PARTIDAS');
+    expect(t('saloon.portalHospitality')).toBe('HOSPITALIDADE • DESCANSO & SUPRIMENTOS');
+
+    setLocale('en');
+    expect(getServiceName('hospitality_rest')).toBe('ROOM & REST');
+    expect(getServiceName('special_rounds')).toBe('SPECIAL ROUNDS');
+    expect(getServiceName('gun_oil')).toBe('GUN OIL');
+    expect(t('saloon.walletBalance', { bounty: '$100' })).toBe('WALLET $100 • SAVED BETWEEN RUNS');
+    expect(t('saloon.portalHospitality')).toBe('HOSPITALITY • PAID REST & SUPPLIES');
   });
 
   it('has 100% key parity between PT and EN dictionaries', () => {

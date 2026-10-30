@@ -495,6 +495,17 @@ it('welcomes hospitality guests with its own voice and omits both redundant capt
   h.scene.events.emit('shutdown'); expect(sounds.stopFaroAudio).toHaveBeenCalledOnce();
 });
 
+it('localizes hospitality house buttons and wallet balance in Portuguese', () => {
+  setLocale('pt');
+  const h=setup(SaloonScene,{hospitality:true,onLeave:vi.fn()}); h.scene.create();
+  expect(h.labels()).toContain('QUARTO & DESCANSO $45');
+  expect(h.labels()).toContain('MUNIÇÃO ESPECIAL $90');
+  expect(h.labels()).toContain('ÓLEO DE ARMA $75');
+  expect(h.labels()).toContain('RECUPERA 12% DE VIDA +20 XP');
+  expect(h.labels()).toContain('CARTEIRA $0 • SALVO ENTRE PARTIDAS');
+  expect(h.labels()).toContain('RETORNAR À FRONTEIRA');
+});
+
 it('returns the ranking to its menu owner and ignores late server responses after shutdown', async () => {
   const h=setup(RankingScene,{fromScene:'MenuScene'});
   let resolve!: (value: boolean) => void;

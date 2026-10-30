@@ -957,10 +957,10 @@ export class GameScene extends Phaser.Scene {
     this.saloonVisit = new SaloonVisit(doors, this.stageConfig.id === 2 ? { healthFraction: 0.2, bounty: 0 } : undefined, true, this.stageConfig.id === 2);
     this.saloonViews = this.saloonVisit.doors.flatMap(door => door.portal ? [{ door,
       view: new BuildingPortalView(this, door.portal,
-        door.activity === 'gallery' ? `${galleryProfile(this.stageConfig.id).name.toUpperCase()} • TARGET PRACTICE` :
-        door.activity === 'hospitality' ? 'HOSPITALITY • PAID REST & SUPPLIES' :
-        door.activity === 'store' ? "BARNABY'S STORE • 2X OUTPOST SURCHARGE" :
-        this.stageConfig.id === 2 ? 'SALOON • FARO • $ + ITEMS' : 'SALOON • PAID REST & SUPPLIES',
+        door.activity === 'gallery' ? t('saloon.portalGallery', { name: galleryProfile(this.stageConfig.id).name.toUpperCase() }) :
+        door.activity === 'hospitality' ? t('saloon.portalHospitality') :
+        door.activity === 'store' ? t('saloon.portalStore') :
+        this.stageConfig.id === 2 ? t('saloon.portalSaloonFaro') : t('saloon.portalSaloon'),
         () => this.openSaloon(door)) }] : []);
     const enter = () => this.openSaloon();
     this.input.keyboard?.on('keydown-E', enter);

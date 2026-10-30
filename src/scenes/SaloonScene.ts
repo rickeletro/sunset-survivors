@@ -9,7 +9,7 @@ import { createMenuRoot } from '../ui/layout/menuLayout';
 import { bindPulpKeys, bindPulpMenu, preloadPulp, pulpBackdrop, pulpButton, pulpHeading, pulpPaper, pulpText, pulpWood } from '../ui/layout/pulpSceneKit';
 import { ECONOMY, servicePrice, type RunServiceId } from '../data/economy';
 import { sounds } from '../audio/SoundManager';
-import { t } from '../i18n';
+import { t, getServiceName } from '../i18n';
 
 export interface SaloonSceneData { gallery?: boolean; galleryStage?: number; onGalleryLeave?: (reward: { bounty: number; xp: number }) => void; faro?: boolean; hospitality?: boolean; table?: FaroTable; prize?: UpgradeChoice; getBalance?: () => number; canBuy?: (id: RunServiceId) => boolean; onBuy?: (id: RunServiceId) => boolean; onLeave: (accept: boolean) => void; }
 
@@ -60,12 +60,12 @@ export class SaloonScene extends Phaser.Scene {
     const buttons: ReturnType<typeof pulpButton>[] = [];
     const descriptions = [this.hospitality ? t('saloon.restoreHealth12Xp') : t('saloon.restoreHealth20'), t('saloon.specialRounds'), t('saloon.gunOil')];
     const refresh = () => {
-      balance.setText(`WALLET $${this.shop?.getBalance?.() ?? 0} • SAVED BETWEEN RUNS`);
+      balance.setText(t('saloon.walletBalance', { bounty: `$${this.shop?.getBalance?.() ?? 0}` }));
       ids.forEach((id,i) => buttons[i].setEnabled(this.shop?.canBuy?.(id) ?? false));
     };
     ids.forEach((id,i) => {
       const x=(i-1)*426, price=servicePrice(id,this.galleryStage);
-      buttons.push(pulpButton(this,root,x,350,`${ECONOMY.services[id].name} $${price}`,()=>{
+      buttons.push(pulpButton(this,root,x,350,`${getServiceName(id, ECONOMY.services[id].name)} $${price}`,()=>{
         if (this.shop?.onBuy?.(id)) { sounds.playCoin(); refresh(); }
       },410,i===0));
       pulpText(this,root,x,406,descriptions[i],20);

@@ -174,6 +174,17 @@ export interface TranslationDictionary {
     returnToFrontier: string;
     faroNeedBounty: string;
     faroArsenalFull: string;
+    walletBalance: string;
+    serviceRoomRest: string;
+    serviceSaloonTonic: string;
+    serviceSpecialRounds: string;
+    serviceGunOil: string;
+    serviceGallery: string;
+    portalHospitality: string;
+    portalSaloon: string;
+    portalSaloonFaro: string;
+    portalStore: string;
+    portalGallery: string;
   };
   gameOver: {
     title: string;
