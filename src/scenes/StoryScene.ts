@@ -4,6 +4,7 @@ import Phaser from 'phaser';
 import { sounds } from '../audio/SoundManager';
 import { OPENING_STORY } from '../data/lore';
 import { THEME } from '../ui/theme/tokens';
+import { t } from '../i18n';
 
 export class StoryScene extends Phaser.Scene {
   private finishing = false;
@@ -41,16 +42,40 @@ export class StoryScene extends Phaser.Scene {
     };
     const readingZone = this.add.zone(0, -30, 1010, 620).setInteractive();
     readingZone.on('pointerdown', handleNext); root.add(readingZone);
-    pulpButton(this, root, 0, 350, 'CONTINUE [ENTER]', handleNext, 530);
-    pulpButton(this, root, 570, -458, 'SKIP', () => this.finishStory(), 260);
+    pulpButton(this, root, 0, 350, t('lore.continueBtn'), handleNext, 530);
+    pulpButton(this, root, 570, -458, t('lore.skipBtn'), () => this.finishStory(), 260);
     bindPulpKeys(this, { SPACE: handleNext, ENTER: handleNext, ESC: () => this.finishStory() });
     this.events.once('shutdown', () => this.typewriterTimer?.remove());
     this.showSlide(0);
   }
 
+  private getSlide(index: number) {
+    if (index === 0) {
+      return {
+        title: t('lore.slide1Title'),
+        subtitle: t('lore.slide1Subtitle'),
+        body: [t('lore.slide1Body1'), t('lore.slide1Body2'), t('lore.slide1Body3')],
+        highlight: t('lore.slide1Highlight'),
+      };
+    } else if (index === 1) {
+      return {
+        title: t('lore.slide2Title'),
+        subtitle: t('lore.slide2Subtitle'),
+        body: [t('lore.slide2Intro'), t('lore.slide2Steve'), t('lore.slide2Billy'), t('lore.slide2Bob'), t('lore.slide2Cormano')],
+        highlight: t('lore.slide2Highlight'),
+      };
+    }
+    return {
+      title: t('lore.slide3Title'),
+      subtitle: t('lore.slide3Subtitle'),
+      body: [t('lore.slide3Body1'), t('lore.slide3Body2'), t('lore.slide3Body3')],
+      highlight: t('lore.slide3Highlight'),
+    };
+  }
+
   private showSlide(index: number) {
     this.currentSlide = index;
-    const slide = OPENING_STORY[index];
+    const slide = this.getSlide(index);
 
     this.titleText.setText(slide.title);
     this.subtitleText.setText(slide.subtitle);

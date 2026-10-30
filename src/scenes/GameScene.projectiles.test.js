@@ -75,7 +75,7 @@ describe('enemy projectile tween lifecycle', () => {
     const { scene, bullets, step } = fixture();
     scene.player = { x: 100, y: 100 };
     scene.fireHostileBullet(4000, 4000, 0, 14, 380);
-    for (let i = 0; i < 100; i++) step();
+    for (let i = 0; i < 150; i++) step();
     expect(scene.damagePlayer).not.toHaveBeenCalled();
     expect(bullets[0].destroy).toHaveBeenCalledTimes(1);
   });

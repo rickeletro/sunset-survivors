@@ -49,7 +49,7 @@ const { Node } = vi.hoisted(() => {
   return { Node };
 });
 vi.mock('phaser', () => ({ default: { Scene: class {}, BlendModes: { ADD: 1 }, GameObjects: { Container: Node } } }));
-vi.mock('../audio/SoundManager', () => ({ sounds: { getMusicVolume: vi.fn(() => .7), getSfxVolume: vi.fn(() => .4), setMusicVolume: vi.fn(), setSfxVolume: vi.fn(), getIsMuted: vi.fn(() => false), toggleMute: vi.fn(), playHospitalityGreeting: vi.fn(), playDealerGreeting: vi.fn(), stopFaroAudio: vi.fn(), playRevolver: vi.fn(), playIntroMusic: vi.fn(), stopBGM: vi.fn(), playHit: vi.fn(), playGunReload: vi.fn(), playGameplayMusic: vi.fn(), playLevelUp: vi.fn(), playHeroVoice: vi.fn(), playPistolShot: vi.fn(), playShuffle: vi.fn(), playRicochet: vi.fn() } }));
+vi.mock('../audio/SoundManager', () => ({ sounds: { getMusicVolume: vi.fn(() => .7), getSfxVolume: vi.fn(() => .4), setMusicVolume: vi.fn(), setSfxVolume: vi.fn(), getIsMuted: vi.fn(() => false), toggleMute: vi.fn(), playHospitalityGreeting: vi.fn(), playDealerGreeting: vi.fn(), stopFaroAudio: vi.fn(), playRevolver: vi.fn(), playCoin: vi.fn(), playIntroMusic: vi.fn(), stopBGM: vi.fn(), playHit: vi.fn(), playGunReload: vi.fn(), playGameplayMusic: vi.fn(), playLevelUp: vi.fn(), playHeroVoice: vi.fn(), playPistolShot: vi.fn(), playShuffle: vi.fn(), playRicochet: vi.fn() } }));
 vi.mock('../data/GameStatsManager', () => ({ statsManager: { refresh: vi.fn(), isCharacterUnlocked: vi.fn((id: string) => id === 'steve' || id === 'billy'), buyCharacter: vi.fn(() => 'insufficient'), recordRun: vi.fn(), calculateRank: () => 'A', getStats: () => ({ bank: 500, unlockedCharacters: ['steve','billy'], totalScore: 100, totalKills: 20, goldCollected: 500, deaths: 2, bestStreak: 3, playTimeSeconds: 120, stagesCleared: 1, unlockedBosses: [1] }) } }));
 import { sounds } from '../audio/SoundManager';
 import { difficultySettings } from '../data/difficulty';
@@ -71,6 +71,7 @@ import { WesternButton } from '../ui/components/WesternButton';
 import { FirstRunTutorial } from '../systems/FirstRunTutorial';
 import { FirstRunTutorialView } from '../ui/hud/FirstRunTutorialView';
 import { bindPulpMenu } from '../ui/layout/pulpSceneKit';
+import { getLocale, setLocale } from '../i18n';
 
 function setup(Scene: any, data: any = {}) {
   const scene: any = new Scene(), objects: any[] = [];
@@ -101,7 +102,7 @@ function setup(Scene: any, data: any = {}) {
   return { scene, objects, buttons: () => objects.filter(o => o instanceof WesternButton && o.active), labels: () => objects.filter(o => o.active && o.text).map(o => o.text) };
 }
 
-beforeEach(() => { vi.clearAllMocks(); difficultySettings.set('normal'); });
+beforeEach(() => { vi.clearAllMocks(); difficultySettings.set('normal'); setLocale('en'); });
 describe('composed Western Pulp menus without browser gameplay or screenshots', () => {
   it.each([ProgressScene, MenuScene, AudioScene, RankingScene, PauseScene, DifficultyScene, SaloonScene, GameOverScene, StageClearScene, GameCompleteScene, ControlsScene, UnlockablesScene, StatsScene, StoryScene].map(Scene => ({ Scene, name: Scene.name })))('$name preloads its own assets and keeps action buttons within the reference canvas', ({ Scene }) => {
     const h = setup(Scene); h.scene.preload(); h.scene.create();
@@ -378,13 +379,38 @@ describe('unified menu and local hall of fame', () => {
     expect(h.scene.scene.bringToTop).toHaveBeenCalledWith(key);
     expect(h.scene.scene.launch.mock.invocationCallOrder[0]).toBeLessThan(h.scene.scene.bringToTop.mock.invocationCallOrder[0]);
   });
-  it('shows only one auxiliary MENU button on the title and opens a paused overlay', () => {
+  it('shows auxiliary MENU and STORE buttons on the title and opens paused overlays', () => {
     const h = setup(TitleScene); h.scene.rootContainer = h.scene.add.container(0,0);
     h.scene.createAuxiliaryMenu();
-    expect(h.buttons()).toHaveLength(1); expect(h.labels()).toContain('MENU');
+    expect(h.buttons()).toHaveLength(2);
+    expect(h.labels()).toContain('MENU');
+    expect(h.labels()).toContain('STORE');
+
+    // Menu button opens MenuScene
     h.buttons()[0].activate();
     expect(h.scene.scene.pause).toHaveBeenCalledWith('TitleScene');
     expect(h.scene.scene.launch).toHaveBeenCalledWith('MenuScene', { fromScene: 'TitleScene' });
+
+    // Store button opens StoreScene
+    h.buttons()[1].activate();
+    expect(h.scene.scene.pause).toHaveBeenCalledWith('TitleScene');
+    expect(h.scene.scene.launch).toHaveBeenCalledWith('StoreScene', { fromScene: 'TitleScene', priceMultiplier: 1 });
+  });
+  it('toggles language between PT-BR and EN from title scene', () => {
+    const h = setup(TitleScene);
+    h.scene.rootContainer = h.scene.add.container(0, 0);
+    setLocale('pt');
+    h.scene.createLanguageSelector();
+    expect(h.scene.langButton).toBeDefined();
+    expect(h.scene.langButton.getText()).toBe('IDIOMA: PT-BR');
+
+    h.scene.toggleLanguage();
+    expect(h.scene.langButton.getText()).toBe('LANG: EN');
+    expect(getLocale()).toBe('en');
+
+    h.scene.toggleLanguage();
+    expect(h.scene.langButton.getText()).toBe('IDIOMA: PT-BR');
+    expect(getLocale()).toBe('pt');
   });
   it('keeps the pause menu and game suspended when opening audio, then returns to its owner', () => {
     const h = setup(MenuScene, { fromScene: 'PauseScene' }); h.scene.create();

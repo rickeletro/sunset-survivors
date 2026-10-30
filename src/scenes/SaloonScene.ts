@@ -9,6 +9,7 @@ import { createMenuRoot } from '../ui/layout/menuLayout';
 import { bindPulpKeys, bindPulpMenu, preloadPulp, pulpBackdrop, pulpButton, pulpHeading, pulpPaper, pulpText, pulpWood } from '../ui/layout/pulpSceneKit';
 import { ECONOMY, servicePrice, type RunServiceId } from '../data/economy';
 import { sounds } from '../audio/SoundManager';
+import { t } from '../i18n';
 
 export interface SaloonSceneData { gallery?: boolean; galleryStage?: number; onGalleryLeave?: (reward: { bounty: number; xp: number }) => void; faro?: boolean; hospitality?: boolean; table?: FaroTable; prize?: UpgradeChoice; getBalance?: () => number; canBuy?: (id: RunServiceId) => boolean; onBuy?: (id: RunServiceId) => boolean; onLeave: (accept: boolean) => void; }
 
@@ -40,8 +41,8 @@ export class SaloonScene extends Phaser.Scene {
       new FaroTableView(this, root, this.table, this.prize, () => this.finish(true));
       return;
     }
-    pulpHeading(this, root, this.hospitality ? 'HOSPITALITY HOUSE' : 'FRONTIER SALOON', -390, 1260, 76, true);
-    if (!this.hospitality) pulpText(this, root, 0, -280, 'A BREATHER BETWEEN GUNFIGHTS', 26);
+    pulpHeading(this, root, this.hospitality ? t('saloon.hospitalityTitle') : t('saloon.title'), -390, 1260, 76, true);
+    if (!this.hospitality) pulpText(this, root, 0, -280, t('saloon.breather'), 26);
     pulpWood(this, root, 0, 194, 1160, 64);
     const dancers = this.add.image(0, 180, 'saloon_cancan').setOrigin(0.5, 1);
     dancers.setScale(Math.min(1040 / dancers.width, 420 / dancers.height));
@@ -57,7 +58,7 @@ export class SaloonScene extends Phaser.Scene {
     const balance = pulpText(this, root, 0, 258, '', 26, '#a51e16');
     const ids: RunServiceId[] = [this.hospitality ? 'hospitality_rest' : 'saloon_rest', 'special_rounds', 'gun_oil'];
     const buttons: ReturnType<typeof pulpButton>[] = [];
-    const descriptions = [this.hospitality ? 'RESTORE 12% HEALTH +20 XP' : 'RESTORE 20% HEALTH', '+20% DAMAGE / 30s', '+15% FIRE RATE / 30s'];
+    const descriptions = [this.hospitality ? t('saloon.restoreHealth12Xp') : t('saloon.restoreHealth20'), t('saloon.specialRounds'), t('saloon.gunOil')];
     const refresh = () => {
       balance.setText(`WALLET $${this.shop?.getBalance?.() ?? 0} • SAVED BETWEEN RUNS`);
       ids.forEach((id,i) => buttons[i].setEnabled(this.shop?.canBuy?.(id) ?? false));
@@ -69,7 +70,7 @@ export class SaloonScene extends Phaser.Scene {
       },410,i===0));
       pulpText(this,root,x,406,descriptions[i],20);
     });
-    buttons.push(pulpButton(this,root,0,470,'RETURN TO THE FRONTIER',()=>this.finish(false),620));
+    buttons.push(pulpButton(this,root,0,470,t('saloon.returnToFrontier'),()=>this.finish(false),620));
     refresh(); bindPulpMenu(this,buttons);
     bindPulpKeys(this,{ ESC:()=>this.finish(false) });
     // Existing game music continues; this scene never starts or switches a track.

@@ -6,6 +6,7 @@ import Phaser from 'phaser';
 import { sounds } from '../audio/SoundManager';
 import { CharacterData, CHARACTERS } from '../data/characters';
 import { statsManager } from '../data/GameStatsManager';
+import { t } from '../i18n';
 
 export interface StageClearData {
   runId?: string;
@@ -76,9 +77,9 @@ export class StageClearScene extends Phaser.Scene {
     sounds.playLevelUp();
     this.rootContainer = createMenuRoot(this);
     pulpBackdrop(this, this.rootContainer, false);
-    pulpHeading(this, this.rootContainer, '★ STAGE CLEAR! ★', -350, 1360, 112);
-    pulpText(this, this.rootContainer, 0, -242, `STAGE ${this.dataReceived.stage} • ${difficultyProfile(this.dataReceived.difficulty).label} • OUTLAW DEFEATED`, 25);
-    pulpText(this,this.rootContainer,0,-198,`BANK $${statsManager.getStats().bank} • SECURED +$${this.banked ?? 0}`,22,'#ffc52a');
+    pulpHeading(this, this.rootContainer, t('stageClear.title'), -350, 1360, 112);
+    pulpText(this, this.rootContainer, 0, -242, t('stageClear.bannerSubtitle', { stage: this.dataReceived.stage, difficulty: difficultyProfile(this.dataReceived.difficulty).label }), 25);
+    pulpText(this,this.rootContainer,0,-198, t('stageClear.bankSecured', { bank: statsManager.getStats().bank, banked: this.banked ?? 0 }), 22,'#ffc52a');
     const hero = this.add.sprite(-480, 120, `hero_${this.dataReceived.character.id}`, 0).setScale(2.7).setTint(0x120b08);
     this.rootContainer.add(hero);
     const report = pulpWood(this, this.rootContainer, 215, 55, 940, 420);
@@ -86,21 +87,21 @@ export class StageClearScene extends Phaser.Scene {
     const seconds = Math.floor(this.dataReceived.timeSurvivedSeconds % 60);
     const stats = this.add.container(-130, 0); report.add(stats);
     pulpStats(this, stats, [
-      { label: 'SCORE', value: (this.dataReceived.earnedBounty ?? this.dataReceived.bounty) * 10 + this.dataReceived.kills * 50 },
-      { label: 'TIME', value: `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}` },
-      { label: 'KILLS', value: this.dataReceived.kills },
-      { label: 'GOLD', value: this.dataReceived.bounty },
-      { label: 'BONUS', value: `$${this.dataReceived.bonus ?? 0}` },
+      { label: t('stageClear.score'), value: (this.dataReceived.earnedBounty ?? this.dataReceived.bounty) * 10 + this.dataReceived.kills * 50 },
+      { label: t('stageClear.time'), value: `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}` },
+      { label: t('stageClear.kills'), value: this.dataReceived.kills },
+      { label: t('stageClear.gold'), value: this.dataReceived.bounty },
+      { label: t('stageClear.bonus'), value: `$${this.dataReceived.bonus ?? 0}` },
     ], 520, -140, false, 65);
     const rank = pulpText(this, report, 305, 10, this.rank, 220, '#ffc52a');
     rank.setStroke('#a51e16', 12);
     this.tweens.add({ targets: rank, scale: 1.04, duration: 900, yoyo: true, repeat: -1 });
     const buttons = [
-      pulpButton(this, this.rootContainer, -110, 375, this.dataReceived.stage >= 8 ? 'VICTORY CELEBRATION' : 'NEXT STAGE', () => this.proceedNext(), 530, true),
-      pulpButton(this, this.rootContainer, 445, 375, 'STATS', () => this.openStats(), 480),
+      pulpButton(this, this.rootContainer, -110, 375, this.dataReceived.stage >= 8 ? t('stageClear.victoryCelebration') : t('stageClear.nextStage'), () => this.proceedNext(), 530, true),
+      pulpButton(this, this.rootContainer, 445, 375, t('stageClear.stats'), () => this.openStats(), 480),
     ];
     bindPulpMenu(this, buttons, true);
-    pulpText(this, this.rootContainer, 0, 465, '[← →] SELECT    [ENTER] CONTINUE', 22);
+    pulpText(this, this.rootContainer, 0, 465, t('stageClear.navHint'), 22);
   }
 
   private proceedNext() {

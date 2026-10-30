@@ -7,7 +7,7 @@ it('keeps displayed TypeScript copy in English, excluding comments and asset pat
     for (const entry of readdirSync(folder, { withFileTypes: true })) {
       const path = `${folder}/${entry.name}`;
       if (entry.isDirectory()) { scan(path); continue; }
-      if (!path.endsWith('.ts') || path.includes('.test.')) continue;
+      if (!path.endsWith('.ts') || path.includes('.test.') || path.includes('/i18n/')) continue;
       const source = ts.createSourceFile(path, readFileSync(path, 'utf8'), ts.ScriptTarget.Latest, true);
       function visit(n) {
         if (ts.isStringLiteral(n) || ts.isNoSubstitutionTemplateLiteral(n) || ts.isTemplateHead(n) || ts.isTemplateMiddle(n) || ts.isTemplateTail(n)) {

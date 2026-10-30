@@ -4,6 +4,7 @@ import { GameScene } from './GameScene';
 import { statsManager } from '../data/GameStatsManager';
 import { CONSUMABLE_ITEMS } from '../data/consumables';
 import { sounds } from '../audio/SoundManager';
+import { setLocale } from '../i18n';
 
 vi.mock('phaser', () => {
   class MockContainer {
@@ -168,6 +169,7 @@ describe('StoreScene Integration', () => {
 
   beforeEach(() => {
     storage.clear();
+    setLocale('en');
     vi.stubGlobal('localStorage', {
       getItem: (key) => storage.get(key) ?? null,
       setItem: (key, value) => storage.set(key, value),
@@ -259,6 +261,7 @@ describe('In-Game Consumable Power-up Activation in GameScene', () => {
 
   beforeEach(() => {
     storage.clear();
+    setLocale('en');
     vi.stubGlobal('localStorage', {
       getItem: (key) => storage.get(key) ?? null,
       setItem: (key, value) => storage.set(key, value),

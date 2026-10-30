@@ -77,8 +77,16 @@ export class WesternButton extends Phaser.GameObjects.Container {
     this.btnText.setScale(Math.min(1, (this.btnWidth - 28) / Math.max(1, this.btnText.width)));
     this.drawButton();
   }
+  public getText(): string {
+    return this.btnText?.text ?? '';
+  }
   public get text(): string {
-    return this.btnText.text;
+    return this.btnText?.text ?? '';
+  }
+  public set text(value: string) {
+    if (this.btnText) {
+      this.setText(value);
+    }
   }
   public setEnabled(enabled: boolean): this {
     this.enabled = enabled; this.setAlpha(enabled ? 1 : .42); return this;

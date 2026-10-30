@@ -21,6 +21,7 @@ import { molotovFootprint, dynamiteRadius, insideBlast, lobPose } from '../data/
 import { ECONOMY, servicePrice, type RunServiceId, BUILD_LIMITS, cooldownMultiplier, stageClearBonus, xpForLevel } from '../data/economy';
 import { FirstRunTutorial, tutorialProgress } from '../systems/FirstRunTutorial';
 import { FirstRunTutorialView } from '../ui/hud/FirstRunTutorialView';
+import { t, getStageTitle, getConsumableCopy, getUpgradeName, getUpgradeDesc } from '../i18n';
 import { sceneryForStage, sceneryKey, worldDepth } from '../data/scenery';
 import { WORLD_DECORATION_KEYS } from '../data/worldDecorations';
 import { SaloonVisit, saloonDoors, storeDoors, buildingDistance, SALOON_ENTRY_RADIUS, type SaloonDoor } from '../data/saloon';
@@ -220,7 +221,7 @@ export class GameScene extends Phaser.Scene {
   preload() {
     preloadSurfaces(this);
     preloadImages(this, UPGRADE_HUD_ASSETS);
-    preloadImages(this, ['drop_gold', 'drop_badge', 'drop_whiskey', 'drop_moneybag', 'stage_roast', 'wm_supply', 'proj_dynamite', 'proj_lasso', 'stage_axe', 'chest_closed', 'chest_open', 'cancan_dancer']);
+    preloadImages(this, ['drop_gold', 'drop_badge', 'drop_whiskey', 'drop_moneybag', 'stage_roast', 'wm_supply', 'proj_dynamite', 'proj_lasso', 'stage_axe', 'chest_closed', 'chest_open', 'cancan_dancer', 'decor_skull']);
     preloadImages(this, ISOMETRIC_ASSET_KEYS);
     preloadImages(this, GALLERY_BOSS_KEYS);
     preloadChickens(this, this.stageConfig.theme);
@@ -346,7 +347,7 @@ export class GameScene extends Phaser.Scene {
     this.enemyPool = new SpritePool(this, 5);
     this.enemyHash = new SpatialHash<Enemy>(64);
     this.gameEvents.on(GameEventNames.SpecialWave, (e: SpecialWaveEvent) => this.showBanner(e.label, '#ffc52a'));
-    this.gameEvents.on(GameEventNames.EliteSpawned, () => this.showBanner('★ ELITE BOUNTY HUNTER ★', '#ff791c'));
+    this.gameEvents.on(GameEventNames.EliteSpawned, () => this.showBanner(t('combat.eliteBountyHunter'), '#ff791c'));
 
     this.encounters = new StageEncounters(this, this.stageConfig, {
       position: () => ({ x: this.player.x, y: this.player.y }),
@@ -458,17 +459,18 @@ export class GameScene extends Phaser.Scene {
       fontFamily: THEME.typography.pixelFont, fontSize: '12px', color: '#ffc52a', backgroundColor: '#321b10', padding: { x: 10, y: 6 },
     }).setOrigin(0.5).setScrollFactor(0).setDepth(60);
     this.updateStageStatus();
-    if (!this.onboarding?.blocking) this.showBanner(`STAGE ${this.stage} — ${this.stageConfig.title}`, '#ffc52a');
+    if (!this.onboarding?.blocking) this.showBanner(t('combat.stageBanner', { stage: this.stage, title: getStageTitle(this.stage, this.stageConfig.title) }), '#ffc52a');
     sounds.startBGM(this.stage);
   }
 
   private createOnboarding(): void {
     const device = this.sys.game.device;
     const touch = device.input.touch && !device.os.desktop;
-    this.onboarding = new FirstRunTutorial(this.developerTest || this.stage !== 1 || tutorialProgress.hasCompleted(), touch ? 'touch' : 'keyboard', () => tutorialProgress.complete());
-    if (this.developerTest) this.onboarding.skip();
+    const skipTutorial = this.developerTest || this.stage !== 1;
+    this.onboarding = new FirstRunTutorial(skipTutorial, touch ? 'touch' : 'keyboard', () => tutorialProgress.complete());
+    if (skipTutorial) this.onboarding.skip();
     this.practiceActive = this.onboarding.blocking;
-    this.onboardingView = new FirstRunTutorialView(this, this.onboarding, () => {
+    this.onboardingView = new FirstRunTutorialView(this, this.onboarding, this.character.id, () => {
       if (!this.onboarding?.blocking) return;
       this.onboarding.skip(); this.finishPractice();
     });
@@ -476,7 +478,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private finishPractice(): void {
-    if (!this.practiceActive) return;
+    if (!this.practiceActive && !this.onboarding) return;
     this.practiceActive = false;
     for (const enemy of this.enemies.filter(enemy => enemy.training)) {
       enemy.dead = true;
@@ -490,15 +492,9 @@ export class GameScene extends Phaser.Scene {
     this.fireZones = [];
     this.weaponTimers.forEach((_timer, key) => this.weaponTimers.set(key, 0));
     sounds.playLevelUp();
-    this.showBanner(`STAGE ${this.stage} — YOUR TURN, PARTNER!`, '#ffc52a');
+    this.showBanner(t('combat.stageBanner', { stage: this.stage, title: getStageTitle(this.stage, this.stageConfig.title) }), '#ffc52a');
   }
 
-  private spawnPracticeBandit(): void {
-    const point = this.worldMap.resolve(this.player.x + 130, this.player.y, 16);
-    const enemy = this.spawnEnemy('bandit', point.x, point.y);
-    if (!enemy) return;
-    enemy.training = true; enemy.damage = 0; enemy.speed = 0;
-  }
 
   private setupTouchControls() {
     this.input.on('pointerdown', (pointer: Phaser.Input.Pointer, over: Phaser.GameObjects.GameObject[] = []) => {
@@ -737,7 +733,7 @@ export class GameScene extends Phaser.Scene {
     const profile = miniBossProfile(wave, this.stage, this.difficulty);
     const point = this.worldMap.spawnPointAround(this.player.x, this.player.y, 480, 560);
     const enemy = this.spawnEnemy(profile.kind, point.x, point.y, profile);
-    if (enemy) { sounds.playBossWarning(); this.showBanner(`WAVE ${wave} CAPTAIN — ${profile.name}`, '#ffc52a'); }
+    if (enemy) { sounds.playBossWarning(); this.showBanner(t('combat.waveCaptain', { wave, name: profile.name }), '#ffc52a'); }
     return enemy;
   }
 
@@ -860,14 +856,14 @@ export class GameScene extends Phaser.Scene {
       case 'whip':
         e.vulnerableUntil = this.combatNow + 1300;
         this.encounters.warn({ x: x + Math.cos(angle) * 100, y: y + Math.sin(angle) * 100, radius: 145 }, 1000, 350, bossAttackDamage(30));
-        this.showBanner('WHIP! STRIKE WHEN THE SHIELD DROPS', '#ffc52a');
+        this.showBanner(t('combat.whipShieldDrop'), '#ffc52a');
         break;
       case 'axes':
         for (const offset of [-0.45, 0, 0.45]) this.fireHostileBullet(x, y, angle + offset, bossAttackDamage(25), 620, true);
         this.encounters.warn({ x, y, radius: 100 }, 850, 450, bossAttackDamage(25));
         break;
       case 'gatling':
-        this.showBanner('GATLING — AIM LOCK INCOMING!', '#ff791c');
+        this.showBanner(t('combat.gatlingAimLock'), '#ff791c');
         this.encounters.warn({ x: this.player.x, y: this.player.y, radius: 50 }, 1000, 100, 0);
         for (let i = 0; i < 10; i++) this.time.delayedCall(1000 + i * 90, () => {
           if (!e.dead && !this.isGameOver && !this.bossDefeated) { sounds.playRevolver(); this.fireHostileBullet(e.sprite.x, e.sprite.y, angle + (i - 4.5) * 0.075, bossAttackDamage(18), 850); }
@@ -903,24 +899,14 @@ export class GameScene extends Phaser.Scene {
     this.gunslingerHUD?.update(this.combatNow,this.player.x,this.player.y,!!(this.onboarding?.visible||this.choosingUpgrade));
     this.updateSaloonPrompt();
     this.atmosphere?.update();
-    const previousPhase = this.onboarding?.phase;
+    const wasBlocking = !!this.onboarding?.blocking;
     this.onboarding?.tick(delta, Math.hypot(this.player.x - oldX, this.player.y - oldY));
-    if (previousPhase === 'move' && this.onboarding?.phase === 'shoot') this.spawnPracticeBandit();
-    if (this.practiceActive && !this.onboarding?.blocking) this.finishPractice();
+    if (wasBlocking && !this.onboarding?.blocking) this.finishPractice();
     this.onboardingView?.update(this.player.x, this.player.y, this.time.now);
     if (this.onboarding?.blocking) {
       this.player.setDepth(worldDepth(this.player.y));
       this.worldMap.update(this.player.x, this.player.y);
       this.isometricView?.update(this.player.x, this.player.y, this.time.now);
-      if (this.onboarding.phase === 'shoot') {
-        this.enemyHash.rebuild(this.enemies);
-        this.handleWeaponsAutoFire(delta);
-        this.updateProjectiles(delta);
-        this.weaponEffects?.update(delta, this.projectiles);
-        this.updateBloodParticles(delta);
-        this.updateConsumableEffects(delta);
-        this.updateFireZones(delta);
-      }
       return;
     }
     // Keep the existing combat order after the isolated practice session.
@@ -1014,11 +1000,11 @@ export class GameScene extends Phaser.Scene {
       return;
     }
     if (this.stageConfig.id === 2 && (door.activity ?? 'saloon') === 'saloon' && this.bounty < FARO_MIN_STAKE) {
-      this.showBanner('FARO: COLLECT AT LEAST $2 IN BOUNTY TO PLAY', '#ffc52a'); return;
+      this.showBanner(t('saloon.faroNeedBounty'), '#ffc52a'); return;
     }
     const isFaro = this.stageConfig.id === 2 && (door.activity ?? 'saloon') === 'saloon';
     const offeredPrize = isFaro ? chooseFaroPrize(this.generateUpgradeChoices()) : undefined;
-    if (isFaro && !offeredPrize) { this.showBanner('FARO: YOUR ARSENAL IS ALREADY AT ITS LIMIT', '#ffc52a'); return; }
+    if (isFaro && !offeredPrize) { this.showBanner(t('saloon.faroArsenalFull'), '#ffc52a'); return; }
     const portal = door.portal;
     const path = this.worldMap.buildingPath(this.player, portal.threshold);
     if (!path) { sounds.playRicochet(); return; } // No free safety/consumed visit when the door is unreachable.
@@ -1754,7 +1740,7 @@ export class GameScene extends Phaser.Scene {
           if (exhausted) { d.sprite.destroy(); this.drops.splice(i,1); }
           for (const item of this.drops) item.attracted=true;
           sounds.playMagnet(); this.getWeaponEffects().explosion(this.player.x,this.player.y,170,'magnet');
-          this.showBanner('RARE MAGNET — ALL LOOT INBOUND!', '#ffc52a');
+          this.showBanner(t('combat.rareMagnet'), '#ffc52a');
           continue;
         }
         // Drain original packets in a bounded batch, preserving XP rounding and every upgrade pause.
@@ -1788,7 +1774,7 @@ export class GameScene extends Phaser.Scene {
     if(this.walletActive) {
       const balance=statsManager.changeBalance(delta);
       if(balance===undefined) {
-        this.showBanner('GOLD NOT SAVED — CHECK BROWSER STORAGE', '#e52b20');
+        this.showBanner(t('combat.goldNotSaved'), '#e52b20');
         return false;
       }
       this.bounty=balance;
@@ -1907,7 +1893,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.kills++;
-    if(this.gunslinger?.kill(this.combatNow)){this.showBanner('HOT STREAK! 8s OF FAST LEAD','#ffc52a');sounds.playCoin();}
+    if(this.gunslinger?.kill(this.combatNow)){this.showBanner(t('combat.hotStreak'),'#ffc52a');sounds.playCoin();}
     this.killsText.setText(String(this.kills).padStart(4, '0'));
     this.gameEvents.emitEnemyKilled({ kind: enemy.type, x: enemy.sprite.x, y: enemy.sprite.y });
 
@@ -2115,7 +2101,7 @@ export class GameScene extends Phaser.Scene {
       case 'golden_magnet': {
         sounds.playCoin();
         this.cameras?.main?.flash?.(100, 255, 197, 42, false);
-        this.showBanner('★ DESERT MAGNET! ALL LOOT DRAWN! ★', '#ffc52a');
+        this.showBanner(getConsumableCopy('golden_magnet').banner, '#ffc52a');
         for (const drop of this.drops) {
           drop.attracted = true;
         }
@@ -2124,7 +2110,7 @@ export class GameScene extends Phaser.Scene {
       case 'seven_league_boots': {
         sounds.playReload();
         this.bootsUntil = this.combatNow + 30000;
-        this.showBanner('★ SEVEN-LEAGUE BOOTS! +80% SPEED FOR 30s! ★', '#ff791c');
+        this.showBanner(getConsumableCopy('seven_league_boots').banner, '#ff791c');
         this.cameras?.main?.flash?.(80, 255, 121, 28, false);
         break;
       }
@@ -2133,7 +2119,7 @@ export class GameScene extends Phaser.Scene {
         this.hp = this.maxHp;
         this.updateHpBar();
         this.invulnUntil = Math.max(this.invulnUntil, this.combatNow + 6000);
-        this.showBanner('★ MIRACLE TONIC! FULL HEAL & 6s INVULN! ★', '#f2d49a');
+        this.showBanner(getConsumableCopy('miracle_elixir').banner, '#f2d49a');
         this.cameras?.main?.flash?.(100, 242, 212, 154, false);
         break;
       }
@@ -2141,7 +2127,7 @@ export class GameScene extends Phaser.Scene {
         sounds.playExplosion();
         this.megaDynamiteUntil = this.combatNow + 30000;
         this.megaDynamiteTimer = 0;
-        this.showBanner('★ NITRO DYNAMITE! MASSIVE BLASTS FOR 30s! ★', '#e52b20');
+        this.showBanner(getConsumableCopy('mega_dynamite').banner, '#e52b20');
         this.cameras?.main?.shake?.(100, 0.008);
         break;
       }
@@ -2149,14 +2135,14 @@ export class GameScene extends Phaser.Scene {
         sounds.playRevolver();
         this.omniShotUntil = this.combatNow + 30000;
         this.omniShotTimer = 0;
-        this.showBanner('★ HIGH NOON 360°! BULLET STORM FOR 30s! ★', '#e52b20');
+        this.showBanner(getConsumableCopy('omni_shot').banner, '#e52b20');
         this.cameras?.main?.shake?.(80, 0.006);
         break;
       }
       case 'silver_bullet': {
         sounds.playRifle();
         this.silverBulletUntil = this.combatNow + 30000;
-        this.showBanner('★ SILVER BULLETS! 400% CRIT DAMAGE FOR 30s! ★', '#ffffff');
+        this.showBanner(getConsumableCopy('silver_bullet').banner, '#ffffff');
         this.cameras?.main?.flash?.(100, 255, 255, 255, false);
         break;
       }
@@ -2287,11 +2273,11 @@ export class GameScene extends Phaser.Scene {
         list.push({
           type: 'weapon',
           id: wepId,
-          name: def.name,
+          name: getUpgradeName(wepId, def.name),
           icon: def.icon,
           currentLevel: curLvl,
           nextLevel: curLvl + 1,
-          description: nextInfo.description,
+          description: getUpgradeDesc(wepId, nextInfo.description),
         });
       }
     });
@@ -2305,11 +2291,11 @@ export class GameScene extends Phaser.Scene {
         list.push({
           type: 'passive',
           id: pasId,
-          name: def.name,
+          name: getUpgradeName(pasId, def.name),
           icon: def.icon,
           currentLevel: curLvl,
           nextLevel: curLvl + 1,
-          description: nextInfo.description,
+          description: getUpgradeDesc(pasId, nextInfo.description),
         });
       }
     });
@@ -2349,7 +2335,7 @@ export class GameScene extends Phaser.Scene {
 
       // The equipment badge provides localized evolution feedback.
       sounds.playLevelUp();
-      this.showBanner(`★ WEAPON EVOLVED: ${choice.name.toUpperCase()}! ★`, '#ffc52a');
+      this.showBanner(t('combat.weaponEvolved', { name: choice.name.toUpperCase() }), '#ffc52a');
     } else if (choice.type === 'weapon') {
       const newLvl = (this.activeWeapons.get(choice.id) || 0) + 1;
       this.activeWeapons.set(choice.id, newLvl);

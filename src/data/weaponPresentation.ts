@@ -14,11 +14,17 @@ export function bulletAppearance(weapon: string, level: number): BulletAppearanc
   const tier = evolved ? 6 : Math.max(1, Math.min(5, Math.floor(level)));
   const rifle = weapon === 'rifle' || weapon === 'golden_repeater';
   const pellet = weapon === 'shotgun' || weapon === 'blunderbuss_doom';
-  const colors = rifle ? [0xb8d2dc, 0x87c9d2, 0x57b9da, 0xf2d49a, 0xffc52a, 0xfff1ac]
+  const colors = rifle ? [0x87c9d2, 0x57b9da, 0x38bdf8, 0x0284c7, 0xffc52a, 0xffe066]
     : pellet ? [0xcf9b60, 0xe8b66b, 0xffa54b, 0xff791c, 0xffc52a, 0xff481f]
-    : [0xe3c18a, 0xf2d49a, 0xffc52a, 0xffa32a, 0xffe5a0, 0xff791c];
-  return { tier, color: colors[tier - 1], core: tier >= 4 ? 0xffffff : 0xffedb0,
-    length: (pellet ? 5 : rifle ? 15 : 9) + tier * (pellet ? 2 : 4), thickness: 2 + Math.floor(tier / 2), trail: 4 + tier * 4 };
+    : [0xf2d49a, 0xffc52a, 0xffa32a, 0xff791c, 0xffe5a0, 0xffe066];
+  return {
+    tier,
+    color: colors[tier - 1],
+    core: 0xffffff,
+    length: (pellet ? 8 : rifle ? 18 : 12) + tier * (pellet ? 2 : 4),
+    thickness: 4 + Math.floor(tier / 2),
+    trail: 6 + tier * 4,
+  };
 }
 export function molotovFootprint(level: number, area: number) {
   const tier = Math.max(1, Math.min(5, level));
