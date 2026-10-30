@@ -42,6 +42,7 @@ import { WEAPONS, WeaponDef } from '../data/weapons';
 import { bossHealth, difficultyProfile, difficultySettings, incomingDamage, normalizeDifficulty, type DifficultyId } from '../data/difficulty';
 import { THEME } from '../ui/theme/tokens';
 import { UpgradeChoice } from './LevelUpScene';
+import { PerformanceMonitor } from '../systems/PerformanceMonitor';
 import { getBossForStage } from '../data/bosses';
 import {
   createPixellabAnims,
@@ -75,7 +76,7 @@ import { bossSpriteTexture, enemySpriteTexture, playBossMovement, playEnemyMovem
 import { getEligibleEvolution, WEAPON_EVOLUTIONS } from '../data/evolutions';
 import { CrowRush, preloadCrowRush } from '../systems/CrowRush';
 import { FRONTIER_ENEMY_ROLES, isFrontierEnemy } from '../data/frontierEnemyRoles';
-import { ISOMETRIC_ASSET_KEYS, ISOMETRIC_PLANE, isometricStageProfile } from '../data/isometricWorld';
+import { ISOMETRIC_PLANE, isometricAssetsForTheme, isometricStageProfile } from '../data/isometricWorld';
 import { rollChestReward, type ChestWheelSegment } from '../data/chestReward';
 import { IsometricStageView } from '../systems/IsometricStageView';
 import { ChestRewardEvent } from '../ui/ChestRewardEvent';
@@ -186,6 +187,9 @@ export class GameScene extends Phaser.Scene {
   private hud!: CombatHUD;
   private weaponEffects?: WeaponEffects;
   private hostileProjectiles?: HostileProjectiles;
+  private perfMonitor?: PerformanceMonitor;
+  private stageLoadStart = 0;
+  private stageLoadTimeMs = 0;
   private onboarding?: FirstRunTutorial;
   private onboardingView?: FirstRunTutorialView;
   private practiceActive = false;
@@ -219,11 +223,14 @@ export class GameScene extends Phaser.Scene {
   }
 
   preload() {
+    this.stageLoadStart = typeof performance !== 'undefined' ? performance.now() : Date.now();
     preloadSurfaces(this);
     preloadImages(this, UPGRADE_HUD_ASSETS);
     preloadImages(this, ['drop_gold', 'drop_badge', 'drop_whiskey', 'drop_moneybag', 'stage_roast', 'wm_supply', 'proj_dynamite', 'proj_lasso', 'stage_axe', 'chest_closed', 'chest_open', 'cancan_dancer', 'decor_skull']);
-    preloadImages(this, ISOMETRIC_ASSET_KEYS);
-    preloadImages(this, GALLERY_BOSS_KEYS);
+    preloadImages(this, isometricAssetsForTheme(this.stageConfig.theme));
+    if (saloonDoors(this.stageConfig.theme).some(d => d.activity === 'gallery')) {
+      preloadImages(this, GALLERY_BOSS_KEYS);
+    }
     preloadChickens(this, this.stageConfig.theme);
     preloadCrowRush(this);
     preloadSupplyCart(this);
@@ -441,7 +448,10 @@ export class GameScene extends Phaser.Scene {
     this.createSaloonInteraction();
     this.frontierCompass = new FrontierCompass(this);
 
-    // Game Timer Loop (Seconds)
+    // Diagnostic Performance Monitor (F3 to toggle)
+    this.stageLoadTimeMs = (typeof performance !== 'undefined' ? performance.now() : Date.now()) - (this.stageLoadStart || 0);
+    this.perfMonitor = new PerformanceMonitor(this);
+    if (this.developerTest) this.perfMonitor.setVisible(true);
     this.time.addEvent({
       delay: 1000,
       callback: () => this.onSecondTick(),
@@ -930,6 +940,12 @@ export class GameScene extends Phaser.Scene {
     this.updateFireZones(delta);
     this.encounters.update(delta);
     this.frontierEvents?.update(delta, this.player.x, this.player.y, this.bossSpawned || this.bossDefeated || this.choosingUpgrade);
+    this.perfMonitor?.update(delta, {
+      enemies: this.enemies.length,
+      projectiles: this.projectiles.length,
+      particles: this.bloodParticles.length,
+      loadTimeMs: this.stageLoadTimeMs,
+    });
   }
 
   private saloonBlocked(): boolean {
@@ -1526,23 +1542,31 @@ export class GameScene extends Phaser.Scene {
       }
 
       if (!e.fleeGoal) this.updateEnemyTactics(e, dx, dy, dist, delta);
+      const isNearCamera = dist < 950;
+      if (typeof e.sprite.setVisible === 'function' && e.sprite.visible !== isNearCamera) {
+        e.sprite.setVisible(isNearCamera);
+      }
+
       // During a charge, the sprite must face the locked movement direction too.
       const charging = (e.chargeWindup ?? 0) > 0 || (e.chargeRemaining ?? 0) > 0;
       const faceX = e.miniWindup! > 0 ? Math.cos(e.miniAim!) : charging ? e.chargeX ?? dx : e.dirX ?? dx;
       const faceY = e.miniWindup! > 0 ? Math.sin(e.miniAim!) : charging ? e.chargeY ?? dy : e.dirY ?? dy;
-      if (e.bossSlug) playBossMovement(e.sprite, e.bossSlug, faceX, faceY);
-      else if (e.combatSprite && e.type !== 'boss') playEnemyMovement(e.sprite, e.type, faceX, faceY);
-      else if (e.usesPixellab) {
-        if (e.animLock && e.animLock > 0) {
-          e.animLock -= delta;
-        } else {
-          const runKey = greedwellAnimKey(dx < 0 ? 'run_west' : 'run_east');
-          if (e.sprite.anims.currentAnim?.key !== runKey || !e.sprite.anims.isPlaying) {
-            e.sprite.play(runKey);
+
+      if (isNearCamera || e.type === 'boss') {
+        if (e.bossSlug) playBossMovement(e.sprite, e.bossSlug, faceX, faceY);
+        else if (e.combatSprite && e.type !== 'boss') playEnemyMovement(e.sprite, e.type, faceX, faceY);
+        else if (e.usesPixellab) {
+          if (e.animLock && e.animLock > 0) {
+            e.animLock -= delta;
+          } else {
+            const runKey = greedwellAnimKey(dx < 0 ? 'run_west' : 'run_east');
+            if (e.sprite.anims.currentAnim?.key !== runKey || !e.sprite.anims.isPlaying) {
+              e.sprite.play(runKey);
+            }
           }
+        } else if (refresh) {
+          e.sprite.setFlipX(dx < 0);
         }
-      } else if (refresh) {
-        e.sprite.setFlipX(dx < 0);
       }
 
       if (e.dirX !== undefined && e.dirY !== undefined) {
@@ -2068,9 +2092,10 @@ export class GameScene extends Phaser.Scene {
     if (this.bloodParticles.length === 0) return;
 
     const dt = delta / 1000;
-    const remaining: typeof this.bloodParticles = [];
+    let writeIdx = 0;
 
-    for (const p of this.bloodParticles) {
+    for (let i = 0; i < this.bloodParticles.length; i++) {
+      const p = this.bloodParticles[i];
       p.life -= dt;
       if (p.life <= 0) continue;
 
@@ -2087,10 +2112,10 @@ export class GameScene extends Phaser.Scene {
         p.size
       );
 
-      remaining.push(p);
+      this.bloodParticles[writeIdx++] = p;
     }
 
-    this.bloodParticles = remaining;
+    this.bloodParticles.length = writeIdx;
   }
 
   private activateConsumable(id: ConsumableId): void {
@@ -2195,16 +2220,30 @@ export class GameScene extends Phaser.Scene {
   }
 
   private getNearestEnemies(range: number): Enemy[] {
+    const px = this.player?.x ?? 0;
+    const py = this.player?.y ?? 0;
     const crows = (this.crowRush?.activeTargets() ?? []) as unknown as Enemy[];
-    const all = crows.length > 0 ? [...this.enemies, ...crows] : this.enemies;
-    return all
-      .map((e) => ({
-        enemy: e,
-        dist: Math.hypot(e.sprite.x - this.player.x, e.sprite.y - this.player.y),
-      }))
-      .filter((item) => item.dist <= range && !item.enemy.dead)
-      .sort((a, b) => a.dist - b.dist)
-      .map((item) => item.enemy);
+
+    // Reutiliza o SpatialHash para consultar apenas candidatos locais O(K), evitando O(N log N)
+    const candidates = this.enemyHash ? this.enemyHash.query(px, py, range) : this.enemies;
+    const pool = crows.length > 0 ? [...candidates, ...crows] : candidates;
+
+    const inRange: { enemy: Enemy; dist2: number }[] = [];
+    const r2 = range * range;
+
+    for (let i = 0; i < pool.length; i++) {
+      const e = pool[i];
+      if (e.dead) continue;
+      const dx = e.sprite.x - px;
+      const dy = e.sprite.y - py;
+      const d2 = dx * dx + dy * dy;
+      if (d2 <= r2) {
+        inRange.push({ enemy: e, dist2: d2 });
+      }
+    }
+
+    inRange.sort((a, b) => a.dist2 - b.dist2);
+    return inRange.map(item => item.enemy);
   }
 
   // Level Up Modal
