@@ -220,7 +220,7 @@ export class GameScene extends Phaser.Scene {
   preload() {
     preloadSurfaces(this);
     preloadImages(this, UPGRADE_HUD_ASSETS);
-    preloadImages(this, ['drop_gold', 'drop_badge', 'drop_whiskey', 'drop_moneybag', 'stage_roast', 'wm_supply', 'proj_dynamite', 'proj_lasso', 'stage_axe', 'chest_closed', 'chest_open', 'cancan_dancer']);
+    preloadImages(this, ['drop_gold', 'drop_badge', 'drop_whiskey', 'drop_moneybag', 'stage_roast', 'wm_supply', 'proj_dynamite', 'proj_lasso', 'stage_axe', 'chest_closed', 'chest_open', 'cancan_dancer', 'decor_skull']);
     preloadImages(this, ISOMETRIC_ASSET_KEYS);
     preloadImages(this, GALLERY_BOSS_KEYS);
     preloadChickens(this, this.stageConfig.theme);
@@ -466,9 +466,9 @@ export class GameScene extends Phaser.Scene {
     const device = this.sys.game.device;
     const touch = device.input.touch && !device.os.desktop;
     this.onboarding = new FirstRunTutorial(this.developerTest || this.stage !== 1 || tutorialProgress.hasCompleted(), touch ? 'touch' : 'keyboard', () => tutorialProgress.complete());
-    if (this.developerTest) this.onboarding.skip();
+    if (this.developerTest || this.stage !== 1) this.onboarding.skip();
     this.practiceActive = this.onboarding.blocking;
-    this.onboardingView = new FirstRunTutorialView(this, this.onboarding, () => {
+    this.onboardingView = new FirstRunTutorialView(this, this.onboarding, this.character.id, () => {
       if (!this.onboarding?.blocking) return;
       this.onboarding.skip(); this.finishPractice();
     });
@@ -476,7 +476,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private finishPractice(): void {
-    if (!this.practiceActive) return;
+    if (!this.practiceActive && !this.onboarding) return;
     this.practiceActive = false;
     for (const enemy of this.enemies.filter(enemy => enemy.training)) {
       enemy.dead = true;
@@ -490,15 +490,9 @@ export class GameScene extends Phaser.Scene {
     this.fireZones = [];
     this.weaponTimers.forEach((_timer, key) => this.weaponTimers.set(key, 0));
     sounds.playLevelUp();
-    this.showBanner(`STAGE ${this.stage} — YOUR TURN, PARTNER!`, '#ffc52a');
+    this.showBanner(`STAGE ${this.stage} — ${this.stageConfig.title}`, '#ffc52a');
   }
 
-  private spawnPracticeBandit(): void {
-    const point = this.worldMap.resolve(this.player.x + 130, this.player.y, 16);
-    const enemy = this.spawnEnemy('bandit', point.x, point.y);
-    if (!enemy) return;
-    enemy.training = true; enemy.damage = 0; enemy.speed = 0;
-  }
 
   private setupTouchControls() {
     this.input.on('pointerdown', (pointer: Phaser.Input.Pointer, over: Phaser.GameObjects.GameObject[] = []) => {
@@ -903,24 +897,14 @@ export class GameScene extends Phaser.Scene {
     this.gunslingerHUD?.update(this.combatNow,this.player.x,this.player.y,!!(this.onboarding?.visible||this.choosingUpgrade));
     this.updateSaloonPrompt();
     this.atmosphere?.update();
-    const previousPhase = this.onboarding?.phase;
+    const wasBlocking = !!this.onboarding?.blocking;
     this.onboarding?.tick(delta, Math.hypot(this.player.x - oldX, this.player.y - oldY));
-    if (previousPhase === 'move' && this.onboarding?.phase === 'shoot') this.spawnPracticeBandit();
-    if (this.practiceActive && !this.onboarding?.blocking) this.finishPractice();
+    if (wasBlocking && !this.onboarding?.blocking) this.finishPractice();
     this.onboardingView?.update(this.player.x, this.player.y, this.time.now);
     if (this.onboarding?.blocking) {
       this.player.setDepth(worldDepth(this.player.y));
       this.worldMap.update(this.player.x, this.player.y);
       this.isometricView?.update(this.player.x, this.player.y, this.time.now);
-      if (this.onboarding.phase === 'shoot') {
-        this.enemyHash.rebuild(this.enemies);
-        this.handleWeaponsAutoFire(delta);
-        this.updateProjectiles(delta);
-        this.weaponEffects?.update(delta, this.projectiles);
-        this.updateBloodParticles(delta);
-        this.updateConsumableEffects(delta);
-        this.updateFireZones(delta);
-      }
       return;
     }
     // Keep the existing combat order after the isolated practice session.

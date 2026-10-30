@@ -18,56 +18,53 @@ export class TutorialProgress {
 }
 export const tutorialProgress = new TutorialProgress();
 
-/** Actual movement and actual weapon fire drive learning; scene clocks never drive the campaign here. */
+/** Pure movement instruction shown once on Stage 1; closes upon moving or timeout. */
 export class FirstRunTutorial {
   phase: TutorialPhase;
   mode: TutorialInput;
   hasFired = false;
   private distance = 0;
   private age = 0;
-  private shotAge = 0;
-  private lootHintPending: boolean;
+
   constructor(completed: boolean, mode: TutorialInput, private remember: () => void) {
-    this.phase = completed ? 'reminder' : 'move';
+    this.phase = completed ? 'idle' : 'move';
     this.mode = mode;
-    this.lootHintPending = !completed;
   }
-  get blocking(): boolean { return this.phase === 'move' || this.phase === 'shoot'; }
-  get visible(): boolean { return this.phase !== 'idle'; }
+
+  get blocking(): boolean { return this.phase === 'move'; }
+  get visible(): boolean { return this.phase === 'move'; }
+
   setInput(mode: TutorialInput): void { this.mode = mode; }
+
   tick(delta: number, moved = 0): void {
+    if (this.phase !== 'move') return;
     const dt = Number.isFinite(delta) ? Math.max(0, delta) : 0;
     this.age += dt;
-    if (this.phase === 'move') {
-      this.distance += Number.isFinite(moved) ? Math.max(0, moved) : 0;
-      if (this.distance >= 56) { this.phase = 'shoot'; this.age = 0; }
-    } else if (this.phase === 'shoot' && this.hasFired) {
-      this.shotAge += dt;
-      if (this.shotAge >= 2200) this.finish();
-    } else if ((this.phase === 'ready' && this.age >= 3000) || (this.phase === 'reminder' && this.age >= 4500) || (this.phase === 'loot' && this.age >= 5000)) {
-      this.phase = 'idle';
+    this.distance += Number.isFinite(moved) ? Math.max(0, moved) : 0;
+    if (this.distance >= 4 || this.age >= 6000) {
+      this.finish();
     }
   }
-  fired(): void { if (this.phase === 'shoot') this.hasFired = true; }
+
+  fired(): void { this.hasFired = true; }
+
   skip(): void {
-    if (this.blocking) this.finish();
-    else if (this.phase === 'reminder') this.phase = 'idle';
+    if (this.phase === 'move') this.finish();
   }
-  collectedXp(): void {
-    if (!this.lootHintPending || this.blocking) return;
-    this.lootHintPending = false; this.phase = 'loot'; this.age = 0;
+
+  collectedXp(): void {}
+
+  private finish(): void {
+    this.phase = 'idle';
+    this.remember();
   }
-  private finish(): void { this.phase = 'ready'; this.age = 0; this.remember(); }
+
   get copy(): { title: string; body: string; keys: string; step: string } {
-    const move = this.mode === 'touch' ? 'Drag your finger on the left side.' : 'Use WASD or arrow keys to move. No clicking needed.';
-    if (this.phase === 'move') return { title: this.mode === 'touch' ? 'MOVE. YOUR GUN FIRES AUTOMATICALLY!' : 'YOU RUN. YOUR GUN FIRES AUTOMATICALLY!', body: move, keys: this.mode === 'touch' ? 'DRAG TO MOVE' : 'W A S D   /   ↑ ← ↓ →', step: '1 / 2 • FIRST STEPS' };
-    if (this.phase === 'shoot') return {
-      title: this.hasFired ? 'SEE? NO CLICKING!' : 'WATCH YOUR GUN FIRE!',
-      body: this.mode === 'touch' ? 'Aiming and firing are automatic.' : 'Aiming and firing are automatic. This outlaw is just for practice.',
-      keys: this.hasFired ? 'MOVE AND DODGE' : 'NO TAPPING TO FIRE', step: '2 / 2 • AUTOMATIC AIM AND FIRE',
+    return {
+      title: 'HOW TO MOVE',
+      body: this.mode === 'touch' ? 'DRAG TO MOVE YOUR CHARACTER' : 'USE W, A, S, D TO MOVE\nYOUR CHARACTER',
+      keys: this.mode === 'touch' ? 'DRAG TO MOVE' : 'W   A   S   D',
+      step: '★ CONTROLS ★',
     };
-    if (this.phase === 'loot') return { title: 'LOOT BRINGS UPGRADES!', body: 'Collect XP and choose upgrades when you level up!', keys: 'MORE XP = MORE POWER', step: 'SHERIFF’S TIP' };
-    if (this.phase === 'ready') return { title: 'YOUR TURN, PARTNER!', body: move, keys: 'MOVE • DODGE', step: 'THE STAGE HAS BEGUN!' };
-    return { title: this.mode === 'touch' ? 'DRAG. AUTOMATIC FIRE.' : 'YOU RUN. YOUR GUN FIRES AUTOMATICALLY.', body: move, keys: this.mode === 'touch' ? 'AUTOMATIC FIRE' : 'AUTO AIM • NO CLICKING', step: 'HAPPY HUNTING!' };
   }
 }
