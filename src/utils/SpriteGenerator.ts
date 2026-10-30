@@ -17,7 +17,10 @@ export class SpriteGenerator {
     canvas.refresh();
   }
   public static generateAll(scene: Phaser.Scene) {
-    if (scene.textures.exists('player_steve')) return;
+    if (scene.textures.exists('player_steve')) {
+      this.createFlagTextures(scene);
+      return;
+    }
 
     this.createPlayerTextures(scene);
     this.createEnemyTextures(scene);
@@ -25,6 +28,7 @@ export class SpriteGenerator {
     this.createProjectileTextures(scene);
     this.createDropTextures(scene);
     this.createVfxTextures(scene);
+    this.createFlagTextures(scene);
   }
 
   // 1. Players: Steve, Billy, Bob, Cormano
@@ -568,6 +572,80 @@ export class SpriteGenerator {
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(4, 4, 4, 4);
       cSpark.refresh();
+    }
+  }
+
+  // 7. Flag Textures: Brazil & USA for Language Selector
+  public static createFlagTextures(scene: Phaser.Scene) {
+    if (!scene.textures || typeof scene.textures.createCanvas !== 'function') return;
+    if (scene.textures.exists('flag_br') && scene.textures.exists('flag_us')) return;
+
+    if (!scene.textures.exists('flag_br')) {
+      const cBR = scene.textures.createCanvas('flag_br', 44, 30);
+      if (cBR) {
+        const ctx = cBR.getContext();
+        ctx.fillStyle = '#120b08';
+        ctx.fillRect(0, 0, 44, 30);
+
+        ctx.fillStyle = '#00843d';
+        ctx.fillRect(1, 1, 42, 28);
+
+        ctx.fillStyle = '#ffcc00';
+        ctx.beginPath();
+        ctx.moveTo(22, 4);
+        ctx.lineTo(39, 15);
+        ctx.lineTo(22, 26);
+        ctx.lineTo(5, 15);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#002776';
+        ctx.beginPath();
+        ctx.arc(22, 15, 6, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(22, 17, 6, -Math.PI * 0.72, -Math.PI * 0.28);
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(20, 16, 1, 1);
+        ctx.fillRect(23, 16, 1, 1);
+        ctx.fillRect(21, 18, 1, 1);
+        ctx.fillRect(23, 18, 1, 1);
+        cBR.refresh();
+      }
+    }
+
+    if (!scene.textures.exists('flag_us')) {
+      const cUS = scene.textures.createCanvas('flag_us', 44, 30);
+      if (cUS) {
+        const ctx = cUS.getContext();
+        ctx.fillStyle = '#120b08';
+        ctx.fillRect(0, 0, 44, 30);
+
+        for (let i = 0; i < 7; i++) {
+          ctx.fillStyle = i % 2 === 0 ? '#b22234' : '#ffffff';
+          ctx.fillRect(1, 1 + i * 4, 42, 4);
+        }
+
+        ctx.fillStyle = '#3c3b6e';
+        ctx.fillRect(1, 1, 20, 16);
+
+        ctx.fillStyle = '#ffffff';
+        for (let row = 0; row < 3; row++) {
+          for (let col = 0; col < 4; col++) {
+            const sx = 3 + col * 4 + (row % 2 === 1 ? 2 : 0);
+            const sy = 3 + row * 4;
+            if (sx < 19 && sy < 15) {
+              ctx.fillRect(sx, sy, 1.5, 1.5);
+            }
+          }
+        }
+        cUS.refresh();
+      }
     }
   }
 }
