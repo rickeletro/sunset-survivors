@@ -2,7 +2,7 @@ import { createRequire } from 'node:module';
 import { describe, expect, it, vi } from 'vitest';
 import { GameScene } from './GameScene';
 
-vi.mock('phaser', () => ({ default: { Scene: class {}, Events: { EventEmitter: class {} } } }));
+vi.mock('phaser', () => ({ default: { Scene: class { }, Events: { EventEmitter: class { } } } }));
 vi.mock('../audio/SoundManager', () => ({ sounds: { playRevolver: vi.fn() } }));
 
 // Use Phaser's installed tween engine itself: a callback-only mock misses the crash.
@@ -29,13 +29,15 @@ function fixture() {
   Object.assign(scene, {
     isGameOver: false, bossDefeated: false, player: { x: 4000, y: 4000 },
     damagePlayer: vi.fn(), tweens: manager,
-    add: { sprite(x, y) {
-      const bullet = { x, y, rotation: 0, active: true };
-      bullet.destroy = vi.fn(() => { bullet.active = false; });
-      for (const method of ['setDepth', 'setTint', 'setRotation']) bullet[method] = () => bullet;
-      bullets.push(bullet);
-      return bullet;
-    } },
+    add: {
+      sprite(x, y) {
+        const bullet = { x, y, rotation: 0, active: true };
+        bullet.destroy = vi.fn(() => { bullet.active = false; });
+        for (const method of ['setDepth', 'setTint', 'setRotation']) bullet[method] = () => bullet;
+        bullets.push(bullet);
+        return bullet;
+      }
+    },
   });
   const step = () => {
     for (const tween of [...tweens]) {
