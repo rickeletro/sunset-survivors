@@ -27,6 +27,8 @@ export class TitleScene extends Phaser.Scene {
   private lanternGlows: Phaser.GameObjects.Image[] = [];
   private sunGlowGraphics!: Phaser.GameObjects.Graphics;
   private langButton?: WesternButton;
+  private menuButton?: WesternButton;
+  private storeButton?: WesternButton;
   private copyrightText?: Phaser.GameObjects.Text;
 
   constructor() {
@@ -339,6 +341,12 @@ export class TitleScene extends Phaser.Scene {
     if (this.langButton) {
       this.langButton.setText(next === 'pt' ? 'IDIOMA: PT-BR' : 'LANG: EN');
     }
+    if (this.menuButton) {
+      this.menuButton.setText(t('common.menu'));
+    }
+    if (this.storeButton) {
+      this.storeButton.setText(t('common.store'));
+    }
     if (this.copyrightText) {
       this.copyrightText.setText(t('common.copyright'));
     }
@@ -445,14 +453,15 @@ export class TitleScene extends Phaser.Scene {
   }
 
   private createAuxiliaryMenu() {
-    this.rootContainer.add(new WesternButton(this, {
-      x: -190, y: 420, width: 340, height: 62, presentation: 'pulp', text: 'MENU',
+    this.menuButton = new WesternButton(this, {
+      x: -190, y: 420, width: 340, height: 62, presentation: 'pulp', text: t('common.menu'),
       variant: 'wood', fontSize: '27px', onClick: () => this.openMainMenu(),
-    }));
-    this.rootContainer.add(new WesternButton(this, {
-      x: 190, y: 420, width: 340, height: 62, presentation: 'pulp', text: 'STORE',
+    });
+    this.storeButton = new WesternButton(this, {
+      x: 190, y: 420, width: 340, height: 62, presentation: 'pulp', text: t('common.store'),
       variant: 'wood', fontSize: '27px', onClick: () => this.openStore(),
-    }));
+    });
+    this.rootContainer.add([this.menuButton, this.storeButton]);
   }
 
   private openMainMenu() {

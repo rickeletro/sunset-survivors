@@ -6,6 +6,7 @@ import { createMenuRoot } from '../ui/layout/menuLayout';
 import { bindPulpKeys, preloadPulp, pulpBackdrop, pulpButton, pulpText } from '../ui/layout/pulpSceneKit';
 import { preloadImages } from '../assets/registry';
 import { THEME } from '../ui/theme/tokens';
+import { t } from '../i18n';
 
 export class StoreScene extends Phaser.Scene {
   private fromScene = 'MenuScene';
@@ -74,8 +75,8 @@ export class StoreScene extends Phaser.Scene {
     this.createMerchandiseGrid();
 
     // 6. Bottom Controls & Return Button
-    pulpButton(this, this.rootContainer, 0, 405, '★ RETURN TO THE TRAIL ★', () => this.leaveStore(), 460);
-    pulpText(this, this.rootContainer, 0, 455, '✥ [ESC] RETURN ✥', 15, '#ffc52a');
+    pulpButton(this, this.rootContainer, 0, 405, t('common.returnToTrail'), () => this.leaveStore(), 460);
+    pulpText(this, this.rootContainer, 0, 455, `✥ [ESC] ${t('common.leave')} ✥`, 15, '#ffc52a');
 
     // Setup Keyboard Bindings
     bindPulpKeys(this, {
@@ -132,7 +133,7 @@ export class StoreScene extends Phaser.Scene {
     headerContainer.add(plaqueGfx);
 
     // Main Store Title Text
-    const titleText = this.add.text(0, -2, "★  BARNABY'S GENERAL STORE  ★", {
+    const titleText = this.add.text(0, -2, t('store.title'), {
       fontFamily: 'Rye, "Roboto Slab", serif',
       fontSize: '34px',
       color: '#ffc52a',
@@ -167,8 +168,8 @@ export class StoreScene extends Phaser.Scene {
     headerContainer.add(ribbonGfx);
 
     const bannerSubtitle = this.priceMultiplierValue > 1
-      ? 'PROVISIONS, CONTRABAND & ONE-USE POWER-UPS (OUTPOST 2X)'
-      : 'PROVISIONS, CONTRABAND & ONE-USE POWER-UPS';
+      ? t('store.subprovisionsOutpost')
+      : t('store.subprovisions');
 
     const subText = this.add.text(0, ry, bannerSubtitle, {
       fontFamily: '"Press Start 2P", monospace',
@@ -271,8 +272,8 @@ export class StoreScene extends Phaser.Scene {
     section.add(dialoguePlaque);
 
     const initialSpeech = this.priceMultiplierValue > 1
-      ? "Outpost rush prices, partner!\nSupplies cost double out on the trail,\nbut they'll save your hide right now!"
-      : 'Cash on the barrelhead!\nFinest supplies in the entire\nterritory.';
+      ? t('store.outpostSpeech')
+      : t('store.standardSpeech');
 
     this.speechText = this.add.text(0, 162, initialSpeech, {
       fontFamily: THEME.typography.narrativeFont,
@@ -289,7 +290,7 @@ export class StoreScene extends Phaser.Scene {
     this.drawWesternPlaque(walletPlaque, 0, 246, 350, 52, false);
     section.add(walletPlaque);
 
-    this.balanceText = this.add.text(0, 246, '★ WALLET: $0 ★', {
+    this.balanceText = this.add.text(0, 246, t('store.wallet', { bank: '0' }), {
       fontFamily: '"Press Start 2P", monospace',
       fontSize: '16px',
       color: '#ffc52a',
@@ -368,7 +369,7 @@ export class StoreScene extends Phaser.Scene {
     card.add(desc);
 
     // 5. IN BAG count (centered)
-    const countText = this.add.text(0, 36, 'IN BAG: 0', {
+    const countText = this.add.text(0, 36, t('store.inBag', { count: 0 }), {
       fontFamily: '"Press Start 2P", monospace',
       fontSize: '12px',
       color: '#120b08',
@@ -382,7 +383,7 @@ export class StoreScene extends Phaser.Scene {
       card,
       0,
       82,
-      `BUY $${price}`,
+      t('store.buyAmount', { price }),
       () => this.tryBuy(id),
       210
     );
@@ -458,20 +459,20 @@ export class StoreScene extends Phaser.Scene {
     } else if (result === 'insufficient') {
       sounds.playReload();
       this.cameras.main.shake(120, 0.005);
-      this.speechText.setText(`Not enough cash for that, partner!\nIt costs $${price}.`);
+      this.speechText.setText(t('store.notEnoughCash', { price }));
     }
   }
 
   private refreshUI(): void {
     const stats = statsManager.getStats();
-    this.balanceText.setText(`★ WALLET: $${stats.bank.toLocaleString()} ★`);
+    this.balanceText.setText(t('store.wallet', { bank: stats.bank.toLocaleString() }));
 
     for (const [id, ui] of this.itemCards.entries()) {
       const def = CONSUMABLE_ITEMS[id];
       const price = Math.round(def.price * this.priceMultiplierValue);
       const count = statsManager.getConsumableCount(id);
-      ui.countText.setText(`IN BAG: ${count}`);
-      ui.buyBtn.setText?.(`BUY $${price}`);
+      ui.countText.setText(t('store.inBag', { count }));
+      ui.buyBtn.setText?.(t('store.buyAmount', { price }));
       ui.buyBtn.setEnabled(stats.bank >= price);
     }
   }

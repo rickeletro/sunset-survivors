@@ -6,6 +6,7 @@ import { sounds } from '../audio/SoundManager';
 import { BOSSES } from '../data/bosses';
 import { statsManager } from '../data/GameStatsManager';
 import { WesternButton } from '../ui/components/WesternButton';
+import { t } from '../i18n';
 
 export class UnlockablesScene extends Phaser.Scene {
   private fromScene = 'TitleScene';
@@ -27,11 +28,11 @@ export class UnlockablesScene extends Phaser.Scene {
   create() {
     this.rootContainer = createMenuRoot(this);
     pulpBackdrop(this, this.rootContainer, true);
-    pulpHeading(this, this.rootContainer, 'UNLOCKABLES', -400, 1120, 70, true);
+    pulpHeading(this, this.rootContainer, t('unlockables.title'), -400, 1120, 70, true);
     this.gridContainer = this.add.container(0, 20); this.rootContainer.add(this.gridContainer);
     this.tabButtons = [];
     this.createTabs(); this.renderGrid();
-    const back = pulpButton(this, this.rootContainer, 0, 440, 'BACK', () => this.goBack(), 430);
+    const back = pulpButton(this, this.rootContainer, 0, 440, t('common.back'), () => this.goBack(), 430);
     bindPulpKeys(this, {
       ESC: () => this.goBack(), ENTER: () => back.activate(),
       LEFT: () => this.selectTab(-1), RIGHT: () => this.selectTab(1),
@@ -48,8 +49,13 @@ export class UnlockablesScene extends Phaser.Scene {
     for (const tab of this.tabButtons) tab.destroy();
     this.tabButtons = [];
     const tabs = ['characters', 'artwork', 'extras'] as const;
+    const tabLabels = {
+      characters: t('unlockables.charactersTab'),
+      artwork: t('unlockables.weaponsTab'),
+      extras: t('unlockables.achievementsTab'),
+    };
     tabs.forEach((id, i) => {
-      const button = pulpButton(this, this.rootContainer, (i - 1) * 440, -266, id.toUpperCase(), () => {
+      const button = pulpButton(this, this.rootContainer, (i - 1) * 440, -266, tabLabels[id], () => {
         this.currentTab = id; this.createTabs(); this.renderGrid();
       }, 420, this.currentTab === id);
       this.tabButtons.push(button);

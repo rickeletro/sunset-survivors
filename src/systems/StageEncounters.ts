@@ -11,6 +11,7 @@ import { THEME } from '../ui/theme/tokens';
 import type Phaser from 'phaser';
 import { objectiveProgress, safeEventPoint, StageConfig } from '../data/stages';
 import type { EnemyKind } from '../data/enemies';
+import { t } from '../i18n';
 
 export interface HazardShape { x: number; y: number; radius: number; width?: number; height?: number; }
 export function insideHazard(shape: HazardShape, x: number, y: number): boolean {
@@ -246,12 +247,15 @@ export class StageEncounters {
   }
   get objectivePoint():Readonly<Pick<Supply,'x'|'y'|'contract'>>|undefined{return this.supply;}
   objectiveHint(): string {
-    if (!this.supply) return 'OPTIONAL SUPPLIES EVERY 2:30';
+    if (!this.supply) return t('combat.optionalSupplies');
     const p = this.hooks.position(); const s = this.supply;
     const dx = s.x - p.x; const dy = s.y - p.y;
     const dir = Math.abs(dx) > Math.abs(dy) ? dx > 0 ? 'EAST' : 'WEST' : dy > 0 ? 'SOUTH' : 'NORTH';
     const remaining=s.contract?Math.max(0,Math.ceil(((s.deadline??0)-s.age)/1000)):Math.max(0,80-Math.floor(s.age/1000));
-    return `${s.contract?'CONTRACT':'SUPPLIES'} ${dir} ${Math.round(Math.hypot(dx,dy))}m • ${remaining}s`;
+    const dist = Math.round(Math.hypot(dx, dy));
+    return s.contract
+      ? t('combat.contractHint', { dir, dist, remaining })
+      : t('combat.suppliesHint', { dir, dist, remaining });
   }
   private clearSupply(): void {
     this.supply?.ring.destroy();

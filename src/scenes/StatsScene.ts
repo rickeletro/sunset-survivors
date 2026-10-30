@@ -9,6 +9,7 @@ import { WesternButton } from '../ui/components/WesternButton';
 import { WesternTitle } from '../ui/components/WesternTitle';
 import { WesternPanel } from '../ui/components/WesternPanel';
 import { ArcadeStatDisplay } from '../ui/components/ArcadeStatDisplay';
+import { t } from '../i18n';
 
 export interface StatsSceneData {
   fromScene?: string;
@@ -62,8 +63,8 @@ export class StatsScene extends Phaser.Scene {
     const title = new WesternTitle(this, {
       x: 0,
       y: -310,
-      title: '★ STATS ★',
-      subtitle: 'CAREER BOUNTY RECORD & RECORDED ACCOMPLISHMENTS',
+      title: t('stats.title'),
+      subtitle: t('stats.subtitle'),
       width: 800,
       fontSize: '32px',
     });
@@ -83,7 +84,7 @@ export class StatsScene extends Phaser.Scene {
       y: 310,
       width: 240,
       height: 64,
-      text: 'BACK [ESC]', presentation: 'pulp', fontSize: '24px',
+      text: t('stats.back'), presentation: 'pulp', fontSize: '24px',
       variant: 'gold',
       onClick: () => this.goBack(),
     });
@@ -98,10 +99,10 @@ export class StatsScene extends Phaser.Scene {
     const tabsContainer = this.add.container(0, -220);
     this.tabStrip = tabsContainer;
     const tabs: Array<{ id: 'overview' | 'weapons' | 'enemies' | 'stages'; label: string }> = [
-      { id: 'overview', label: 'OVERVIEW' },
-      { id: 'weapons', label: 'WEAPONS' },
-      { id: 'enemies', label: 'ENEMIES' },
-      { id: 'stages', label: 'STAGES' },
+      { id: 'overview', label: t('stats.tabOverview') },
+      { id: 'weapons', label: t('stats.tabWeapons') },
+      { id: 'enemies', label: t('stats.tabEnemies') },
+      { id: 'stages', label: t('stats.tabStages') },
     ];
 
     tabs.forEach((tab, i) => {
@@ -148,13 +149,13 @@ export class StatsScene extends Phaser.Scene {
       const playTimeStr = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 
       const items = [
-        { label: 'TOTAL SCORE:', value: s.totalScore, valueColor: '#ffc52a' },
-        { label: 'TOTAL KILLS:', value: s.totalKills, valueColor: '#ef4444' },
-        { label: 'GOLD COLLECTED:', value: `$${s.goldCollected.toLocaleString()}`, valueColor: '#22c55e' },
-        { label: 'PLAY TIME:', value: playTimeStr, valueColor: '#f5c518' },
-        { label: 'STAGES CLEARED:', value: `${s.stagesCleared} / 8`, valueColor: '#38bdf8' },
-        { label: 'DEATHS:', value: s.deaths, valueColor: '#e52b20' },
-        { label: 'BEST STREAK:', value: s.bestStreak, valueColor: '#ffc52a' },
+        { label: `${t('stats.totalScore')}:`, value: s.totalScore, valueColor: '#ffc52a' },
+        { label: `${t('stats.totalKills')}:`, value: s.totalKills, valueColor: '#ef4444' },
+        { label: `${t('stats.goldCollected')}:`, value: `$${s.goldCollected.toLocaleString()}`, valueColor: '#22c55e' },
+        { label: `${t('stats.playTime')}:`, value: playTimeStr, valueColor: '#f5c518' },
+        { label: `${t('stats.stagesCleared')}:`, value: `${s.stagesCleared} / 8`, valueColor: '#38bdf8' },
+        { label: `${t('stats.deaths')}:`, value: s.deaths, valueColor: '#e52b20' },
+        { label: `${t('stats.bestStreak')}:`, value: s.bestStreak, valueColor: '#ffc52a' },
       ];
 
       const statsDisplay = new ArcadeStatDisplay(this, -480, -145, items, 600, 42);

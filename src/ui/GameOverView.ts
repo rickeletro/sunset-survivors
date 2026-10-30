@@ -5,6 +5,7 @@ import { difficultyProfile } from '../data/difficulty';
 import { createMenuRoot } from './layout/menuLayout';
 import { pulpPaper, pulpWood, pulpText } from './layout/pulpSceneKit';
 import { WesternButton } from './components/WesternButton';
+import { t } from '../i18n';
 
 export const GAME_OVER_LAYOUT={width:1920,height:1080,left:{x:-330,y:40,width:620,height:640},right:{x:330,y:40,width:660,height:640},input:{x:330,y:250,width:568,height:54}} as const;
 const ink='#321b10',gold='#ffc52a';
@@ -26,16 +27,16 @@ export class GameOverView {
     this.root.add(atmosphere);scene.tweens.add({targets:atmosphere,alpha:.45,duration:1900,yoyo:true,repeat:-1,ease:'Sine.easeInOut'});
     const vulture=scene.add.image(-800,65,'menu_grave');vulture.setScale(Math.min(300/vulture.width,660/vulture.height));this.root.add(vulture);
     this.header();
-    const left=this.panel(GAME_OVER_LAYOUT.left,'LAST STAND');
+    const left=this.panel(GAME_OVER_LAYOUT.left,t('gameOver.lastStand'));
     this.leftReport(left,stats,bank);
-    this.right=this.panel(GAME_OVER_LAYOUT.right,'HALL OF FAME');
+    this.right=this.panel(GAME_OVER_LAYOUT.right,t('gameOver.hallOfFame'));
     this.rows=scene.add.container(0,0);this.right.add(this.rows);
-    this.status=pulpText(scene,this.right,0,143,'LOADING THE FRONTIER RECORDS…',17,gold);
-    this.prompt=pulpText(scene,this.right,0,166,'ENTER YOUR NAME · CLAIM YOUR PLACE',22,'#f2d49a');this.fit(this.prompt,580);
+    this.status=pulpText(scene,this.right,0,143,t('gameOver.loadingRecords'),17,gold);
+    this.prompt=pulpText(scene,this.right,0,166,t('gameOver.enterNamePrompt'),22,'#f2d49a');this.fit(this.prompt,580);
     this.right.add(scene.add.graphics().fillStyle(0x120b08,.96).fillRect(-289,181,578,59).lineStyle(2,0xc49a55).strokeRect(-289,181,578,59));
-    this.saveButton=new WesternButton(scene,{x:0,y:274,width:584,height:64,text:'SAVE TO HALL OF FAME',fontSize:'25px',presentation:'pulp',onClick:actions.save});this.right.add(this.saveButton);
-    this.retryButton=new WesternButton(scene,{x:-330,y:437,width:625,height:92,text:'RETRY',fontSize:'36px',presentation:'pulp',onClick:actions.retry});
-    this.titleButton=new WesternButton(scene,{x:330,y:437,width:625,height:92,text:'BACK TO TITLE',fontSize:'36px',presentation:'pulp',onClick:actions.title});
+    this.saveButton=new WesternButton(scene,{x:0,y:274,width:584,height:64,text:t('gameOver.saveToHallOfFame'),fontSize:'25px',presentation:'pulp',onClick:actions.save});this.right.add(this.saveButton);
+    this.retryButton=new WesternButton(scene,{x:-330,y:437,width:625,height:92,text:t('gameOver.retry'),fontSize:'36px',presentation:'pulp',onClick:actions.retry});
+    this.titleButton=new WesternButton(scene,{x:330,y:437,width:625,height:92,text:t('gameOver.backToTitle'),fontSize:'36px',presentation:'pulp',onClick:actions.title});
     this.root.add([this.retryButton,this.titleButton]);
     const arrow=scene.add.graphics().lineStyle(5,0xffc52a).strokeCircle(-150,0,19).fillStyle(0x120b08).fillRect(-151,-24,27,19).fillStyle(0xffc52a).fillPoints([{x:-151,y:-24},{x:-132,y:-16},{x:-151,y:-7}],true);this.retryButton.add(arrow);
     const home=scene.add.graphics().fillStyle(0xffc52a).fillPoints([{x:-237,y:1},{x:-214,y:-20},{x:-191,y:1}],true).fillRect(-231,0,34,23).fillStyle(0x603719).fillRect(-219,7,10,16);this.titleButton.add(home);
@@ -84,8 +85,8 @@ export class GameOverView {
   private header() {
     const header=pulpWood(this.scene,this.root,0,-408,1180,180);this.frame(header,1180,180);
     this.gun(header,-550,-33);this.gun(header,550,-33,true);
-    const title=this.fit(pulpText(this.scene,header,0,-15,'YOU DIED!',132,'#a51e16'),750);title.setStroke('#ffc52a',6);
-    pulpText(this.scene,header,0,64,"THE WEST AIN'T FOR THE FAINT OF HEART.",25,'#f2d49a');
+    const title=this.fit(pulpText(this.scene,header,0,-15,t('gameOver.title'),132,'#a51e16'),750);title.setStroke('#ffc52a',6);
+    pulpText(this.scene,header,0,64,t('gameOver.subtitle'),25,'#f2d49a');
     for(const x of [-520,520])this.star(header,x,52,9);
     header.setScale(.96);this.scene.tweens.add({targets:header,scaleX:1,scaleY:1,duration:400,ease:'Back.easeOut'});
   }
@@ -95,20 +96,26 @@ export class GameOverView {
     const portrait=this.scene.add.image(-188,-94,portraitKey);portrait.setScale(Math.min(150/portrait.width,177/portrait.height));panel.add(portrait);
     panel.add(this.scene.add.graphics().lineStyle(2,0x603719).strokeRect(-270,-185,164,183));
     const minutes=Math.floor(stats.timeSurvivedSeconds/60),seconds=Math.floor(stats.timeSurvivedSeconds%60);
-    const report=[['GUNSLINGER',stats.character.name.toUpperCase()],['STAGE / LEVEL',`${stats.stage} / ${stats.level}`],['SURVIVED',`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`],['KILLS',stats.kills.toLocaleString('en-US')],['DIFFICULTY',difficultyProfile(stats.difficulty).label]];
+    const report=[
+      [t('gameOver.gunslinger'),stats.character.name.toUpperCase()],
+      [t('gameOver.stageLevel'),`${stats.stage} / ${stats.level}`],
+      [t('gameOver.survived'),`${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`],
+      [t('gameOver.kills'),stats.kills.toLocaleString('en-US')],
+      [t('gameOver.difficulty'),difficultyProfile(stats.difficulty).label]
+    ];
     let killsLabel:Phaser.GameObjects.Text|undefined;
     report.forEach(([label,value],index)=>{
       const y=-163+index*42;
       this.statIcon(panel,-98,y,index);
       pulpText(this.scene,panel,-80,y,label,19,ink,'left').setStroke(ink,0);
       const text=this.fit(pulpText(this.scene,panel,260,y,value,24,ink,'right').setStroke(ink,0),145);
-      if(label==='KILLS')killsLabel=text;
+      if(label===t('gameOver.kills'))killsLabel=text;
       panel.add(this.scene.add.graphics().fillStyle(0x603719,.25).fillRect(-88,y+18,350,1));
     });
     panel.add(this.scene.add.graphics().fillStyle(0xa51e16).fillRect(-264,66,528,48));
-    pulpText(this.scene,panel,0,90,'REWARDS',32,'#f2d49a');this.star(panel,-125,90,8);this.star(panel,125,90,8);
-    this.coin(panel,-240,155);pulpText(this.scene,panel,-204,155,'COINS SECURED',25,ink,'left').setStroke(ink,0);
-    this.coin(panel,-240,225);pulpText(this.scene,panel,-204,225,'TOTAL BANK',25,ink,'left').setStroke(ink,0);
+    pulpText(this.scene,panel,0,90,t('gameOver.rewards'),32,'#f2d49a');this.star(panel,-125,90,8);this.star(panel,125,90,8);
+    this.coin(panel,-240,155);pulpText(this.scene,panel,-204,155,t('gameOver.coinsSecured'),25,ink,'left').setStroke(ink,0);
+    this.coin(panel,-240,225);pulpText(this.scene,panel,-204,225,t('gameOver.totalBank'),25,ink,'left').setStroke(ink,0);
     for(const y of [155,225])panel.add(this.scene.add.graphics().fillStyle(0x321b10,.95).fillRect(105,y-23,156,46));
     const coins=stats.earnedBounty??stats.bounty;
     const earned=this.fit(pulpText(this.scene,panel,249,155,`+${coins.toLocaleString('en-US')}`,31,gold,'right'),142);
@@ -134,7 +141,12 @@ export class GameOverView {
   }
   renderRanking(entries:RankingEntry[],current:RankingEntry,position:number,saved:boolean) {
     this.rows.removeAll(true);
-    for(const [x,label,align]of [[-268,'#','center'],[-216,'NAME','left'],[160,'SCORE','right'],[278,'STAGE','right']] as const)pulpText(this.scene,this.rows,x,-215,label,20,'#f2d49a',align);
+    for(const [x,label,align]of [
+      [-268,t('gameOver.rankHeader'),'center'],
+      [-216,t('gameOver.nameHeader'),'left'],
+      [160,t('gameOver.scoreHeader'),'right'],
+      [278,t('gameOver.stageHeader'),'right']
+    ] as const) pulpText(this.scene,this.rows,x,-215,label,20,'#f2d49a',align);
     for(let i=0;i<5;i++) {
       const row=entries[i],y=-166+i*48,selected=row?.runId===current.runId;
       const bg=this.scene.add.graphics().fillStyle(selected?0x603719:0x120b08,selected?.96:.8).fillRect(-296,y-22,592,44);
@@ -148,9 +160,9 @@ export class GameOverView {
     }
     this.rows.add(this.scene.add.graphics().fillStyle(0x603719,.97).fillRect(-296,72,592,48).lineStyle(2,0xffc52a).strokeRect(-296,72,592,48));
     pulpText(this.scene,this.rows,-268,96,`#${position}${position>100?'+':''}`,25,gold);
-    this.fit(pulpText(this.scene,this.rows,-216,96,saved?current.name:'YOUR NAME',25,gold,'left'),235);
+    this.fit(pulpText(this.scene,this.rows,-216,96,saved?current.name:t('gameOver.defaultPlayerName'),25,gold,'left'),235);
     this.fit(pulpText(this.scene,this.rows,160,96,current.score.toLocaleString('en-US'),25,gold,'right'),125);
     pulpText(this.scene,this.rows,278,96,String(current.stage),25,gold,'right');
   }
-  saved(){this.saveButton.setText('SAVED TO HALL OF FAME');this.saveButton.setEnabled(false);this.scene.tweens.add({targets:this.rows,alpha:.5,duration:140,yoyo:true,repeat:2});}
+  saved(){this.saveButton.setText(t('gameOver.savedToHallOfFame'));this.saveButton.setEnabled(false);this.scene.tweens.add({targets:this.rows,alpha:.5,duration:140,yoyo:true,repeat:2});}
 }

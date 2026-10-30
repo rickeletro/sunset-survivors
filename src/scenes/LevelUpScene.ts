@@ -9,6 +9,7 @@ import Phaser from 'phaser';
 import { sounds } from '../audio/SoundManager';
 import { CharacterData } from '../data/characters';
 import { WEAPONS } from '../data/weapons';
+import { t } from '../i18n';
 
 export interface UpgradeChoice {
   type: 'weapon' | 'passive' | 'evolution' | 'reward';
@@ -325,11 +326,11 @@ export class LevelUpScene extends Phaser.Scene {
     }
 
     headerContainer.add(pulpSurface(this, 0, -435, 630, 130, 'paper'));
-    const title = this.add.text(0, -435, this.draftData.title??'LEVEL UP!', {
+    const title = this.add.text(0, -435, this.draftData.title??t('levelUp.title'), {
       fontFamily: THEME.typography.westernFont, fontSize: '46px', color: '#a51e16',
     }).setOrigin(0.5);
     headerContainer.add(title);
-    pulpText(this, headerContainer, 0, -330, 'CHOOSE YOUR BOUNTY', 26);
+    pulpText(this, headerContainer, 0, -330, t('levelUp.chooseBounty'), 26);
 
     this.rootContainer.add(headerContainer);
   }
@@ -430,8 +431,8 @@ export class LevelUpScene extends Phaser.Scene {
       }
 
       const ribbonTextStr = isNew
-        ? (choice.type === 'weapon' ? '★ NEW WEAPON ★' : '★ NEW BOUNTY ★')
-        : `★ UPGRADE LV. ${choice.nextLevel} ★`;
+        ? (choice.type === 'weapon' ? t('levelUp.newWeapon') : t('levelUp.newBounty'))
+        : t('levelUp.upgradeLevel', { level: choice.nextLevel });
 
       const ribbonText = this.add.text(0, -cardH / 2 - 3, ribbonTextStr, {
         fontFamily: THEME.typography.pixelFont,
@@ -472,7 +473,7 @@ export class LevelUpScene extends Phaser.Scene {
       cardContainer.add(btnImg);
       this.cardButtons.push(btnImg);
 
-      const btnText = this.add.text(0, btnY, `[ ${idx + 1} ] CHOOSE`, {
+      const btnText = this.add.text(0, btnY, t('levelUp.chooseBtn', { index: idx + 1 }), {
         fontFamily: THEME.typography.pixelFont,
         fontSize: '10px',
         color: '#d97706',
@@ -643,17 +644,17 @@ export class LevelUpScene extends Phaser.Scene {
       const lvl = def ? def.levels[Math.min(choice.nextLevel - 1, def.levels.length - 1)] : null;
       if (lvl) {
         this.detailStatsText.setText([
-          `${lore.typeLabel} • DAMAGE ${lvl.damage} • COOLDOWN ${lvl.cooldownMs} ms`,
-          `PROJECTILES ${lvl.projectileCount} • PIERCE ${lvl.pierce}`,
+          `${lore.typeLabel} • ${t('common.damage')} ${lvl.damage} • ${t('common.cooldown')} ${lvl.cooldownMs} ms`,
+          `${t('common.projectiles')} ${lvl.projectileCount} • ${t('common.pierce')} ${lvl.pierce}`,
           lvl.description,
         ].join('\n'));
       } else {
-        this.detailStatsText.setText(`Description : ${choice.description}`);
+        this.detailStatsText.setText(`${t('levelUp.description')} : ${choice.description}`);
       }
     } else {
       // Passive buff
       this.detailStatsText.setText([
-        `${lore.typeLabel} • RANK ${choice.nextLevel}`,
+        `${lore.typeLabel} • ${t('common.rank')} ${choice.nextLevel}`,
         choice.description,
       ].join('\n'));
     }

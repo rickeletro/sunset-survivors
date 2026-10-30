@@ -4,6 +4,7 @@ import { sounds } from '../audio/SoundManager';
 import { createMenuRoot } from '../ui/layout/menuLayout';
 import { preloadPulp, pulpBackdrop, pulpHeading, pulpText, pulpButton, bindPulpMenu, bindPulpKeys } from '../ui/layout/pulpSceneKit';
 import type { WesternButton } from '../ui/components/WesternButton';
+import { t } from '../i18n';
 
 /** Guest progression stays on this browser; portable saves need no account or password. */
 export class ProgressScene extends Phaser.Scene {
@@ -22,23 +23,23 @@ export class ProgressScene extends Phaser.Scene {
   preload() { preloadPulp(this); }
   create() {
     const root=createMenuRoot(this);pulpBackdrop(this,root,true);
-    pulpHeading(this,root,'SAVE PROGRESS',-365,1200,70,true);
+    pulpHeading(this,root,t('progress.title'),-365,1200,70,true);
     this.balance=pulpText(this,root,0,-220,'',34,'#ffc52a');this.refresh();
-    pulpText(this,root,0,-130,'AUTO-SAVED ON THIS BROWSER',24);
-    pulpText(this,root,0,-80,'Bank gold, purchased heroes and career records.\nExport a backup to keep it or move to another browser.',23).setWordWrapWidth(1100);
+    pulpText(this,root,0,-130,t('progress.autoSaved'),24);
+    pulpText(this,root,0,-80,t('progress.autoSavedDesc'),23).setWordWrapWidth(1100);
     const buttons=[
-      pulpButton(this,root,-300,50,'EXPORT SAVE',()=>this.exportSave(),540,true),
-      pulpButton(this,root,300,50,'IMPORT SAVE',()=>this.chooseFile(),540).setEnabled(!this.duringRun),
+      pulpButton(this,root,-300,50,t('progress.exportSave'),()=>this.exportSave(),540,true),
+      pulpButton(this,root,300,50,t('progress.importSave'),()=>this.chooseFile(),540).setEnabled(!this.duringRun),
     ];
-    this.message=pulpText(this,root,0,162,this.duringRun?'Finish your run before importing a save.':'No account needed. Your progress is saved automatically.',23).setWordWrapWidth(1150);
-    this.confirm=pulpButton(this,root,0,270,'REPLACE LOCAL PROGRESS',()=>this.confirmImport(),700).setEnabled(false);buttons.push(this.confirm);
-    buttons.push(pulpButton(this,root,0,400,'BACK',()=>this.back(),540));
+    this.message=pulpText(this,root,0,162,this.duringRun?t('progress.finishRunNotice'):t('progress.noAccountNotice'),23).setWordWrapWidth(1150);
+    this.confirm=pulpButton(this,root,0,270,t('progress.replaceProgress'),()=>this.confirmImport(),700).setEnabled(false);buttons.push(this.confirm);
+    buttons.push(pulpButton(this,root,0,400,t('common.back'),()=>this.back(),540));
     bindPulpMenu(this,buttons);bindPulpKeys(this,{ESC:()=>this.back()});
     this.events.once('shutdown',()=>{this.picker?.remove();this.picker=undefined;if(this.downloadUrl)URL.revokeObjectURL(this.downloadUrl);this.downloadUrl=undefined;this.pending=undefined;});
   }
   private refresh() {
     statsManager.refresh();const save=statsManager.getStats();
-    this.balance.setText(`BANK $${save.bank.toLocaleString()} • ${save.unlockedCharacters.length}/4 HEROES`);
+    this.balance.setText(t('progress.bankStatus', { bank: save.bank.toLocaleString(), count: save.unlockedCharacters.length }));
   }
   private exportSave() {
     try {
@@ -46,8 +47,8 @@ export class ProgressScene extends Phaser.Scene {
       this.downloadUrl=URL.createObjectURL(new Blob([statsManager.exportProgress()],{type:'application/json'}));
       const link=document.createElement('a');link.href=this.downloadUrl;link.download='sunset-survivors-save.json';
       document.body.appendChild(link);link.click();link.remove();
-      this.message.setText('Backup download requested. Keep your save file somewhere safe.');
-    } catch {this.message.setText('Could not export your save. Local progress was not changed.');}
+      this.message.setText(t('progress.exportSuccess'));
+    } catch {this.message.setText(t('progress.exportError'));}
   }
   private chooseFile() {
     if(this.duringRun)return;

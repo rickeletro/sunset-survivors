@@ -8,6 +8,7 @@ import Phaser from 'phaser';
 import { sounds } from '../audio/SoundManager';
 import { CharacterData, CHARACTERS } from '../data/characters';
 import { statsManager } from '../data/GameStatsManager';
+import { t } from '../i18n';
 
 export interface GameOverStats {
   runId?: string;
@@ -82,7 +83,7 @@ export class GameOverScene extends Phaser.Scene {
     const box=GAME_OVER_LAYOUT.input;
     this.nameField=new RankingNameField(this,this.view.root,box.y,()=>{this.saveRanking();},{...box,fontSize:24,autoFocus:false});
     this.submitted=!!rankings.find(this.rankingId);
-    if(this.submitted){this.nameField.disable();this.view.saved();this.view.prompt.setText('YOUR NAME IS ALREADY IN THE BOOKS.');}
+    if(this.submitted){this.nameField.disable();this.view.saved();this.view.prompt.setText(t('gameOver.nameAlreadySaved'));}
     this.renderRanking();void this.refreshRanking();
     bindPulpMenu(this,[this.view.saveButton,this.view.retryButton,this.view.titleButton],false,this.submitted?1:0);
     bindPulpKeys(this,{R:()=>{if(!this.nameField?.isFocused())this.retry();},ESC:()=>{if(!this.nameField?.isFocused())this.returnToTitle();},N:()=>this.nameField?.focus()});
