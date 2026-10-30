@@ -466,6 +466,7 @@ export class FirstRunTutorialView {
     const pixellabKey = `pl_${this.heroId}_south_0`;
     const heroSheetKey = `hero_${this.heroId}`;
     const avatarKey = `hud_avatar_${this.heroId}`;
+    const playerKey = `player_${this.heroId}`;
 
     let heroSprite: Phaser.GameObjects.GameObject | null = null;
 
@@ -475,6 +476,8 @@ export class FirstRunTutorialView {
       heroSprite = this.scene.add.sprite(hx, hy + 8, heroSheetKey, 0).setScale(1.8).setOrigin(0.5);
     } else if (this.scene.textures.exists(avatarKey)) {
       heroSprite = this.scene.add.image(hx, hy + 8, avatarKey).setScale(1.2).setOrigin(0.5);
+    } else if (this.scene.textures.exists(playerKey)) {
+      heroSprite = this.scene.add.sprite(hx, hy + 8, playerKey).setScale(1.6).setOrigin(0.5);
     }
 
     if (heroSprite) {
