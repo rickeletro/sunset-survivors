@@ -72,20 +72,34 @@ describe('Pixellab asset migration', () => {
 import { preloadCombatSprites, combatDirection, bossDirection } from './PixellabCombat';
 
 describe('campaign combat sprite files', () => {
-  it('resolves all ten four-direction enemies and every stage-specific boss frame', () => {
+  it('resolves all ten four-direction enemies and every stage-specific boss atlas', () => {
     const allFiles = new Set();
     for (let stage = 1; stage <= 8; stage++) {
       const images = new Map();
-      const scene = { textures: { exists: () => false }, load: { image: (key, path) => images.set(key, path) } };
+      const atlases = new Map();
+      const scene = {
+        textures: { exists: () => false },
+        load: {
+          image: (key, path) => images.set(key, path),
+          atlas: (key, img, json) => atlases.set(key, { img, json }),
+        },
+      };
       preloadCombatSprites(scene, stage);
-      const bossFrames = stage === 1 ? 0 : stage === 4 ? 128 : 64;
-      expect(images.size).toBe(192 + bossFrames);
+      const bossAtlases = stage === 1 ? 0 : stage === 4 ? 2 : 1;
+      expect(images.size).toBe(192);
+      expect(atlases.size).toBe(bossAtlases);
       for (const path of images.values()) {
         expect(existsSync(new URL(`../../public/${path}`, import.meta.url)), path).toBe(true);
         allFiles.add(path);
       }
+      for (const { img, json } of atlases.values()) {
+        expect(existsSync(new URL(`../../public/${img}`, import.meta.url)), img).toBe(true);
+        expect(existsSync(new URL(`../../public/${json}`, import.meta.url)), json).toBe(true);
+        allFiles.add(img);
+        allFiles.add(json);
+      }
     }
-    expect(allFiles.size).toBe(192 + 512);
+    expect(allFiles.size).toBe(192 + 16);
   });
   it('selects screen directions correctly for enemies and mounted bosses', () => {
     expect(combatDirection(1, 0)).toBe('east');

@@ -161,6 +161,40 @@
       "frameHeight": 144
     }
   },
+  "atlases": {
+    "boss:hawkeye-hank-hatfield": {
+      "image": "assets/bosses/pixellab/hawkeye-hank-hatfield/atlas.png",
+      "json": "assets/bosses/pixellab/hawkeye-hank-hatfield/atlas.json"
+    },
+    "boss:dark-horse": {
+      "image": "assets/bosses/pixellab/dark-horse/atlas.png",
+      "json": "assets/bosses/pixellab/dark-horse/atlas.json"
+    },
+    "boss:smith-brother-red": {
+      "image": "assets/bosses/pixellab/smith-brother-red/atlas.png",
+      "json": "assets/bosses/pixellab/smith-brother-red/atlas.json"
+    },
+    "boss:smith-brother-gray": {
+      "image": "assets/bosses/pixellab/smith-brother-gray/atlas.png",
+      "json": "assets/bosses/pixellab/smith-brother-gray/atlas.json"
+    },
+    "boss:el-greco": {
+      "image": "assets/bosses/pixellab/el-greco/atlas.png",
+      "json": "assets/bosses/pixellab/el-greco/atlas.json"
+    },
+    "boss:chief-wigwam": {
+      "image": "assets/bosses/pixellab/chief-wigwam/atlas.png",
+      "json": "assets/bosses/pixellab/chief-wigwam/atlas.json"
+    },
+    "boss:paco-loco": {
+      "image": "assets/bosses/pixellab/paco-loco/atlas.png",
+      "json": "assets/bosses/pixellab/paco-loco/atlas.json"
+    },
+    "boss:sir-richard-rose": {
+      "image": "assets/bosses/pixellab/sir-richard-rose/atlas.png",
+      "json": "assets/bosses/pixellab/sir-richard-rose/atlas.json"
+    }
+  },
   "sequences": {
     "hero:steve": {
       "root": "assets/characters/pixellab/steve/Idle/animations/walking-4-frames",
@@ -336,118 +370,6 @@
         "west"
       ],
       "frames": 4
-    },
-    "boss:hawkeye-hank-hatfield": {
-      "root": "assets/bosses/pixellab/hawkeye-hank-hatfield/Idle/animations/run-attack-eight-directions",
-      "directions": [
-        "south",
-        "south-east",
-        "east",
-        "north-east",
-        "north",
-        "north-west",
-        "west",
-        "south-west"
-      ],
-      "frames": 8
-    },
-    "boss:dark-horse": {
-      "root": "assets/bosses/pixellab/dark-horse/Idle/animations/run-attack-eight-directions",
-      "directions": [
-        "south",
-        "south-east",
-        "east",
-        "north-east",
-        "north",
-        "north-west",
-        "west",
-        "south-west"
-      ],
-      "frames": 8
-    },
-    "boss:smith-brother-red": {
-      "root": "assets/bosses/pixellab/smith-brother-red/Idle/animations/run-attack-eight-directions",
-      "directions": [
-        "south",
-        "south-east",
-        "east",
-        "north-east",
-        "north",
-        "north-west",
-        "west",
-        "south-west"
-      ],
-      "frames": 8
-    },
-    "boss:smith-brother-gray": {
-      "root": "assets/bosses/pixellab/smith-brother-gray/Idle/animations/run-attack-eight-directions",
-      "directions": [
-        "south",
-        "south-east",
-        "east",
-        "north-east",
-        "north",
-        "north-west",
-        "west",
-        "south-west"
-      ],
-      "frames": 8
-    },
-    "boss:el-greco": {
-      "root": "assets/bosses/pixellab/el-greco/Idle/animations/run-attack-eight-directions",
-      "directions": [
-        "south",
-        "south-east",
-        "east",
-        "north-east",
-        "north",
-        "north-west",
-        "west",
-        "south-west"
-      ],
-      "frames": 8
-    },
-    "boss:chief-wigwam": {
-      "root": "assets/bosses/pixellab/chief-wigwam/Idle/animations/run-attack-eight-directions",
-      "directions": [
-        "south",
-        "south-east",
-        "east",
-        "north-east",
-        "north",
-        "north-west",
-        "west",
-        "south-west"
-      ],
-      "frames": 8
-    },
-    "boss:paco-loco": {
-      "root": "assets/bosses/pixellab/paco-loco/Idle/animations/run-attack-eight-directions",
-      "directions": [
-        "south",
-        "south-east",
-        "east",
-        "north-east",
-        "north",
-        "north-west",
-        "west",
-        "south-west"
-      ],
-      "frames": 8
-    },
-    "boss:sir-richard-rose": {
-      "root": "assets/bosses/pixellab/sir-richard-rose/Idle/animations/run-attack-eight-directions",
-      "directions": [
-        "south",
-        "south-east",
-        "east",
-        "north-east",
-        "north",
-        "north-west",
-        "west",
-        "south-west"
-      ],
-      "frames": 8
     },
     "greedwell:run_east": {
       "root": "assets/bosses/pixellab/greedwell/Idle/animations/run_east",

@@ -11,7 +11,11 @@ const walk = dir => existsSync(dir) ? readdirSync(dir, { withFileTypes: true }).
   return item.isDirectory() ? walk(file) : [file];
 }) : [];
 const image = file => /\.(png|jpe?g|webp|svg)$/i.test(file);
-const runtime = new Set([...Object.values(catalog.images), ...Object.values(catalog.sheets).map(s => s.path)]);
+const runtime = new Set([
+  ...Object.values(catalog.images),
+  ...Object.values(catalog.sheets).map(s => s.path),
+  ...(catalog.atlases ? Object.values(catalog.atlases).map(a => a.image) : [])
+]);
 for (const sequence of Object.values(catalog.sequences)) {
   for (const direction of sequence.directions) for (let i = 0; i < sequence.frames; i++) {
     runtime.add(`${sequence.root}/${direction ? `${direction}/` : ''}frame_${String(i).padStart(3, '0')}.png`);
@@ -40,6 +44,7 @@ if (process.argv.includes('--write')) {
   for (const file of walk(path.join(root, 'public/assets')).filter(f => /\.(zip|json)$/i.test(f))) {
     const relative = path.relative(path.join(root, 'public/assets'), file);
     if (!relative.includes(`${path.sep}pixellab${path.sep}`)) continue;
+    if (file.endsWith('atlas.json')) continue;
     const target = path.join(root, 'art/source', relative);
     if (existsSync(target)) throw new Error(`Refusing to overwrite source artifact: ${target}`);
     mkdirSync(path.dirname(target), { recursive: true }); renameSync(file, target);
