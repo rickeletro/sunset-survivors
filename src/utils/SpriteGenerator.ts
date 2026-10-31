@@ -145,9 +145,9 @@ export class SpriteGenerator {
     });
   }
 
-  // 2. Enemies: Bandido, Snake, Dynamiter, Heavy Desperado
+  // 2. Enemies (Zombie Western Pulp): Zombie Bandido, Undead Rattlesnake, Zombie Dynamiter, Zombie Heavy
   private static createEnemyTextures(scene: Phaser.Scene) {
-    // A) Standard Bandido
+    // A) Zombie Bandido (Greenish rotting skin, tattered vest, bloody gashes)
     const canvasBandit = scene.textures.createCanvas('enemy_bandit', 40, 40);
     if (canvasBandit) {
       const ctx = canvasBandit.getContext();
@@ -156,34 +156,55 @@ export class SpriteGenerator {
       ctx.ellipse(20, 36, 12, 4, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // Boots & Pants
-      ctx.fillStyle = '#451a03';
+      // Boots & Ripped Pants
+      ctx.fillStyle = '#292524';
       ctx.fillRect(14, 26, 4, 9);
       ctx.fillRect(22, 26, 4, 9);
+      // Exposed rotting knee bone
+      ctx.fillStyle = '#5a7351';
+      ctx.fillRect(14, 29, 3, 3);
+      ctx.fillStyle = '#a51e16'; // blood
+      ctx.fillRect(13, 28, 2, 2);
 
-      // Torso & Poncho/vest
-      ctx.fillStyle = '#78350f';
+      // Torso & Tattered Poncho/vest
+      ctx.fillStyle = '#451a03';
       ctx.fillRect(13, 16, 14, 11);
-      ctx.fillStyle = '#dc2626'; // red bandana
-      ctx.fillRect(16, 14, 8, 4);
+      // Ripped cloth exposing decaying chest ribs
+      ctx.fillStyle = '#5a7351'; // greenish flesh
+      ctx.fillRect(17, 18, 6, 8);
+      ctx.fillStyle = '#fef08a'; // bone ribs
+      ctx.fillRect(18, 19, 4, 2);
+      ctx.fillRect(18, 22, 4, 2);
+      ctx.fillStyle = '#a51e16'; // dried blood
+      ctx.fillRect(16, 17, 2, 6);
 
-      // Head
-      ctx.fillStyle = '#fed7aa';
+      // Decayed Head with pale greenish zombie skin
+      ctx.fillStyle = '#5a7351';
       ctx.fillRect(16, 10, 8, 6);
-      // Hat
-      ctx.fillStyle = '#292524';
+      // Hollow dark eye sockets with glowing dots
+      ctx.fillStyle = '#120b08';
+      ctx.fillRect(17, 11, 2, 2);
+      ctx.fillRect(21, 11, 2, 2);
+      ctx.fillStyle = '#fef08a'; // eerie yellow glowing pupils
+      ctx.fillRect(17, 11, 1, 1);
+      ctx.fillRect(21, 11, 1, 1);
+
+      // Battered Cowboy Hat with bullet hole
+      ctx.fillStyle = '#1c1917';
       ctx.beginPath();
       ctx.ellipse(20, 9, 12, 3, 0, 0, Math.PI * 2);
       ctx.fill();
       ctx.fillRect(16, 4, 8, 5);
+      ctx.fillStyle = '#120b08'; // bullet hole
+      ctx.fillRect(18, 5, 2, 2);
 
-      // Gun
-      ctx.fillStyle = '#64748b';
+      // Rusted Outlaw Revolver
+      ctx.fillStyle = '#78350f';
       ctx.fillRect(26, 18, 5, 3);
       canvasBandit.refresh();
     }
 
-    // B) Desert Rattlesnake
+    // B) Undead Rattlesnake (Decaying scales, exposed bone, crimson eyes)
     const canvasSnake = scene.textures.createCanvas('enemy_snake', 36, 36);
     if (canvasSnake) {
       const ctx = canvasSnake.getContext();
@@ -192,30 +213,31 @@ export class SpriteGenerator {
       ctx.ellipse(18, 30, 10, 4, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // Coiled Snake body
-      ctx.fillStyle = '#15803d';
+      // Coiled Undead Snake body in rotting moss green
+      ctx.fillStyle = '#36523b';
       ctx.beginPath();
       ctx.arc(18, 20, 10, 0, Math.PI * 2);
       ctx.fill();
 
-      // Scale patterns
-      ctx.fillStyle = '#ca8a04';
+      // Exposed necrotic scales and vertebrae bones
+      ctx.fillStyle = '#e2e8f0'; // skeletal segments
       ctx.fillRect(14, 16, 3, 3);
       ctx.fillRect(19, 17, 3, 3);
+      ctx.fillStyle = '#a51e16'; // gore
       ctx.fillRect(16, 21, 3, 3);
 
-      // Snake Head & Fangs
-      ctx.fillStyle = '#16a34a';
+      // Zombie Snake Head & Fangs
+      ctx.fillStyle = '#4d6343';
       ctx.fillRect(22, 12, 7, 6);
-      ctx.fillStyle = '#ef4444'; // red eyes
+      ctx.fillStyle = '#dc2626'; // glowing undead red eyes
       ctx.fillRect(26, 13, 2, 2);
-      // Forked red tongue
-      ctx.fillStyle = '#dc2626';
+      // Forked necrotic tongue
+      ctx.fillStyle = '#120b08';
       ctx.fillRect(29, 14, 4, 1);
       canvasSnake.refresh();
     }
 
-    // C) Dynamiter Outlaw
+    // C) Zombie Dynamiter Outlaw (Burned rotting flesh, charred inmate rags, sparking dynamite)
     const canvasDynamiter = scene.textures.createCanvas('enemy_dynamiter', 44, 44);
     if (canvasDynamiter) {
       const ctx = canvasDynamiter.getContext();
@@ -224,25 +246,31 @@ export class SpriteGenerator {
       ctx.ellipse(22, 39, 13, 4, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // Blue striped inmate/outlaw trousers
-      ctx.fillStyle = '#1e3a8a';
+      // Torn and charred inmate trousers
+      ctx.fillStyle = '#1e293b';
       ctx.fillRect(15, 28, 5, 11);
       ctx.fillRect(24, 28, 5, 11);
+      ctx.fillStyle = '#5a7351'; // decaying legs showing through rips
+      ctx.fillRect(16, 31, 2, 4);
 
-      // Torso
-      ctx.fillStyle = '#f97316';
+      // Torso in burned inmate rags
+      ctx.fillStyle = '#334155';
       ctx.fillRect(15, 18, 14, 11);
+      ctx.fillStyle = '#a51e16'; // chest wound
+      ctx.fillRect(18, 20, 5, 5);
 
-      // Head & eye patch
-      ctx.fillStyle = '#fed7aa';
+      // Decayed Head with charred burn marks and pale zombie flesh
+      ctx.fillStyle = '#5a7351';
       ctx.fillRect(18, 11, 8, 7);
-      ctx.fillStyle = '#0f172a';
-      ctx.fillRect(19, 13, 3, 3); // eye patch
-      ctx.fillStyle = '#451a03';
-      ctx.fillRect(16, 7, 12, 5); // cap
+      ctx.fillStyle = '#0f172a'; // hollow eye socket
+      ctx.fillRect(19, 13, 3, 3);
+      ctx.fillStyle = '#fef08a'; // glowing eye
+      ctx.fillRect(23, 13, 2, 2);
+      ctx.fillStyle = '#1c1917'; // charred cap
+      ctx.fillRect(16, 7, 12, 5);
 
-      // Raised hand holding burning dynamite stick
-      ctx.fillStyle = '#dc2626';
+      // Raised decayed hand holding burning dynamite stick
+      ctx.fillStyle = '#a51e16';
       ctx.fillRect(30, 8, 4, 10);
       ctx.fillStyle = '#f59e0b';
       ctx.beginPath();
@@ -251,7 +279,7 @@ export class SpriteGenerator {
       canvasDynamiter.refresh();
     }
 
-    // D) Heavy Desperado (Miniboss / Heavy)
+    // D) Zombie Heavy Desperado (Colossal rotting brute with tattered duster)
     const canvasHeavy = scene.textures.createCanvas('enemy_heavy', 52, 52);
     if (canvasHeavy) {
       const ctx = canvasHeavy.getContext();
@@ -260,28 +288,37 @@ export class SpriteGenerator {
       ctx.ellipse(26, 46, 16, 5, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // Bulky legs
-      ctx.fillStyle = '#292524';
+      // Bulky rotting legs
+      ctx.fillStyle = '#1c1917';
       ctx.fillRect(17, 34, 7, 12);
       ctx.fillRect(28, 34, 7, 12);
+      ctx.fillStyle = '#5a7351'; // greenish knee
+      ctx.fillRect(18, 38, 4, 4);
 
-      // Massive chest & leather coat
-      ctx.fillStyle = '#451a03';
+      // Massive chest & shredded leather duster coat
+      ctx.fillStyle = '#321b10';
       ctx.fillRect(14, 19, 24, 16);
-      ctx.fillStyle = '#78350f';
+      ctx.fillStyle = '#5a7351'; // exposed decaying green chest
       ctx.fillRect(18, 20, 16, 15);
+      ctx.fillStyle = '#a51e16'; // huge bloody gash
+      ctx.fillRect(20, 22, 6, 8);
+      ctx.fillStyle = '#fef08a'; // exposed rib bone
+      ctx.fillRect(21, 24, 5, 2);
 
-      // Bandolier across chest
-      ctx.fillStyle = '#f5c518';
+      // Broken bandolier with rusted cartridges
+      ctx.fillStyle = '#78350f';
       ctx.fillRect(16, 22, 3, 3);
       ctx.fillRect(20, 25, 3, 3);
       ctx.fillRect(24, 28, 3, 3);
 
-      // Head, beard, hat
-      ctx.fillStyle = '#fed7aa';
+      // Massive undead head with rotting jaw
+      ctx.fillStyle = '#5a7351';
       ctx.fillRect(21, 11, 10, 8);
-      ctx.fillStyle = '#1c1917';
-      ctx.fillRect(20, 15, 12, 5); // heavy beard
+      ctx.fillStyle = '#1c1917'; // gaping dead mouth / ragged beard
+      ctx.fillRect(20, 15, 12, 5);
+      ctx.fillStyle = '#fef08a'; // glowing hollow eyes
+      ctx.fillRect(23, 12, 2, 2);
+      ctx.fillRect(27, 12, 2, 2);
       ctx.fillStyle = '#78350f';
       ctx.fillRect(17, 7, 18, 5);
       ctx.fillRect(20, 2, 12, 6);
