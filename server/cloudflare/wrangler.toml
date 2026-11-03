@@ -4,8 +4,8 @@ compatibility_date = "2026-10-24"
 workers_dev = true
 
 [vars]
-# CORS uses the origin only, without the GitHub Pages repository path.
-ALLOWED_ORIGINS = "http://localhost:3000,https://rickeletro.github.io"
+# CORS uses the origin only, without path components (RFC 6454).
+ALLOWED_ORIGINS = "http://localhost:3000,https://rickeletro.github.io,https://rickeletro.itch.io,https://*.itch.zone,https://*.ssl.hwcdn.net"
 
 [[d1_databases]]
 binding = "RANKING_DB"

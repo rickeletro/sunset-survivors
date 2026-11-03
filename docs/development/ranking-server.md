@@ -4,7 +4,7 @@
 
 The local Vite server serves GET/POST /api/rankings and stores results in .data/rankings.sqlite, outside dist. The API was checked over HTTP, and a separate isolated production-process check verifies persistence after restart. It does not insert test players in the live database.
 
-The Worker API is deployed at https://sunset-survivors-ranking.rickeletro.workers.dev/api/rankings. It is connected to the remote sunset-survivors D1 database (313d4e66-0b50-4ecb-9432-1e4626872d2d) as RANKING_DB and to the RANKING_WRITES rate limiter (namespace 41981, 120 writes/60 seconds). ALLOWED_ORIGINS permits https://rickeletro.github.io and http://localhost:3000. The rankings table and ranking_score index were previously verified against sqlite_master.
+The Worker API is deployed at https://sunset-survivors-ranking.rickeletro.workers.dev/api/rankings. It is connected to the remote sunset-survivors D1 database (313d4e66-0b50-4ecb-9432-1e4626872d2d) as RANKING_DB and to the RANKING_WRITES rate limiter (namespace 41981, 120 writes/60 seconds). ALLOWED_ORIGINS permits http://localhost:3000, https://rickeletro.github.io, https://rickeletro.itch.io, https://*.itch.zone and https://*.ssl.hwcdn.net. The rankings table and ranking_score index were previously verified against sqlite_master.
 
 Live verification confirmed GET 200 with the GitHub Pages CORS header, OPTIONS 204, POST 400 for an empty batch (after passing the rate limiter), and rejection of another origin with 403. No fake scores were inserted in the production board. Valid batch insertion/idempotence remains covered by the automated database/Worker tests rather than by adding test players to production.
 
@@ -21,7 +21,7 @@ Keep the game on its existing static host. Deploy the ranking Worker separately,
    npx wrangler d1 list
    ```
 
-2. The existing sunset-survivors database ID is already set in server/cloudflare/wrangler.toml; do not create a duplicate database. ALLOWED_ORIGINS already includes https://rickeletro.github.io. Do not append /sunset-survivors/: CORS uses the origin, not the repository path. Keep localhost only if remote-backend development is desired. The rate-limit namespace ID must be unique to this binding in that account.
+2. The existing sunset-survivors database ID is already set in server/cloudflare/wrangler.toml; do not create a duplicate database. ALLOWED_ORIGINS includes https://rickeletro.github.io, https://rickeletro.itch.io, and the itch.zone iframe domains. Do not append /sunset-survivors/: CORS uses the origin, not the repository path. Keep localhost only if remote-backend development is desired. The rate-limit namespace ID must be unique to this binding in that account.
 
 3. Apply the non-destructive schema and deploy:
 

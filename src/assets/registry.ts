@@ -5,6 +5,13 @@ import catalog from './catalog.json';
 export const CATALOG = catalog;
 export type ImageKey = keyof typeof catalog.images;
 export type SequenceKey = keyof typeof catalog.sequences;
+export type AtlasKey = keyof typeof catalog.atlases;
+export function bossAtlas(slug: string): { image: string; json: string } {
+  const key = `boss:${slug}` as AtlasKey;
+  const entry = catalog.atlases[key];
+  if (!entry) throw new Error(`Unknown boss atlas: ${slug}`);
+  return entry;
+}
 export function framePath(sequence: SequenceKey, direction: string, frame: number): string {
   const entry = catalog.sequences[sequence];
   return `${entry.root}/${direction ? `${direction}/` : ''}frame_${String(frame).padStart(3, '0')}.png`;

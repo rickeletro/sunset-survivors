@@ -659,8 +659,10 @@ export class GameScene extends Phaser.Scene {
       const position = this.worldMap.resolve(point.x, point.y + index * 100, 24);
       const legacy = this.stage === 1 && hasGreedwellSprites(this);
       if (legacy) createGreedwellAnims(this);
+      const isPixellabBoss = this.stage > 1;
       const texture = this.stage === 1 ? (legacy ? greedwellFirstFrame('run_east') : 'boss_greedwell') : bossSpriteTexture(this, slug);
-      const sprite = this.add.sprite(position.x, position.y, texture).setScale(legacy ? GREEDWELL_SCALE : this.stage === 1 ? 1.2 : 1.25).setDepth(15);
+      const sprite = this.add.sprite(position.x, position.y, texture, isPixellabBoss ? 'south_0' : undefined).setScale(legacy ? GREEDWELL_SCALE : this.stage === 1 ? 1.2 : 1.25).setDepth(15);
+      if (isPixellabBoss) playBossMovement(sprite, slug, 0, 1);
       const enemy: Enemy = {
         sprite, type: 'boss', hp, maxHp: hp,
         speed: combat.speed, damage: combat.damage, xpVal: 300, bountyVal: ECONOMY.sources.bossBase + this.stage * ECONOMY.sources.bossPerStage,

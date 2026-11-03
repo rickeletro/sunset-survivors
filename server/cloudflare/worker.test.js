@@ -42,3 +42,33 @@ it('accepts the configured GitHub Pages origin without requiring its repository 
     expect((await worker.fetch(request('GET','https://someone-else.github.io'),env)).status).toBe(403);
   } finally {db.close();}
 });
+
+it('accepts the configured itch.io game origin and its iframe domains',async()=>{
+  const {db,env}=fixture();
+  try {
+    const config=readFileSync(new URL('./wrangler.toml',import.meta.url),'utf8');
+    env.ALLOWED_ORIGINS=/ALLOWED_ORIGINS = "([^"]+)"/.exec(config)[1];
+
+    // Direct game origin on itch.io (from https://rickeletro.itch.io/sunset-survivors)
+    const resItch=await worker.fetch(request('OPTIONS','https://rickeletro.itch.io'),env);
+    expect(resItch.status).toBe(204);
+    expect(resItch.headers.get('Access-Control-Allow-Origin')).toBe('https://rickeletro.itch.io');
+
+    // Itch iframe CDN domain (e.g. html-classic.itch.zone or subdomains)
+    const resIframe=await worker.fetch(request('OPTIONS','https://html-classic.itch.zone'),env);
+    expect(resIframe.status).toBe(204);
+    expect(resIframe.headers.get('Access-Control-Allow-Origin')).toBe('https://html-classic.itch.zone');
+
+    const resHwcdn=await worker.fetch(request('OPTIONS','https://v6p9d9t4.ssl.hwcdn.net'),env);
+    expect(resHwcdn.status).toBe(204);
+    expect(resHwcdn.headers.get('Access-Control-Allow-Origin')).toBe('https://v6p9d9t4.ssl.hwcdn.net');
+
+    // POST saves entries from the itch.io origin
+    const post=await worker.fetch(request('POST','https://rickeletro.itch.io',JSON.stringify({entries:[entry]})),env);
+    expect(post.status).toBe(200);
+
+    // Rejects unauthorized itch users
+    expect((await worker.fetch(request('GET','https://someone-else.itch.io'),env)).status).toBe(403);
+    expect((await worker.fetch(request('POST','https://someone-else.itch.io',JSON.stringify({entries:[entry]})),env)).status).toBe(403);
+  } finally {db.close();}
+});

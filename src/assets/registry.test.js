@@ -15,10 +15,16 @@ describe('single runtime asset catalog', () => {
   });
   it('resolves all images, sheets and animated frames to existing public files', () => {
     const paths = new Set([...Object.values(CATALOG.images), ...Object.values(CATALOG.sheets).map(s => s.path)]);
+    if (CATALOG.atlases) {
+      for (const atlas of Object.values(CATALOG.atlases)) {
+        paths.add(atlas.image);
+        paths.add(atlas.json);
+      }
+    }
     for (const [key, sequence] of Object.entries(CATALOG.sequences)) {
       for (const direction of sequence.directions) for (let i = 0; i < sequence.frames; i++) paths.add(framePath(key, direction, i));
     }
-    expect(paths.size).toBe(1052);
+    expect(paths.size).toBe(556);
     for (const path of paths) expect(existsSync(new URL(`../../public/${path}`, import.meta.url)), path).toBe(true);
   });
   it('ships PixelLab PNGs for drops, stage pickups and thrown projectiles at expected native dimensions', () => {
