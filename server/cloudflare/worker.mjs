@@ -2,12 +2,20 @@ import { SURVIVAL_SCORE_SQL } from '../../shared/ranking-score.js';
 import { validateEntry } from '../ranking-validation.mjs';
 const SELECT=`SELECT runId,name,${SURVIVAL_SCORE_SQL} AS score,kills,bounty,stage,level,seconds,character,difficulty FROM rankings ORDER BY score DESC,stage DESC,kills DESC,seconds DESC,runId ASC LIMIT 100`;
 const INSERT='INSERT INTO rankings (runId,name,score,kills,bounty,stage,level,seconds,character,difficulty) VALUES (?,?,?,?,?,?,?,?,?,?) ON CONFLICT(runId) DO NOTHING';
+const isAllowedOrigin=(origin,allowed)=>!!origin&&allowed.some(pattern=>{
+  if (pattern===origin) return true;
+  if (pattern.includes('*')) {
+    const escaped=pattern.split('*').map(s=>s.replace(/[.+?^${}()|[\]\\]/g,'\\$&')).join('.*');
+    return new RegExp('^'+escaped+'$').test(origin);
+  }
+  return false;
+});
 export default {
   async fetch(request,env) {
     const origin=request.headers.get('Origin');
     const allowed=(env.ALLOWED_ORIGINS??'').split(',').map(s=>s.trim()).filter(Boolean);
     const headers={'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','Vary':'Origin','X-Content-Type-Options':'nosniff'};
-    if (origin&&allowed.includes(origin)) {
+    if (isAllowedOrigin(origin,allowed)) {
       headers['Access-Control-Allow-Origin']=origin;
       headers['Access-Control-Allow-Methods']='GET, POST, OPTIONS';
       headers['Access-Control-Allow-Headers']='Content-Type';
@@ -15,7 +23,7 @@ export default {
     }
     const reply=(status,data)=>Response.json(data,{status,headers});
     if (new URL(request.url).pathname!=='/api/rankings') return reply(404,{error:'Not found'});
-    if (origin&&!allowed.includes(origin)) return reply(403,{error:'Invalid origin'});
+    if (origin&&!isAllowedOrigin(origin,allowed)) return reply(403,{error:'Invalid origin'});
     if (request.method==='OPTIONS') return new Response(null,{status:204,headers});
     if (!['GET','POST'].includes(request.method)) return reply(405,{error:'Method not allowed'});
     if (!env.RANKING_DB) return reply(503,{error:'Ranking temporarily unavailable'});
@@ -24,7 +32,7 @@ export default {
         const result=await env.RANKING_DB.prepare(SELECT).all();
         return reply(200,{entries:result.results});
       }
-      if (!origin||!allowed.includes(origin)) return reply(403,{error:'Invalid origin'});
+      if (!isAllowedOrigin(origin,allowed)) return reply(403,{error:'Invalid origin'});
       if (!request.headers.get('Content-Type')?.startsWith('application/json')) return reply(415,{error:'JSON required'});
       if (!env.RANKING_WRITES) return reply(503,{error:'Ranking temporarily unavailable'});
       const rate=await env.RANKING_WRITES.limit({key:`ranking-write:${request.headers.get('CF-Connecting-IP')??'unknown'}`});
