@@ -24,7 +24,7 @@ describe('single runtime asset catalog', () => {
     for (const [key, sequence] of Object.entries(CATALOG.sequences)) {
       for (const direction of sequence.directions) for (let i = 0; i < sequence.frames; i++) paths.add(framePath(key, direction, i));
     }
-    expect(paths.size).toBe(556);
+    expect(paths.size).toBe(554);
     for (const path of paths) expect(existsSync(new URL(`../../public/${path}`, import.meta.url)), path).toBe(true);
   });
   it('ships PixelLab PNGs for drops, stage pickups and thrown projectiles at expected native dimensions', () => {
@@ -63,8 +63,8 @@ describe('single runtime asset catalog', () => {
   it('skips cached textures and fails clearly for a key absent from the catalog', () => {
     const loaded = [];
     const scene = { textures: { exists: key => key === 'intro_bkg' }, load: { image: (key, path) => loaded.push({ key, path }) } };
-    preloadImages(scene, ['intro_bkg', 'intro_logo_new']);
-    expect(loaded).toEqual([{ key: 'intro_logo_new', path: CATALOG.images.intro_logo_new }]);
+    preloadImages(scene, ['intro_bkg', 'intro_cover']);
+    expect(loaded).toEqual([{ key: 'intro_cover', path: CATALOG.images.intro_cover }]);
     expect(() => preloadImages(scene, ['unregistered'])).toThrow('Unknown asset key');
   });
 });

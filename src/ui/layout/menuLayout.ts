@@ -26,3 +26,11 @@ export function menuBackdropScale(viewWidth: number, viewHeight: number, imageWi
   const fit = menuTransform(viewWidth, viewHeight).scale;
   return Math.max(viewWidth / fit / Math.max(1, imageWidth), viewHeight / fit / Math.max(1, imageHeight));
 }
+
+/** Key-art framing in menu-root units: keep the whole cover visible and fill the rest only when the crop is negligible. */
+export function coverArtScale(viewWidth: number, viewHeight: number, imageWidth: number, imageHeight: number, maxCrop = 1.08): number {
+  const cover = menuBackdropScale(viewWidth, viewHeight, imageWidth, imageHeight);
+  const fit = menuTransform(viewWidth, viewHeight).scale;
+  const contain = Math.min(viewWidth / fit / Math.max(1, imageWidth), viewHeight / fit / Math.max(1, imageHeight));
+  return cover / contain <= maxCrop ? cover : contain;
+}

@@ -575,16 +575,14 @@ describe('persistent bank HUD on selection and returning to the title', () => {
     expect(h.scene.events.listeners.get('resume')).toHaveLength(0);
     expect(h.scene.events.listeners.get('wake')).toHaveLength(0);
   });
-  it('refreshes the remaining balance when title or selection resumes instead of showing a fixed amount', () => {
+  it('refreshes the remaining balance when character selection resumes instead of showing a fixed amount', () => {
     const previous=statsManager.getStats();let bank=740;
     const read=vi.spyOn(statsManager,'getStats').mockImplementation(()=>({...previous,bank}));
     try {
-      const title=setup(TitleScene);title.scene.rootContainer=title.scene.add.container(0,0);title.scene.createArcadeHUD();
       const selection=setup(CharacterSelectScene);selection.scene.create();
-      expect(title.labels()).toContain('BANK $740');expect(selection.scene.bankHud.label.text).toBe('BANK $740');
-      bank=140;title.scene.events.emit('resume');selection.scene.events.emit('resume');
-      expect(title.labels()).toContain('BANK $140');expect(selection.scene.bankHud.label.text).toBe('BANK $140');
-      expect(title.labels()).not.toContain('HIGH   $036,250');
+      expect(selection.scene.bankHud.label.text).toBe('BANK $740');
+      bank=140;selection.scene.events.emit('resume');
+      expect(selection.scene.bankHud.label.text).toBe('BANK $140');
       bank=1234567890123;selection.scene.events.emit('wake');
       expect(selection.scene.bankHud.label.scaleX).toBeLessThanOrEqual(1);
     } finally {read.mockRestore();}
